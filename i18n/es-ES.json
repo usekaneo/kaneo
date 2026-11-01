@@ -232,7 +232,10 @@
 			"passwordRequired": "Introduce tu contraseña.",
 			"passwordTooShort": "Usa al menos 8 caracteres.",
 			"disposableEmail": "Usa una dirección de correo permanente. Con direcciones desechables no se pueden crear cuentas.",
-			"continueWithEmail": "Continuar con correo electrónico"
+			"continueWithEmail": "Continuar con correo electrónico",
+			"captchaChecking": "Haciendo una comprobación de seguridad rápida antes de continuar.",
+			"captchaFailed": "La comprobación de seguridad no se ha cargado, así que el inicio de sesión está en pausa. Revisa tu conexión o tu bloqueador de contenido.",
+			"captchaRetry": "Reintentar"
 		},
 		"checkEmail": {
 			"pageTitle": "Verifica tu email",
@@ -3825,7 +3828,11 @@
 		},
 		"board": {
 			"reorderFailed": "Could not move task. Please try again.",
-			"keyboardInstructions": "Pulsa Espacio para ver la vista previa y Enter para abrir esta tarea. Usa Alt u Opción con las flechas para moverla."
+			"keyboardInstructions": "Pulsa Espacio para ver la vista previa y Enter para abrir esta tarea. Usa Alt u Opción con las flechas para moverla.",
+			"loadErrorTitle": "Este tablero no se ha cargado",
+			"loadErrorDescription": "Algo salió mal al obtener sus tareas. Revisa tu conexión e inténtalo de nuevo.",
+			"refreshError": "No se pudo actualizar este tablero, así que puede estar desactualizado.",
+			"tryAgain": "Reintentar"
 		},
 		"toolbar": {
 			"search": "Buscar tareas",

@@ -1,4 +1,5 @@
 import { ShortcutKeys } from "@/components/shortcuts/shortcut-keys";
+import { Link } from "@tanstack/react-router";
 import type { ReactNode } from "react";
 import { useTranslation } from "react-i18next";
 import Layout from "@/components/common/layout";
@@ -37,7 +38,7 @@ export default function WorkspaceLayout({
   const { data: workspace } = useActiveWorkspace();
 
   return (
-    <Layout>
+    <>
       <Layout.Header>
         <div className="flex w-full items-center justify-between gap-2">
           <div className="flex min-w-0 flex-1 items-center gap-1">
@@ -61,7 +62,15 @@ export default function WorkspaceLayout({
                   <>
                     {/* The page title alone identifies the page on phones. */}
                     <BreadcrumbItem className="hidden min-w-0 sm:inline-flex">
-                      <BreadcrumbLink href="/" className="min-w-0 truncate">
+                      <BreadcrumbLink
+                        render={
+                          <Link
+                            to="/dashboard/workspace/$workspaceId"
+                            params={{ workspaceId: workspace.id }}
+                          />
+                        }
+                        className="min-w-0 truncate"
+                      >
                         <span className="text-xs font-normal text-card-foreground">
                           {workspace.name}
                         </span>
@@ -84,6 +93,6 @@ export default function WorkspaceLayout({
         </div>
       </Layout.Header>
       <Layout.Content>{children}</Layout.Content>
-    </Layout>
+    </>
   );
 }

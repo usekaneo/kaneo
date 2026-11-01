@@ -232,7 +232,10 @@
 			"passwordRequired": "Inserisci la tua password.",
 			"passwordTooShort": "Usa almeno 8 caratteri.",
 			"disposableEmail": "Usa un indirizzo email permanente. Con gli indirizzi usa e getta non è possibile creare account.",
-			"continueWithEmail": "Continua con l'email"
+			"continueWithEmail": "Continua con l'email",
+			"captchaChecking": "Breve controllo di sicurezza prima di continuare.",
+			"captchaFailed": "Il controllo di sicurezza non è stato caricato, quindi l'accesso è in pausa. Controlla la connessione o il blocco contenuti.",
+			"captchaRetry": "Riprova"
 		},
 		"checkEmail": {
 			"pageTitle": "Controlla la tua Email",
@@ -3810,7 +3813,11 @@
 		},
 		"board": {
 			"reorderFailed": "Could not move task. Please try again.",
-			"keyboardInstructions": "Premi Spazio per l'anteprima e Invio per aprire questa attività. Usa Alt o Opzione con le frecce per spostarla."
+			"keyboardInstructions": "Premi Spazio per l'anteprima e Invio per aprire questa attività. Usa Alt o Opzione con le frecce per spostarla.",
+			"loadErrorTitle": "Questa bacheca non è stata caricata",
+			"loadErrorDescription": "Si è verificato un problema durante il recupero delle attività. Controlla la connessione e riprova.",
+			"refreshError": "Impossibile aggiornare la bacheca, potrebbe non essere aggiornata.",
+			"tryAgain": "Riprova"
 		},
 		"recurrence": {
 			"daily_many": "Ogni {{count}} giorni",

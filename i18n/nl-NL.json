@@ -232,7 +232,10 @@
 			"passwordRequired": "Vul je wachtwoord in.",
 			"passwordTooShort": "Gebruik minimaal 8 tekens.",
 			"disposableEmail": "Gebruik een permanent e-mailadres. Met wegwerpadressen kun je geen account aanmaken.",
-			"continueWithEmail": "Doorgaan met e-mail"
+			"continueWithEmail": "Doorgaan met e-mail",
+			"captchaChecking": "Even een korte beveiligingscontrole voordat je verdergaat.",
+			"captchaFailed": "De beveiligingscontrole is niet geladen, dus inloggen is gepauzeerd. Controleer je verbinding of contentblocker.",
+			"captchaRetry": "Opnieuw proberen"
 		},
 		"checkEmail": {
 			"pageTitle": "Controleer je e-mail",
@@ -3747,7 +3750,11 @@
 		},
 		"board": {
 			"reorderFailed": "Could not move task. Please try again.",
-			"keyboardInstructions": "Druk op Spatie voor een voorbeeld en op Enter om deze taak te openen. Gebruik Alt of Option met de pijltjestoetsen om haar te verplaatsen."
+			"keyboardInstructions": "Druk op Spatie voor een voorbeeld en op Enter om deze taak te openen. Gebruik Alt of Option met de pijltjestoetsen om haar te verplaatsen.",
+			"loadErrorTitle": "Dit bord is niet geladen",
+			"loadErrorDescription": "Er ging iets mis bij het ophalen van de taken. Controleer je verbinding en probeer het opnieuw.",
+			"refreshError": "Dit bord kon niet worden vernieuwd en is mogelijk niet actueel.",
+			"tryAgain": "Opnieuw proberen"
 		},
 		"recurrence": {
 			"daily_one": "Elke dag",

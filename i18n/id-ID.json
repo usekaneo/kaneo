@@ -232,7 +232,10 @@
 			"passwordRequired": "Masukkan kata sandi Anda.",
 			"passwordTooShort": "Gunakan minimal 8 karakter.",
 			"disposableEmail": "Gunakan alamat email permanen. Alamat email sekali pakai tidak dapat digunakan untuk membuat akun.",
-			"continueWithEmail": "Lanjutkan dengan email"
+			"continueWithEmail": "Lanjutkan dengan email",
+			"captchaChecking": "Menjalankan pemeriksaan keamanan singkat sebelum Anda dapat melanjutkan.",
+			"captchaFailed": "Pemeriksaan keamanan tidak termuat, jadi proses masuk dijeda. Periksa koneksi atau pemblokir konten Anda.",
+			"captchaRetry": "Coba lagi"
 		},
 		"checkEmail": {
 			"pageTitle": "Periksa Email Anda",
@@ -3684,7 +3687,11 @@
 		},
 		"board": {
 			"reorderFailed": "Could not move task. Please try again.",
-			"keyboardInstructions": "Tekan Spasi untuk pratinjau dan Enter untuk membuka tugas ini. Gunakan Alt atau Option dengan tombol panah untuk memindahkannya."
+			"keyboardInstructions": "Tekan Spasi untuk pratinjau dan Enter untuk membuka tugas ini. Gunakan Alt atau Option dengan tombol panah untuk memindahkannya.",
+			"loadErrorTitle": "Papan ini tidak termuat",
+			"loadErrorDescription": "Terjadi masalah saat mengambil tugasnya. Periksa koneksi Anda dan coba lagi.",
+			"refreshError": "Papan ini tidak dapat diperbarui, jadi mungkin belum terbaru.",
+			"tryAgain": "Coba lagi"
 		},
 		"recurrence": {
 			"daily_other": "Setiap {{count}} hari",

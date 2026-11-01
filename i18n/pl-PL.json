@@ -232,7 +232,10 @@
 			"passwordRequired": "Podaj hasło.",
 			"passwordTooShort": "Użyj co najmniej 8 znaków.",
 			"disposableEmail": "Użyj stałego adresu e-mail. Na adresy jednorazowe nie można zakładać kont.",
-			"continueWithEmail": "Kontynuuj z e-mailem"
+			"continueWithEmail": "Kontynuuj z e-mailem",
+			"captchaChecking": "Trwa szybka kontrola bezpieczeństwa, zanim przejdziesz dalej.",
+			"captchaFailed": "Kontrola bezpieczeństwa się nie załadowała, więc logowanie jest wstrzymane. Sprawdź połączenie lub bloker treści.",
+			"captchaRetry": "Spróbuj ponownie"
 		},
 		"checkEmail": {
 			"pageTitle": "Sprawdź e-mail",
@@ -4161,7 +4164,11 @@
 		},
 		"board": {
 			"reorderFailed": "Could not move task. Please try again.",
-			"keyboardInstructions": "Naciśnij Spację, aby wyświetlić podgląd, i Enter, aby otworzyć to zadanie. Użyj Alt lub Option ze strzałkami, aby je przenieść."
+			"keyboardInstructions": "Naciśnij Spację, aby wyświetlić podgląd, i Enter, aby otworzyć to zadanie. Użyj Alt lub Option ze strzałkami, aby je przenieść.",
+			"loadErrorTitle": "Ta tablica się nie załadowała",
+			"loadErrorDescription": "Coś poszło nie tak podczas pobierania zadań. Sprawdź połączenie i spróbuj ponownie.",
+			"refreshError": "Nie udało się odświeżyć tablicy, więc może być nieaktualna.",
+			"tryAgain": "Spróbuj ponownie"
 		},
 		"recurrence": {
 			"daily_few": "Co {{count}} dni",

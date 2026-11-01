@@ -232,7 +232,10 @@
 			"passwordRequired": "請輸入密碼。",
 			"passwordTooShort": "請至少使用 8 個字元。",
 			"disposableEmail": "請使用長期有效的電子郵件地址。拋棄式地址無法建立帳號。",
-			"continueWithEmail": "使用電子郵件繼續"
+			"continueWithEmail": "使用電子郵件繼續",
+			"captchaChecking": "正在進行快速安全檢查，完成後即可繼續。",
+			"captchaFailed": "安全檢查未能載入，因此登入已暫停。請檢查網路連線或內容封鎖器。",
+			"captchaRetry": "重試"
 		},
 		"checkEmail": {
 			"pageTitle": "請查看你的電子郵件",
@@ -3684,7 +3687,11 @@
 		},
 		"board": {
 			"reorderFailed": "無法移動任務，請再試一次。",
-			"keyboardInstructions": "按空白鍵預覽，按 Enter 開啟此任務。按住 Alt 或 Option 並使用方向鍵移動任務。"
+			"keyboardInstructions": "按空白鍵預覽，按 Enter 開啟此任務。按住 Alt 或 Option 並使用方向鍵移動任務。",
+			"loadErrorTitle": "此看板未能載入",
+			"loadErrorDescription": "取得任務時發生錯誤。請檢查網路連線後再試一次。",
+			"refreshError": "無法重新整理此看板，內容可能不是最新的。",
+			"tryAgain": "重試"
 		},
 		"recurrence": {
 			"daily_other": "每 {{count}} 天",

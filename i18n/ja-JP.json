@@ -232,7 +232,10 @@
 			"passwordRequired": "パスワードを入力してください。",
 			"passwordTooShort": "8文字以上で入力してください。",
 			"disposableEmail": "恒久的なメールアドレスを使用してください。使い捨てのメールアドレスではアカウントを作成できません。",
-			"continueWithEmail": "メールアドレスで続ける"
+			"continueWithEmail": "メールアドレスで続ける",
+			"captchaChecking": "続行する前に簡単なセキュリティチェックを行っています。",
+			"captchaFailed": "セキュリティチェックを読み込めなかったため、サインインを一時停止しています。接続またはコンテンツブロッカーを確認してください。",
+			"captchaRetry": "再試行"
 		},
 		"checkEmail": {
 			"pageTitle": "メールを確認してください",
@@ -3684,7 +3687,11 @@
 		},
 		"board": {
 			"reorderFailed": "Could not move task. Please try again.",
-			"keyboardInstructions": "Space でプレビュー、Enter でこのタスクを開きます。Alt または Option と矢印キーで移動できます。"
+			"keyboardInstructions": "Space でプレビュー、Enter でこのタスクを開きます。Alt または Option と矢印キーで移動できます。",
+			"loadErrorTitle": "このボードを読み込めませんでした",
+			"loadErrorDescription": "タスクの取得中に問題が発生しました。接続を確認して、もう一度お試しください。",
+			"refreshError": "ボードを更新できなかったため、内容が古い可能性があります。",
+			"tryAgain": "再試行"
 		},
 		"recurrence": {
 			"daily_other": "{{count}}日ごと",

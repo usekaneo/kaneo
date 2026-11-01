@@ -232,7 +232,10 @@
 			"passwordRequired": "Parolunuzu daxil edin.",
 			"passwordTooShort": "Ən azı 8 simvoldan istifadə edin.",
 			"disposableEmail": "Daimi e-poçt ünvanından istifadə edin. Birdəfəlik ünvanlarla hesab yaratmaq olmur.",
-			"continueWithEmail": "E-poçtla davam et"
+			"continueWithEmail": "E-poçtla davam et",
+			"captchaChecking": "Davam etməzdən əvvəl qısa təhlükəsizlik yoxlaması aparılır.",
+			"captchaFailed": "Təhlükəsizlik yoxlaması yüklənmədi, buna görə giriş dayandırılıb. Bağlantınızı və ya məzmun bloklayıcınızı yoxlayın.",
+			"captchaRetry": "Yenidən cəhd et"
 		},
 		"checkEmail": {
 			"pageTitle": "E-poçtunuzu yoxlayın",
@@ -3747,7 +3750,11 @@
 		},
 		"board": {
 			"reorderFailed": "Could not move task. Please try again.",
-			"keyboardInstructions": "Önbaxış üçün Boşluq, bu tapşırığı açmaq üçün Enter düyməsini basın. Köçürmək üçün Alt və ya Option ilə ox düymələrindən istifadə edin."
+			"keyboardInstructions": "Önbaxış üçün Boşluq, bu tapşırığı açmaq üçün Enter düyməsini basın. Köçürmək üçün Alt və ya Option ilə ox düymələrindən istifadə edin.",
+			"loadErrorTitle": "Bu lövhə yüklənmədi",
+			"loadErrorDescription": "Tapşırıqlar alınarkən xəta baş verdi. Bağlantınızı yoxlayın və yenidən cəhd edin.",
+			"refreshError": "Lövhəni yeniləmək mümkün olmadı, ona görə köhnə ola bilər.",
+			"tryAgain": "Yenidən cəhd et"
 		},
 		"recurrence": {
 			"daily_one": "Hər gün",

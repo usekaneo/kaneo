@@ -1,5 +1,5 @@
 import { useQueryClient } from "@tanstack/react-query";
-import { useNavigate } from "@tanstack/react-router";
+import { useNavigate, useRouter } from "@tanstack/react-router";
 import { useCallback, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import useAuth from "@/components/providers/auth-provider/hooks/use-auth";
@@ -12,6 +12,7 @@ import { getBilling } from "@/fetchers/billing/get-billing";
 import { useCreateCheckout } from "@/hooks/mutations/billing/use-billing-actions";
 import useSignOut from "@/hooks/mutations/use-sign-out";
 import useGetConfig from "@/hooks/queries/config/use-get-config";
+import { prefetchBoard } from "@/hooks/queries/task/prefetch-board";
 import useCreateWorkspace from "@/hooks/queries/workspace/use-create-workspace";
 import useWorkspaceCreationAccess from "@/hooks/use-workspace-creation-access";
 import { track } from "@/lib/analytics/track";
@@ -50,6 +51,7 @@ type CreatedWorkspace = { workspaceId: string; projectId: string | null };
 export function OnboardingFlow() {
   const { t } = useTranslation();
   const navigate = useNavigate();
+  const router = useRouter();
   const queryClient = useQueryClient();
   const { user } = useAuth();
   const { mutateAsync: createWorkspace } = useCreateWorkspace();
@@ -122,13 +124,21 @@ export function OnboardingFlow() {
         userId: user?.id,
       });
       track("Workspace Created", { props: { usage } });
-      await queryClient.invalidateQueries({ queryKey: ["workspaces"] });
       await authClient.organization.setActive({ organizationId: workspace.id });
       const projectId = await createStarterProject({
         workspaceId: workspace.id,
         name: projectName.trim(),
         tasks: starterTasks(t, usage),
       }).catch(() => null);
+      if (projectId) {
+        void router
+          .preloadRoute({
+            to: "/dashboard/workspace/$workspaceId/project/$projectId/board",
+            params: { workspaceId: workspace.id, projectId },
+          })
+          .catch(() => undefined);
+        void prefetchBoard(queryClient, projectId);
+      }
       await queryClient.invalidateQueries({ queryKey: ["projects"] });
 
       let trialState: TrialState = { kind: "none" };

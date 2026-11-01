@@ -232,7 +232,10 @@
 			"passwordRequired": "Saisissez votre mot de passe.",
 			"passwordTooShort": "Utilisez au moins 8 caractères.",
 			"disposableEmail": "Utilisez une adresse e-mail permanente. Les adresses jetables ne permettent pas de créer un compte.",
-			"continueWithEmail": "Continuer avec l'e-mail"
+			"continueWithEmail": "Continuer avec l'e-mail",
+			"captchaChecking": "Vérification de sécurité rapide avant de continuer.",
+			"captchaFailed": "La vérification de sécurité ne s'est pas chargée, la connexion est donc en pause. Vérifiez votre connexion ou votre bloqueur de contenu.",
+			"captchaRetry": "Réessayer"
 		},
 		"checkEmail": {
 			"pageTitle": "Vérifier vos mails",
@@ -3810,7 +3813,11 @@
 		},
 		"board": {
 			"reorderFailed": "Impossible de déplacer la tâche. Veuillez réessayer.",
-			"keyboardInstructions": "Appuyez sur Espace pour l'aperçu et sur Entrée pour ouvrir cette tâche. Utilisez Alt ou Option avec les flèches pour la déplacer."
+			"keyboardInstructions": "Appuyez sur Espace pour l'aperçu et sur Entrée pour ouvrir cette tâche. Utilisez Alt ou Option avec les flèches pour la déplacer.",
+			"loadErrorTitle": "Ce tableau ne s'est pas chargé",
+			"loadErrorDescription": "Un problème est survenu lors de la récupération des tâches. Vérifiez votre connexion et réessayez.",
+			"refreshError": "Impossible d'actualiser ce tableau, il n'est peut-être pas à jour.",
+			"tryAgain": "Réessayer"
 		},
 		"recurrence": {
 			"daily_many": "Tous les {{count}} jours",

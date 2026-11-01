@@ -34,7 +34,11 @@ export function UserAvatar() {
   const handleSignOut = async () => {
     try {
       await signOut();
-      queryClient.clear();
+      queryClient.removeQueries({
+        predicate: ({ queryKey }) =>
+          queryKey[0] !== "config" && queryKey[0] !== "instance-status",
+      });
+      queryClient.getMutationCache().clear();
       setProject(undefined);
       toast.success(t("navigation:userMenu.signedOutSuccess"), {
         icon: LogOutIcon,

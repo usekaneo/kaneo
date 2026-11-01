@@ -7,6 +7,7 @@ import BacklogListView from "@/components/backlog-list-view";
 import { BacklogToolbarActions } from "@/components/backlog-list-view/backlog-toolbar-actions";
 import ProjectLayout from "@/components/common/project-layout";
 import PageTitle from "@/components/page-title";
+import { BoardLoadError } from "@/components/project/board-load-error";
 import { TaskDisplayOptions } from "@/components/project/display/task-display-options";
 import { ActiveFiltersBar } from "@/components/project/task-filters/active-filters-bar";
 import { ProjectToolbar } from "@/components/project/toolbar/project-toolbar";
@@ -22,6 +23,7 @@ import { sortTasks } from "@/lib/sort-tasks";
 import { countBacklogTasks } from "@/lib/task-filters/count-tasks";
 import { toast } from "@/lib/toast";
 import useProjectStore from "@/store/project";
+import type { ProjectWithTasks } from "@/types/project";
 
 type BacklogSearchParams = {
   taskId?: string;
@@ -41,8 +43,15 @@ function RouteComponent() {
   const { projectId, workspaceId } = Route.useParams();
   const { taskId } = Route.useSearch();
   const navigate = useNavigate();
-  const { data } = useGetTasks(projectId);
-  const { project, setProject } = useProjectStore();
+  const {
+    data,
+    isError: backlogError,
+    isFetching: backlogFetching,
+    refetch: retryBacklog,
+  } = useGetTasks(projectId);
+  const { project: storedProject, setProject } = useProjectStore();
+  const project: ProjectWithTasks | undefined =
+    storedProject?.id === projectId ? storedProject : data;
   const [isTaskModalOpen, setIsTaskModalOpen] = useState(false);
   const [isMoveAllOpen, setIsMoveAllOpen] = useState(false);
   const [moveAllCount, setMoveAllCount] = useState(0);
@@ -178,11 +187,17 @@ function RouteComponent() {
         <div className="flex-1 overflow-hidden bg-card h-full">
           {sortedProject ? (
             <BacklogListView
+              key={projectId}
               project={sortedProject}
               disableDragDrop={sort.field !== "position"}
             />
+          ) : backlogError ? (
+            <BoardLoadError
+              isRetrying={backlogFetching}
+              onRetry={() => void retryBacklog()}
+            />
           ) : (
-            <div className="flex h-full items-center justify-center">
+            <div className="delayed-reveal flex h-full items-center justify-center">
               <div className="text-center space-y-4">
                 <div className="w-16 h-16 bg-muted rounded-lg animate-pulse mx-auto" />
                 <div className="space-y-2">

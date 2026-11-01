@@ -232,7 +232,10 @@
 			"passwordRequired": "Gib dein Passwort ein.",
 			"passwordTooShort": "Verwende mindestens 8 Zeichen.",
 			"disposableEmail": "Verwende eine dauerhafte E-Mail-Adresse. Mit Wegwerfadressen können keine Konten erstellt werden.",
-			"continueWithEmail": "Weiter mit E-Mail"
+			"continueWithEmail": "Weiter mit E-Mail",
+			"captchaChecking": "Kurze Sicherheitsprüfung, bevor es weitergeht.",
+			"captchaFailed": "Die Sicherheitsprüfung wurde nicht geladen, daher ist die Anmeldung pausiert. Prüfe deine Verbindung oder deinen Inhaltsblocker.",
+			"captchaRetry": "Erneut versuchen"
 		},
 		"checkEmail": {
 			"pageTitle": "Prüfe deine E-Mails",
@@ -3747,7 +3750,11 @@
 		},
 		"board": {
 			"reorderFailed": "Die Reihenfolge konnte nicht gespeichert werden.",
-			"keyboardInstructions": "Drücke die Leertaste für die Vorschau und Enter, um diese Aufgabe zu öffnen. Mit Alt oder Option und den Pfeiltasten verschiebst du sie."
+			"keyboardInstructions": "Drücke die Leertaste für die Vorschau und Enter, um diese Aufgabe zu öffnen. Mit Alt oder Option und den Pfeiltasten verschiebst du sie.",
+			"loadErrorTitle": "Dieses Board wurde nicht geladen",
+			"loadErrorDescription": "Beim Abrufen der Aufgaben ist etwas schiefgelaufen. Prüfe deine Verbindung und versuche es erneut.",
+			"refreshError": "Das Board konnte nicht aktualisiert werden und ist eventuell nicht aktuell.",
+			"tryAgain": "Erneut versuchen"
 		},
 		"recurrence": {
 			"daily_one": "Jeden Tag",
