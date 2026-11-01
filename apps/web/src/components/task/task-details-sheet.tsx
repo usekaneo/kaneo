@@ -52,6 +52,7 @@ export default function TaskDetailsSheet({
   }, [taskId]);
 
   const closeButtonRef = useRef<HTMLButtonElement>(null);
+  const openedFromKeyboardRef = useRef(false);
 
   const handleOpenFullPage = useCallback(() => {
     if (!shownTaskId) return;
@@ -71,14 +72,20 @@ export default function TaskDetailsSheet({
         side="right"
         data-task-view
         data-shortcuts="allow"
-        className="w-full max-w-full gap-0 p-0 sm:max-w-lg md:max-w-2xl lg:max-w-4xl [&>button]:hidden"
+        className="w-full max-w-full gap-0 p-0 outline-none sm:max-w-lg md:max-w-2xl lg:max-w-4xl [&>button]:hidden"
         // Focusing the first control would pop the "open in full page"
         // tooltip over the actions every time the sheet opens on touch.
-        initialFocus={closeButtonRef}
+        initialFocus={() => {
+          openedFromKeyboardRef.current =
+            document.activeElement?.matches(":focus-visible") ?? false;
+          return closeButtonRef.current ?? true;
+        }}
         finalFocus={() =>
-          document.querySelector<HTMLElement>(
+          openedFromKeyboardRef.current &&
+          (document.querySelector<HTMLElement>(
             `[data-task-id="${lastTaskIdRef.current}"]`,
-          ) ?? true
+          ) ??
+            true)
         }
       >
         {shownTaskId && (
