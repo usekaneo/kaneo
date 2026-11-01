@@ -1977,6 +1977,39 @@
 			"checkoutSuccess": {
 				"title": "Abunə olduğunuz üçün təşəkkürlər",
 				"description": "Ödəniş alındı. Aşağıdakı plan təsdiqləndikdən sonra yenilənəcək."
+			},
+			"ai": {
+				"title": "AI credit",
+				"description": "Prepaid balance shared by everyone in this workspace. Used by the assistant and automations.",
+				"available": "Available",
+				"reserved": "{{amount}} on hold for running requests or costs awaiting confirmation, out of {{balance}} total.",
+				"depleted": "AI requests are paused until you add credit. Everything else in Kaneo keeps working.",
+				"trial": "Each workspace owner gets $1 of free credit once, after verifying their email. There's no monthly allowance, and credit doesn't refill automatically.",
+				"adminOnly": "Only workspace admins can add credit.",
+				"unavailable": "Buying credit isn't set up on this instance yet.",
+				"purchaseError": "Couldn't open checkout. Try again.",
+				"loadError": "Couldn't load AI credit.",
+				"retry": "Try again",
+				"history": "Recent activity",
+				"date": "Date",
+				"activity": "Activity",
+				"amount": "Amount",
+				"usage": "AI usage",
+				"trialEntry": "Trial credit",
+				"topup": "Credit purchase",
+				"reversal": "Payment reversal",
+				"disabled": "AI billing is disabled on this instance.",
+				"paymentPending": "Thanks! Your credit appears here once the payment is confirmed. This page updates on its own.",
+				"pricing": "AI usage costs {{multiplier}}× the model provider's price. Before each request, we hold enough credit for the model's maximum request size, then return whatever isn't used.",
+				"pausedBadge": "Paused",
+				"depletedMember": "AI requests are paused until an admin adds credit. Everything else in Kaneo keeps working.",
+				"addTitle": "Add credit",
+				"addDescription": "One-time payment of {{minimum}} or more. No subscription.",
+				"amountLabel": "Amount in US dollars",
+				"amountInvalid": "Enter an amount in dollars and cents, like 12.50.",
+				"amountMinimum": "The minimum is {{amount}}.",
+				"amountMaximum": "The maximum is {{amount}}.",
+				"checkout": "Continue to checkout"
 			}
 		},
 		"syncRules": {
@@ -5210,7 +5243,8 @@
 			"generic": "The agent couldn't do that. Try again.",
 			"rateLimited": "You've started a lot of runs. Wait a minute and try again.",
 			"unavailable": "The agent isn't available on this instance right now.",
-			"unsupportedAttachments": "This model can't read the attached images or files. Remove them and try again."
+			"unsupportedAttachments": "This model can't read the attached images or files. Remove them and try again.",
+			"aiCredit": "AI credit is depleted or reserved. Add credit in workspace billing to continue."
 		},
 		"home": {
 			"examples": {

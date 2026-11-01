@@ -1,3 +1,5 @@
+import { aiBillingEnabled } from "../../billing/ai/config";
+import { initializeWallet } from "../../billing/ai/wallet";
 import { and, count, eq, gte, inArray, sql } from "drizzle-orm";
 import { schema } from "../../database";
 import type { AgentDatabase } from "../access";
@@ -88,6 +90,11 @@ export async function queueAutomationRun(
       ),
     );
   if (existing) return { queued: true, runId: existing.id };
+  if (aiBillingEnabled()) {
+    const wallet = await initializeWallet(automation.workspaceId, database);
+    if (wallet.balance <= wallet.reserved)
+      return { queued: false, reason: "budget" };
+  }
   const ownedConversations = database
     .select({ id: schema.agentConversationTable.id })
     .from(schema.agentConversationTable)

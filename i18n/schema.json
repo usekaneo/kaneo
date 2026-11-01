@@ -10206,6 +10206,138 @@
 								}
 							},
 							"required": ["title", "description"]
+						},
+						"ai": {
+							"type": "object",
+							"additionalProperties": false,
+							"properties": {
+								"title": {
+									"type": "string"
+								},
+								"description": {
+									"type": "string"
+								},
+								"available": {
+									"type": "string"
+								},
+								"reserved": {
+									"type": "string"
+								},
+								"depleted": {
+									"type": "string"
+								},
+								"trial": {
+									"type": "string"
+								},
+								"adminOnly": {
+									"type": "string"
+								},
+								"unavailable": {
+									"type": "string"
+								},
+								"purchaseError": {
+									"type": "string"
+								},
+								"loadError": {
+									"type": "string"
+								},
+								"retry": {
+									"type": "string"
+								},
+								"history": {
+									"type": "string"
+								},
+								"date": {
+									"type": "string"
+								},
+								"activity": {
+									"type": "string"
+								},
+								"amount": {
+									"type": "string"
+								},
+								"usage": {
+									"type": "string"
+								},
+								"trialEntry": {
+									"type": "string"
+								},
+								"topup": {
+									"type": "string"
+								},
+								"reversal": {
+									"type": "string"
+								},
+								"disabled": {
+									"type": "string"
+								},
+								"paymentPending": {
+									"type": "string"
+								},
+								"pricing": {
+									"type": "string"
+								},
+								"pausedBadge": {
+									"type": "string"
+								},
+								"depletedMember": {
+									"type": "string"
+								},
+								"addTitle": {
+									"type": "string"
+								},
+								"addDescription": {
+									"type": "string"
+								},
+								"amountLabel": {
+									"type": "string"
+								},
+								"amountInvalid": {
+									"type": "string"
+								},
+								"amountMinimum": {
+									"type": "string"
+								},
+								"amountMaximum": {
+									"type": "string"
+								},
+								"checkout": {
+									"type": "string"
+								}
+							},
+							"required": [
+								"title",
+								"description",
+								"available",
+								"reserved",
+								"depleted",
+								"trial",
+								"adminOnly",
+								"unavailable",
+								"purchaseError",
+								"loadError",
+								"retry",
+								"history",
+								"date",
+								"activity",
+								"amount",
+								"usage",
+								"trialEntry",
+								"topup",
+								"reversal",
+								"disabled",
+								"paymentPending",
+								"pricing",
+								"pausedBadge",
+								"depletedMember",
+								"addTitle",
+								"addDescription",
+								"amountLabel",
+								"amountInvalid",
+								"amountMinimum",
+								"amountMaximum",
+								"checkout"
+							]
 						}
 					},
 					"required": [
@@ -10234,7 +10366,8 @@
 						"trialCard",
 						"expiredCallout",
 						"openFailed",
-						"checkoutSuccess"
+						"checkoutSuccess",
+						"ai"
 					]
 				},
 				"chatIntegrations": {
@@ -22245,6 +22378,9 @@
 						},
 						"unsupportedAttachments": {
 							"type": "string"
+						},
+						"aiCredit": {
+							"type": "string"
 						}
 					},
 					"required": [
@@ -22254,7 +22390,8 @@
 						"unavailable",
 						"entitlement",
 						"forbidden",
-						"unsupportedAttachments"
+						"unsupportedAttachments",
+						"aiCredit"
 					]
 				},
 				"automations": {

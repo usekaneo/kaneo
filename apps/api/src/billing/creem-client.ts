@@ -5,6 +5,7 @@ import { creemApiKey } from "./config";
 function creemClient() {
   return new Creem({
     apiKey: creemApiKey(),
+    timeoutMs: 30000,
     server: process.env.CREEM_TEST_MODE === "true" ? "test" : "prod",
   });
 }
@@ -12,6 +13,7 @@ function creemClient() {
 export async function createCheckoutSession(input: {
   productId: string;
   units: number;
+  customPrice?: number;
   successUrl: string;
   requestId: string;
   customerEmail: string;
@@ -21,6 +23,9 @@ export async function createCheckoutSession(input: {
     const checkout = await creemClient().checkouts.create({
       productId: input.productId,
       units: input.units,
+      ...(input.customPrice === undefined
+        ? {}
+        : { customPrice: input.customPrice }),
       successUrl: input.successUrl,
       requestId: input.requestId,
       customer: { email: input.customerEmail },
@@ -30,9 +35,9 @@ export async function createCheckoutSession(input: {
     if (!checkout.checkoutUrl) {
       throw new Error("Checkout session has no URL");
     }
-    return { checkoutUrl: checkout.checkoutUrl };
-  } catch (error) {
-    console.error("Creem checkout creation failed:", error);
+    return { checkoutUrl: checkout.checkoutUrl, checkoutId: checkout.id };
+  } catch {
+    console.error("Creem checkout creation failed");
     throw new HTTPException(502, {
       message: "Billing provider request failed",
     });

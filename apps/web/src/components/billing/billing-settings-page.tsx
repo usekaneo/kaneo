@@ -1,3 +1,4 @@
+import { AiCreditCard } from "./ai-credit-card";
 import { useRef } from "react";
 import { useTranslation } from "react-i18next";
 import { CheckoutSuccessCallout } from "@/components/billing/checkout-success-callout";
@@ -21,7 +22,7 @@ export function BillingSettingsPage({
   onDismissCheckout,
 }: BillingSettingsPageProps) {
   const { t } = useTranslation();
-  const { workspace, isAdmin } = useWorkspacePermission();
+  const { workspace, isAdmin, canManageSettings } = useWorkspacePermission();
   const workspaceId = workspace?.id;
   const { data: billing, isLoading } = useGetBilling(workspaceId);
   const planPickerRef = useRef<HTMLDivElement>(null);
@@ -83,6 +84,15 @@ export function BillingSettingsPage({
             onChoosePlan={scrollToPlanPicker}
           />
         </SettingsSection>
+
+        {workspaceId ? (
+          <AiCreditCard
+            key={workspaceId}
+            workspaceId={workspaceId}
+            canManage={canManageSettings()}
+            checkout={checkout}
+          />
+        ) : null}
 
         {showPlanPicker ? (
           <div ref={planPickerRef} className="scroll-mt-6">

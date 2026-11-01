@@ -1,3 +1,4 @@
+import { isCloud } from "../../utils/is-cloud";
 import { createPrivateKey } from "node:crypto";
 import { z } from "zod";
 import { resolveGithubPrivateKey } from "../../plugins/github/utils/github-app-client";
@@ -28,6 +29,7 @@ export type CodeJobsConfig = z.infer<typeof settingsSchema> & {
  * Invalid or missing values hide coding jobs without affecting the assistant.
  */
 export function getCodeJobsConfig(): CodeJobsConfig | null {
+  if (isCloud()) return null;
   let privateKey: string;
   try {
     privateKey = resolveGithubPrivateKey("KANEO_AGENT_GITHUB_APP_PRIVATE_KEY");
