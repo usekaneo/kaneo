@@ -99,7 +99,9 @@ export async function requireTaskAssigneePermission(c: Context, proceed: Next) {
         assigneeIds: Array.isArray(assigneeIds)
           ? assigneeIds.filter((v): v is string => typeof v === "string")
           : undefined,
-        userId: typeof userId === "string" ? userId : null,
+        // Absent means "do not touch assignees"; only an explicit null unassigns.
+        userId:
+          typeof userId === "string" || userId === null ? userId : undefined,
       },
       { primary: existingTask.userId, ids: current },
     );

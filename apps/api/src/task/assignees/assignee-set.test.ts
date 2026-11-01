@@ -49,7 +49,9 @@ describe("assignee set rules", () => {
       "b",
     ]);
     expect(resolveRequestedAssignees({ userId: "c" }, current)).toEqual(["c"]);
-    expect(resolveRequestedAssignees({}, current)).toEqual([]);
+    // Neither field sent means "do not touch assignees"; explicit values still do.
+    expect(resolveRequestedAssignees({}, current)).toEqual(["a", "b"]);
+    expect(resolveRequestedAssignees({ userId: "" }, current)).toEqual([]);
     expect(resolveRequestedAssignees({ userId: null }, current)).toEqual([]);
   });
 

@@ -1,4 +1,7 @@
-import { pruneAssignees } from "../../task/assignees/task-assignees";
+import {
+  filterUnassignedTasks,
+  pruneAssignees,
+} from "../../task/assignees/task-assignees";
 import { and, eq, inArray, isNotNull, max, notInArray, sql } from "drizzle-orm";
 import { HTTPException } from "hono/http-exception";
 import createActivities from "../../activity/controllers/create-activities";
@@ -261,14 +264,23 @@ async function moveProject(
         );
 
       // Keep history atomic with the move while bounding each insert's size.
+      // Only tasks left with nobody on them get an "unassigned" entry.
+      const emptied = new Set(
+        await filterUnassignedTasks(
+          tx,
+          unassigned.map((task) => task.id),
+        ),
+      );
       await createActivities(
-        unassigned.map((task) => ({
-          taskId: task.id,
-          type: "unassigned",
-          userId: currentUserId,
-          content: null,
-          eventData: {},
-        })),
+        unassigned
+          .filter((task) => emptied.has(task.id))
+          .map((task) => ({
+            taskId: task.id,
+            type: "unassigned",
+            userId: currentUserId,
+            content: null,
+            eventData: {},
+          })),
         tx,
       );
 

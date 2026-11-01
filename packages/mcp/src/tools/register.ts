@@ -49,7 +49,7 @@ const assigneeIdsSchema = z
   .array(nonEmptyString)
   .max(20)
   .describe(
-    "Every assignee's user ID. The first is the primary assignee. An empty array unassigns.",
+    "The complete set of assignee user IDs; it replaces the current set. On create the first is the primary assignee. On update the current primary assignee keeps that role while it stays in the set (reordering does nothing); otherwise the first ID becomes primary. An empty array unassigns.",
   );
 const isoDateTimeSchema = z.string().datetime({ offset: true });
 const optionalIsoDateTimeSchema = isoDateTimeSchema.optional();

@@ -39,6 +39,9 @@ export function resolveRequestedAssignees(
   current: { primary: string | null; ids: readonly string[] },
 ): string[] {
   if (input.assigneeIds != null) return normalizeAssigneeIds(input.assigneeIds);
+  // Neither field sent (for example a title edit that does not touch
+  // assignees): nothing to change. An explicit null or "" still unassigns.
+  if (input.userId === undefined) return [...current.ids];
   const userId = input.userId?.trim() || null;
   // A stored primary can be missing while co-assignees remain (rows written
   // before a hand-over existed); the first assignee is what readers report.

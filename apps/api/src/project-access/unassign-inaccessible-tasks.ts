@@ -1,5 +1,8 @@
 import { and, eq, inArray, not } from "drizzle-orm";
-import { removeAssignee } from "../task/assignees/task-assignees";
+import {
+  filterUnassignedTasks,
+  removeAssignee,
+} from "../task/assignees/task-assignees";
 import createActivities from "../activity/controllers/create-activities";
 import { schema } from "../database";
 import type { DbOrTx } from "./db-or-tx";
@@ -26,14 +29,24 @@ export async function unassignInaccessibleTasks(
     ),
   );
 
+  // History says "unassigned" only for tasks left with nobody on them; a task
+  // that merely lost one of several assignees still has its primary.
+  const emptied = new Set(
+    await filterUnassignedTasks(
+      database,
+      unassigned.map((task) => task.id),
+    ),
+  );
   await createActivities(
-    unassigned.map((task) => ({
-      taskId: task.id,
-      type: "unassigned",
-      userId: change.actorId,
-      content: null,
-      eventData: {},
-    })),
+    unassigned
+      .filter((task) => emptied.has(task.id))
+      .map((task) => ({
+        taskId: task.id,
+        type: "unassigned",
+        userId: change.actorId,
+        content: null,
+        eventData: {},
+      })),
     database,
   );
 

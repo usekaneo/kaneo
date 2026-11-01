@@ -186,18 +186,21 @@ async function moveTask({
           .from(taskTable)
           .where(eq(taskTable.id, taskId));
         movedTask = refreshed ?? updatedTask;
-        await createActivities(
-          [
-            {
-              taskId,
-              type: "unassigned",
-              userId: currentUserId,
-              content: null,
-              eventData: {},
-            },
-          ],
-          tx,
-        );
+        // Dropping one of several assignees leaves the task assigned.
+        if (!movedTask.userId) {
+          await createActivities(
+            [
+              {
+                taskId,
+                type: "unassigned",
+                userId: currentUserId,
+                content: null,
+                eventData: {},
+              },
+            ],
+            tx,
+          );
+        }
       }
     }
 

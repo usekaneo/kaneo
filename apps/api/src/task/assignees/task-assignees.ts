@@ -328,3 +328,26 @@ export async function replaceAssigneesWithOne(
 
   return changes;
 }
+
+// Of these tasks, the ones with nobody assigned any more. The primary is
+// repointed to the next assignee whenever one remains, so a null primary means
+// the task is empty. Chunked to stay under the bind-parameter limit.
+export async function filterUnassignedTasks(
+  tx: DbOrTx,
+  taskIds: readonly string[],
+): Promise<string[]> {
+  const unassigned: string[] = [];
+  for (let start = 0; start < taskIds.length; start += 5000) {
+    const rows = await tx
+      .select({ id: taskTable.id })
+      .from(taskTable)
+      .where(
+        and(
+          inArray(taskTable.id, taskIds.slice(start, start + 5000)),
+          isNull(taskTable.userId),
+        ),
+      );
+    unassigned.push(...rows.map((row) => row.id));
+  }
+  return unassigned;
+}

@@ -89,7 +89,10 @@ async function publishAssigneeEvents(
       type: "assignee_changed",
     });
   } else if (primaryAfter === null) {
-    for (const id of removed) {
+    // One event for one action, however many people were on the task: the
+    // legacy event has no list, so a repeat would be an identical delivery.
+    const id = previousPrimary ?? removed[0];
+    if (id) {
       await publishEvent("task.unassigned", {
         ...common,
         removedAssigneeId: id,

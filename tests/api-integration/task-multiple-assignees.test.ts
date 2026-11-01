@@ -118,6 +118,19 @@ async function primaryOf(taskId: string) {
   return row?.userId ?? null;
 }
 
+const unassignedActivities = async (taskId: string) =>
+  (
+    await db
+      .select()
+      .from(schema.activityTable)
+      .where(
+        and(
+          eq(schema.activityTable.taskId, taskId),
+          eq(schema.activityTable.type, "unassigned"),
+        ),
+      )
+  ).length;
+
 const notificationsFor = (userId: string) =>
   db
     .select()
@@ -296,7 +309,8 @@ describe("multiple assignees: events", () => {
 
     await setAssignees(task.id, { assigneeIds: [] });
 
-    expect(assigneeEvents()).toEqual(["task.unassigned", "task.unassigned"]);
+    // One action, one event: the legacy event carries no list of people.
+    expect(assigneeEvents()).toEqual(["task.unassigned"]);
   });
 
   it("notifies each person added once, and not a co-assignee who is promoted", async () => {
@@ -355,6 +369,43 @@ describe("multiple assignees: concurrent writers", () => {
     await Promise.all([writer, remover]);
     expect(await assigneeRows(task.id)).toEqual([bob.id]);
     expect(await primaryOf(task.id)).toBe(bob.id);
+  });
+});
+
+describe("multiple assignees: the full task update", () => {
+  const fullUpdate = (
+    task: { id: string; position: number | null },
+    fixture: Awaited<ReturnType<typeof setup>>["fixture"],
+    extra: Record<string, unknown>,
+  ) =>
+    call(`/task/${task.id}`, "PUT", {
+      title: "Edited",
+      status: fixture.columns.todo.slug,
+      priority: "high",
+      projectId: fixture.project.id,
+      position: task.position ?? 1,
+      ...extra,
+    });
+
+  it("leaves every assignee alone when userId is not sent, as a stale board edit would", async () => {
+    const { alice, bob, carol, task, fixture } = await setup();
+    await setAssignees(task.id, { assigneeIds: [alice.id, bob.id, carol.id] });
+
+    const response = await fullUpdate(task, fixture, {});
+
+    expect(response.status).toBe(200);
+    expect(await assigneeRows(task.id)).toEqual([alice.id, bob.id, carol.id]);
+    expect(await primaryOf(task.id)).toBe(alice.id);
+  });
+
+  it("still unassigns for older clients that send an empty userId", async () => {
+    const { alice, bob, task, fixture } = await setup();
+    await setAssignees(task.id, { assigneeIds: [alice.id, bob.id] });
+
+    const response = await fullUpdate(task, fixture, { userId: "" });
+
+    expect(response.status).toBe(200);
+    expect(await assigneeRows(task.id)).toEqual([]);
   });
 });
 
@@ -588,6 +639,25 @@ describe("multiple assignees: workspace and project boundaries", () => {
     expect(response.status).toBe(200);
     expect(await assigneeRows(ctx.betaTask.id)).toEqual([other.id]);
     expect(await primaryOf(ctx.betaTask.id)).toBe(other.id);
+    // Still assigned to someone, so the history must not say "unassigned".
+    expect(await unassignedActivities(ctx.betaTask.id)).toBe(0);
+  });
+
+  it("records an unassignment only when losing access leaves the task with nobody", async () => {
+    const ctx = await createRestrictedWorkspace();
+    const member = await addWorkspaceMember(ctx.workspace.id);
+    mockAuthenticatedSession(ctx.owner);
+    await setAssignees(ctx.betaTask.id, { assigneeIds: [member.id] });
+
+    await putMemberProjectAccess(
+      projectAccessApi(),
+      ctx.workspace.id,
+      member.id,
+      { projectAccess: "selected", projectIds: [ctx.alpha.id] },
+    );
+
+    expect(await assigneeRows(ctx.betaTask.id)).toEqual([]);
+    expect(await unassignedActivities(ctx.betaTask.id)).toBe(1);
   });
 });
 
@@ -722,6 +792,7 @@ describe("multiple assignees: duplicate and move", () => {
     expect(response.status).toBe(200);
     expect(await assigneeRows(ctx.alphaTask.id)).toEqual([other.id]);
     expect(await primaryOf(ctx.alphaTask.id)).toBe(other.id);
+    expect(await unassignedActivities(ctx.alphaTask.id)).toBe(0);
   });
 
   it("drops assignees outside the target workspace when a project moves", async () => {
