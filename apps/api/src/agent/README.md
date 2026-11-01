@@ -1,6 +1,6 @@
 # Agent backend
 
-The assistant uses the AI SDK with OpenRouter. It reads Kaneo through scoped tools and stores concrete proposals. Applying a proposal is a separate authenticated domain operation and does not call a model. The API worker runs in the same process; PostgreSQL provides the queue, run leases, receipts, and mutation outbox. Redis remains optional.
+The assistant uses AI SDK language-model providers, including direct Anthropic, OpenAI, Google, cloud providers, and OpenRouter. It reads Kaneo through scoped tools and stores concrete proposals. Applying a proposal is a separate authenticated domain operation and does not call a model. The API worker runs in the same process; PostgreSQL provides the queue, run leases, receipts, and mutation outbox. Redis remains optional.
 
 ## Configuration
 
@@ -8,25 +8,26 @@ Set server configuration in the root `.env`:
 
 ```dotenv
 KANEO_AGENT_ENABLED=true
-OPENROUTER_API_KEY=your-key
-OPENROUTER_MODEL=openai/gpt-6-luna
+KANEO_AGENT_MODEL=anthropic:claude-sonnet-5-5
+ANTHROPIC_API_KEY=your-key
 ```
 
-The key also supports `OPENROUTER_API_KEY_FILE`. Credentials are never returned by the agent API. The feature is disabled unless explicitly enabled with valid configuration. Existing history, cancellation, review, and undo remain available if model access is disabled.
+See [model providers](./providers/README.md) for all bundled adapters, mixed-provider model lists, local endpoints, community adapters, and usage limitations. API-key variables also support a `_FILE` suffix. Credentials are never returned by the agent API. The feature is disabled unless explicitly enabled with valid configuration. Existing history, cancellation, review, and undo remain available if model access is disabled.
 
 | Setting | Default | Allowed values |
 | --- | --- | --- |
-| `OPENROUTER_MODEL` | `openai/gpt-6-luna` | OpenRouter model ID with tool support |
-| `OPENROUTER_MODELS` | unset | Comma-separated model IDs users may pick per run, up to 20 including the default |
+| `KANEO_AGENT_MODEL` | `OPENROUTER_MODEL`, then `openai/gpt-6-luna` | `provider:model` ID with tool support; unqualified IDs retain OpenRouter routing |
+| `KANEO_AGENT_MODELS` | `OPENROUTER_MODELS`, then unset | Comma-separated model IDs users may pick per run, up to 20 including the default |
 | `KANEO_AGENT_MAX_STEPS` | 8 | 1–12 model steps |
 | `KANEO_AGENT_MAX_OUTPUT_TOKENS` | 2048 | 256–4096 per step |
 | `KANEO_AGENT_TIMEOUT_MS` | 120000 | 10000–300000 |
 | `KANEO_AGENT_CONCURRENCY` | 1 | 1–4 runs per API process |
+| `KANEO_AGENT_PROVIDERS_MODULE` | unset | Absolute path to a trusted ESM module exporting additional SDK providers |
 | `OPENROUTER_ZDR` | false | `true` restricts inference to ZDR endpoints |
 
-`OPENROUTER_MODEL` is the default and is always allowed. When `OPENROUTER_MODELS` lists other models, the composer shows a model picker and runs may request any listed model; the API rejects others with 400. Invalid entries disable the agent, like other invalid settings.
+The default model is always allowed. When the model list includes other models, the composer shows a model picker and runs may request any listed model; the API rejects others with 400. Invalid entries disable the agent, like other invalid settings. Existing OpenRouter environment variables and saved model IDs continue to work.
 
-The provider must support requested parameters; OpenRouter routing disallows provider data collection. Workspace context is still sent to OpenRouter. Runs record token usage and the provider-reported `costUsd`, which can be null if unavailable. These limits bound work, but do not constitute a dollar budget. Enforce account spending limits in OpenRouter, especially when selecting a more expensive model.
+Workspace context is sent to the selected provider. OpenRouter routing disallows provider data collection; direct-provider policies are configured with those providers. Runs record token usage and OpenRouter-reported `costUsd`; other providers leave dollar cost null. These limits bound work, but do not constitute a dollar budget. Enforce spending limits with your provider.
 
 ## HTTP contract
 
@@ -52,7 +53,7 @@ All paths below are relative to `/api/agent/{workspaceId}`. Use the existing ses
 | POST | `/attachments` | Upload `{name, mediaType, data}` (base64 image or PDF); returns `{id, name, mediaType, size}` with 201 |
 | GET | `/attachments/{attachmentId}/content` | Attachment bytes for the uploader or a viewer of the shared run; images inline, PDFs as downloads |
 
-`attachments` holds up to five items in total. Text files are sent inline as `{name, content}`, at most 50,000 characters each and 100,000 in total; the web client reads them in the browser. Images (PNG, JPEG, WebP, GIF) and PDFs up to 5 MB are first uploaded to `/attachments` and then referenced as `{id}`. Uploads are stored in PostgreSQL in `agent_attachment`, so no object storage is needed; the run itself keeps only `{id, name, mediaType, size}`. Only the uploader can reference an upload, and only the uploader or a viewer who can read the shared run it was sent in can read it. Each upload can be sent with one run, and at most 20 unsent uploads per user are kept for a day. The runner loads the bytes for the current turn only and sends images and PDFs as AI SDK file parts (OpenRouter parses PDFs for models without native file input); later turns see just the file names. If no provider for the model accepts image input, the run fails with a stable error the client translates. Run responses return attachment metadata, never contents.
+`attachments` holds up to five items in total. Text files are sent inline as `{name, content}`, at most 50,000 characters each and 100,000 in total; the web client reads them in the browser. Images (PNG, JPEG, WebP, GIF) and PDFs up to 5 MB are first uploaded to `/attachments` and then referenced as `{id}`. Uploads are stored in PostgreSQL in `agent_attachment`, so no object storage is needed; the run itself keeps only `{id, name, mediaType, size}`. Only the uploader can reference an upload, and only the uploader or a viewer who can read the shared run it was sent in can read it. Each upload can be sent with one run, and at most 20 unsent uploads per user are kept for a day. The runner loads the bytes for the current turn only and sends images and PDFs as AI SDK file parts (PDF parsing and accepted input types depend on the selected provider and model); later turns see just the file names. If no provider for the model accepts image input, the run fails with a stable error the client translates. Run responses return attachment metadata, never contents.
 
 The composer's @-mentions are written into the prompt as `@[Launch v3](project:ID)` or `@[WEB-135 Fix login](task:ID)`, at most ten distinct items per prompt. `mentions` lists the same `{type, id}` references and must match the prompt's tokens; there is no separate column. When the run executes, the runner resolves each reference with the user's current project access and the conversation's project scope, and appends a `<mentioned_items>` block (title, key, status, project) to that turn as untrusted data. Items the user cannot access are dropped silently. Later turns keep only the prompt text.
 

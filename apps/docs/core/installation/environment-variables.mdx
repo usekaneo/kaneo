@@ -127,6 +127,44 @@ Name | Description | Default |
 | `NOTIFICATION_SECRET_ENCRYPTION_KEY` | Required to store personal notification tokens and webhook signing secrets. Generate a random value, keep it stable, and include it in protected configuration backups. Changing or losing it prevents decryption of existing secrets. | Unset |
 | `KANEO_ALLOW_PRIVATE_WEBHOOK_DESTINATIONS` | Allow outbound notification destinations (ntfy, Gotify, generic webhooks), self-managed Gitea or GitLab instances, and [import sources](/core/migrations) that resolve to private or non-routable addresses. Off by default to prevent SSRF; the `http`/`https` requirement still applies. Only enable on a trusted, isolated deployment. | `false` |
 
+### Project assistant
+
+The assistant and automations use AI SDK language-model providers. Choose a model
+with tool-call support. For direct Claude access:
+
+```dotenv
+KANEO_AGENT_ENABLED=true
+KANEO_AGENT_MODEL=anthropic:claude-sonnet-5-5
+ANTHROPIC_API_KEY=your-key
+```
+
+Name | Description | Default |
+--- | --- | --- |
+| `KANEO_AGENT_ENABLED` | Enable new assistant runs when model configuration is valid. | `false` |
+| `KANEO_AGENT_MODEL` | Default `provider:model` ID. Unqualified IDs still use OpenRouter. | `OPENROUTER_MODEL`, then `openai/gpt-6-luna` |
+| `KANEO_AGENT_MODELS` | Additional comma-separated model IDs, possibly across providers; at most 20 including the default. Configure credentials for every listed provider. | `OPENROUTER_MODELS`, then unset |
+| `KANEO_AGENT_PROVIDERS_MODULE` | Absolute path to a trusted server ESM module whose default export maps custom names to installed AI SDK provider instances. Requires an image rebuild to add community packages. | Unset |
+| `ANTHROPIC_API_KEY`, `OPENAI_API_KEY`, `GOOGLE_GENERATIVE_AI_API_KEY` | Credentials for direct Anthropic, OpenAI, and Google access. Key variables support `_FILE` for mounted secrets. | Unset |
+| `COMPATIBLE_BASE_URL` | Chat Completions-compatible endpoint, including local Ollama or LM Studio servers. Use `compatible:MODEL` and optionally `COMPATIBLE_API_KEY`. | Unset |
+| `KANEO_AGENT_MAX_STEPS` | Maximum model steps per run (1–12). | `8` |
+| `KANEO_AGENT_MAX_OUTPUT_TOKENS` | Maximum output tokens per model step (256–4096). | `2048` |
+| `KANEO_AGENT_TIMEOUT_MS` | Run deadline in milliseconds (10000–300000). | `120000` |
+| `KANEO_AGENT_CONCURRENCY` | Concurrent runs per API process (1–4). | `1` |
+| `KANEO_AGENT_WORKSPACE_MONTHLY_USD` | Recorded-dollar-cost cap for automation runs per workspace per UTC month. Direct providers currently report tokens but no dollar cost; enforce their spending limits with the provider. | Unset |
+
+Bundled adapters also include xAI, Azure, Bedrock, Claude on AWS, Vertex AI,
+Groq, DeepInfra, Mistral, Together.ai, Cohere, Fireworks, DeepSeek, Cerebras,
+Perplexity, Baseten, Moonshot, Alibaba, MiniMax, Hugging Face, Z.AI, GMI Cloud,
+AI Gateway, OpenRouter, and Open Responses. The
+[provider configuration reference](https://github.com/usekaneo/kaneo/blob/main/apps/api/src/agent/providers/README.md)
+lists every prefix, credential variable, endpoint override, and custom module example.
+
+Existing `OPENROUTER_*` configuration and saved model IDs continue to work.
+Workspace context goes to the selected provider, subject to its account and data
+policies. Images and PDFs require model support. GitHub repo-ci coding jobs use
+their own OpenRouter key in repository Actions secrets; changing the assistant
+provider does not change that runner's configuration.
+
 ### Imports
 
 The [in-app importer](/core/migrations) reads from the source on the API server. Sources on a private network, such as a PLANKA container in the same Docker network, also need `KANEO_ALLOW_PRIVATE_WEBHOOK_DESTINATIONS=true` (see [Notifications](#notifications)).

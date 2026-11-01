@@ -1,8 +1,10 @@
 import { HTTPException } from "hono/http-exception";
 import { z } from "zod";
 import { config } from "dotenv-mono";
-import { resolveFileSecret } from "../utils/file-secret";
 import { parseAgentModels } from "./model-list";
+import { parseModelReference } from "./providers/model-reference";
+import { getProviderSettings } from "./providers/settings";
+import type { ProviderSettings } from "./providers/types";
 
 // Vite's .env.local must not hide server-only keys in the root .env.
 config({ priorities: { ".env": 100 } });
@@ -17,16 +19,8 @@ const settingsSchema = z.object({
 
 export function getAgentConfig() {
   if (process.env.KANEO_AGENT_ENABLED !== "true") return null;
-  let apiKey: string | undefined;
-  try {
-    apiKey = resolveFileSecret("OPENROUTER_API_KEY");
-  } catch {
-    // File-secret errors include paths; do not expose them through HTTP errors.
-    return null;
-  }
-  if (!apiKey) return null;
   const result = settingsSchema.safeParse({
-    model: process.env.OPENROUTER_MODEL,
+    model: process.env.KANEO_AGENT_MODEL ?? process.env.OPENROUTER_MODEL,
     maxSteps: process.env.KANEO_AGENT_MAX_STEPS,
     maxOutputTokens: process.env.KANEO_AGENT_MAX_OUTPUT_TOKENS,
     timeoutMs: process.env.KANEO_AGENT_TIMEOUT_MS,
@@ -35,13 +29,27 @@ export function getAgentConfig() {
   if (!result.success) return null;
   const models = parseAgentModels(
     result.data.model,
-    process.env.OPENROUTER_MODELS,
+    process.env.KANEO_AGENT_MODELS ?? process.env.OPENROUTER_MODELS,
   );
   if (!models) return null;
+  const providers: Record<string, ProviderSettings> = {};
+  try {
+    for (const model of models) {
+      const reference = parseModelReference(model);
+      if (!reference) return null;
+      if (Object.hasOwn(providers, reference.provider)) continue;
+      const settings = getProviderSettings(reference.provider);
+      if (!settings) return null;
+      providers[reference.provider] = settings;
+    }
+  } catch {
+    // File-secret and module errors can include private paths.
+    return null;
+  }
   return {
     ...result.data,
     models,
-    apiKey,
+    providers,
     zeroDataRetention: process.env.OPENROUTER_ZDR === "true",
   };
 }

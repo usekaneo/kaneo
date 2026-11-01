@@ -159,7 +159,7 @@ export const createRunSchema = z
       }),
     model: z.string().trim().min(1).max(200).optional().openapi({
       description:
-        "OpenRouter model ID from the config endpoint's models. Omit to use the instance default; other models are rejected.",
+        "Allowed model ID from the config endpoint's models, including provider:model IDs. Omit to use the instance default; other models are rejected. Unqualified IDs use OpenRouter for backward compatibility.",
     }),
     mentions: z
       .array(z.object({ type: z.enum(["task", "project"]), id }).strict())

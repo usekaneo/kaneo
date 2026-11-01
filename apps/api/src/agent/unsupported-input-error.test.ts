@@ -1,4 +1,5 @@
 import { APICallError } from "ai";
+import { UnsupportedFunctionalityError } from "@ai-sdk/provider";
 import { describe, expect, it } from "vite-plus/test";
 import {
   isUnsupportedInputError,
@@ -42,6 +43,23 @@ describe("isUnsupportedInputError", () => {
       ),
     ).toBe(false);
     expect(isUnsupportedInputError(new Error("image input"))).toBe(false);
+  });
+
+  it("recognizes direct SDK adapters rejecting file input before an API call", () => {
+    expect(
+      isUnsupportedInputError(
+        new UnsupportedFunctionalityError({
+          functionality: "file part media type application/pdf",
+        }),
+      ),
+    ).toBe(true);
+    expect(
+      isUnsupportedInputError(
+        new UnsupportedFunctionalityError({
+          functionality: "tool-call messages",
+        }),
+      ),
+    ).toBe(false);
   });
 
   it("keeps the stored text that the web client translates", () => {

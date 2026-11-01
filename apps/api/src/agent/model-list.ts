@@ -2,7 +2,7 @@ export const MAX_AGENT_MODELS = 20;
 
 const modelId = /^[^\s,]{1,200}$/;
 
-// The default is always allowed; listing it in OPENROUTER_MODELS sets its position.
+// The default is always allowed; listing it explicitly sets its position.
 export function parseAgentModels(defaultModel: string, raw?: string) {
   const listed = (raw ?? "")
     .split(",")

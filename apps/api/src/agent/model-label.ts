@@ -1,3 +1,5 @@
+import { parseModelReference } from "./providers/model-reference";
+
 const providers: Record<string, string> = {
   openai: "OpenAI",
   "x-ai": "xAI",
@@ -6,6 +8,21 @@ const providers: Record<string, string> = {
   deepseek: "DeepSeek",
   moonshotai: "Moonshot",
   openrouter: "OpenRouter",
+  google: "Google",
+  xai: "xAI",
+  bedrock: "Amazon Bedrock",
+  "anthropic-aws": "Claude on AWS",
+  vertex: "Google Vertex AI",
+  "vertex-anthropic": "Claude on Vertex AI",
+  "vertex-maas": "Vertex AI MaaS",
+  "vertex-xai": "xAI on Vertex AI",
+  togetherai: "Together.ai",
+  huggingface: "Hugging Face",
+  gmicloud: "GMI Cloud",
+  zai: "Z.AI",
+  gateway: "AI Gateway",
+  compatible: "Custom endpoint",
+  "open-responses": "Open Responses",
 };
 const acronyms = new Set(["gpt", "glm", "ai", "oss", "vl"]);
 
@@ -14,8 +31,15 @@ function word(part: string) {
   return part.charAt(0).toUpperCase() + part.slice(1);
 }
 
-// Readable label from an OpenRouter ID, e.g. "openai/gpt-6-luna" → "OpenAI: GPT-6 Luna".
-export function getModelLabel(id: string) {
+export function getModelLabel(id: string): string {
+  const reference = parseModelReference(id);
+  if (reference && reference.model !== id) {
+    const label =
+      reference.provider === "openrouter" || reference.provider === "gateway"
+        ? getModelLabel(reference.model)
+        : reference.model;
+    return `${providers[reference.provider] ?? word(reference.provider)}: ${label}`;
+  }
   const [provider = "", rest = ""] = id.split(/\/(.*)/s);
   if (!rest) return id;
   const [name = "", variant] = rest.split(":");
