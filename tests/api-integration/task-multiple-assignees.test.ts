@@ -121,7 +121,7 @@ describe("multiple assignees: compatibility with the single assignee", () => {
     await db.delete(schema.taskAssigneeTable);
 
     const migration = readFileSync(
-      resolve(__dirname, "../../apps/api/drizzle/0070_real_groot.sql"),
+      resolve(__dirname, "../../apps/api/drizzle/0071_common_black_crow.sql"),
       "utf8",
     );
     const backfill = migration

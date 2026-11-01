@@ -54,19 +54,25 @@ async function publishAssigneeEvents(
   common: { taskId: string; projectId: string; userId?: string; title: string },
   previousPrimary: string | null,
   { added, removed }: { added: string[]; removed: string[] },
+  knownNames: Map<string, string> = new Map(),
 ) {
-  const names =
-    added.length + removed.length > 0
-      ? await db
-          .select({ id: userTable.id, name: userTable.name })
-          .from(userTable)
-          .where(inArray(userTable.id, [...added, ...removed]))
-      : [];
+  // Only ids not already known are queried; callers publishing many tasks pass
+  // one shared map so each distinct user is looked up once.
+  const missing = [...new Set([...added, ...removed])].filter(
+    (id) => !knownNames.has(id),
+  );
+  if (missing.length > 0) {
+    const rows = await db
+      .select({ id: userTable.id, name: userTable.name })
+      .from(userTable)
+      .where(inArray(userTable.id, missing));
+    for (const row of rows) knownNames.set(row.id, row.name);
+  }
   for (const id of added) {
     await publishEvent("task.assignee_changed", {
       ...common,
       oldAssignee: previousPrimary,
-      newAssignee: names.find((user) => user.id === id)?.name,
+      newAssignee: knownNames.get(id),
       newAssigneeId: id,
       type: "assignee_changed",
     });
@@ -75,7 +81,7 @@ async function publishAssigneeEvents(
     await publishEvent("task.unassigned", {
       ...common,
       removedAssigneeId: id,
-      removedAssignee: names.find((user) => user.id === id)?.name,
+      removedAssignee: knownNames.get(id),
       type: "unassigned",
     });
   }
@@ -93,6 +99,8 @@ export async function publishTaskMutation(
     // When given, replaces the single-assignee comparison: one event per person
     // added or removed, so only the newly added get notified.
     assignees?: { added: string[]; removed: string[] };
+    // Shared across calls so a bulk change resolves each user's name once.
+    assigneeNames?: Map<string, string>;
     sourceIntegrationId?: string;
   } = {},
 ) {
@@ -154,6 +162,7 @@ export async function publishTaskMutation(
         common,
         before.userId ?? null,
         options.assignees,
+        options.assigneeNames,
       );
   } else if (changed("userId")) {
     const assignee =

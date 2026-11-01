@@ -8,6 +8,7 @@ import {
   labelTable,
   projectTable,
   taskTable,
+  userTable,
   taskReminderSentTable,
   workspaceUserTable,
 } from "../../database/schema";
@@ -253,6 +254,15 @@ async function bulkUpdateTasks({
         );
       }
 
+      // Resolved once for the whole batch; removed assignees are added lazily.
+      const assigneeNames = new Map<string, string>();
+      if (assigneeId) {
+        const assignee = await db.query.userTable.findFirst({
+          columns: { name: true },
+          where: eq(userTable.id, assigneeId),
+        });
+        if (assignee) assigneeNames.set(assigneeId, assignee.name);
+      }
       const before = await db.transaction(async (tx) => {
         const locked = await tx
           .select({
@@ -301,6 +311,7 @@ async function bulkUpdateTasks({
           userId,
           {
             fields: ["userId"],
+            assigneeNames,
             assignees: {
               added: change?.added ?? [],
               removed: change?.removed ?? [],
