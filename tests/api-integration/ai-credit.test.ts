@@ -482,6 +482,10 @@ describe("AI inference metering", () => {
       status: 402,
     });
     expect(underlying.doStreamCalls).toHaveLength(1);
+    const [record] = await db.select().from(schema.aiReservationTable);
+    expect(underlying.doStreamCalls[0]!.providerOptions?.openrouter?.user).toBe(
+      record!.id,
+    );
   });
 });
 
@@ -548,6 +552,7 @@ describe("Cloud AI cost reconciliation", () => {
       .set({
         generationId: "gen-reconcile",
         createdAt: new Date(Date.now() - 700000),
+        nextReconcileAt: new Date(0),
       })
       .where(eq(schema.aiReservationTable.id, reservation.id));
     vi.stubGlobal(
@@ -572,5 +577,133 @@ describe("Cloud AI cost reconciliation", () => {
       balanceMicroUsd: "700000",
       reservedMicroUsd: "0",
     });
+  });
+});
+
+describe("AI credit reconciliation isolation", () => {
+  it("retries failed accounting before sustained new reservations can starve it", async () => {
+    vi.stubEnv("KANEO_CLOUD", "true");
+    vi.stubEnv("OPENROUTER_API_KEY", "fake-key");
+    const owner = await createWorkspaceMember({ role: "owner" });
+    const now = new Date(Date.now() + 600000);
+    const ids: string[] = [];
+    for (let index = 0; index < 9; index++) {
+      const row = await reserveCredit({
+        workspaceId: owner.workspace.id,
+        runId: `retry-${index}`,
+        model: "test/model",
+        amount: 1000n,
+        multiplierBps: 15000,
+      });
+      ids.push(row.id);
+      await db
+        .update(schema.aiReservationTable)
+        .set({
+          generationId: `gen-retry-${index}`,
+          createdAt: new Date(now.getTime() - 1200000),
+          nextReconcileAt: new Date(now.getTime() - 1000 + index),
+        })
+        .where(eq(schema.aiReservationTable.id, row.id));
+    }
+    let first = true;
+    const fetcher = vi.fn(async (url: string) => {
+      const id = new URL(url).searchParams.get("id");
+      if (id === "gen-retry-0" && first) {
+        first = false;
+        return new Response(null, { status: 503 });
+      }
+      return Response.json({ data: { id, total_cost: 0, generation_time: 1 } });
+    });
+    vi.stubGlobal("fetch", fetcher);
+    const { reconcileAiCredit } =
+      await import("../../apps/api/src/billing/ai/reconcile");
+    await reconcileAiCredit(now);
+    expect(
+      (
+        await db.query.aiReservationTable.findFirst({
+          where: eq(schema.aiReservationTable.id, ids[0]!),
+        })
+      )?.status,
+    ).toBe("held");
+    for (let index = 0; index < 10; index++) {
+      const row = await reserveCredit({
+        workspaceId: owner.workspace.id,
+        runId: `new-${index}`,
+        model: "test/model",
+        amount: 1000n,
+        multiplierBps: 15000,
+      });
+      await db
+        .update(schema.aiReservationTable)
+        .set({
+          generationId: `gen-new-${index}`,
+          createdAt: new Date(now.getTime() - 600001),
+          nextReconcileAt: new Date(now.getTime() + 60000),
+        })
+        .where(eq(schema.aiReservationTable.id, row.id));
+    }
+    await reconcileAiCredit(new Date(now.getTime() + 60001));
+    expect(
+      (
+        await db.query.aiReservationTable.findFirst({
+          where: eq(schema.aiReservationTable.id, ids[0]!),
+        })
+      )?.status,
+    ).toBe("settled");
+    expect(
+      fetcher.mock.calls.filter(([url]) => String(url).includes("gen-retry-0")),
+    ).toHaveLength(2);
+  });
+  it("continues refunds and usage settlement after a malformed refund", async () => {
+    vi.stubEnv("KANEO_CLOUD", "true");
+    vi.stubEnv("OPENROUTER_API_KEY", "fake-key");
+    const { owner, data } = await seedPurchase();
+    await handleWebhook({ id: "evt_paid", type: "checkout.completed", data });
+    await db.insert(schema.aiPaymentReversalTable).values([
+      { id: "a_poison", orderId: "order_1", currency: "EUR", cents: 60 },
+      { id: "b_valid", orderId: "order_1", currency: "USD", cents: 60 },
+    ]);
+    const reservation = await reserveCredit({
+      workspaceId: owner.workspace.id,
+      runId: "settle-after-refund",
+      model: "test/model",
+      amount: 1000000n,
+      multiplierBps: 15000,
+    });
+    await db
+      .update(schema.aiReservationTable)
+      .set({
+        generationId: "gen-isolated",
+        createdAt: new Date(Date.now() - 700000),
+        nextReconcileAt: new Date(0),
+      })
+      .where(eq(schema.aiReservationTable.id, reservation.id));
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async () =>
+        Response.json({
+          data: { id: "gen-isolated", total_cost: 0.2, generation_time: 1 },
+        }),
+      ),
+    );
+    const log = vi.spyOn(console, "error").mockImplementation(() => {});
+    const { reconcileAiCredit } =
+      await import("../../apps/api/src/billing/ai/reconcile");
+    await reconcileAiCredit(new Date(Date.now() + 1200000));
+    expect(await readWallet(owner.workspace.id)).toMatchObject({
+      balanceMicroUsd: "5200000",
+      reservedMicroUsd: "0",
+    });
+    expect(log).toHaveBeenCalledWith(
+      "AI payment reversal requires operator review",
+      { reversalId: "a_poison" },
+    );
+    expect(
+      (
+        await db.query.aiPaymentReversalTable.findFirst({
+          where: eq(schema.aiPaymentReversalTable.id, "b_valid"),
+        })
+      )?.applied,
+    ).toBe(true);
   });
 });

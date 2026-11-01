@@ -32,6 +32,10 @@ let calls: { method: string; path: string; body: Record<string, unknown> }[] =
 let dispatches = 0;
 let rejectPrOnce = false;
 let ciCompleted = false;
+let abortDispatch: AbortController | undefined;
+let loseDispatchReply = false;
+let rejectCancelOnce = false;
+let visibleRuns: { id: number; display_title: string; head_sha: string }[] = [];
 const json = (data: unknown, status = 200) => Response.json(data, { status });
 
 beforeEach(async () => {
@@ -50,6 +54,10 @@ beforeEach(async () => {
   dispatches = 0;
   rejectPrOnce = false;
   ciCompleted = false;
+  abortDispatch = undefined;
+  loseDispatchReply = false;
+  rejectCancelOnce = false;
+  visibleRuns = [];
   vi.stubGlobal(
     "fetch",
     vi.fn(async (input: string | URL | Request, init?: RequestInit) => {
@@ -107,9 +115,21 @@ beforeEach(async () => {
       if (path.endsWith("/branches/main"))
         return json({ name: "main", commit: { sha: baseSha } });
       if (path.endsWith("/actions/workflows/kaneo-agent.yml/runs"))
-        return json({ workflow_runs: [] });
+        return json({
+          total_count: visibleRuns.length,
+          workflow_runs: visibleRuns.slice(
+            (Number(url.searchParams.get("page") ?? 1) - 1) * 100,
+            Number(url.searchParams.get("page") ?? 1) * 100,
+          ),
+        });
       if (path.endsWith("/actions/workflows/kaneo-agent.yml/dispatches")) {
         dispatches++;
+        if (abortDispatch) {
+          abortDispatch.abort();
+          throw new Error("shutdown while dispatching");
+        }
+        if (loseDispatchReply)
+          throw new Error("dispatch accepted but response lost");
         return json({
           workflow_run_id: 123,
           html_url: "https://github.com/acme/widget/actions/runs/123",
@@ -117,8 +137,13 @@ beforeEach(async () => {
       }
       if (path.endsWith("/actions/workflows/kaneo-agent.yml"))
         return json({ state: "active" });
-      if (path.endsWith("/actions/runs/123/cancel"))
+      if (path.endsWith("/actions/runs/123/cancel")) {
+        if (rejectCancelOnce) {
+          rejectCancelOnce = false;
+          return json({ message: "temporary cancellation failure" }, 503);
+        }
         return new Response(null, { status: 202 });
+      }
       if (path.endsWith("/actions/runs/123"))
         return json({ status: ciCompleted ? "completed" : "in_progress" });
       if (path.endsWith(`/git/commits/${baseSha}`))
@@ -272,6 +297,30 @@ const changes = {
 };
 
 describe("repo-ci coding jobs", () => {
+  it("looks up uncertain dispatches using the pinned workflow identity", async () => {
+    const ctx = await setup();
+    const job = await (await ctx.start()).json();
+    const row = await db.query.agentJobTable.findFirst({
+      where: eq(schema.agentJobTable.id, job.id),
+    });
+    const { recoverGithubDispatch } =
+      await import("../../apps/api/src/agent/code/backends/recover-github-dispatch");
+    await expect(
+      recoverGithubDispatch({ ...row!, workflowSha: baseSha }),
+    ).resolves.toBe(null);
+    visibleRuns = [
+      ...Array.from({ length: 100 }, (_, i) => ({
+        id: i + 1000,
+        display_title: `Other job ${i}`,
+        head_sha: baseSha,
+      })),
+      { id: 123, display_title: `Kaneo job ${job.id}`, head_sha: baseSha },
+    ];
+    await expect(
+      recoverGithubDispatch({ ...row!, workflowSha: baseSha }),
+    ).resolves.toMatchObject({ externalRef: "123" });
+  });
+
   it("requires run_code, linked GitHub write access, and project repository opt-in", async () => {
     const ctx = await setup("member");
     expect((await ctx.start()).status).toBe(403);
@@ -776,6 +825,94 @@ describe("repo-ci coding jobs", () => {
       error: "ci_run_failed",
       credentialHash: null,
     });
+  });
+  it("preserves a third-attempt job during worker shutdown", async () => {
+    const ctx = await setup();
+    const job = await (await ctx.start()).json();
+    await db
+      .update(schema.agentJobTable)
+      .set({ attempts: 2 })
+      .where(eq(schema.agentJobTable.id, job.id));
+    const shutdown = new AbortController();
+    abortDispatch = shutdown;
+    await processCodeJobs(shutdown.signal);
+    expect(
+      await db.query.agentJobTable.findFirst({
+        where: eq(schema.agentJobTable.id, job.id),
+      }),
+    ).toMatchObject({
+      status: "queued",
+      attempts: 2,
+      leaseOwner: null,
+      error: null,
+    });
+  });
+  it("recovers an accepted third dispatch whose response was lost without relaunching it", async () => {
+    const ctx = await setup();
+    const job = await (await ctx.start()).json();
+    await db
+      .update(schema.agentJobTable)
+      .set({ attempts: 2 })
+      .where(eq(schema.agentJobTable.id, job.id));
+    loseDispatchReply = true;
+    await processCodeJobs();
+    expect(
+      await db.query.agentJobTable.findFirst({
+        where: eq(schema.agentJobTable.id, job.id),
+      }),
+    ).toMatchObject({ status: "queued", attempts: 2, error: null });
+    visibleRuns = [
+      { id: 123, display_title: `Kaneo job ${job.id}`, head_sha: baseSha },
+    ];
+    await db
+      .update(schema.agentJobTable)
+      .set({ leaseExpiresAt: new Date(0) })
+      .where(eq(schema.agentJobTable.id, job.id));
+    await processCodeJobs();
+    expect(
+      await db.query.agentJobTable.findFirst({
+        where: eq(schema.agentJobTable.id, job.id),
+      }),
+    ).toMatchObject({ status: "dispatched", externalRef: "123", attempts: 0 });
+    expect(dispatches).toBe(1);
+  });
+  it("finds and cancels an uncertain dispatch before failing an expired job", async () => {
+    const ctx = await setup();
+    const job = await (await ctx.start()).json();
+    loseDispatchReply = true;
+    await processCodeJobs();
+    visibleRuns = [
+      { id: 123, display_title: `Kaneo job ${job.id}`, head_sha: baseSha },
+    ];
+    await db
+      .update(schema.agentJobTable)
+      .set({ deadline: new Date(0), leaseExpiresAt: new Date(0) })
+      .where(eq(schema.agentJobTable.id, job.id));
+    rejectCancelOnce = true;
+    await processCodeJobs();
+    expect(
+      await db.query.agentJobTable.findFirst({
+        where: eq(schema.agentJobTable.id, job.id),
+      }),
+    ).toMatchObject({ status: "queued", externalRef: "123" });
+    await db
+      .update(schema.agentJobTable)
+      .set({ leaseExpiresAt: new Date(0) })
+      .where(eq(schema.agentJobTable.id, job.id));
+    await processCodeJobs();
+    expect(
+      await db.query.agentJobTable.findFirst({
+        where: eq(schema.agentJobTable.id, job.id),
+      }),
+    ).toMatchObject({
+      status: "failed",
+      error: "timed_out",
+      externalRef: "123",
+    });
+    expect(
+      calls.some((call) => call.path.endsWith("/actions/runs/123/cancel")),
+    ).toBe(true);
+    expect(dispatches).toBe(1);
   });
   it("expires stale jobs and keeps private jobs hidden from other workspace admins", async () => {
     const ctx = await setup();

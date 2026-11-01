@@ -67,6 +67,15 @@ export async function meteredModel(
           await settleCredit(reservation.id, 0n);
           params.abortSignal.throwIfAborted();
         }
+        // An opaque audit key lets operators match requests whose stream never
+        // supplied a generation ID, without exposing workspace/user details.
+        params.providerOptions = {
+          ...params.providerOptions,
+          openrouter: {
+            ...params.providerOptions?.openrouter,
+            user: reservation.id,
+          },
+        };
         // Once a request is sent, a network error does not prove it was free.
         // Retain the reservation if no terminal accounting arrives.
         const result = await Promise.resolve()

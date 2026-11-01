@@ -507,9 +507,15 @@ export const aiReservationTable = pgTable(
     multiplierBps: integer("multiplier_bps").notNull(),
     generationId: text("generation_id").unique(),
     status: text("status").notNull().default("held"),
+    nextReconcileAt: timestamp("next_reconcile_at")
+      .notNull()
+      .default(sql`((now() AT TIME ZONE 'utc') + interval '10 minutes')`),
     createdAt: timestamp("created_at").default(utcNow).notNull(),
   },
-  (t) => [index("ai_reservation_status_created_idx").on(t.status, t.createdAt)],
+  (t) => [
+    index("ai_reservation_status_created_idx").on(t.status, t.createdAt),
+    index("ai_reservation_retry_idx").on(t.status, t.nextReconcileAt),
+  ],
 );
 
 export const teamTable = pgTable(
@@ -2180,6 +2186,7 @@ export const agentJobTable = pgTable(
     createdAt: timestamp("created_at", { mode: "date" })
       .default(utcNow)
       .notNull(),
+    dispatchAttemptedAt: timestamp("dispatch_attempted_at"),
     dispatchedAt: timestamp("dispatched_at", { mode: "date" }),
     startedAt: timestamp("started_at", { mode: "date" }),
     finishedAt: timestamp("finished_at", { mode: "date" }),

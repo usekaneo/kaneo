@@ -1,3 +1,7 @@
+import {
+  GithubDispatchPendingError,
+  recoverGithubDispatch,
+} from "./backends/recover-github-dispatch";
 import { randomUUID } from "node:crypto";
 import { and, eq, inArray, isNull, lt, or } from "drizzle-orm";
 import { HTTPException } from "hono/http-exception";
@@ -17,7 +21,57 @@ import { CODE_JOB_ERRORS, type CodeJobError } from "./lifecycle";
 const jobs = schema.agentJobTable;
 let processing = false;
 
-async function fail(job: CodeJob, error: CodeJobError, owner: string) {
+async function releaseLease(
+  job: CodeJob,
+  owner: string,
+  delay = 30000,
+  refundAttempt = false,
+) {
+  await db
+    .update(jobs)
+    .set({
+      leaseOwner: null,
+      leaseExpiresAt: new Date(Date.now() + delay),
+      ...(refundAttempt ? { attempts: Math.max(0, job.attempts - 1) } : {}),
+    })
+    .where(and(eq(jobs.id, job.id), eq(jobs.leaseOwner, owner)));
+}
+
+async function fail(input: CodeJob, error: CodeJobError, owner: string) {
+  let job = input;
+  let cancelled = false;
+  if (job.status === "queued") {
+    const current = await db.query.agentJobTable.findFirst({
+      where: and(eq(jobs.id, job.id), eq(jobs.leaseOwner, owner)),
+    });
+    if (!current) return;
+    if (current.dispatchAttemptedAt) {
+      try {
+        const recovered = current.externalRef
+          ? {
+              externalRef: current.externalRef,
+              externalUrl: current.externalUrl,
+            }
+          : await recoverGithubDispatch(current);
+        if (recovered) {
+          job = { ...current, ...recovered };
+          await db
+            .update(jobs)
+            .set(recovered)
+            .where(and(eq(jobs.id, job.id), eq(jobs.leaseOwner, owner)));
+          // Do not mark it terminal if cancellation could not be confirmed.
+          await cancelGithubJob(job);
+          cancelled = true;
+        } else if (current.deadline.getTime() > Date.now()) {
+          await releaseLease(current, owner, 30000, true);
+          return;
+        }
+      } catch {
+        await releaseLease(current, owner, 30000, true);
+        return;
+      }
+    }
+  }
   await db.transaction(async (tx) => {
     const [locked] = await tx
       .select()
@@ -38,12 +92,21 @@ async function fail(job: CodeJob, error: CodeJobError, owner: string) {
     if (locked) await finishJob(tx, locked, { status: "failed", error });
   });
   await notifyJob(job);
-  await cancelGithubJob(job).catch(() => {});
+  if (!cancelled) await cancelGithubJob(job).catch(() => {});
 }
 
-async function executeJob(job: CodeJob, owner: string, signal: AbortSignal) {
+async function executeJob(
+  job: CodeJob,
+  owner: string,
+  signal: AbortSignal,
+  shutdownSignal: AbortSignal,
+) {
   try {
     signal.throwIfAborted();
+    if (job.deadline.getTime() <= Date.now() && job.status !== "committing") {
+      await fail(job, "timed_out", owner);
+      return;
+    }
     if (job.status === "queued") {
       if (!job.taskId || !job.integrationId)
         throw new HTTPException(403, { message: "access_revoked" });
@@ -134,6 +197,14 @@ async function executeJob(job: CodeJob, owner: string, signal: AbortSignal) {
       }
     }
   } catch (error) {
+    if (shutdownSignal.aborted) {
+      await releaseLease(job, owner, 0, true);
+      return;
+    }
+    if (error instanceof GithubDispatchPendingError) {
+      await releaseLease(job, owner, 30000, true);
+      return;
+    }
     // Store stable codes only; Octokit errors can contain credentials and bodies.
     const code: CodeJobError =
       error instanceof HTTPException &&
@@ -209,14 +280,9 @@ export async function processCodeJobs(
         AbortSignal.timeout(120000),
       ]);
       pending.push(
-        withoutOutboundTelemetry(async () => {
-          if (
-            job.deadline.getTime() <= Date.now() &&
-            job.status !== "committing"
-          )
-            await fail(job, "timed_out", owner);
-          else await executeJob(job, owner, boundedSignal);
-        }),
+        withoutOutboundTelemetry(() =>
+          executeJob(job, owner, boundedSignal, signal),
+        ),
       );
     }
     await Promise.all(pending);

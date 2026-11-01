@@ -139,7 +139,15 @@ export async function reconcilePaymentReversals() {
     return;
   }
   for (const reversal of pending) {
-    await db.transaction((tx) => applyReversal(reversal, tx));
-    cursor = reversal.id;
+    try {
+      await db.transaction((tx) => applyReversal(reversal, tx));
+    } catch {
+      // Do not log payment payloads or prevent other workspaces from settling.
+      console.error("AI payment reversal requires operator review", {
+        reversalId: reversal.id,
+      });
+    } finally {
+      cursor = reversal.id;
+    }
   }
 }

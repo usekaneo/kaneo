@@ -1,4 +1,4 @@
-import { and, eq, gt, isNotNull, lt } from "drizzle-orm";
+import { and, eq, inArray, isNotNull, lt, lte } from "drizzle-orm";
 import { z } from "zod";
 import db, { schema } from "../../database";
 import { getProviderSettings } from "../../agent/providers/settings";
@@ -15,11 +15,12 @@ const generationSchema = z.object({
   }),
 });
 let lastPoll = 0;
-let cursor = "";
-export async function reconcileAiCredit() {
-  if (!aiBillingEnabled() || Date.now() - lastPoll < 60000) return;
-  lastPoll = Date.now();
-  await reconcilePaymentReversals();
+export async function reconcileAiCredit(now = new Date()) {
+  if (!aiBillingEnabled() || now.getTime() - lastPoll < 60000) return;
+  lastPoll = now.getTime();
+  await reconcilePaymentReversals().catch(() =>
+    console.error("AI payment reversal reconciliation failed"),
+  );
   const settings = getProviderSettings("openrouter");
   if (
     !settings?.apiKey ||
@@ -27,22 +28,41 @@ export async function reconcileAiCredit() {
       settings.baseURL.replace(/\/$/, "") !== "https://openrouter.ai/api/v1")
   )
     return;
-  const held = await db
-    .select()
-    .from(schema.aiReservationTable)
-    .where(
-      and(
-        eq(schema.aiReservationTable.status, "held"),
-        gt(schema.aiReservationTable.id, cursor),
-        isNotNull(schema.aiReservationTable.generationId),
-        lt(schema.aiReservationTable.createdAt, new Date(Date.now() - 600000)),
-      ),
-    )
-    .orderBy(schema.aiReservationTable.id)
-    .limit(8);
-  if (!held.length) cursor = "";
+  const held = await db.transaction(async (tx) => {
+    const rows = await tx
+      .select()
+      .from(schema.aiReservationTable)
+      .where(
+        and(
+          eq(schema.aiReservationTable.status, "held"),
+          isNotNull(schema.aiReservationTable.generationId),
+          lt(
+            schema.aiReservationTable.createdAt,
+            new Date(now.getTime() - 600000),
+          ),
+          lte(schema.aiReservationTable.nextReconcileAt, now),
+        ),
+      )
+      .orderBy(
+        schema.aiReservationTable.nextReconcileAt,
+        schema.aiReservationTable.createdAt,
+        schema.aiReservationTable.id,
+      )
+      .limit(8)
+      .for("update", { skipLocked: true });
+    if (rows.length)
+      await tx
+        .update(schema.aiReservationTable)
+        .set({ nextReconcileAt: new Date(now.getTime() + 60000) })
+        .where(
+          inArray(
+            schema.aiReservationTable.id,
+            rows.map((item) => item.id),
+          ),
+        );
+    return rows;
+  });
   for (const item of held) {
-    cursor = item.id;
     try {
       const response = await fetch(
         `https://openrouter.ai/api/v1/generation?id=${encodeURIComponent(item.generationId!)}`,

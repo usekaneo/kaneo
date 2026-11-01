@@ -568,6 +568,13 @@
       "when": 1793533160656,
       "tag": "0080_tricky_magik",
       "breakpoints": true
+    },
+    {
+      "idx": 81,
+      "version": "7",
+      "when": 1793534691033,
+      "tag": "0081_real_scarecrow",
+      "breakpoints": true
     }
   ]
 }

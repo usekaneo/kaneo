@@ -376,11 +376,15 @@ rejections release their reservation; network errors and missing terminal costs
 retain it. The worker reconciles known generation IDs against OpenRouter after ten
 minutes, in batches once per minute. Costs are never assumed to be zero because
 accounting is missing. Requests with no saved generation ID require an operator to
-audit provider activity and settle explicitly with the recovery command below.
+audit provider activity and settle explicitly with the recovery commands below.
+Requests carry their opaque reservation ID as the provider audit user key.
 This also covers a crash between receiving a provider response and saving its ID.
 Do not release reservations on a timer without checking provider usage.
 
 ```sh
+# List aged reservations, including those with no generation ID.
+pnpm --filter @kaneo/api exec tsx scripts/list-ai-credit-reservations.ts
+
 pnpm --filter @kaneo/api exec tsx scripts/settle-ai-credit.ts \
   --reservation RESERVATION_ID --cost-usd AUDITED_PROVIDER_COST --confirm
 ```

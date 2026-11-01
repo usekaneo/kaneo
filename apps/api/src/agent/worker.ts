@@ -21,7 +21,9 @@ export async function processAgentQueue(signal: AbortSignal = shutdown.signal) {
       .finally(() => {
         codePoll = undefined;
       });
-  await reconcileAiCredit();
+  await reconcileAiCredit().catch(() =>
+    console.error("AI credit reconciliation failed"),
+  );
   await failExpiredRuns();
   await completeAutomationRuns();
   await deliverAgentEffects();
