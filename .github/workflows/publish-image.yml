@@ -1,0 +1,57 @@
+name: Publish Kaneo image
+
+# Builds the all-in-one Kaneo image (Dockerfile.kaneo) from main and pushes it
+# to GitHub Container Registry, tagged with the first 8 characters of the commit
+# SHA. compose.coolify.fork.yml pins that tag.
+#
+# It never runs on its own: open the Actions tab, choose "Publish Kaneo image"
+# and press "Run workflow" on main. It uses GitHub's standard runners and the
+# built-in GITHUB_TOKEN, so no extra secrets or paid services are needed.
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  publish:
+    name: Build and push ghcr.io/${{ github.repository_owner }}/kaneo
+    if: ${{ github.ref == 'refs/heads/main' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+          ref: ${{ github.sha }}
+
+      - name: Name the image tag
+        id: tag
+        run: echo "short=${GITHUB_SHA::8}" >> "$GITHUB_OUTPUT"
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@f87e5991a6d7451dcb8d9637bfbc97413f497069 # v4
+
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@81c6f93d4bc991e510b342a00b419b3bb4efc5c6 # v4
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build and push
+        uses: docker/build-push-action@c3c9e263c25d99ce0380d002d59b67737d91b0dc # v7
+        with:
+          context: .
+          file: ./Dockerfile.kaneo
+          # Intel/AMD servers. Add linux/arm64 here if the server is ARM.
+          platforms: linux/amd64
+          push: true
+          tags: ghcr.io/${{ github.repository_owner }}/kaneo:${{ steps.tag.outputs.short }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
