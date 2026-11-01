@@ -8,7 +8,8 @@ export function useUpdateTaskAssignee() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (task: Task) => updateTaskAssignee(task.id, task),
+    mutationFn: (task: Task & { replaceAssigneeIds?: string[] }) =>
+      updateTaskAssignee(task.id, task),
     onSuccess: (_, variables) => {
       invalidateMyWork(queryClient);
       queryClient.invalidateQueries({

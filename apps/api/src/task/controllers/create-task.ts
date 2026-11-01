@@ -1,3 +1,4 @@
+import { assertContactInWorkspace } from "../assert-contact-in-workspace";
 import { extractAssetIds } from "../../storage/cleanup-assets";
 import { and, eq, inArray, isNull } from "drizzle-orm";
 import { HTTPException } from "hono/http-exception";
@@ -17,9 +18,11 @@ import {
   readHiddenOptions,
   readOptions,
 } from "../../custom-field/choice-options";
+import { normalizeAssigneeIds } from "../assignees/assignee-set";
+import { replaceTaskAssignees } from "../assignees/task-assignees";
 import { publishEvent } from "../../events";
 import {
-  assertAssignableUser,
+  assertAssignableUsers,
   getProjectWorkspaceId,
 } from "../../utils/assert-assignable-user";
 import type { TaskRecurrence } from "../recurrence/schema";
@@ -56,6 +59,8 @@ async function createTask({
   projectId,
   currentUserId,
   userId,
+  contactId,
+  assigneeIds,
   title,
   status,
   startDate,
@@ -69,6 +74,8 @@ async function createTask({
   projectId: string;
   currentUserId: string;
   userId?: string;
+  contactId?: string;
+  assigneeIds?: string[];
   title: string;
   status: string;
   startDate?: Date;
@@ -83,7 +90,8 @@ async function createTask({
   const resolvedPriority = priority || "no-priority";
   const normalizedCustomFields = deduplicateCustomFields(customFields);
 
-  const normalizedUserId = userId?.trim() || undefined;
+  const requestedAssignees = normalizeAssigneeIds(assigneeIds ?? [userId]);
+  const normalizedUserId = requestedAssignees[0];
 
   await assertValidTaskStatus(resolvedStatus, projectId);
 
@@ -135,9 +143,9 @@ async function createTask({
 
   let assignee: { name: string } | undefined;
 
-  if (normalizedUserId) {
-    await assertAssignableUser(
-      normalizedUserId,
+  if (requestedAssignees.length > 0) {
+    await assertAssignableUsers(
+      requestedAssignees,
       await getProjectWorkspaceId(projectId),
       projectId,
     );
@@ -145,7 +153,7 @@ async function createTask({
     [assignee] = await db
       .select({ name: userTable.name })
       .from(userTable)
-      .where(eq(userTable.id, normalizedUserId));
+      .where(eq(userTable.id, requestedAssignees[0] ?? ""));
   }
 
   const column = await db.query.columnTable.findFirst({
@@ -162,6 +170,15 @@ async function createTask({
 
   const createdTask = await db.transaction(async (tx) => {
     const taskNumber = await claimTaskNumber(projectId, tx);
+    // Checked after the project row is locked: a concurrent project move
+    // cannot change the workspace between this check and the insert.
+    if (contactId) {
+      await assertContactInWorkspace(
+        contactId,
+        await getProjectWorkspaceId(projectId, tx),
+        tx,
+      );
+    }
     const nextPosition = await nextTaskPosition(
       tx,
       projectId,
@@ -174,6 +191,7 @@ async function createTask({
       .values({
         projectId,
         userId: normalizedUserId ?? null,
+        contactId: contactId || null,
         title: title || "",
         status: resolvedStatus,
         columnId: column?.id ?? null,
@@ -186,6 +204,10 @@ async function createTask({
         position: nextPosition,
       })
       .returning();
+
+    if (task && requestedAssignees.length > 0) {
+      await replaceTaskAssignees(tx, task, requestedAssignees);
+    }
 
     if (task && draftAssetIds?.length) {
       const referenced = extractAssetIds(description);
@@ -248,6 +270,7 @@ async function createTask({
     ...createdTask,
     taskId: createdTask.id,
     userId: createdTask.userId ?? "",
+    assigneeIds: requestedAssignees,
     currentUserId: currentUserId,
     type: "created",
     content: null,
@@ -256,6 +279,7 @@ async function createTask({
   return {
     ...createdTask,
     assigneeName: assignee?.name,
+    assigneeIds: requestedAssignees,
   };
 }
 

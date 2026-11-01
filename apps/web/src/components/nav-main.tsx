@@ -1,6 +1,7 @@
 import { useLocation, useNavigate } from "@tanstack/react-router";
 import {
   CircleCheck,
+  Contact,
   House,
   Inbox,
   type LucideIcon,
@@ -67,6 +68,11 @@ export function NavMain() {
       title: t("navigation:sidebar.resources"),
       icon: Pin,
       url: `${homeUrl}/resources`,
+    },
+    {
+      title: t("navigation:sidebar.contacts"),
+      icon: Contact,
+      url: `${homeUrl}/contacts`,
     },
     {
       title: t("navigation:sidebar.members"),

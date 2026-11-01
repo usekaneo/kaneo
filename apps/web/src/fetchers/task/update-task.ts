@@ -11,7 +11,8 @@ async function updateTask(taskId: string, task: Task) {
   const response = await client.task[":id"].$put({
     param: { id: taskId },
     json: {
-      userId: task.userId || "",
+      // No userId: a title edit or a card drag must not touch assignees, and
+      // echoing a cached one could overwrite a change made in the meantime.
       title: task.title,
       description: task.descriptionDeferred
         ? undefined

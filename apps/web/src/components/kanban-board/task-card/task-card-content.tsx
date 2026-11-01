@@ -1,3 +1,4 @@
+import { ContactTag } from "@/components/contacts/contact-tag";
 import { Trash2Icon } from "lucide-react";
 import { memo, type TouchEvent, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -194,6 +195,7 @@ function TaskCardContent({
               {task.title}
             </div>
             <ProjectTag projectId={task.projectId} className="mt-1.5 w-fit" />
+            <ContactTag contactId={task.contactId} className="mt-1.5 w-fit" />
 
             {!taskIsCompleted && (
               <div className="mt-2.5 flex flex-wrap items-center gap-1 empty:hidden">

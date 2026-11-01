@@ -59,6 +59,7 @@ import {
 } from "./controllers/require-task-permission";
 import updateTask from "./controllers/update-task";
 import updateTaskAssignee from "./controllers/update-task-assignee";
+import updateTaskContact from "./controllers/update-task-contact";
 import updateTaskDescription from "./controllers/update-task-description";
 import updateTaskDueDate from "./controllers/update-task-due-date";
 import updateTaskPriority from "./controllers/update-task-priority";
@@ -105,6 +106,7 @@ import {
   ticketIdParam,
   ticketIdQuery,
   updateAssigneeBody,
+  updateTaskContactBody,
   updateDescriptionBody,
   updateDueDateBody,
   updatePriorityBody,
@@ -588,7 +590,7 @@ const updateTaskAssigneeRoute = createRoute({
   tags: ["Tasks"],
   summary: "Update task assignee",
   description:
-    "Assign a task to a workspace member, or send null to unassign it.",
+    "Assign a task to one workspace member (userId), to several (assigneeIds, the complete set), or unassign it. Send at least one of the two fields. See each field for how the current primary assignee is treated.",
   middleware: [
     workspaceAccess.fromTask(),
     requireWorkspacePermission({ task: ["assign"] }),
@@ -609,6 +611,38 @@ const updateTaskAssigneeRoute = createRoute({
     ),
     404: errorResponse(
       "Task not found, or assignee is not a member of the workspace",
+    ),
+  },
+});
+
+const updateTaskContactRoute = createRoute({
+  method: "put",
+  operationId: "updateTaskContact",
+  path: "/contact/{id}",
+  tags: ["Tasks"],
+  summary: "Link a task to a contact",
+  description:
+    "Mark a task as a lead for a shared workspace contact, or send null to remove the link.",
+  middleware: [
+    workspaceAccess.fromTask(),
+    requireWorkspacePermission({ task: ["update"] }),
+    requireEntitlement,
+  ] as const,
+  request: {
+    params: taskParam,
+    body: {
+      required: true,
+      content: { "application/json": { schema: updateTaskContactBody } },
+    },
+  },
+  responses: {
+    200: jsonResponse("The updated task", taskSchema),
+    400: errorResponse("Invalid body"),
+    403: errorResponse(
+      "No access to the project, or missing task:update permission",
+    ),
+    404: errorResponse(
+      "Task not found, or contact is not in the task's workspace",
     ),
   },
 });
@@ -939,6 +973,8 @@ const task = apiRouter<BaseVariables & { workspaceId: string }>()
       priority,
       status,
       userId,
+      contactId,
+      assigneeIds,
       recurrence,
       customFields,
       draftAssetIds,
@@ -959,6 +995,8 @@ const task = apiRouter<BaseVariables & { workspaceId: string }>()
       projectId,
       currentUserId: c.get("userId"),
       userId: userId,
+      contactId,
+      assigneeIds,
       title,
       description,
       startDate: parsedStartDate,
@@ -1034,6 +1072,7 @@ const task = apiRouter<BaseVariables & { workspaceId: string }>()
       projectId,
       position,
       userId,
+      assigneeIds,
     } = c.req.valid("json");
 
     const currentUserId = c.get("userId");
@@ -1061,6 +1100,7 @@ const task = apiRouter<BaseVariables & { workspaceId: string }>()
       position,
       userId,
       currentUserId,
+      assigneeIds,
     );
 
     return c.json(task, 200);
@@ -1109,12 +1149,23 @@ const task = apiRouter<BaseVariables & { workspaceId: string }>()
   })
   .openapi(updateTaskAssigneeRoute, async (c) => {
     const { id } = c.req.valid("param");
-    const { userId } = c.req.valid("json");
+    const { userId, assigneeIds } = c.req.valid("json");
     const currentUserId = c.get("userId");
 
-    const task = await updateTaskAssignee({ id, userId, currentUserId });
+    const task = await updateTaskAssignee({
+      id,
+      userId,
+      assigneeIds,
+      currentUserId,
+    });
 
     return c.json(task, 200);
+  })
+  .openapi(updateTaskContactRoute, async (c) => {
+    const { id } = c.req.valid("param");
+    const { contactId } = c.req.valid("json");
+
+    return c.json(await updateTaskContact({ id, contactId }), 200);
   })
   .openapi(updateTaskDueDateRoute, async (c) => {
     const { id } = c.req.valid("param");

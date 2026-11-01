@@ -1,5 +1,6 @@
 import type { JSX } from "react";
 import { useTranslation } from "react-i18next";
+import { ContactTag } from "@/components/contacts/contact-tag";
 import { ProjectTag } from "@/components/project/project-tag";
 import {
   otherProjectName,
@@ -15,6 +16,7 @@ export type CalendarTask = PackableTask & {
   number: number | null;
   status: string;
   projectId?: string;
+  contactId?: string | null;
 };
 
 const STATUS_CLASSES: Record<string, string> = {
@@ -100,6 +102,7 @@ export default function CalendarTaskBar({
       {task.projectId && (
         <ProjectTag projectId={task.projectId} className="mr-1 max-w-20" />
       )}
+      <ContactTag contactId={task.contactId} className="mr-1 max-w-20" />
       <span className="truncate">{task.title}</span>
     </button>
   );

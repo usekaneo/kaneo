@@ -1,5 +1,6 @@
 import { and, eq, inArray } from "drizzle-orm";
 import { HTTPException } from "hono/http-exception";
+import { MAX_ASSIGNEES } from "../task/assignees/assignee-set";
 import db, { schema } from "../database";
 import { findInaccessibleProjectIds } from "../project-access/find-inaccessible-project-ids";
 import { instanceAdminRoleSql } from "./instance-admin-role";
@@ -88,4 +89,28 @@ export async function getProjectWorkspaceId(
   }
 
   return project.workspaceId;
+}
+
+export const TOO_MANY_ASSIGNEES = `A task can have at most ${MAX_ASSIGNEES} assignees`;
+
+export async function assertAssignableUsers(
+  userIds: readonly string[],
+  workspaceId: string,
+  projectIds: string | readonly string[],
+  database: Pick<typeof db, "select"> = db,
+): Promise<void> {
+  const ids = [...new Set(userIds)];
+  if (ids.length > MAX_ASSIGNEES) {
+    throw new HTTPException(400, { message: TOO_MANY_ASSIGNEES });
+  }
+  const assignable = await filterAssignableUsers(ids, workspaceId, database);
+  if (ids.some((id) => !assignable.has(id))) {
+    throw new HTTPException(403, { message: NOT_ASSIGNABLE });
+  }
+  const projects = typeof projectIds === "string" ? [projectIds] : projectIds;
+  for (const id of ids) {
+    if ((await findInaccessibleProjectIds(id, projects, database)).length > 0) {
+      throw new HTTPException(403, { message: NO_PROJECT_ACCESS });
+    }
+  }
 }

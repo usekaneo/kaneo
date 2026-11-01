@@ -63,4 +63,37 @@ describe("OptionMenu", () => {
       "aria-current",
     );
   });
+
+  it("announces a multi-select list and which options are selected", () => {
+    render(
+      <OptionMenu
+        label="Assignee"
+        placeholder="Assign"
+        options={options}
+        onSelect={vi.fn()}
+        multiple
+      />,
+    );
+
+    expect(screen.getByRole("listbox")).toHaveAttribute(
+      "aria-multiselectable",
+      "true",
+    );
+    expect(screen.getByRole("option", { name: "Done" })).toHaveAttribute(
+      "aria-selected",
+      "true",
+    );
+    expect(screen.getByRole("option", { name: /To Do/ })).toHaveAttribute(
+      "aria-selected",
+      "false",
+    );
+  });
+
+  it("leaves single-select lists unchanged", () => {
+    renderMenu();
+
+    expect(screen.getByRole("listbox")).not.toHaveAttribute(
+      "aria-multiselectable",
+    );
+  });
 });

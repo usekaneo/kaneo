@@ -425,6 +425,48 @@ describe("registerTools", () => {
     expect(client.json).not.toHaveBeenCalled();
   });
 
+  it("lists contacts with filters, creates them, and links a lead", async () => {
+    const { server, tools } = createServerMock();
+    const client = { json: vi.fn().mockResolvedValue({ id: "c-1" }) };
+
+    registerTools(server as never, { client: client as never });
+
+    await tools
+      .get("list_contacts")
+      ?.handler({ workspaceId: "ws-1", search: "ali", region: "male" });
+    expect(client.json).toHaveBeenCalledWith(
+      "/api/contact/workspace/ws-1?search=ali&region=male",
+    );
+
+    await tools
+      .get("create_contact")
+      ?.handler({ workspaceId: "ws-1", name: "Ali", type: "retailer" });
+    expect(client.json).toHaveBeenCalledWith("/api/contact/workspace/ws-1", {
+      method: "POST",
+      body: JSON.stringify({ name: "Ali", type: "retailer" }),
+    });
+
+    await tools
+      .get("get_contact_timeline")
+      ?.handler({ workspaceId: "ws-1", contactId: "c-1" });
+    expect(client.json).toHaveBeenCalledWith(
+      "/api/contact/workspace/ws-1/c-1/timeline",
+    );
+
+    await tools
+      .get("set_task_contact")
+      ?.handler({ taskId: "t-1", contactId: null });
+    expect(client.json).toHaveBeenCalledWith("/api/task/contact/t-1", {
+      method: "PUT",
+      body: JSON.stringify({ contactId: null }),
+    });
+
+    const invalid = await tools
+      .get("create_contact")
+      ?.handler({ workspaceId: "ws-1", name: "X", region: "mars" });
+    expect(invalid?.isError).toBe(true);
+  });
+
   it("creates a task relation with the expected body", async () => {
     const { server, tools } = createServerMock();
     const client = {

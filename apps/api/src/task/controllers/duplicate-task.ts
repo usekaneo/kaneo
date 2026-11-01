@@ -2,6 +2,11 @@ import { createId } from "@paralleldrive/cuid2";
 import { and, eq, isNotNull } from "drizzle-orm";
 import { HTTPException } from "hono/http-exception";
 import db from "../../database";
+import { pickPrimaryAssignee } from "../assignees/assignee-set";
+import {
+  loadAssigneeIds,
+  replaceTaskAssignees,
+} from "../assignees/task-assignees";
 import {
   assetTable,
   columnTable,
@@ -144,6 +149,7 @@ class RuleAlreadyMovedError extends Error {}
 
 type DuplicatedTask = typeof taskTable.$inferSelect & {
   assigneeName: string | undefined;
+  assigneeIds: string[];
 };
 
 function duplicateTask(options: DuplicateTaskOptions): Promise<DuplicatedTask>;
@@ -191,23 +197,26 @@ async function duplicateTask({
   await assertValidTaskStatus(status, sourceTask.projectId);
   // A manual copy reports a departed assignee; an occurrence goes unassigned
   // so the series keeps going.
-  let userId = sourceTask.userId;
-  if (userId) {
-    const members = await filterAssignableUsers([userId], project.workspaceId);
-    if (!members.has(userId)) {
-      if (!occurrence) {
-        throw new HTTPException(403, { message: NOT_ASSIGNABLE });
-      }
-      userId = null;
+  const sourceIds =
+    (await loadAssigneeIds([sourceTask], db)).get(sourceTask.id) ?? [];
+  let assigneeIds = sourceIds;
+  if (assigneeIds.length > 0) {
+    const members = await filterAssignableUsers(
+      assigneeIds,
+      project.workspaceId,
+    );
+    if (!occurrence && assigneeIds.some((id) => !members.has(id))) {
+      throw new HTTPException(403, { message: NOT_ASSIGNABLE });
     }
-  }
-  if (userId) {
     const permitted = await filterUsersWithProjectAccess(
-      [userId],
+      assigneeIds.filter((id) => members.has(id)),
       sourceTask.projectId,
     );
-    if (!permitted.has(userId)) userId = null;
+    assigneeIds = assigneeIds.filter(
+      (id) => members.has(id) && permitted.has(id),
+    );
   }
+  const userId = pickPrimaryAssignee(sourceTask.userId, assigneeIds);
   const column = await db.query.columnTable.findFirst({
     where: and(
       eq(columnTable.projectId, sourceTask.projectId),
@@ -323,6 +332,12 @@ async function duplicateTask({
       // Locks the project row before the task row, the same order task updates
       // use.
       const taskNumber = await claimTaskNumber(sourceTask.projectId, tx);
+      // Re-read under the project lock: a project move that committed after
+      // sourceTask was loaded has already cleared the contact link.
+      const [lockedSource] = await tx
+        .select({ contactId: taskTable.contactId })
+        .from(taskTable)
+        .where(eq(taskTable.id, sourceTask.id));
 
       // Moving the rule off the completed task is the claim. The row lock makes
       // a concurrent claim wait and then see no rule, so each completion
@@ -382,6 +397,7 @@ async function duplicateTask({
           id: duplicatedTaskId,
           projectId: sourceTask.projectId,
           userId,
+          contactId: lockedSource?.contactId ?? null,
           title: title?.trim() || sourceTask.title,
           status,
           columnId: column?.id ?? null,
@@ -393,6 +409,10 @@ async function duplicateTask({
           position: nextPosition,
         })
         .returning();
+
+      if (task && assigneeIds.length > 0) {
+        await replaceTaskAssignees(tx, task, assigneeIds);
+      }
 
       if (!task) {
         throw new HTTPException(500, {
@@ -456,6 +476,7 @@ async function duplicateTask({
     ...duplicatedTask,
     taskId: duplicatedTask.id,
     userId: duplicatedTask.userId ?? "",
+    assigneeIds,
     currentUserId,
     type: "created",
     content: null,
@@ -477,6 +498,7 @@ async function duplicateTask({
   return {
     ...duplicatedTask,
     assigneeName: assignee?.name,
+    assigneeIds,
   };
 }
 

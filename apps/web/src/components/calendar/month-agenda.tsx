@@ -1,6 +1,7 @@
 import { isBefore, isToday, startOfToday } from "date-fns";
 import { type JSX, useLayoutEffect, useMemo, useRef } from "react";
 import { useTranslation } from "react-i18next";
+import { ContactTag } from "@/components/contacts/contact-tag";
 import { ProjectTag } from "@/components/project/project-tag";
 import {
   otherProjectName,
@@ -122,6 +123,7 @@ export default function MonthAgenda({
                         {task.projectId && (
                           <ProjectTag projectId={task.projectId} />
                         )}
+                        <ContactTag contactId={task.contactId} />
                         {taskKey ? `${taskKey} · ${range}` : range}
                       </span>
                     </button>

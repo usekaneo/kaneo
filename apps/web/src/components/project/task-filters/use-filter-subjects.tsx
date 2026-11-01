@@ -3,6 +3,7 @@ import { useTranslation } from "react-i18next";
 import { getColumnIcon } from "@/lib/column";
 import { getPriorityLabel } from "@/lib/i18n/domain";
 import { getPriorityIcon } from "@/lib/priority";
+import { getTaskAssigneeIds } from "@/lib/task-assignees";
 import { countValues } from "@/lib/task-filters/count-values";
 import { DUE_DATE_OPTIONS } from "@/lib/task-filters/due-date-options";
 import { customFieldSubjectId } from "@/lib/task-filters/filter-subject-id";
@@ -79,7 +80,7 @@ export function useFilterSubjects({
   );
   const counts = {
     status: countValues(tasks, (task) => [task.status]),
-    assignee: countValues(tasks, (task) => [task.userId]),
+    assignee: countValues(tasks, (task) => getTaskAssigneeIds(task)),
     priority: countValues(tasks, (task) => [task.priority]),
     labels: countValues(tasks, (task) =>
       (task.labels ?? []).map((label) =>

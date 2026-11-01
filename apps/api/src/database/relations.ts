@@ -18,6 +18,7 @@ import {
   sessionTable,
   taskRelationTable,
   taskReminderSentTable,
+  taskAssigneeTable,
   taskTable,
   teamMemberTable,
   teamTable,
@@ -148,6 +149,7 @@ export const taskTableRelations = relations(taskTable, ({ one, many }) => ({
     fields: [taskTable.columnId],
     references: [columnTable.id],
   }),
+  assignees: many(taskAssigneeTable),
   timeEntries: many(timeEntryTable),
   activities: many(activityTable),
   comments: many(commentTable),
@@ -370,6 +372,20 @@ export const externalLinkTableRelations = relations(
     integration: one(integrationTable, {
       fields: [externalLinkTable.integrationId],
       references: [integrationTable.id],
+    }),
+  }),
+);
+
+export const taskAssigneeTableRelations = relations(
+  taskAssigneeTable,
+  ({ one }) => ({
+    task: one(taskTable, {
+      fields: [taskAssigneeTable.taskId],
+      references: [taskTable.id],
+    }),
+    user: one(userTable, {
+      fields: [taskAssigneeTable.userId],
+      references: [userTable.id],
     }),
   }),
 );

@@ -1,11 +1,13 @@
 import { Calendar, CalendarDays } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import icons from "@/constants/project-icons";
+import { useWorkspacePermission } from "@/hooks/use-workspace-permission";
 import { getColumnIcon } from "@/lib/column";
 import { cn } from "@/lib/cn";
 import { formatDateShort } from "@/lib/format";
 import { getPriorityLabel } from "@/lib/i18n/domain";
 import { getPriorityIcon } from "@/lib/priority";
+import { TaskContactRow } from "@/components/contacts/task-contact-row";
 import { TaskCustomFieldRows } from "../custom-fields/task-custom-field-rows";
 import TaskAssigneePopover from "../task-assignee-popover";
 import TaskDueDatePopover from "../task-due-date-popover";
@@ -15,7 +17,7 @@ import TaskPriorityPopover from "../task-priority-popover";
 import { TaskRecurrenceBadge } from "../task-recurrence-badge";
 import TaskStartDatePopover from "../task-start-date-popover";
 import TaskStatusPopover from "../task-status-popover";
-import { AssigneeAvatar } from "./assignee-avatar";
+import { AssigneeValue } from "./assignee-value";
 import { dueDateTextClass } from "./due-date-text-class";
 import { LabelsValue } from "./labels-value";
 import { PropertyRow } from "./property-row";
@@ -36,6 +38,7 @@ export function PropertiesRail({
   className,
 }: PropertiesRailProps) {
   const { t } = useTranslation();
+  const { canUpdateTasks } = useWorkspacePermission();
   const { task, project, labels, status, assignee, dueStatus, canMoveTask } =
     useTaskProperties(taskId, projectId, workspaceId);
 
@@ -82,24 +85,21 @@ export function PropertiesRail({
         <PropertyRow label={t("tasks:assignee.label")}>
           <TaskAssigneePopover task={task} workspaceId={workspaceId}>
             <PropertyValue data-task-action="assignee" shortcutId="assignTask">
-              <AssigneeAvatar
+              <AssigneeValue
+                task={task}
                 name={assignee?.user?.name || task.assigneeName}
                 image={assignee?.user?.image}
-                assigned={Boolean(task.userId)}
               />
-              <span
-                className={cn(
-                  "truncate",
-                  !task.userId && "text-muted-foreground",
-                )}
-              >
-                {assignee?.user?.name ||
-                  task.assigneeName ||
-                  t("tasks:popover.assignee.unassigned")}
-              </span>
             </PropertyValue>
           </TaskAssigneePopover>
         </PropertyRow>
+
+        <TaskContactRow
+          taskId={taskId}
+          workspaceId={workspaceId}
+          contactId={task.contactId}
+          canEdit={canUpdateTasks()}
+        />
 
         <PropertyRow label={t("tasks:properties.labels")} align="start">
           <TaskLabelsPopover task={task} workspaceId={workspaceId}>

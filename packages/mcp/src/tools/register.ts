@@ -25,9 +25,32 @@ const prioritySchema = z.enum([
   "urgent",
 ]);
 
+// Keep in step with apps/api/src/contact/options.ts.
+const contactTypeSchema = z.enum([
+  "retailer",
+  "distributor",
+  "end-user",
+  "partner",
+  "other",
+]);
+const contactRegionSchema = z.enum([
+  "male",
+  "hulhumale",
+  "north-atolls",
+  "central-atolls",
+  "south-atolls",
+  "other",
+]);
+
 const nonEmptyString = z.string().trim().min(1);
 const optionalNonEmptyString = nonEmptyString.optional();
 const nullableOptionalNonEmptyString = nonEmptyString.nullable().optional();
+const assigneeIdsSchema = z
+  .array(nonEmptyString)
+  .max(20)
+  .describe(
+    "The complete set of assignee user IDs; it replaces the current set. On create the first is the primary assignee. On update the current primary assignee keeps that role while it stays in the set (reordering does nothing); otherwise the first ID becomes primary. An empty array unassigns.",
+  );
 const isoDateTimeSchema = z.string().datetime({ offset: true });
 const optionalIsoDateTimeSchema = isoDateTimeSchema.optional();
 const nullableOptionalIsoDateTimeSchema = isoDateTimeSchema
@@ -210,7 +233,9 @@ export function registerTools(
     projectId: nonEmptyString,
     status: optionalNonEmptyString,
     priority: prioritySchema.optional(),
-    assigneeId: optionalNonEmptyString,
+    assigneeId: optionalNonEmptyString.describe(
+      "Only tasks this user is assigned to, as primary or co-assignee.",
+    ),
     page: z.number().int().min(1).max(1_000_000).optional(),
     relatedPage: z.number().int().min(1).max(1_000_000).optional(),
     limit: z.number().int().min(1).max(100).optional(),
@@ -297,10 +322,17 @@ export function registerTools(
         startDate: optionalIsoDateTimeSchema,
         dueDate: optionalIsoDateTimeSchema,
         userId: optionalNonEmptyString,
+        contactId: z
+          .string()
+          .trim()
+          .min(1)
+          .optional()
+          .describe("Contact this task is a lead for; see list_contacts."),
+        assigneeIds: assigneeIdsSchema.optional(),
       }),
     },
     async (args) => {
-      const body: Record<string, string | undefined> = {
+      const body: Record<string, string | string[] | undefined> = {
         title: args.title,
         description: args.description,
         priority: args.priority,
@@ -314,6 +346,12 @@ export function registerTools(
       }
       if (args.userId !== undefined) {
         body.userId = args.userId;
+      }
+      if (args.contactId !== undefined) {
+        body.contactId = args.contactId;
+      }
+      if (args.assigneeIds !== undefined) {
+        body.assigneeIds = args.assigneeIds;
       }
       return run(() =>
         client.json(`/api/task/${encodeURIComponent(args.projectId)}`, {
@@ -359,6 +397,7 @@ export function registerTools(
     startDate: nullableOptionalIsoDateTimeSchema,
     dueDate: nullableOptionalIsoDateTimeSchema,
     userId: nullableOptionalNonEmptyString,
+    assigneeIds: assigneeIdsSchema.optional(),
   });
 
   registerTool(
@@ -668,6 +707,96 @@ export function registerTools(
   );
 
   registerTool(
+    "list_contacts",
+    {
+      description:
+        "List the workspace's shared sales contacts, optionally filtered by search text (name, phone, email), type, or region. Each has a leadCount of linked tasks.",
+      inputSchema: z.object({
+        workspaceId: nonEmptyString,
+        search: optionalNonEmptyString,
+        type: contactTypeSchema.optional(),
+        region: contactRegionSchema.optional(),
+      }),
+    },
+    async (args) => {
+      const query = new URLSearchParams();
+      if (args.search) query.set("search", args.search);
+      if (args.type) query.set("type", args.type);
+      if (args.region) query.set("region", args.region);
+      const suffix = query.size > 0 ? `?${query}` : "";
+      return run(() =>
+        client.json(
+          `/api/contact/workspace/${encodeURIComponent(args.workspaceId)}${suffix}`,
+        ),
+      );
+    },
+  );
+
+  registerTool(
+    "create_contact",
+    {
+      description:
+        "Add a shared sales contact to a workspace. Type and region default to 'other'. Link leads to it with create_task (contactId) or set_task_contact.",
+      inputSchema: z.object({
+        workspaceId: nonEmptyString,
+        name: nonEmptyString,
+        phone: optionalNonEmptyString,
+        email: optionalNonEmptyString,
+        type: contactTypeSchema.optional(),
+        region: contactRegionSchema.optional(),
+        notes: optionalNonEmptyString,
+      }),
+    },
+    async ({ workspaceId, ...body }) =>
+      run(() =>
+        client.json(
+          `/api/contact/workspace/${encodeURIComponent(workspaceId)}`,
+          {
+            method: "POST",
+            body: JSON.stringify(body),
+          },
+        ),
+      ),
+  );
+
+  registerTool(
+    "get_contact_timeline",
+    {
+      description:
+        "Get a contact's leads (next follow-up first) and the comments logged on them, newest first. Log a new interaction with create_task_comment on one of the leads.",
+      inputSchema: z.object({
+        workspaceId: nonEmptyString,
+        contactId: nonEmptyString,
+      }),
+    },
+    async (args) =>
+      run(() =>
+        client.json(
+          `/api/contact/workspace/${encodeURIComponent(args.workspaceId)}/${encodeURIComponent(args.contactId)}/timeline`,
+        ),
+      ),
+  );
+
+  registerTool(
+    "set_task_contact",
+    {
+      description:
+        "Link a task (lead) to a contact, or pass contactId null to remove the link.",
+      inputSchema: z.object({
+        taskId: nonEmptyString,
+        contactId: nonEmptyString.nullable(),
+      }),
+    },
+    async (args) =>
+      run(() =>
+        client.json(`/api/task/contact/${encodeURIComponent(args.taskId)}`, {
+          method: "PUT",
+          body: JSON.stringify({ contactId: args.contactId }),
+        }),
+      ),
+  );
+
+  registerTool(
     "search",
     {
       description:
@@ -794,21 +923,33 @@ export function registerTools(
     "update_task_assignee",
     {
       description:
-        "Assign a task to a workspace member, or pass a null userId to unassign it.",
+        "Set who a task is assigned to. Pass assigneeIds for the complete set of people (this replaces the current set, so use it to make someone the only assignee), or userId for one person (null unassigns everyone). Note: userId equal to the task's current primary assignee changes nothing and keeps the others; use assigneeIds to replace them.",
       inputSchema: z.object({
         taskId: nonEmptyString,
         userId: nonEmptyString
           .nullable()
-          .describe("Member user ID, or null to unassign"),
+          .optional()
+          .describe("Single member user ID, or null to unassign"),
+        assigneeIds: assigneeIdsSchema.optional(),
       }),
     },
     async (args) =>
-      run(() =>
-        client.json(`/api/task/assignee/${encodeURIComponent(args.taskId)}`, {
-          method: "PUT",
-          body: JSON.stringify({ userId: args.userId }),
-        }),
-      ),
+      run(async () => {
+        if (args.userId === undefined && args.assigneeIds === undefined) {
+          throw new Error("Pass assigneeIds or userId.");
+        }
+        return client.json(
+          `/api/task/assignee/${encodeURIComponent(args.taskId)}`,
+          {
+            method: "PUT",
+            body: JSON.stringify(
+              args.assigneeIds !== undefined
+                ? { assigneeIds: args.assigneeIds }
+                : { userId: args.userId },
+            ),
+          },
+        );
+      }),
   );
 
   registerTool(

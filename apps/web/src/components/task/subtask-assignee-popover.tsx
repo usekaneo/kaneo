@@ -43,7 +43,13 @@ export default function SubtaskAssigneePopover({
     setOpen(false);
     try {
       await Promise.all(
-        tasks.map((task) => updateTaskAssignee({ ...task, userId })),
+        tasks.map((task) =>
+          updateTaskAssignee({
+            ...task,
+            userId,
+            replaceAssigneeIds: userId ? [userId] : [],
+          }),
+        ),
       );
     } catch (error) {
       toast.error(

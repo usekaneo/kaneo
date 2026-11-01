@@ -3,6 +3,7 @@ import { eq, sql } from "drizzle-orm";
 import type { WSContext } from "hono/ws";
 import { beforeEach, describe, expect, it, vi } from "vite-plus/test";
 import db, { schema } from "../../apps/api/src/database";
+import { contactTable } from "../../apps/api/src/database/schema";
 import { createApp } from "../../apps/api/src/index";
 import createTaskRelation from "../../apps/api/src/task-relation/controllers/create-task-relation";
 import { addConnection, removeConnection } from "../../apps/api/src/ws";
@@ -334,6 +335,17 @@ describe("API integration: moving a project between workspaces", () => {
       })
       .returning();
 
+    // Contacts belong to one workspace, so a leaving project's leads must not
+    // keep pointing at the old workspace's contact.
+    const [contact] = await db
+      .insert(contactTable)
+      .values({ workspaceId: owner.workspace.id, name: "Ali Stores" })
+      .returning();
+    await db
+      .update(schema.taskTable)
+      .set({ contactId: contact.id })
+      .where(eq(schema.taskTable.id, task.id));
+
     const [label] = await db
       .insert(schema.labelTable)
       .values({
@@ -423,6 +435,7 @@ describe("API integration: moving a project between workspaces", () => {
       .from(schema.taskTable)
       .where(eq(schema.taskTable.id, task.id));
     expect(movedTask.columnId).toBe(columns.todo.id);
+    expect(movedTask.contactId).toBeNull();
 
     const sourceListing = await app.request(
       `/api/project?workspaceId=${owner.workspace.id}`,

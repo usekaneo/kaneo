@@ -1,3 +1,4 @@
+import { loadAssigneeIds } from "../task/assignees/task-assignees";
 import { eq } from "drizzle-orm";
 import db from "../database";
 import { projectTable, taskTable } from "../database/schema";
@@ -250,19 +251,26 @@ const notification = apiRouter()
 subscribeToEvent<{
   taskId: string;
   userId: string;
+  assigneeIds?: string[];
   currentUserId?: string;
   title: string;
   projectId: string;
 }>("task.created", async (data) => {
-  if (data.userId && data.userId !== data.currentUserId) {
-    const [project] = await db
-      .select({ workspaceId: projectTable.workspaceId })
-      .from(projectTable)
-      .where(eq(projectTable.id, data.projectId))
-      .limit(1);
+  // Everyone assigned at creation is new to the task, not only the primary.
+  const recipients = [
+    ...new Set(data.assigneeIds?.length ? data.assigneeIds : [data.userId]),
+  ].filter((id) => id && id !== data.currentUserId);
+  if (recipients.length === 0) return;
 
+  const [project] = await db
+    .select({ workspaceId: projectTable.workspaceId })
+    .from(projectTable)
+    .where(eq(projectTable.id, data.projectId))
+    .limit(1);
+
+  for (const recipient of recipients) {
     await createNotification({
-      userId: data.userId,
+      userId: recipient,
       type: "task_created",
       eventData: {
         taskTitle: data.title,
@@ -302,23 +310,34 @@ subscribeToEvent<{
   title: string;
   assigneeId?: string;
 }>("task.status_changed", async (data) => {
-  if (data.assigneeId && data.assigneeId !== data.userId) {
-    const [task] = await db
-      .select({ projectId: taskTable.projectId })
-      .from(taskTable)
-      .where(eq(taskTable.id, data.taskId))
-      .limit(1);
+  if (!data.assigneeId) return;
+  const [task] = await db
+    .select({ id: taskTable.id, projectId: taskTable.projectId })
+    .from(taskTable)
+    .where(eq(taskTable.id, data.taskId))
+    .limit(1);
 
-    const [project] = task
-      ? await db
-          .select({ workspaceId: projectTable.workspaceId })
-          .from(projectTable)
-          .where(eq(projectTable.id, task.projectId))
-          .limit(1)
-      : [];
+  const [project] = task
+    ? await db
+        .select({ workspaceId: projectTable.workspaceId })
+        .from(projectTable)
+        .where(eq(projectTable.id, task.projectId))
+        .limit(1)
+    : [];
 
+  // Everyone assigned hears about it, not just the primary assignee.
+  const assigneeIds = new Set([
+    data.assigneeId,
+    ...(task
+      ? ((await loadAssigneeIds([{ id: task.id, userId: null }], db)).get(
+          task.id,
+        ) ?? [])
+      : []),
+  ]);
+  for (const assigneeId of assigneeIds) {
+    if (assigneeId === data.userId) continue;
     await createNotification({
-      userId: data.assigneeId,
+      userId: assigneeId,
       type: "task_status_changed",
       eventData: {
         taskTitle: data.title,
@@ -339,9 +358,15 @@ subscribeToEvent<{
   oldAssignee: string | null;
   newAssignee: string;
   newAssigneeId: string;
+  newlyAssigned?: boolean;
   title: string;
 }>("task.assignee_changed", async (data) => {
-  if (data.newAssigneeId && data.newAssigneeId !== data.userId) {
+  // A co-assignee promoted to primary was already on the task.
+  if (
+    data.newAssigneeId &&
+    data.newAssigneeId !== data.userId &&
+    data.newlyAssigned !== false
+  ) {
     const [task] = await db
       .select({ projectId: taskTable.projectId })
       .from(taskTable)
@@ -362,6 +387,42 @@ subscribeToEvent<{
       eventData: {
         taskTitle: data.title,
         projectId: task?.projectId ?? null,
+        workspaceId: project?.workspaceId ?? null,
+      },
+      resourceId: data.taskId,
+      resourceType: "task",
+    });
+  }
+});
+
+// Everyone added to a task is told once. The new primary already got their
+// notification from task.assignee_changed, so they are skipped here.
+subscribeToEvent<{
+  taskId: string;
+  projectId: string;
+  userId?: string;
+  title: string;
+  added: string[];
+  notifiedViaPrimary: string | null;
+}>("task.assignees_changed", async (data) => {
+  const recipients = data.added.filter(
+    (id) => id !== data.userId && id !== data.notifiedViaPrimary,
+  );
+  if (recipients.length === 0) return;
+
+  const [project] = await db
+    .select({ workspaceId: projectTable.workspaceId })
+    .from(projectTable)
+    .where(eq(projectTable.id, data.projectId))
+    .limit(1);
+
+  for (const recipient of recipients) {
+    await createNotification({
+      userId: recipient,
+      type: "task_assignee_changed",
+      eventData: {
+        taskTitle: data.title,
+        projectId: data.projectId,
         workspaceId: project?.workspaceId ?? null,
       },
       resourceId: data.taskId,

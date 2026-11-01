@@ -1,4 +1,4 @@
-import { eq } from "drizzle-orm";
+import { eq, inArray } from "drizzle-orm";
 import db from "../../database";
 import {
   activityTable,
@@ -50,6 +50,71 @@ export async function recordTaskMutation(
   }
 }
 
+async function publishAssigneeEvents(
+  common: { taskId: string; projectId: string; userId?: string; title: string },
+  previousPrimary: string | null,
+  { added, removed }: { added: string[]; removed: string[] },
+  primaryAfter: string | null,
+  knownNames: Map<string, string> = new Map(),
+) {
+  // Only ids not already known are queried; callers publishing many tasks pass
+  // one shared map so each distinct user is looked up once.
+  const missing = [
+    ...new Set([...added, ...removed, ...(primaryAfter ? [primaryAfter] : [])]),
+  ].filter((id) => !knownNames.has(id));
+  if (missing.length > 0) {
+    const rows = await db
+      .select({ id: userTable.id, name: userTable.name })
+      .from(userTable)
+      .where(inArray(userTable.id, missing));
+    for (const row of rows) knownNames.set(row.id, row.name);
+  }
+
+  // Webhooks, plugins and the activity feed know a single assignee, so these
+  // two events describe the PRIMARY only: moving a task from Alice to Bob is one
+  // assignment, and adding or removing a co-assignee is invisible to them.
+  const primaryChanged = primaryAfter !== previousPrimary;
+  let notifiedViaPrimary: string | null = null;
+  if (primaryAfter && primaryChanged) {
+    const newlyAssigned = added.includes(primaryAfter);
+    if (newlyAssigned) notifiedViaPrimary = primaryAfter;
+    await publishEvent("task.assignee_changed", {
+      ...common,
+      oldAssignee: previousPrimary,
+      newAssignee: knownNames.get(primaryAfter),
+      newAssigneeId: primaryAfter,
+      // False when an existing co-assignee takes over as primary: nothing
+      // new has happened to them, so they are not notified.
+      newlyAssigned,
+      type: "assignee_changed",
+    });
+  } else if (primaryAfter === null) {
+    // One event for one action, however many people were on the task: the
+    // legacy event has no list, so a repeat would be an identical delivery.
+    const id = previousPrimary ?? removed[0];
+    if (id) {
+      await publishEvent("task.unassigned", {
+        ...common,
+        removedAssigneeId: id,
+        removedAssignee: knownNames.get(id),
+        type: "unassigned",
+      });
+    }
+  }
+
+  // Internal only: tells the other people on the task (notifications) and every
+  // open client (live refresh) that the set changed, whatever the primary did.
+  if (added.length > 0 || removed.length > 0) {
+    await publishEvent("task.assignees_changed", {
+      ...common,
+      added,
+      removed,
+      primaryAfter,
+      notifiedViaPrimary,
+    });
+  }
+}
+
 export async function publishTaskMutation(
   before: Partial<TaskBefore>,
   after: Pick<TaskBefore, "id" | "projectId" | "title"> & Partial<TaskBefore>,
@@ -59,6 +124,11 @@ export async function publishTaskMutation(
     skipRelationRefresh?: boolean;
     fields?: Array<keyof Changes>;
     assigneeName?: string | null;
+    // When given, replaces the single-assignee comparison: one event per person
+    // added or removed, so only the newly added get notified.
+    assignees?: { added: string[]; removed: string[] };
+    // Shared across calls so a bulk change resolves each user's name once.
+    assigneeNames?: Map<string, string>;
     sourceIntegrationId?: string;
   } = {},
 ) {
@@ -114,7 +184,16 @@ export async function publishTaskMutation(
       newPriority: after.priority,
       type: "priority_changed",
     });
-  if (changed("userId")) {
+  if (options.assignees) {
+    if (!options.fields || options.fields.includes("userId"))
+      await publishAssigneeEvents(
+        common,
+        before.userId ?? null,
+        options.assignees,
+        after.userId ?? null,
+        options.assigneeNames,
+      );
+  } else if (changed("userId")) {
     const assignee =
       options.assigneeName !== undefined
         ? { name: options.assigneeName ?? undefined }

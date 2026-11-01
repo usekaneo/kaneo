@@ -161,7 +161,12 @@ describe("TaskShortcuts", () => {
     await act(async () => {});
 
     expect(mocks.updateAssignee).toHaveBeenCalledWith(
-      expect.objectContaining({ id: "task-1", userId: "user-1" }),
+      expect.objectContaining({
+        id: "task-1",
+        userId: "user-1",
+        // Explicit, so it replaces everyone even if user-1 is not the primary.
+        replaceAssigneeIds: ["user-1"],
+      }),
     );
     expect(mocks.message).toHaveBeenCalledWith("tasks:shortcuts.assignedToMe", {
       icon: expect.anything(),

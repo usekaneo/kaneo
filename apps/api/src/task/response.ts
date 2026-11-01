@@ -1,6 +1,17 @@
 import { nullableResponseTimestamp, responseTimestamp, z } from "../openapi";
 import { taskRecurrenceSchema } from "./recurrence/schema";
 
+const assigneeSchema = z
+  .object({
+    id: z.string(),
+    name: z.string(),
+    image: z.string().nullable(),
+  })
+  .openapi("TaskAssignee");
+
+const assigneeIdsDescription =
+  "Every assignee's user ID, primary assignee first. Always contains userId when that is set.";
+
 const priorityDescription = "One of: no-priority, low, medium, high, urgent.";
 
 export const taskSchema = z
@@ -13,10 +24,14 @@ export const taskSchema = z
     number: z.number().nullable().openapi({
       description: "Per-project counter shown as {projectSlug}-{number}.",
     }),
-    userId: z
-      .string()
-      .nullable()
-      .openapi({ description: "The assignee, if any." }),
+    userId: z.string().nullable().openapi({
+      description:
+        "The primary (first) assignee, if any. Kept for clients that only know one assignee; see assigneeIds for all of them.",
+    }),
+    assigneeIds: z
+      .array(z.string())
+      .optional()
+      .openapi({ description: assigneeIdsDescription }),
     title: z.string(),
     description: z.string().nullable(),
     descriptionDeferred: z.boolean().optional().openapi({
@@ -29,6 +44,9 @@ export const taskSchema = z
     priority: z.string().openapi({ description: priorityDescription }),
     startDate: nullableResponseTimestamp,
     dueDate: nullableResponseTimestamp,
+    contactId: z.string().nullable().optional().openapi({
+      description: "The linked workspace contact, if any.",
+    }),
     recurrence: z.union([taskRecurrenceSchema, z.null()]).optional(),
     createdAt: responseTimestamp,
     customFields: z
@@ -61,6 +79,9 @@ export const taskWithAssigneeSchema = taskSchema
       .optional(),
     assigneeName: z.string().nullable(),
     assigneeId: z.string().nullable(),
+    assignees: z.array(assigneeSchema).openapi({
+      description: "Every assignee with display details, primary first.",
+    }),
   })
   .openapi("TaskWithAssignee");
 
@@ -115,6 +136,10 @@ export const boardTaskSchema = z
     assigneeName: z.string().nullable(),
     assigneeId: z.string().nullable(),
     assigneeImage: z.string().nullable(),
+    assigneeIds: z.array(z.string()).openapi({
+      description: assigneeIdsDescription,
+    }),
+    assignees: z.array(assigneeSchema),
     projectId: z.string(),
     subtaskCounts: z
       .object({

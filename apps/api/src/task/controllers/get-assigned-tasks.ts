@@ -9,6 +9,7 @@ import {
   ne,
   sql,
 } from "drizzle-orm";
+import { taskAssignedTo } from "../assignees/task-assigned-to";
 import db from "../../database";
 import {
   columnTable,
@@ -38,7 +39,7 @@ async function getAssignedTasks(
   const openAndMine = and(
     eq(projectTable.workspaceId, workspaceId),
     isNull(projectTable.archivedAt),
-    eq(taskTable.userId, userId),
+    taskAssignedTo(userId),
     ne(taskTable.status, "archived"),
     sql`not coalesce((
       select ${columnTable.isFinal} from ${columnTable}

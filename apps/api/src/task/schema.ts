@@ -44,7 +44,9 @@ const priority = z.enum(VALID_PRIORITIES);
 export const listTasksQuery = z.object({
   status: z.string().optional(),
   priority: z.string().optional(),
-  assigneeId: z.string().optional(),
+  assigneeId: z.string().optional().openapi({
+    description: "Only tasks this user is assigned to, as primary or not.",
+  }),
   // Number("abc") is NaN, which used to reach the limit/offset clause unchecked.
   page: pagingNumber(1, 1_000_000).optional(),
   relatedPage: pagingNumber(1, 1_000_000).optional(),
@@ -82,6 +84,13 @@ export const createTaskBody = z.object({
   priority,
   status: z.string().openapi({ description: "The target column's slug." }),
   userId: z.string().optional().openapi({ description: "Assignee, if any." }),
+  contactId: z.string().optional().openapi({
+    description: "Shared workspace contact this task is a lead for, if any.",
+  }),
+  assigneeIds: z.array(z.string()).max(20).optional().openapi({
+    description:
+      "Assignees. Takes precedence over userId; the first one is the primary assignee.",
+  }),
   recurrence: taskRecurrenceSchema
     .optional()
     .openapi({ description: "Omit to create a task that does not repeat." }),
@@ -103,7 +112,13 @@ export const updateTaskBody = z.object({
   status: z.string(),
   projectId: z.string(),
   position: z.number().int().min(0).max(MAX_TASK_POSITION),
-  userId: z.string().optional(),
+  userId: z.string().optional().openapi({
+    description:
+      "The primary assignee. Leave out to unassign, unless assigneeIds is sent. Sending the current primary keeps any other assignees.",
+  }),
+  assigneeIds: z.array(z.string()).max(20).optional().openapi({
+    description: "The complete set of assignees. Takes precedence over userId.",
+  }),
 });
 
 export const moveTaskBody = z.object({
@@ -135,8 +150,27 @@ export const importTasksBody = z.object({
 
 export const updateStatusBody = z.object({ status: z.string() });
 export const updatePriorityBody = z.object({ priority });
-export const updateAssigneeBody = z.object({
-  userId: z.string().nullable().openapi({ description: "Null unassigns." }),
+export const updateAssigneeBody = z
+  .object({
+    userId: z.string().nullable().optional().openapi({
+      description:
+        "Assign one user. Null unassigns everyone. For compatibility with older clients, sending the task's current primary assignee changes nothing and keeps the other assignees; any other user replaces everyone. Ignored when assigneeIds is sent. To make one person the only assignee, send assigneeIds instead.",
+    }),
+    assigneeIds: z.array(z.string()).max(20).optional().openapi({
+      description:
+        "The complete set of assignees, replacing the current one. The current primary assignee keeps that role while it stays in the set; otherwise the first id becomes primary. An empty array unassigns.",
+    }),
+  })
+  .refine(
+    (body) => body.userId !== undefined || body.assigneeIds !== undefined,
+    "Send userId or assigneeIds",
+  );
+export const updateTaskContactBody = z.object({
+  contactId: z
+    .string()
+    .min(1)
+    .nullable()
+    .openapi({ description: "Contact to link; null removes the link." }),
 });
 export const updateDueDateBody = z.object({ dueDate: z.string().optional() });
 export const updateRecurrenceBody = z.object({
