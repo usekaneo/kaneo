@@ -315,3 +315,79 @@ The browser reads `VITE_SENTRY_DSN` when it is built. The current web container 
 ## Cloud mode
 
 `KANEO_CLOUD=true` enables hosted-service behavior, including cloud billing and additional signup and invitation restrictions. Leave it unset for a normal self-hosted instance. CAPTCHA is controlled by `TURNSTILE_SECRET_KEY` independently of this flag.
+
+## Cloud AI prepaid credit
+
+With `KANEO_CLOUD=true`, AI usage draws from a shared workspace USD wallet.
+A verified workspace owner can claim **$1 once**, including across additional
+workspaces, account deletion, and email plus-tag variants. There is no monthly
+allowance. Self-hosted instances do not create or enforce wallets.
+
+| Variable | Purpose |
+| --- | --- |
+| `CREEM_PRODUCT_AI_CREDIT` | USD one-time product used for custom top-ups, minimum $5 |
+| `KANEO_AI_PRICE_MULTIPLIER_BPS` | Price multiplier in basis points, default `15000` (1.5×), range `10000`–`100000` |
+
+Use a one-time product separate from subscription products, with no discounts.
+Kaneo sets Creem’s `custom_price` to the selected amount in integer USD cents,
+with one unit. The API accepts $5.00–$999,999.99 (Creem’s upper limit), in cent
+increments. The verified payment must match the saved custom amount exactly.
+The existing Creem API key, webhook secret and sandbox switch are reused. Set
+`KANEO_CLIENT_URL` for the payment return URL. Subscribe the existing
+`/api/billing/webhook` endpoint to `checkout.completed`, `refund.created`, and
+`dispute.created` as well as the existing subscription events. Configure and test
+sandbox products separately from live products. Only a verified payment matching
+a server-created purchase grants credit; the browser return URL never grants it.
+Taxes do not grant extra credit. Partial refunds revoke credit in proportion to
+the amount paid, including tax; disputes revoke remaining purchased credit. If
+credit was already spent, the wallet becomes negative and AI remains paused.
+Reversals received before checkout completion are retained and applied later.
+
+Workspace billing shows available credit, reservations, recent usage and a custom
+top-up amount field. A signed-in user with workspace settings management permission can buy
+credit. Other members can inspect the balance and ask an administrator to top up.
+Manual top-ups are the only purchasing flow; there is no auto-refill or workspace
+bring-your-own-key option.
+
+### Managed inference and reservations
+
+Cloud AI currently requires OpenRouter model IDs (including the legacy unprefixed
+IDs) and the standard `https://openrouter.ai/api/v1` endpoint. Direct providers
+and custom endpoints remain available for self-hosting. Choose an economical,
+tool-capable default model whose reservation fits the $1 trial.
+
+Before **each** model call, including every automation/tool-loop step, Kaneo
+atomically reserves the model's full context-window input cost plus its configured
+maximum output and request fee, with the price multiplier applied. OpenRouter
+routing receives matching per-token price ceilings. This conservative reservation
+can exceed actual usage substantially; expensive/long-context models can require
+more available credit than $1 even for short prompts. Models with separate image,
+web-search or internal-reasoning fees are rejected until those fees can be bounded.
+PDFs use native model input only; paid OCR fallback is disabled.
+Unused reserved funds return after terminal provider accounting. Actual usage is
+charged in integer microdollars, rounded up after applying the multiplier. Pending
+or negative available balances prevent new calls; core project management is
+unaffected. Applying or undoing already-generated proposals does not call a model.
+
+Cancelled and failed requests can still cost money. Known pre-inference HTTP
+rejections release their reservation; network errors and missing terminal costs
+retain it. The worker reconciles known generation IDs against OpenRouter after ten
+minutes, in batches once per minute. Costs are never assumed to be zero because
+accounting is missing. Requests with no saved generation ID require an operator to
+audit provider activity and settle explicitly with the recovery command below.
+This also covers a crash between receiving a provider response and saving its ID.
+Do not release reservations on a timer without checking provider usage.
+
+```sh
+pnpm --filter @kaneo/api exec tsx scripts/settle-ai-credit.ts \
+  --reservation RESERVATION_ID --cost-usd AUDITED_PROVIDER_COST --confirm
+```
+
+This is an operator recovery command, not a customer billing API. Use the original
+reservation's price multiplier; the command does this automatically. Confirm zero
+cost with provider records before settling at zero. Ledger source IDs make repeat
+settlement a safe no-op.
+
+Cloud coding jobs are disabled because the existing GitHub Actions backend does
+not return trusted metering. Self-hosted coding jobs remain available. Enabling a
+cloud coding backend requires its own billing integration first.

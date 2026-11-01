@@ -4,13 +4,25 @@ import {
   billingEventTable,
   workspaceBillingTable,
 } from "../../database/schema";
+import { completeTopup } from "../ai/complete-topup";
+import { recordReversal } from "../ai/payment-reversals";
+import type { TopupCheckout } from "../ai/payment-types";
 import { planForProductId } from "../config";
 
-type WebhookObject = {
+type WebhookObject = Omit<TopupCheckout, "order" | "product"> & {
+  order?: TopupCheckout["order"] | string;
+  amount?: number;
+  refund_amount?: number;
+  refundAmount?: number;
+  refund_currency?: string;
+  refundCurrency?: string;
+  currency?: string;
+  checkout?: string | { id?: string };
+  transaction?: { id?: string };
   id?: string;
   status?: string;
   metadata?: Record<string, string>;
-  product?: { id?: string };
+  product?: { id?: string } | string;
   customer?: { id?: string };
   subscription?: {
     id?: string;
@@ -19,6 +31,7 @@ type WebhookObject = {
     product?: { id?: string };
     customer?: { id?: string };
   };
+  order_id?: string;
   current_period_end_date?: string;
   currentPeriodEndDate?: string;
   canceled_at?: string | null;
@@ -55,7 +68,8 @@ const SUBSCRIPTION_EVENT_STATUS: Record<string, string> = {
 
 export function buildSubscriptionUpdates(event: BillingWebhookEvent) {
   const object = event.data;
-  const productId = object.product?.id;
+  const productId =
+    typeof object.product === "string" ? object.product : object.product?.id;
   const mapped = productId ? planForProductId(productId) : null;
   const units = object.items?.[0]?.units;
 
@@ -95,6 +109,50 @@ export function buildSubscriptionUpdates(event: BillingWebhookEvent) {
 async function applyEvent(event: BillingWebhookEvent, tx: DbOrTx) {
   const object = event.data;
 
+  if (event.type === "refund.created" || event.type === "dispute.created") {
+    if (event.type === "refund.created" && object.status !== "succeeded")
+      return { processed: false, duplicate: false };
+    if (!object.id) throw new Error("Payment reversal has no reference");
+    const amount =
+      event.type === "dispute.created"
+        ? null
+        : (object.refundAmount ?? object.refund_amount);
+    if (
+      amount === undefined ||
+      (amount !== null && (!Number.isSafeInteger(amount) || amount <= 0))
+    )
+      throw new Error("Invalid refund amount");
+    return recordReversal(
+      {
+        id: object.id,
+        orderId:
+          typeof object.order === "string"
+            ? object.order
+            : (object.order?.id ?? object.order_id),
+        checkoutId:
+          typeof object.checkout === "string"
+            ? object.checkout
+            : object.checkout?.id,
+        transactionId: object.transaction?.id,
+        cents: amount,
+        currency:
+          object.refundCurrency ??
+          object.refund_currency ??
+          object.currency ??
+          "",
+      },
+      tx,
+    );
+  }
+  if (
+    event.type === "checkout.completed" &&
+    (object.metadata?.purchaseType === "ai_topup" || object.metadata?.aiTopupId)
+  ) {
+    if (typeof object.order === "string")
+      throw new Error("Missing top-up payment details");
+    return completeTopup({ ...object, order: object.order }, tx);
+  }
+
   if (event.type === "checkout.completed") {
     const workspaceId =
       object.metadata?.workspaceId ??
@@ -104,8 +162,12 @@ async function applyEvent(event: BillingWebhookEvent, tx: DbOrTx) {
       return { processed: false, duplicate: false };
     }
 
-    const productId = object.product?.id ?? object.subscription?.product?.id;
+    const productId =
+      (typeof object.product === "string"
+        ? object.product
+        : object.product?.id) ?? object.subscription?.product?.id;
     const mapped = productId ? planForProductId(productId) : null;
+    if (!mapped) return { processed: false, duplicate: false };
 
     await tx
       .update(workspaceBillingTable)
@@ -153,7 +215,7 @@ async function applyEvent(event: BillingWebhookEvent, tx: DbOrTx) {
 async function handleWebhook(event: BillingWebhookEvent) {
   const eventId = event.id;
   if (!eventId) {
-    return applyEvent(event, db);
+    return db.transaction((tx) => applyEvent(event, tx));
   }
 
   // A claim that outlives a failed apply makes the retry look like a duplicate.

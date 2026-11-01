@@ -1,3 +1,4 @@
+import { reconcileAiCredit } from "../billing/ai/reconcile";
 import { completeAutomationRuns } from "./automation/complete-runs";
 import { processCodeJobs } from "./code/process-code-jobs";
 import { randomUUID } from "node:crypto";
@@ -20,6 +21,7 @@ export async function processAgentQueue(signal: AbortSignal = shutdown.signal) {
       .finally(() => {
         codePoll = undefined;
       });
+  await reconcileAiCredit();
   await failExpiredRuns();
   await completeAutomationRuns();
   await deliverAgentEffects();

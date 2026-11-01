@@ -1,3 +1,4 @@
+import { aiBillingRoutes } from "./ai/routes";
 import { constructWebhookEvent } from "creem/webhooks.js";
 import { and, eq, inArray } from "drizzle-orm";
 import { HTTPException } from "hono/http-exception";
@@ -137,6 +138,7 @@ const createPortalRoute = createRoute({
 });
 
 const billing = apiRouter<BaseVariables>()
+  .route("/", aiBillingRoutes)
   .openapi(webhookRoute, async (c) => {
     if (!isBillingEnabled()) {
       throw new HTTPException(404, { message: "Not found" });

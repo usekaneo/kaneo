@@ -13,7 +13,7 @@ export const mutationMiddleware = [...middleware, requireEntitlement];
 export const errors = {
   400: errorResponse("Invalid request"),
   401: errorResponse("Authentication required"),
-  402: errorResponse("Workspace entitlement required"),
+  402: errorResponse("Workspace entitlement or available AI credit required"),
   403: errorResponse(
     "Insufficient permissions, no user session, or not the conversation owner",
   ),

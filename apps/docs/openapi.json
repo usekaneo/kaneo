@@ -29991,7 +29991,7 @@
             }
           },
           "402": {
-            "description": "Workspace entitlement required",
+            "description": "Workspace entitlement or available AI credit required",
             "content": {
               "application/json": {
                 "schema": {
@@ -30174,7 +30174,7 @@
             }
           },
           "402": {
-            "description": "Workspace entitlement required",
+            "description": "Workspace entitlement or available AI credit required",
             "content": {
               "application/json": {
                 "schema": {
@@ -30367,7 +30367,7 @@
             }
           },
           "402": {
-            "description": "Workspace entitlement required",
+            "description": "Workspace entitlement or available AI credit required",
             "content": {
               "application/json": {
                 "schema": {
@@ -30560,7 +30560,7 @@
             }
           },
           "402": {
-            "description": "Workspace entitlement required",
+            "description": "Workspace entitlement or available AI credit required",
             "content": {
               "application/json": {
                 "schema": {
@@ -30730,7 +30730,7 @@
             }
           },
           "402": {
-            "description": "Workspace entitlement required",
+            "description": "Workspace entitlement or available AI credit required",
             "content": {
               "application/json": {
                 "schema": {
@@ -30900,7 +30900,7 @@
             }
           },
           "402": {
-            "description": "Workspace entitlement required",
+            "description": "Workspace entitlement or available AI credit required",
             "content": {
               "application/json": {
                 "schema": {
@@ -31149,7 +31149,7 @@
             }
           },
           "402": {
-            "description": "Workspace entitlement required",
+            "description": "Workspace entitlement or available AI credit required",
             "content": {
               "application/json": {
                 "schema": {
@@ -31732,7 +31732,7 @@
             }
           },
           "402": {
-            "description": "Workspace entitlement required",
+            "description": "Workspace entitlement or available AI credit required",
             "content": {
               "application/json": {
                 "schema": {
@@ -32133,7 +32133,7 @@
             }
           },
           "402": {
-            "description": "Workspace entitlement required",
+            "description": "Workspace entitlement or available AI credit required",
             "content": {
               "application/json": {
                 "schema": {
@@ -33104,7 +33104,7 @@
             }
           },
           "402": {
-            "description": "Workspace entitlement required",
+            "description": "Workspace entitlement or available AI credit required",
             "content": {
               "application/json": {
                 "schema": {
@@ -33228,7 +33228,7 @@
             }
           },
           "402": {
-            "description": "Workspace entitlement required",
+            "description": "Workspace entitlement or available AI credit required",
             "content": {
               "application/json": {
                 "schema": {
@@ -33371,7 +33371,7 @@
             }
           },
           "402": {
-            "description": "Workspace entitlement required",
+            "description": "Workspace entitlement or available AI credit required",
             "content": {
               "application/json": {
                 "schema": {
@@ -33562,7 +33562,7 @@
             }
           },
           "402": {
-            "description": "Workspace entitlement required",
+            "description": "Workspace entitlement or available AI credit required",
             "content": {
               "application/json": {
                 "schema": {
@@ -33722,7 +33722,7 @@
             }
           },
           "402": {
-            "description": "Workspace entitlement required",
+            "description": "Workspace entitlement or available AI credit required",
             "content": {
               "application/json": {
                 "schema": {
@@ -33861,7 +33861,7 @@
             }
           },
           "402": {
-            "description": "Workspace entitlement required",
+            "description": "Workspace entitlement or available AI credit required",
             "content": {
               "application/json": {
                 "schema": {
@@ -34035,7 +34035,7 @@
             }
           },
           "402": {
-            "description": "Workspace entitlement required",
+            "description": "Workspace entitlement or available AI credit required",
             "content": {
               "application/json": {
                 "schema": {
@@ -34186,7 +34186,7 @@
             }
           },
           "402": {
-            "description": "Workspace entitlement required",
+            "description": "Workspace entitlement or available AI credit required",
             "content": {
               "application/json": {
                 "schema": {
@@ -34746,7 +34746,7 @@
             }
           },
           "402": {
-            "description": "Workspace entitlement required",
+            "description": "Workspace entitlement or available AI credit required",
             "content": {
               "application/json": {
                 "schema": {
@@ -35369,7 +35369,7 @@
             }
           },
           "402": {
-            "description": "Workspace entitlement required",
+            "description": "Workspace entitlement or available AI credit required",
             "content": {
               "application/json": {
                 "schema": {
@@ -35809,7 +35809,7 @@
             }
           },
           "402": {
-            "description": "Workspace entitlement required",
+            "description": "Workspace entitlement or available AI credit required",
             "content": {
               "application/json": {
                 "schema": {
@@ -36442,7 +36442,7 @@
             }
           },
           "402": {
-            "description": "Workspace entitlement required",
+            "description": "Workspace entitlement or available AI credit required",
             "content": {
               "application/json": {
                 "schema": {
@@ -36571,7 +36571,7 @@
             }
           },
           "402": {
-            "description": "Workspace entitlement required",
+            "description": "Workspace entitlement or available AI credit required",
             "content": {
               "application/json": {
                 "schema": {
@@ -37030,7 +37030,7 @@
             }
           },
           "402": {
-            "description": "Workspace entitlement required",
+            "description": "Workspace entitlement or available AI credit required",
             "content": {
               "application/json": {
                 "schema": {
@@ -37470,7 +37470,7 @@
             }
           },
           "402": {
-            "description": "Workspace entitlement required",
+            "description": "Workspace entitlement or available AI credit required",
             "content": {
               "application/json": {
                 "schema": {
@@ -37613,7 +37613,7 @@
             }
           },
           "402": {
-            "description": "Workspace entitlement required",
+            "description": "Workspace entitlement or available AI credit required",
             "content": {
               "application/json": {
                 "schema": {
@@ -37976,7 +37976,7 @@
             }
           },
           "402": {
-            "description": "Workspace entitlement required",
+            "description": "Workspace entitlement or available AI credit required",
             "content": {
               "application/json": {
                 "schema": {
@@ -38101,7 +38101,7 @@
             }
           },
           "402": {
-            "description": "Workspace entitlement required",
+            "description": "Workspace entitlement or available AI credit required",
             "content": {
               "application/json": {
                 "schema": {
@@ -38262,7 +38262,7 @@
             }
           },
           "402": {
-            "description": "Workspace entitlement required",
+            "description": "Workspace entitlement or available AI credit required",
             "content": {
               "application/json": {
                 "schema": {
@@ -38589,7 +38589,7 @@
             }
           },
           "402": {
-            "description": "Workspace entitlement required",
+            "description": "Workspace entitlement or available AI credit required",
             "content": {
               "application/json": {
                 "schema": {
@@ -38882,7 +38882,7 @@
             }
           },
           "402": {
-            "description": "Workspace entitlement required",
+            "description": "Workspace entitlement or available AI credit required",
             "content": {
               "application/json": {
                 "schema": {
@@ -39040,7 +39040,7 @@
             }
           },
           "402": {
-            "description": "Workspace entitlement required",
+            "description": "Workspace entitlement or available AI credit required",
             "content": {
               "application/json": {
                 "schema": {
@@ -39333,7 +39333,7 @@
             }
           },
           "402": {
-            "description": "Workspace entitlement required",
+            "description": "Workspace entitlement or available AI credit required",
             "content": {
               "application/json": {
                 "schema": {

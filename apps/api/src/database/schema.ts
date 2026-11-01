@@ -413,6 +413,103 @@ export const billingEventTable = pgTable("billing_event", {
     .notNull(),
 });
 
+// Credit claims deliberately survive workspace/account deletion to prevent trial farming.
+export const aiTrialClaimTable = pgTable("ai_trial_claim", {
+  emailHash: text("email_hash").primaryKey(),
+  createdAt: timestamp("created_at").default(utcNow).notNull(),
+});
+
+export const aiWalletTable = pgTable("ai_wallet", {
+  workspaceId: text("workspace_id")
+    .primaryKey()
+    .references(() => workspaceTable.id, { onDelete: "cascade" }),
+  balance: bigint("balance", { mode: "bigint" })
+    .notNull()
+    .default(sql`0`),
+  reserved: bigint("reserved", { mode: "bigint" })
+    .notNull()
+    .default(sql`0`),
+  trialGranted: boolean("trial_granted").notNull().default(false),
+});
+
+export const aiLedgerTable = pgTable(
+  "ai_ledger",
+  {
+    id: text("id")
+      .primaryKey()
+      .$defaultFn(() => createId()),
+    workspaceId: text("workspace_id")
+      .notNull()
+      .references(() => aiWalletTable.workspaceId, { onDelete: "cascade" }),
+    // A globally unique source makes retries independent of webhook event IDs.
+    source: text("source").notNull().unique(),
+    kind: text("kind").notNull(),
+    amount: bigint("amount", { mode: "bigint" }).notNull(),
+    runId: text("run_id"),
+    model: text("model"),
+    createdAt: timestamp("created_at").default(utcNow).notNull(),
+  },
+  (t) => [
+    index("ai_ledger_workspace_created_idx").on(t.workspaceId, t.createdAt),
+  ],
+);
+
+export const aiTopupTable = pgTable(
+  "ai_topup",
+  {
+    id: text("id")
+      .primaryKey()
+      .$defaultFn(() => createId()),
+    workspaceId: text("workspace_id")
+      .notNull()
+      .references(() => aiWalletTable.workspaceId, { onDelete: "cascade" }),
+    userId: text("user_id").notNull(),
+    requestId: text("request_id").notNull(),
+    productId: text("product_id").notNull(),
+    cents: integer("cents").notNull(),
+    refundedCents: integer("refunded_cents").notNull().default(0),
+    refundedPaidCents: integer("refunded_paid_cents").notNull().default(0),
+    checkoutId: text("checkout_id").unique(),
+    orderId: text("order_id").unique(),
+    transactionId: text("transaction_id").unique(),
+    paidCents: integer("paid_cents"),
+    checkoutUrl: text("checkout_url"),
+    status: text("status").notNull().default("pending"),
+    createdAt: timestamp("created_at").default(utcNow).notNull(),
+  },
+  (t) => [unique("ai_topup_request_unique").on(t.workspaceId, t.requestId)],
+);
+
+export const aiPaymentReversalTable = pgTable("ai_payment_reversal", {
+  id: text("id").primaryKey(),
+  orderId: text("order_id"),
+  checkoutId: text("checkout_id"),
+  transactionId: text("transaction_id"),
+  cents: integer("cents"),
+  currency: text("currency").notNull(),
+  applied: boolean("applied").notNull().default(false),
+});
+
+export const aiReservationTable = pgTable(
+  "ai_reservation",
+  {
+    id: text("id")
+      .primaryKey()
+      .$defaultFn(() => createId()),
+    workspaceId: text("workspace_id")
+      .notNull()
+      .references(() => aiWalletTable.workspaceId, { onDelete: "cascade" }),
+    runId: text("run_id").notNull(),
+    model: text("model").notNull(),
+    amount: bigint("amount", { mode: "bigint" }).notNull(),
+    multiplierBps: integer("multiplier_bps").notNull(),
+    generationId: text("generation_id").unique(),
+    status: text("status").notNull().default("held"),
+    createdAt: timestamp("created_at").default(utcNow).notNull(),
+  },
+  (t) => [index("ai_reservation_status_created_idx").on(t.status, t.createdAt)],
+);
+
 export const teamTable = pgTable(
   "team",
   {

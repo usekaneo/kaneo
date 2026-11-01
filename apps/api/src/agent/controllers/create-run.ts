@@ -1,3 +1,6 @@
+import { ApiError } from "../../errors/api-error";
+import { aiBillingEnabled } from "../../billing/ai/config";
+import { initializeWallet } from "../../billing/ai/wallet";
 import { and, eq, inArray, count, gte, isNull } from "drizzle-orm";
 import { HTTPException } from "hono/http-exception";
 import db, { schema } from "../../database";
@@ -61,6 +64,15 @@ export async function createRun(
           message: "Request ID already used for another prompt",
         });
       return { id: existing.id, status: existing.status };
+    }
+    if (aiBillingEnabled()) {
+      const wallet = await initializeWallet(subject.workspaceId, tx);
+      if (wallet.balance <= wallet.reserved)
+        throw new ApiError(402, {
+          code: "AI_CREDIT_REQUIRED",
+          message:
+            "AI balance depleted or reserved. Add credit in workspace billing.",
+        });
     }
     const [conversationActive] = await tx
       .select({ id: schema.agentRunTable.id })
