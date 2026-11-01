@@ -323,6 +323,12 @@ async function duplicateTask({
       // Locks the project row before the task row, the same order task updates
       // use.
       const taskNumber = await claimTaskNumber(sourceTask.projectId, tx);
+      // Re-read under the project lock: a project move that committed after
+      // sourceTask was loaded has already cleared the contact link.
+      const [lockedSource] = await tx
+        .select({ contactId: taskTable.contactId })
+        .from(taskTable)
+        .where(eq(taskTable.id, sourceTask.id));
 
       // Moving the rule off the completed task is the claim. The row lock makes
       // a concurrent claim wait and then see no rule, so each completion
@@ -382,7 +388,7 @@ async function duplicateTask({
           id: duplicatedTaskId,
           projectId: sourceTask.projectId,
           userId,
-          contactId: sourceTask.contactId,
+          contactId: lockedSource?.contactId ?? null,
           title: title?.trim() || sourceTask.title,
           status,
           columnId: column?.id ?? null,

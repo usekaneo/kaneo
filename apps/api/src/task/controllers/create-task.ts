@@ -136,13 +136,6 @@ async function createTask({
 
   await assertRequiredCustomFields(projectId, mergedCustomFields);
 
-  if (contactId) {
-    await assertContactInWorkspace(
-      contactId,
-      await getProjectWorkspaceId(projectId),
-    );
-  }
-
   let assignee: { name: string } | undefined;
 
   if (normalizedUserId) {
@@ -172,6 +165,15 @@ async function createTask({
 
   const createdTask = await db.transaction(async (tx) => {
     const taskNumber = await claimTaskNumber(projectId, tx);
+    // Checked after the project row is locked: a concurrent project move
+    // cannot change the workspace between this check and the insert.
+    if (contactId) {
+      await assertContactInWorkspace(
+        contactId,
+        await getProjectWorkspaceId(projectId, tx),
+        tx,
+      );
+    }
     const nextPosition = await nextTaskPosition(
       tx,
       projectId,

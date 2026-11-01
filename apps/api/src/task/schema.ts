@@ -144,6 +144,7 @@ export const updateAssigneeBody = z.object({
 export const updateTaskContactBody = z.object({
   contactId: z
     .string()
+    .min(1)
     .nullable()
     .openapi({ description: "Contact to link; null removes the link." }),
 });

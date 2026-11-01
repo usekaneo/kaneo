@@ -12984,6 +12984,7 @@
                       "string",
                       "null"
                     ],
+                    "minLength": 1,
                     "description": "Contact to link; null removes the link."
                   }
                 },

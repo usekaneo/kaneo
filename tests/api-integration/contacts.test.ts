@@ -2,7 +2,7 @@ import { eq } from "drizzle-orm";
 import { beforeEach, describe, expect, it } from "vite-plus/test";
 import db, { schema } from "../../apps/api/src/database";
 import { createApp } from "../../apps/api/src/index";
-import { mockAuthenticatedSession } from "./helpers/auth";
+import { mockAnonymousSession, mockAuthenticatedSession } from "./helpers/auth";
 import { resetTestDatabase } from "./helpers/database";
 import {
   createProjectFixture,
@@ -265,5 +265,53 @@ describe("contacts", () => {
       `/contact/workspace/${workspace.id}/nope/timeline`,
     );
     expect(missing.status).toBe(404);
+  });
+
+  it("rejects an empty contactId instead of failing in the database", async () => {
+    const { user: owner, workspace } = await createWorkspaceMember({
+      role: "owner",
+    });
+    const { project } = await createProjectFixture({
+      workspaceId: workspace.id,
+    });
+    const task = await createLead(project.id);
+
+    const response = await call(owner, "PUT", `/task/contact/${task.id}`, {
+      contactId: "",
+    });
+    expect(response.status).toBe(400);
+  });
+
+  it("does not reveal which tasks are leads on a public board", async () => {
+    const { user: owner, workspace } = await createWorkspaceMember({
+      role: "owner",
+    });
+    const { project } = await createProjectFixture({
+      workspaceId: workspace.id,
+    });
+    await db
+      .update(schema.projectTable)
+      .set({ isPublic: true })
+      .where(eq(schema.projectTable.id, project.id));
+    const task = await createLead(project.id);
+    const contact = await call(
+      owner,
+      "POST",
+      `/contact/workspace/${workspace.id}`,
+      { name: "Ali Stores" },
+    );
+    await call(owner, "PUT", `/task/contact/${task.id}`, {
+      contactId: contact.body.id,
+    });
+
+    mockAnonymousSession();
+    const { app } = createApp();
+    const response = await app.request(`/api/public-project/${project.id}`);
+
+    expect(response.status).toBe(200);
+    const text = await response.text();
+    expect(text).toContain("Follow up");
+    expect(text).not.toContain(contact.body.id);
+    expect(text).not.toContain("contactId");
   });
 });
