@@ -4435,6 +4435,21 @@
 				"passwordChanged": "Wachtwoord gewijzigd",
 				"photoRemoved": "Foto verwijderd",
 				"photoUpdated": "Foto bijgewerkt"
+			},
+			"deleteAccount": {
+				"confirm": "Delete account",
+				"confirmLabel": "Type {{email}} to confirm",
+				"description": "Permanently delete your account and its data.",
+				"modalDescription": "This permanently deletes your account and cannot be undone. Workspaces only you belong to are deleted with it. Elsewhere, your tasks stay and become unassigned, and your comments are removed.",
+				"modalTitle": "Delete your account?",
+				"noPassword": "This account has no password. Leave the field empty.",
+				"password": "Password",
+				"passwordHint": "Leave empty if you sign in without a password.",
+				"sectionTitle": "Danger zone",
+				"sessionTooOld": "For your security, enter your password, or sign out and sign in again before deleting your account.",
+				"success": "Your account was deleted",
+				"title": "Delete account",
+				"wrongPassword": "That password is not correct."
 			}
 		},
 		"activity": {
@@ -4517,21 +4532,20 @@
 		"editor": {
 			"attachment": "Bijlage",
 			"bold": "Vet",
-			"boldPlaceholder": "vet",
 			"code": "Code",
-			"codePlaceholder": "code",
-			"description": "Beschrijving",
 			"heading": "Koptekst",
 			"insertImage": "Afbeelding invoegen",
 			"italic": "Cursief",
-			"italicPlaceholder": "cursief",
 			"link": "Link",
-			"linkPlaceholder": "link",
 			"list": "Lijst",
-			"nothingToPreview": "Niets om te bekijken",
 			"placeholder": "Beschrijving toevoegen… Markdown wordt ondersteund.",
-			"preview": "Voorbeeld",
-			"write": "Schrijven"
+			"applyLink": "Apply",
+			"checklist": "Checklist",
+			"linkUrl": "URL",
+			"numberedList": "Numbered list",
+			"quote": "Quote",
+			"removeLink": "Remove link",
+			"hideKeyboard": "Hide keyboard"
 		},
 		"errors": {
 			"apiKeyRejected": "Die API-sleutel is geweigerd.",
@@ -4989,7 +5003,16 @@
 			},
 			"tagline": "Eenvoudig projectbeheer. Verbind met Kaneo Cloud of je eigen instantie.",
 			"togglePassword": "Zichtbaarheid wachtwoord wijzigen",
-			"useApiKey": "API-sleutel gebruiken"
+			"useApiKey": "API-sleutel gebruiken",
+			"unlock": {
+				"buy": "Unlock for {{price}}",
+				"buyNoPrice": "Unlock",
+				"message": "Signing in to Kaneo Cloud is always included. Connecting the app to a self-hosted server is a one-time purchase that supports Kaneo's development.",
+				"nothingToRestore": "No earlier purchase was found for this store account.",
+				"restore": "Restore purchase",
+				"title": "Connect your own server",
+				"unavailable": "Purchases aren't available right now. Try again later."
+			}
 		},
 		"taskDetail": {
 			"activity": {
@@ -5047,7 +5070,6 @@
 			"screen": {
 				"addDescription": "Beschrijving toevoegen…",
 				"copyLink": "Link kopiëren",
-				"editDescription": "Beschrijving bewerken",
 				"editTitle": "Titel bewerken",
 				"linkCopied": "Link gekopieerd",
 				"more": "Meer"

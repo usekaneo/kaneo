@@ -18491,6 +18491,42 @@
 								}
 							},
 							"required": ["name", "passwordHint"]
+						},
+						"unlock": {
+							"type": "object",
+							"additionalProperties": false,
+							"properties": {
+								"title": {
+									"type": "string"
+								},
+								"message": {
+									"type": "string"
+								},
+								"buy": {
+									"type": "string"
+								},
+								"buyNoPrice": {
+									"type": "string"
+								},
+								"restore": {
+									"type": "string"
+								},
+								"nothingToRestore": {
+									"type": "string"
+								},
+								"unavailable": {
+									"type": "string"
+								}
+							},
+							"required": [
+								"title",
+								"message",
+								"buy",
+								"buyNoPrice",
+								"restore",
+								"nothingToRestore",
+								"unavailable"
+							]
 						}
 					},
 					"required": [
@@ -18520,7 +18556,8 @@
 						"code",
 						"device",
 						"apiKey",
-						"signUp"
+						"signUp",
+						"unlock"
 					]
 				},
 				"invitations": {
@@ -18958,9 +18995,6 @@
 								"editTitle": {
 									"type": "string"
 								},
-								"editDescription": {
-									"type": "string"
-								},
 								"addDescription": {
 									"type": "string"
 								}
@@ -18970,7 +19004,6 @@
 								"linkCopied",
 								"more",
 								"editTitle",
-								"editDescription",
 								"addDescription"
 							]
 						}
@@ -19183,19 +19216,7 @@
 					"type": "object",
 					"additionalProperties": false,
 					"properties": {
-						"description": {
-							"type": "string"
-						},
 						"placeholder": {
-							"type": "string"
-						},
-						"write": {
-							"type": "string"
-						},
-						"preview": {
-							"type": "string"
-						},
-						"nothingToPreview": {
 							"type": "string"
 						},
 						"bold": {
@@ -19216,43 +19237,51 @@
 						"link": {
 							"type": "string"
 						},
-						"boldPlaceholder": {
-							"type": "string"
-						},
-						"italicPlaceholder": {
-							"type": "string"
-						},
-						"codePlaceholder": {
-							"type": "string"
-						},
-						"linkPlaceholder": {
-							"type": "string"
-						},
 						"insertImage": {
 							"type": "string"
 						},
 						"attachment": {
 							"type": "string"
+						},
+						"checklist": {
+							"type": "string"
+						},
+						"numberedList": {
+							"type": "string"
+						},
+						"quote": {
+							"type": "string"
+						},
+						"linkUrl": {
+							"type": "string"
+						},
+						"applyLink": {
+							"type": "string"
+						},
+						"removeLink": {
+							"type": "string"
+						},
+						"hideKeyboard": {
+							"type": "string"
 						}
 					},
 					"required": [
-						"description",
 						"placeholder",
-						"write",
-						"preview",
-						"nothingToPreview",
 						"bold",
 						"italic",
 						"heading",
 						"list",
 						"code",
 						"link",
-						"boldPlaceholder",
-						"italicPlaceholder",
-						"codePlaceholder",
-						"linkPlaceholder",
 						"insertImage",
-						"attachment"
+						"attachment",
+						"checklist",
+						"numberedList",
+						"quote",
+						"linkUrl",
+						"applyLink",
+						"removeLink",
+						"hideKeyboard"
 					]
 				},
 				"composer": {
@@ -20882,6 +20911,66 @@
 							},
 							"required": ["button", "title", "message"]
 						},
+						"deleteAccount": {
+							"type": "object",
+							"additionalProperties": false,
+							"properties": {
+								"sectionTitle": {
+									"type": "string"
+								},
+								"title": {
+									"type": "string"
+								},
+								"description": {
+									"type": "string"
+								},
+								"modalTitle": {
+									"type": "string"
+								},
+								"modalDescription": {
+									"type": "string"
+								},
+								"confirmLabel": {
+									"type": "string"
+								},
+								"password": {
+									"type": "string"
+								},
+								"passwordHint": {
+									"type": "string"
+								},
+								"confirm": {
+									"type": "string"
+								},
+								"success": {
+									"type": "string"
+								},
+								"sessionTooOld": {
+									"type": "string"
+								},
+								"wrongPassword": {
+									"type": "string"
+								},
+								"noPassword": {
+									"type": "string"
+								}
+							},
+							"required": [
+								"sectionTitle",
+								"title",
+								"description",
+								"modalTitle",
+								"modalDescription",
+								"confirmLabel",
+								"password",
+								"passwordHint",
+								"confirm",
+								"success",
+								"sessionTooOld",
+								"wrongPassword",
+								"noPassword"
+							]
+						},
 						"photoMenu": {
 							"type": "object",
 							"additionalProperties": false,
@@ -20963,6 +21052,7 @@
 						"notifications",
 						"connection",
 						"signOut",
+						"deleteAccount",
 						"photoMenu",
 						"toast",
 						"password"

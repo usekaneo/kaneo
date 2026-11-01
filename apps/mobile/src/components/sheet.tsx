@@ -1,5 +1,5 @@
 import { useTranslation } from "react-i18next";
-import { Check, Search } from "lucide-react-native";
+import { Search } from "lucide-react-native";
 import { useEffect, useState, type ReactNode } from "react";
 import {
   Animated,
@@ -16,7 +16,7 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { font, radius, useColors } from "@/theme";
 
 import { Txt } from "./text";
-import { Button, Checkbox, Touch } from "./ui";
+import { Button, Checkbox, SelectionSlot, Touch } from "./ui";
 
 /**
  * Bottom sheet: dimmed scrim, rounded top, grab handle. Every picker and form pop-up in the app
@@ -98,6 +98,8 @@ export function Sheet({
             backgroundColor: c.surface,
             borderTopLeftRadius: radius.sheet,
             borderTopRightRadius: radius.sheet,
+            borderTopWidth: 1,
+            borderColor: c.hairline,
             paddingBottom: Math.max(insets.bottom, 12),
             transform: [
               {
@@ -107,11 +109,7 @@ export function Sheet({
                 }),
               },
             ],
-            shadowColor: "#000",
-            shadowOpacity: 0.12,
-            shadowRadius: 16,
-            shadowOffset: { width: 0, height: -8 },
-            elevation: 16,
+            boxShadow: "0 -8px 32px #0000001F",
           }}
         >
           <View
@@ -120,8 +118,8 @@ export function Sheet({
             <View
               style={{
                 width: 36,
-                height: 4,
-                borderRadius: 2,
+                height: 5,
+                borderRadius: 3,
                 backgroundColor: c.fillStrong,
               }}
             />
@@ -236,22 +234,25 @@ function OptionList<T>({
         {shown.map((o) => {
           const active = selected !== undefined && o.value === selected;
           return (
-            <Touch
+            <Pressable
               key={String(o.value)}
               onPress={() => {
                 onSelect(o.value);
                 onClose();
               }}
-              style={{
+              accessibilityRole="button"
+              accessibilityState={{ selected: active }}
+              style={({ pressed }) => ({
                 flexDirection: "row",
                 alignItems: "center",
                 gap: 12,
                 minHeight: o.hint ? 56 : 48,
                 paddingHorizontal: 12,
-                borderRadius: 10,
-                backgroundColor: active ? c.fill : "transparent",
-              }}
+                borderRadius: radius.lg,
+                backgroundColor: pressed ? c.fill : "transparent",
+              })}
             >
+              <SelectionSlot selected={active} />
               {o.leading}
               <View style={{ flex: 1 }}>
                 <Txt
@@ -267,10 +268,7 @@ function OptionList<T>({
                   </Txt>
                 ) : null}
               </View>
-              {active ? (
-                <Check size={18} color={c.ink} strokeWidth={2.5} />
-              ) : null}
-            </Touch>
+            </Pressable>
           );
         })}
         {shown.length === 0 ? (
@@ -380,8 +378,11 @@ export function SearchField({
         gap: 10,
         height: 44,
         paddingHorizontal: 12,
-        borderRadius: 10,
-        backgroundColor: c.input,
+        borderRadius: radius.lg,
+        borderWidth: 1,
+        borderColor: c.fillStrong,
+        backgroundColor: c.surface,
+        boxShadow: c.raised,
       }}
     >
       <Search size={16} color={c.faint} strokeWidth={2} />

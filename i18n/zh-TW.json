@@ -4358,6 +4358,21 @@
 				"passwordChanged": "已變更密碼",
 				"photoRemoved": "已移除照片",
 				"photoUpdated": "已更新照片"
+			},
+			"deleteAccount": {
+				"confirm": "Delete account",
+				"confirmLabel": "Type {{email}} to confirm",
+				"description": "Permanently delete your account and its data.",
+				"modalDescription": "This permanently deletes your account and cannot be undone. Workspaces only you belong to are deleted with it. Elsewhere, your tasks stay and become unassigned, and your comments are removed.",
+				"modalTitle": "Delete your account?",
+				"noPassword": "This account has no password. Leave the field empty.",
+				"password": "Password",
+				"passwordHint": "Leave empty if you sign in without a password.",
+				"sectionTitle": "Danger zone",
+				"sessionTooOld": "For your security, enter your password, or sign out and sign in again before deleting your account.",
+				"success": "Your account was deleted",
+				"title": "Delete account",
+				"wrongPassword": "That password is not correct."
 			}
 		},
 		"activity": {
@@ -4437,21 +4452,20 @@
 		"editor": {
 			"attachment": "附件",
 			"bold": "粗體",
-			"boldPlaceholder": "粗體",
 			"code": "程式碼",
-			"codePlaceholder": "程式碼",
-			"description": "說明",
 			"heading": "標題",
 			"insertImage": "插入圖片",
 			"italic": "斜體",
-			"italicPlaceholder": "斜體",
 			"link": "連結",
-			"linkPlaceholder": "連結",
 			"list": "清單",
-			"nothingToPreview": "沒有可預覽的內容",
 			"placeholder": "新增說明…支援 Markdown。",
-			"preview": "預覽",
-			"write": "撰寫"
+			"applyLink": "Apply",
+			"checklist": "Checklist",
+			"linkUrl": "URL",
+			"numberedList": "Numbered list",
+			"quote": "Quote",
+			"removeLink": "Remove link",
+			"hideKeyboard": "Hide keyboard"
 		},
 		"errors": {
 			"apiKeyRejected": "此 API 金鑰遭到拒絕。",
@@ -4905,7 +4919,16 @@
 			},
 			"tagline": "簡單的專案管理。連線至 Kaneo Cloud 或你自己的執行個體。",
 			"togglePassword": "切換密碼顯示",
-			"useApiKey": "使用 API 金鑰"
+			"useApiKey": "使用 API 金鑰",
+			"unlock": {
+				"buy": "Unlock for {{price}}",
+				"buyNoPrice": "Unlock",
+				"message": "Signing in to Kaneo Cloud is always included. Connecting the app to a self-hosted server is a one-time purchase that supports Kaneo's development.",
+				"nothingToRestore": "No earlier purchase was found for this store account.",
+				"restore": "Restore purchase",
+				"title": "Connect your own server",
+				"unavailable": "Purchases aren't available right now. Try again later."
+			}
 		},
 		"taskDetail": {
 			"activity": {
@@ -4963,7 +4986,6 @@
 			"screen": {
 				"addDescription": "新增說明…",
 				"copyLink": "複製連結",
-				"editDescription": "編輯說明",
 				"editTitle": "編輯標題",
 				"linkCopied": "已複製連結",
 				"more": "更多"

@@ -120,3 +120,6 @@ minimumReleaseAgeExclude:
   - opencode-windows-arm64@1.19.5
   - opencode-windows-x64-baseline@1.19.5
   - opencode-windows-x64@1.19.5
+
+  - "@expo/log-box@58.0.14"
+  - "@expo/metro-runtime@58.0.16"

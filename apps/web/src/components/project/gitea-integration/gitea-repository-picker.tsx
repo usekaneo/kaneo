@@ -12,6 +12,10 @@ import { authClient } from "@/lib/auth-client";
 
 type GiteaRepository = ListGiteaRepositoriesResponse["repositories"][number];
 
+// A fresh id per token keeps repositories cached for one token out of another.
+// A counter instead of crypto.randomUUID(), which is missing on plain-HTTP origins.
+let credentialCacheId = 0;
+
 type GiteaRepositoryPickerProps = {
   open: boolean;
   projectId: string;
@@ -36,7 +40,7 @@ export function GiteaRepositoryPicker({
   const [selected, setSelected] = useState<GiteaRepository | null>(null);
   const { data: session } = authClient.useSession();
   const credentials = useMemo(
-    () => ({ accessToken, cacheId: crypto.randomUUID() }),
+    () => ({ accessToken, cacheId: ++credentialCacheId }),
     [accessToken],
   );
   const canFetch =

@@ -4388,6 +4388,15 @@
 			"signUp": {
 				"name": "Tên",
 				"passwordHint": "Ít nhất 8 ký tự"
+			},
+			"unlock": {
+				"buy": "Unlock for {{price}}",
+				"buyNoPrice": "Unlock",
+				"message": "Signing in to Kaneo Cloud is always included. Connecting the app to a self-hosted server is a one-time purchase that supports Kaneo's development.",
+				"nothingToRestore": "No earlier purchase was found for this store account.",
+				"restore": "Restore purchase",
+				"title": "Connect your own server",
+				"unavailable": "Purchases aren't available right now. Try again later."
 			}
 		},
 		"invitations": {
@@ -4495,7 +4504,6 @@
 				"linkCopied": "Đã sao chép liên kết",
 				"more": "Thêm",
 				"editTitle": "Sửa tiêu đề",
-				"editDescription": "Sửa mô tả",
 				"addDescription": "Thêm mô tả…"
 			}
 		},
@@ -4544,23 +4552,22 @@
 			"parentFailed": "Đã tạo công việc, nhưng không thể liên kết với công việc cha."
 		},
 		"editor": {
-			"description": "Mô tả",
 			"placeholder": "Thêm mô tả… Hỗ trợ Markdown.",
-			"write": "Viết",
-			"preview": "Xem trước",
-			"nothingToPreview": "Không có gì để xem trước",
 			"bold": "In đậm",
 			"italic": "In nghiêng",
 			"heading": "Tiêu đề",
 			"list": "Danh sách",
 			"code": "Mã",
 			"link": "Liên kết",
-			"boldPlaceholder": "in đậm",
-			"italicPlaceholder": "in nghiêng",
-			"codePlaceholder": "mã",
-			"linkPlaceholder": "liên kết",
 			"insertImage": "Chèn hình ảnh",
-			"attachment": "Tệp đính kèm"
+			"attachment": "Tệp đính kèm",
+			"applyLink": "Apply",
+			"checklist": "Checklist",
+			"linkUrl": "URL",
+			"numberedList": "Numbered list",
+			"quote": "Quote",
+			"removeLink": "Remove link",
+			"hideKeyboard": "Hide keyboard"
 		},
 		"composer": {
 			"reply": "Trả lời {{name}}…",
@@ -4955,6 +4962,21 @@
 				"confirmPlaceholder": "Nhập lại",
 				"mismatch": "Mật khẩu không khớp",
 				"signOutOthers": "Đăng xuất khỏi các thiết bị khác"
+			},
+			"deleteAccount": {
+				"confirm": "Delete account",
+				"confirmLabel": "Type {{email}} to confirm",
+				"description": "Permanently delete your account and its data.",
+				"modalDescription": "This permanently deletes your account and cannot be undone. Workspaces only you belong to are deleted with it. Elsewhere, your tasks stay and become unassigned, and your comments are removed.",
+				"modalTitle": "Delete your account?",
+				"noPassword": "This account has no password. Leave the field empty.",
+				"password": "Password",
+				"passwordHint": "Leave empty if you sign in without a password.",
+				"sectionTitle": "Danger zone",
+				"sessionTooOld": "For your security, enter your password, or sign out and sign in again before deleting your account.",
+				"success": "Your account was deleted",
+				"title": "Delete account",
+				"wrongPassword": "That password is not correct."
 			}
 		},
 		"notificationSettings": {

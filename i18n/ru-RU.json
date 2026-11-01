@@ -4671,6 +4671,15 @@
 			"signUp": {
 				"name": "Имя",
 				"passwordHint": "Не менее 8 символов"
+			},
+			"unlock": {
+				"buy": "Unlock for {{price}}",
+				"buyNoPrice": "Unlock",
+				"message": "Signing in to Kaneo Cloud is always included. Connecting the app to a self-hosted server is a one-time purchase that supports Kaneo's development.",
+				"nothingToRestore": "No earlier purchase was found for this store account.",
+				"restore": "Restore purchase",
+				"title": "Connect your own server",
+				"unavailable": "Purchases aren't available right now. Try again later."
 			}
 		},
 		"invitations": {
@@ -4778,7 +4787,6 @@
 				"linkCopied": "Ссылка скопирована",
 				"more": "Ещё",
 				"editTitle": "Изменить название",
-				"editDescription": "Изменить описание",
 				"addDescription": "Добавьте описание…"
 			}
 		},
@@ -4830,23 +4838,22 @@
 			"parentFailed": "Задача создана, но её не удалось связать с родительской задачей."
 		},
 		"editor": {
-			"description": "Описание",
 			"placeholder": "Добавьте описание… Поддерживается Markdown.",
-			"write": "Текст",
-			"preview": "Просмотр",
-			"nothingToPreview": "Нечего показать",
 			"bold": "Жирный",
 			"italic": "Курсив",
 			"heading": "Заголовок",
 			"list": "Список",
 			"code": "Код",
 			"link": "Ссылка",
-			"boldPlaceholder": "жирный",
-			"italicPlaceholder": "курсив",
-			"codePlaceholder": "код",
-			"linkPlaceholder": "ссылка",
 			"insertImage": "Вставить изображение",
-			"attachment": "Вложение"
+			"attachment": "Вложение",
+			"applyLink": "Apply",
+			"checklist": "Checklist",
+			"linkUrl": "URL",
+			"numberedList": "Numbered list",
+			"quote": "Quote",
+			"removeLink": "Remove link",
+			"hideKeyboard": "Hide keyboard"
 		},
 		"composer": {
 			"reply": "Ответить {{name}}…",
@@ -5277,6 +5284,21 @@
 				"confirmPlaceholder": "Введите ещё раз",
 				"mismatch": "Пароли не совпадают",
 				"signOutOthers": "Выйти на других устройствах"
+			},
+			"deleteAccount": {
+				"confirm": "Delete account",
+				"confirmLabel": "Type {{email}} to confirm",
+				"description": "Permanently delete your account and its data.",
+				"modalDescription": "This permanently deletes your account and cannot be undone. Workspaces only you belong to are deleted with it. Elsewhere, your tasks stay and become unassigned, and your comments are removed.",
+				"modalTitle": "Delete your account?",
+				"noPassword": "This account has no password. Leave the field empty.",
+				"password": "Password",
+				"passwordHint": "Leave empty if you sign in without a password.",
+				"sectionTitle": "Danger zone",
+				"sessionTooOld": "For your security, enter your password, or sign out and sign in again before deleting your account.",
+				"success": "Your account was deleted",
+				"title": "Delete account",
+				"wrongPassword": "That password is not correct."
 			}
 		},
 		"notificationSettings": {

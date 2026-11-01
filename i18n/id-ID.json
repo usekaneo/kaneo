@@ -4388,6 +4388,15 @@
 			"signUp": {
 				"name": "Nama",
 				"passwordHint": "Minimal 8 karakter"
+			},
+			"unlock": {
+				"buy": "Unlock for {{price}}",
+				"buyNoPrice": "Unlock",
+				"message": "Signing in to Kaneo Cloud is always included. Connecting the app to a self-hosted server is a one-time purchase that supports Kaneo's development.",
+				"nothingToRestore": "No earlier purchase was found for this store account.",
+				"restore": "Restore purchase",
+				"title": "Connect your own server",
+				"unavailable": "Purchases aren't available right now. Try again later."
 			}
 		},
 		"invitations": {
@@ -4495,7 +4504,6 @@
 				"linkCopied": "Tautan disalin",
 				"more": "Lainnya",
 				"editTitle": "Edit judul",
-				"editDescription": "Edit deskripsi",
 				"addDescription": "Tambahkan deskripsi…"
 			}
 		},
@@ -4544,23 +4552,22 @@
 			"parentFailed": "Tugas dibuat, tetapi tidak dapat ditautkan ke tugas induk."
 		},
 		"editor": {
-			"description": "Deskripsi",
 			"placeholder": "Tambahkan deskripsi… Mendukung Markdown.",
-			"write": "Tulis",
-			"preview": "Pratinjau",
-			"nothingToPreview": "Tidak ada yang bisa dipratinjau",
 			"bold": "Tebal",
 			"italic": "Miring",
 			"heading": "Judul",
 			"list": "Daftar",
 			"code": "Kode",
 			"link": "Tautan",
-			"boldPlaceholder": "tebal",
-			"italicPlaceholder": "miring",
-			"codePlaceholder": "kode",
-			"linkPlaceholder": "tautan",
 			"insertImage": "Sisipkan gambar",
-			"attachment": "Lampiran"
+			"attachment": "Lampiran",
+			"applyLink": "Apply",
+			"checklist": "Checklist",
+			"linkUrl": "URL",
+			"numberedList": "Numbered list",
+			"quote": "Quote",
+			"removeLink": "Remove link",
+			"hideKeyboard": "Hide keyboard"
 		},
 		"composer": {
 			"reply": "Balas {{name}}…",
@@ -4955,6 +4962,21 @@
 				"confirmPlaceholder": "Ketik sekali lagi",
 				"mismatch": "Kata sandi tidak cocok",
 				"signOutOthers": "Keluar dari perangkat lain"
+			},
+			"deleteAccount": {
+				"confirm": "Delete account",
+				"confirmLabel": "Type {{email}} to confirm",
+				"description": "Permanently delete your account and its data.",
+				"modalDescription": "This permanently deletes your account and cannot be undone. Workspaces only you belong to are deleted with it. Elsewhere, your tasks stay and become unassigned, and your comments are removed.",
+				"modalTitle": "Delete your account?",
+				"noPassword": "This account has no password. Leave the field empty.",
+				"password": "Password",
+				"passwordHint": "Leave empty if you sign in without a password.",
+				"sectionTitle": "Danger zone",
+				"sessionTooOld": "For your security, enter your password, or sign out and sign in again before deleting your account.",
+				"success": "Your account was deleted",
+				"title": "Delete account",
+				"wrongPassword": "That password is not correct."
 			}
 		},
 		"notificationSettings": {

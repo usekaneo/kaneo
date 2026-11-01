@@ -137,9 +137,13 @@ export async function prepare(pr, log, signal) {
       );
       await writeFile(path.join(dir, ".ui-review-deps-ready"), sha);
     }
-    if (!(await exists(path.join(dir, "packages/permissions/dist/index.js")))) {
-      log("prepare", `Compiling the shared permissions package for ${side}`);
-      await command("pnpm", ["--filter", "@kaneo/permissions", "exec", "tsc"], {
+    for (const name of ["permissions", "editor"]) {
+      const packageDir = path.join(dir, "packages", name);
+      // Base snapshots can predate a shared package.
+      if (!(await exists(path.join(packageDir, "package.json")))) continue;
+      if (await exists(path.join(packageDir, "dist/index.js"))) continue;
+      log("prepare", `Compiling the shared ${name} package for ${side}`);
+      await command("pnpm", ["--filter", `@kaneo/${name}`, "exec", "tsc"], {
         cwd: dir,
         signal,
         env: {
