@@ -147,7 +147,12 @@ export default function TaskCardContextMenuContent({
           await updateTaskStatus({ ...task, status: value as string });
           break;
         case "userId":
-          await updateTaskAssignee({ ...task, userId: value as string });
+          // Picking a person makes them the only assignee; "unassigned" clears all.
+          await updateTaskAssignee({
+            ...task,
+            userId: value as string,
+            replaceAssigneeIds: value ? [value as string] : [],
+          });
           break;
         case "title":
           await updateTaskTitle({ ...task, title: value as string });

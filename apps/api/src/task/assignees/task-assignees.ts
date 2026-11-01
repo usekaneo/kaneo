@@ -180,6 +180,15 @@ export async function pruneAssignees(
   keepUserIds: ReadonlySet<string>,
 ): Promise<string[]> {
   const keep = [...keepUserIds];
+  // Lock the tasks before touching their assignee rows, in id order. Every other
+  // writer takes the task lock first; deleting rows first would invert that
+  // order and deadlock against a concurrent assignee change.
+  await tx
+    .select({ id: taskTable.id })
+    .from(taskTable)
+    .where(taskScope)
+    .orderBy(asc(taskTable.id))
+    .for("update");
   const scopedTasks = tx
     .select({ id: taskTable.id })
     .from(taskTable)
@@ -231,10 +240,14 @@ export async function removeAssignee(
   userId: string,
   taskScope: SQL | undefined,
 ): Promise<{ id: string; projectId: string }[]> {
+  // Locked in id order, before the assignee rows change, to match every other
+  // writer's task-then-rows order.
   const affected = await tx
     .select({ id: taskTable.id, projectId: taskTable.projectId })
     .from(taskTable)
-    .where(and(taskScope, taskAssignedTo(userId)));
+    .where(and(taskScope, taskAssignedTo(userId)))
+    .orderBy(asc(taskTable.id))
+    .for("update");
   if (affected.length === 0) return [];
 
   await tx

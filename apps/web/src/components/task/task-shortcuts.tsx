@@ -70,7 +70,12 @@ export function TaskShortcuts({
     async () => {
       if (!task || !user) return;
       try {
-        await updateAssignee({ ...task, userId: user.id });
+        // "Assign to me" means only me, whoever is the primary assignee now.
+        await updateAssignee({
+          ...task,
+          userId: user.id,
+          replaceAssigneeIds: [user.id],
+        });
         toast.message(t("tasks:shortcuts.assignedToMe"), {
           icon: UserRoundIcon,
         });

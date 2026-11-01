@@ -54,6 +54,7 @@ async function publishAssigneeEvents(
   common: { taskId: string; projectId: string; userId?: string; title: string },
   previousPrimary: string | null,
   { added, removed }: { added: string[]; removed: string[] },
+  primaryAfter: string | null,
   knownNames: Map<string, string> = new Map(),
 ) {
   // Only ids not already known are queried; callers publishing many tasks pass
@@ -77,6 +78,10 @@ async function publishAssigneeEvents(
       type: "assignee_changed",
     });
   }
+  // Webhooks and plugins know only "assigned" and "unassigned". Moving a task
+  // from Alice to Bob must stay one assignment, as with a single assignee, so
+  // "unassigned" is sent only when nobody is left on the task.
+  if (primaryAfter !== null) return;
   for (const id of removed) {
     await publishEvent("task.unassigned", {
       ...common,
@@ -162,6 +167,7 @@ export async function publishTaskMutation(
         common,
         before.userId ?? null,
         options.assignees,
+        after.userId ?? null,
         options.assigneeNames,
       );
   } else if (changed("userId")) {

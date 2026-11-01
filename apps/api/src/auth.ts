@@ -1,4 +1,3 @@
-import { handOverPrimaryAssignments } from "./task/assignees/hand-over-primary-assignments";
 import { revokeUserConnections, revokeWorkspaceConnections } from "./ws";
 import { apiKey } from "@better-auth/api-key";
 import {
@@ -787,10 +786,6 @@ export const auth = betterAuth({
   databaseHooks: {
     user: {
       delete: {
-        before: async (user) => {
-          // Runs for every way a user is removed (own account, admin removal).
-          await handOverPrimaryAssignments(user.id);
-        },
         after: async (user, ctx) => {
           // Anonymous linking deletes the old identity after issuing a new
           // session. The replacement account must retain its authentication.

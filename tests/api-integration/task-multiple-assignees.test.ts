@@ -13,25 +13,40 @@ import {
   createWorkspaceMember,
 } from "./helpers/fixtures";
 import { addWorkspaceMember } from "./helpers/project-access/add-workspace-member";
-import { handOverPrimaryAssignments } from "../../apps/api/src/task/assignees/hand-over-primary-assignments";
+import {
+  removeAssignee,
+  replaceTaskAssignees,
+} from "../../apps/api/src/task/assignees/task-assignees";
 import { createRestrictedWorkspace } from "./helpers/project-access/create-restricted-workspace";
 import { projectAccessApi } from "./helpers/project-access/project-access-api";
 import { putMemberProjectAccess } from "./helpers/project-access/put-member-project-access";
+
+const published = vi.hoisted(() => [] as { name: string; data: unknown }[]);
 
 vi.mock("../../apps/api/src/events", async (original) => {
   const events = await original<typeof import("../../apps/api/src/events")>();
   return {
     ...events,
     // Assertions must wait for the notification and activity subscribers.
-    publishEvent: (...args: Parameters<typeof events.publishEvent>) =>
-      events.publishEvent(args[0], args[1], { waitForHandlers: true }),
+    publishEvent: (...args: Parameters<typeof events.publishEvent>) => {
+      published.push({ name: args[0], data: args[1] });
+      return events.publishEvent(args[0], args[1], { waitForHandlers: true });
+    },
   };
 });
 
 beforeEach(async () => {
   await resetTestDatabase();
   vi.clearAllMocks();
+  published.length = 0;
 });
+
+const assigneeEvents = () =>
+  published
+    .map((event) => event.name)
+    .filter(
+      (name) => name === "task.assignee_changed" || name === "task.unassigned",
+    );
 
 type Ctx = Awaited<ReturnType<typeof setup>>;
 
@@ -189,11 +204,10 @@ describe("multiple assignees: compatibility with the single assignee", () => {
 });
 
 describe("multiple assignees: deleted primary", () => {
-  it("hands the primary to the next assignee before the user is deleted", async () => {
+  it("hands the primary to the next assignee when the user is deleted", async () => {
     const { alice, bob, carol, task } = await setup();
     await setAssignees(task.id, { assigneeIds: [alice.id, bob.id, carol.id] });
 
-    await handOverPrimaryAssignments(alice.id);
     await db.delete(schema.userTable).where(eq(schema.userTable.id, alice.id));
 
     expect(await primaryOf(task.id)).toBe(bob.id);
@@ -204,7 +218,6 @@ describe("multiple assignees: deleted primary", () => {
     const { alice, task } = await setup();
     await setAssignees(task.id, { assigneeIds: [alice.id] });
 
-    await handOverPrimaryAssignments(alice.id);
     await db.delete(schema.userTable).where(eq(schema.userTable.id, alice.id));
 
     expect(await primaryOf(task.id)).toBeNull();
@@ -235,6 +248,96 @@ describe("multiple assignees: deleted primary", () => {
     expect(response.status).toBe(200);
     expect(await assigneeRows(task.id)).toEqual([bob.id, carol.id]);
     expect(alice.id).toBeDefined();
+  });
+});
+
+describe("multiple assignees: events that webhooks and plugins see", () => {
+  it("reports moving a task from one person to another as one assignment, as before", async () => {
+    const { alice, bob, task } = await setup();
+    await setAssignees(task.id, { userId: alice.id });
+    published.length = 0;
+
+    await setAssignees(task.id, { userId: bob.id });
+
+    expect(assigneeEvents()).toEqual(["task.assignee_changed"]);
+  });
+
+  it("does not report an unassignment while someone is still assigned", async () => {
+    const { alice, bob, task } = await setup();
+    await setAssignees(task.id, { assigneeIds: [alice.id, bob.id] });
+    published.length = 0;
+
+    await setAssignees(task.id, { assigneeIds: [alice.id] });
+
+    expect(assigneeEvents()).toEqual([]);
+  });
+
+  it("reports an unassignment only when nobody is left", async () => {
+    const { alice, bob, task } = await setup();
+    await setAssignees(task.id, { assigneeIds: [alice.id, bob.id] });
+    published.length = 0;
+
+    await setAssignees(task.id, { assigneeIds: [] });
+
+    expect(assigneeEvents()).toEqual(["task.unassigned", "task.unassigned"]);
+  });
+
+  it("tells every added person about an addition", async () => {
+    const { alice, bob, carol, task } = await setup();
+    await setAssignees(task.id, { assigneeIds: [alice.id] });
+    published.length = 0;
+
+    await setAssignees(task.id, { assigneeIds: [alice.id, bob.id, carol.id] });
+
+    expect(assigneeEvents()).toEqual([
+      "task.assignee_changed",
+      "task.assignee_changed",
+    ]);
+  });
+});
+
+describe("multiple assignees: concurrent writers", () => {
+  it("does not deadlock when an access change races an assignee write", async () => {
+    const { alice, bob, task } = await setup();
+    await setAssignees(task.id, { assigneeIds: [alice.id, bob.id] });
+
+    let release!: () => void;
+    const gate = new Promise<void>((resolve) => {
+      release = resolve;
+    });
+    let taskLocked!: () => void;
+    const locked = new Promise<void>((resolve) => {
+      taskLocked = resolve;
+    });
+
+    // The usual writer: task lock first, then the assignee rows.
+    const writer = db.transaction(async (tx) => {
+      const [row] = await tx
+        .select()
+        .from(schema.taskTable)
+        .where(eq(schema.taskTable.id, task.id))
+        .for("update");
+      taskLocked();
+      await gate;
+      await replaceTaskAssignees(tx, row, [bob.id, alice.id]);
+    });
+    await locked;
+
+    // An access change removing Alice from every task in the project.
+    const remover = db.transaction((tx) =>
+      removeAssignee(
+        tx,
+        alice.id,
+        eq(schema.taskTable.projectId, task.projectId),
+      ),
+    );
+    await new Promise((resolve) => setTimeout(resolve, 200));
+    release();
+
+    // Before the fix this failed with Postgres error 40P01 (deadlock detected).
+    await Promise.all([writer, remover]);
+    expect(await assigneeRows(task.id)).toEqual([bob.id]);
+    expect(await primaryOf(task.id)).toBe(bob.id);
   });
 });
 
