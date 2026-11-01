@@ -14,6 +14,7 @@ export async function readStoredSettings(
 ): Promise<StoredInstanceSettings & { defaultRoleId: string | null }> {
   const [row] = await tx
     .select({
+      agentModels: instanceSettingsTable.agentModels,
       instanceName: instanceSettingsTable.instanceName,
       registrationEnabled: instanceSettingsTable.registrationEnabled,
       passwordRegistrationEnabled:

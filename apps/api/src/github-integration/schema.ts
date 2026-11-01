@@ -13,6 +13,12 @@ export const verifyGitHubBody = z.object({
 export const createGitHubBody = z.object(repositoryRef);
 
 export const updateGitHubBody = z.object({
+  codingAgentEnabled: z
+    .boolean()
+    .optional()
+    .describe(
+      "Opt this project repository into coding jobs through the separate Kaneo Agent App",
+    ),
   isActive: z.boolean().optional(),
   commentTaskLinkOnGitHubIssue: z.boolean().optional(),
 });

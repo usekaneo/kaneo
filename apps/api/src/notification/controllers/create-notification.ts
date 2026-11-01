@@ -78,7 +78,7 @@ export async function persistNotification(
 }
 
 export async function dispatchNotification(
-  notification: typeof notificationTable.$inferSelect,
+  notification: Pick<typeof notificationTable.$inferSelect, "id" | "userId">,
 ) {
   await publishEvent("notification.created", {
     notificationId: notification.id,

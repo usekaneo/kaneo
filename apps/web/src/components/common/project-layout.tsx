@@ -2,6 +2,8 @@ import { ShortcutKeys } from "@/components/shortcuts/shortcut-keys";
 import { useLocation, useNavigate } from "@tanstack/react-router";
 import { type ReactNode, useState } from "react";
 import { useTranslation } from "react-i18next";
+import { AgentButton } from "@/components/agent/agent-button";
+import { AgentPanel } from "@/components/agent/agent-panel";
 import MobileProjectNav from "@/components/common/header/mobile-project-nav";
 import ProjectCrumbSelect from "@/components/common/header/project-crumb-select";
 import WorkspaceCrumbSelect from "@/components/common/header/workspace-crumb-select";
@@ -22,10 +24,12 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import useAgentConfig from "@/hooks/queries/agent/use-agent-config";
 import useGetProject from "@/hooks/queries/project/use-get-project";
 import { useProjectWebSocket } from "@/hooks/use-project-websocket";
 import { cn } from "@/lib/cn";
 import { getProjectUnavailableReason } from "@/lib/project-unavailable-reason";
+import { useAgentPanelStore } from "@/store/agent-panel";
 import { useBackgroundStore } from "@/store/background";
 import { useUserPreferencesStore } from "@/store/user-preferences";
 import ProjectUnavailable from "./project-unavailable";
@@ -63,6 +67,9 @@ export default function ProjectLayout({
     useState(false);
   const { background } = useBackgroundStore();
   const viewMode = useUserPreferencesStore((state) => state.viewMode);
+  const { data: agentConfig } = useAgentConfig(workspaceId);
+  const agentEnabled = agentConfig?.enabled === true && !unavailableReason;
+  const agentOpen = useAgentPanelStore((state) => state.open);
 
   useProjectWebSocket(unavailableReason ? "" : projectId);
 
@@ -96,7 +103,17 @@ export default function ProjectLayout({
   };
 
   return (
-    <Layout>
+    <Layout
+      aside={
+        agentEnabled && agentOpen ? (
+          <AgentPanel
+            workspaceId={workspaceId}
+            projectId={projectId}
+            projectName={project?.name}
+          />
+        ) : null
+      }
+    >
       <Layout.Header
         className={cn("h-11 border-border/80 px-2", {
           "bg-card/90 backdrop-blur": !!background,
@@ -140,6 +157,12 @@ export default function ProjectLayout({
               onAddProject={() => setIsCreateProjectModalOpen(true)}
             />
           </div>
+
+          {agentEnabled && (
+            <div className="ml-auto flex shrink-0 items-center gap-1.5">
+              <AgentButton />
+            </div>
+          )}
         </div>
       </Layout.Header>
 

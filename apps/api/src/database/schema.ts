@@ -1,13 +1,16 @@
 import { createId } from "@paralleldrive/cuid2";
+import type { AgentModelPolicy } from "../agent/providers/types";
 import { relations, sql } from "drizzle-orm";
 import {
   boolean,
+  bigint,
   customType,
   foreignKey,
   index,
   integer,
   jsonb,
   pgTable,
+  serial,
   text,
   timestamp,
   unique,
@@ -16,6 +19,17 @@ import {
 import type { WEBHOOK_CATEGORIES } from "../admin/webhooks/categories";
 import type { AuditWebhookPayload } from "../admin/webhooks/audit-webhook-payload";
 import type { GitHubImportState } from "../github-integration/import-state";
+import type {
+  AgentAction,
+  AgentAttachment,
+  AgentSnapshot,
+  AgentEffect,
+} from "../agent/types";
+import type {
+  AgentRunTrigger,
+  AutomationEventRef,
+  AutomationTrigger,
+} from "../agent/automation/types";
 import type { ImportRunProject } from "../import/import-run-project";
 import type { TaskRecurrence } from "../task/recurrence/schema";
 
@@ -259,6 +273,7 @@ export const instanceRoleTable = pgTable("instance_role", {
 // A single row (id "instance"). Without it, every setting has its default.
 export const instanceSettingsTable = pgTable("instance_settings", {
   id: text("id").primaryKey().default("instance"),
+  agentModels: jsonb("agent_models").$type<AgentModelPolicy>(),
   instanceName: text("instance_name"),
   registrationEnabled: boolean("registration_enabled").default(true).notNull(),
   passwordRegistrationEnabled: boolean("password_registration_enabled")
@@ -399,6 +414,109 @@ export const billingEventTable = pgTable("billing_event", {
     .default(utcNow)
     .notNull(),
 });
+
+// Credit claims deliberately survive workspace/account deletion to prevent trial farming.
+export const aiTrialClaimTable = pgTable("ai_trial_claim", {
+  emailHash: text("email_hash").primaryKey(),
+  createdAt: timestamp("created_at").default(utcNow).notNull(),
+});
+
+export const aiWalletTable = pgTable("ai_wallet", {
+  workspaceId: text("workspace_id")
+    .primaryKey()
+    .references(() => workspaceTable.id, { onDelete: "cascade" }),
+  balance: bigint("balance", { mode: "bigint" })
+    .notNull()
+    .default(sql`0`),
+  reserved: bigint("reserved", { mode: "bigint" })
+    .notNull()
+    .default(sql`0`),
+  trialGranted: boolean("trial_granted").notNull().default(false),
+});
+
+export const aiLedgerTable = pgTable(
+  "ai_ledger",
+  {
+    id: text("id")
+      .primaryKey()
+      .$defaultFn(() => createId()),
+    workspaceId: text("workspace_id")
+      .notNull()
+      .references(() => aiWalletTable.workspaceId, { onDelete: "cascade" }),
+    // A globally unique source makes retries independent of webhook event IDs.
+    source: text("source").notNull().unique(),
+    kind: text("kind").notNull(),
+    amount: bigint("amount", { mode: "bigint" }).notNull(),
+    runId: text("run_id"),
+    model: text("model"),
+    createdAt: timestamp("created_at").default(utcNow).notNull(),
+  },
+  (t) => [
+    index("ai_ledger_workspace_created_idx").on(t.workspaceId, t.createdAt),
+  ],
+);
+
+export const aiTopupTable = pgTable(
+  "ai_topup",
+  {
+    id: text("id")
+      .primaryKey()
+      .$defaultFn(() => createId()),
+    workspaceId: text("workspace_id")
+      .notNull()
+      .references(() => aiWalletTable.workspaceId, { onDelete: "cascade" }),
+    userId: text("user_id").notNull(),
+    requestId: text("request_id").notNull(),
+    productId: text("product_id").notNull(),
+    cents: integer("cents").notNull(),
+    refundedCents: integer("refunded_cents").notNull().default(0),
+    refundedPaidCents: integer("refunded_paid_cents").notNull().default(0),
+    checkoutId: text("checkout_id").unique(),
+    orderId: text("order_id").unique(),
+    transactionId: text("transaction_id").unique(),
+    paidCents: integer("paid_cents"),
+    checkoutUrl: text("checkout_url"),
+    status: text("status").notNull().default("pending"),
+    createdAt: timestamp("created_at").default(utcNow).notNull(),
+  },
+  (t) => [unique("ai_topup_request_unique").on(t.workspaceId, t.requestId)],
+);
+
+export const aiPaymentReversalTable = pgTable("ai_payment_reversal", {
+  id: text("id").primaryKey(),
+  orderId: text("order_id"),
+  checkoutId: text("checkout_id"),
+  transactionId: text("transaction_id"),
+  cents: integer("cents"),
+  currency: text("currency").notNull(),
+  applied: boolean("applied").notNull().default(false),
+});
+
+export const aiReservationTable = pgTable(
+  "ai_reservation",
+  {
+    id: text("id")
+      .primaryKey()
+      .$defaultFn(() => createId()),
+    workspaceId: text("workspace_id")
+      .notNull()
+      .references(() => aiWalletTable.workspaceId, { onDelete: "cascade" }),
+    runId: text("run_id").notNull(),
+    model: text("model").notNull(),
+    amount: bigint("amount", { mode: "bigint" }).notNull(),
+    multiplierBps: integer("multiplier_bps").notNull(),
+    generationId: text("generation_id").unique(),
+    status: text("status").notNull().default("held"),
+    nextReconcileAt: timestamp("next_reconcile_at")
+      .notNull()
+      .default(sql`((now() AT TIME ZONE 'utc') + interval '10 minutes')`),
+    createdAt: timestamp("created_at").default(utcNow).notNull(),
+  },
+  (t) => [
+    index("ai_reservation_status_created_idx").on(t.status, t.createdAt),
+    index("ai_reservation_retry_idx").on(t.status, t.nextReconcileAt),
+  ],
+);
 
 export const teamTable = pgTable(
   "team",
@@ -1659,3 +1777,459 @@ export const dataMigrationTable = pgTable("data_migration", {
     .default(utcNow)
     .notNull(),
 });
+
+export const agentConversationTable = pgTable(
+  "agent_conversation",
+  {
+    id: text("id")
+      .$defaultFn(() => createId())
+      .primaryKey(),
+    workspaceId: text("workspace_id")
+      .notNull()
+      .references(() => workspaceTable.id, { onDelete: "cascade" }),
+    userId: text("user_id")
+      .notNull()
+      .references(() => userTable.id, { onDelete: "cascade" }),
+    projectId: text("project_id").references(() => projectTable.id, {
+      onDelete: "cascade",
+    }),
+    title: text("title").notNull(),
+    // Null keeps the conversation private to its owner. When set, workspace
+    // members who can read its project may view it read-only.
+    sharedAt: timestamp("shared_at", { mode: "date" }),
+    // Set for the conversation that holds an automation's runs for one owner.
+    // A takeover starts a new conversation, so earlier runs stay private.
+    automationId: text("automation_id").references(
+      () => agentAutomationTable.id,
+      { onDelete: "set null" },
+    ),
+    createdAt: timestamp("created_at", { mode: "date" })
+      .default(utcNow)
+      .notNull(),
+    updatedAt: timestamp("updated_at", { mode: "date" })
+      .default(utcNow)
+      .$onUpdate(() => new Date())
+      .notNull(),
+  },
+  (table) => [
+    index("agent_conversation_owner_idx").on(
+      table.workspaceId,
+      table.userId,
+      table.updatedAt,
+    ),
+    index("agent_conversation_shared_idx")
+      .on(table.workspaceId)
+      .where(sql`${table.sharedAt} is not null`),
+    uniqueIndex("agent_conversation_automation_owner_scope_uidx")
+      .on(
+        table.automationId,
+        table.userId,
+        sql`coalesce(${table.projectId}, '')`,
+      )
+      .where(sql`${table.automationId} is not null`),
+  ],
+);
+
+export const agentRunTable = pgTable(
+  "agent_run",
+  {
+    id: text("id")
+      .$defaultFn(() => createId())
+      .primaryKey(),
+    conversationId: text("conversation_id")
+      .notNull()
+      .references(() => agentConversationTable.id, { onDelete: "cascade" }),
+    requestId: text("request_id").notNull(),
+    prompt: text("prompt").notNull(),
+    attachments: jsonb("attachments")
+      .$type<AgentAttachment[]>()
+      .notNull()
+      .default([]),
+    response: text("response").notNull().default(""),
+    status: text("status", {
+      enum: [
+        "queued",
+        "running",
+        "awaiting_review",
+        "completed",
+        "failed",
+        "cancelled",
+      ],
+    })
+      .notNull()
+      .default("queued"),
+    model: text("model").notNull(),
+    error: text("error"),
+    inputTokens: integer("input_tokens").notNull().default(0),
+    outputTokens: integer("output_tokens").notNull().default(0),
+    costUsd: text("cost_usd"),
+    // Projects whose data reached the model; shared viewers must be able to
+    // read all of them. Legacy workspace-scoped runs hold "*", which matches
+    // no project, so they stay owner-only.
+    touchedProjectIds: text("touched_project_ids")
+      .array()
+      .default(sql`'{}'::text[]`)
+      .notNull(),
+    // Set when an automation queued the run; null for runs typed by a user.
+    trigger: jsonb("trigger").$type<AgentRunTrigger>(),
+    automationHandledAt: timestamp("automation_handled_at", { mode: "date" }),
+    leaseOwner: text("lease_owner"),
+    leaseExpiresAt: timestamp("lease_expires_at", { mode: "date" }),
+    createdAt: timestamp("created_at", { mode: "date" })
+      .default(utcNow)
+      .notNull(),
+    finishedAt: timestamp("finished_at", { mode: "date" }),
+  },
+  (table) => [
+    unique("agent_run_request_unique").on(
+      table.conversationId,
+      table.requestId,
+    ),
+    index("agent_run_queue_idx").on(table.status, table.createdAt),
+    index("agent_run_automation_completion_idx")
+      .on(table.finishedAt, table.id)
+      .where(
+        sql`${table.trigger} is not null and ${table.automationHandledAt} is null and ${table.status} in ('completed', 'awaiting_review', 'failed', 'cancelled')`,
+      ),
+    index("agent_run_conversation_idx").on(
+      table.conversationId,
+      table.createdAt,
+    ),
+  ],
+);
+
+export const agentStepTable = pgTable(
+  "agent_step",
+  {
+    id: text("id")
+      .$defaultFn(() => createId())
+      .primaryKey(),
+    runId: text("run_id")
+      .notNull()
+      .references(() => agentRunTable.id, { onDelete: "cascade" }),
+    toolCallId: text("tool_call_id").notNull(),
+    toolName: text("tool_name").notNull(),
+    input: jsonb("input").$type<unknown>().notNull(),
+    summary: text("summary"),
+    status: text("status", { enum: ["running", "completed", "failed"] })
+      .notNull()
+      .default("running"),
+    createdAt: timestamp("created_at", { mode: "date" })
+      .default(utcNow)
+      .notNull(),
+    finishedAt: timestamp("finished_at", { mode: "date" }),
+  },
+  (table) => [
+    unique("agent_step_call_unique").on(table.runId, table.toolCallId),
+  ],
+);
+
+export const agentProposalTable = pgTable(
+  "agent_proposal",
+  {
+    id: text("id")
+      .$defaultFn(() => createId())
+      .primaryKey(),
+    runId: text("run_id")
+      .notNull()
+      .references(() => agentRunTable.id, { onDelete: "cascade" }),
+    action: jsonb("action").$type<AgentAction>().notNull(),
+    before: jsonb("before").$type<AgentSnapshot>(),
+    after: jsonb("after").$type<AgentSnapshot>(),
+    reason: text("reason").notNull(),
+    status: text("status", {
+      enum: ["pending", "applied", "discarded", "undone"],
+    })
+      .notNull()
+      .default("pending"),
+    createdAt: timestamp("created_at", { mode: "date" })
+      .default(utcNow)
+      .notNull(),
+    appliedAt: timestamp("applied_at", { mode: "date" }),
+    undoneAt: timestamp("undone_at", { mode: "date" }),
+  },
+  (table) => [index("agent_proposal_run_idx").on(table.runId, table.createdAt)],
+);
+
+export const agentEffectTable = pgTable(
+  "agent_effect",
+  {
+    sequence: serial("sequence").notNull().unique(),
+    id: text("id")
+      .$defaultFn(() => createId())
+      .primaryKey(),
+    proposalId: text("proposal_id")
+      .notNull()
+      .references(() => agentProposalTable.id, { onDelete: "cascade" }),
+    userId: text("user_id")
+      .notNull()
+      .references(() => userTable.id, { onDelete: "cascade" }),
+    payload: jsonb("payload").$type<AgentEffect>().notNull(),
+    leaseOwner: text("lease_owner"),
+    leaseExpiresAt: timestamp("lease_expires_at", { mode: "date" }),
+    createdAt: timestamp("created_at", { mode: "date" })
+      .default(utcNow)
+      .notNull(),
+    deliveredAt: timestamp("delivered_at", { mode: "date" }),
+  },
+  (table) => [
+    index("agent_effect_pending_idx").on(table.deliveredAt, table.createdAt),
+  ],
+);
+
+// Images and PDFs attached to assistant runs. Bytes live here, not on
+// agent_run, so run lists, SSE snapshots and WebSocket refetches never load them.
+// Rows without a run are pending uploads and expire after a day.
+export const agentAttachmentTable = pgTable(
+  "agent_attachment",
+  {
+    id: text("id")
+      .$defaultFn(() => createId())
+      .primaryKey(),
+    workspaceId: text("workspace_id")
+      .notNull()
+      .references(() => workspaceTable.id, { onDelete: "cascade" }),
+    userId: text("user_id")
+      .notNull()
+      .references(() => userTable.id, { onDelete: "cascade" }),
+    runId: text("run_id").references(() => agentRunTable.id, {
+      onDelete: "cascade",
+    }),
+    name: text("name").notNull(),
+    mediaType: text("media_type").notNull(),
+    size: integer("size").notNull(),
+    data: bytea("data").notNull(),
+    createdAt: timestamp("created_at", { mode: "date" })
+      .default(utcNow)
+      .notNull(),
+  },
+  (table) => [
+    index("agent_attachment_owner_idx").on(
+      table.userId,
+      table.workspaceId,
+      table.runId,
+    ),
+    index("agent_attachment_run_idx").on(table.runId),
+    index("agent_attachment_pending_idx")
+      .on(table.createdAt)
+      .where(sql`${table.runId} is null`),
+  ],
+);
+
+// Scheduled or event-triggered agent prompts. Runs execute as the owner with
+// their current permissions inside the owner's automation conversation.
+export const agentAutomationTable = pgTable(
+  "agent_automation",
+  {
+    id: text("id")
+      .$defaultFn(() => createId())
+      .primaryKey(),
+    workspaceId: text("workspace_id")
+      .notNull()
+      .references(() => workspaceTable.id, { onDelete: "cascade" }),
+    ownerId: text("owner_id")
+      .notNull()
+      .references(() => userTable.id, { onDelete: "cascade" }),
+    projectId: text("project_id").references(() => projectTable.id, {
+      onDelete: "cascade",
+    }),
+    name: text("name").notNull(),
+    prompt: text("prompt").notNull(),
+    model: text("model").notNull(),
+    output: text("output", { enum: ["proposals", "digest"] }).notNull(),
+    trigger: jsonb("trigger").$type<AutomationTrigger>().notNull(),
+    // Copy of the trigger's event for indexed matching; null for schedules.
+    eventType: text("event_type"),
+    // Next schedule slot; null for event triggers and while disabled.
+    nextRunAt: timestamp("next_run_at", { mode: "date" }),
+    // Due dates that passed up to this time were already turned into events.
+    eventCursorAt: timestamp("event_cursor_at", { mode: "date" }),
+    enabled: boolean("enabled").notNull().default(true),
+    pausedReason: text("paused_reason", {
+      enum: ["owner_access", "failures"],
+    }),
+    consecutiveFailures: integer("consecutive_failures").notNull().default(0),
+    dailyRunLimit: integer("daily_run_limit").notNull().default(24),
+    lastSkipReason: text("last_skip_reason", {
+      enum: ["budget", "daily_limit", "overlap", "unavailable"],
+    }),
+    lastSkippedAt: timestamp("last_skipped_at", { mode: "date" }),
+    createdAt: timestamp("created_at", { mode: "date" })
+      .default(utcNow)
+      .notNull(),
+    updatedAt: timestamp("updated_at", { mode: "date" })
+      .default(utcNow)
+      .$onUpdate(() => new Date())
+      .notNull(),
+  },
+  (table) => [
+    index("agent_automation_workspace_idx").on(
+      table.workspaceId,
+      table.createdAt,
+    ),
+    index("agent_automation_due_idx")
+      .on(table.nextRunAt)
+      .where(sql`${table.enabled} and ${table.nextRunAt} is not null`),
+    index("agent_automation_event_idx")
+      .on(table.workspaceId, table.eventType)
+      .where(sql`${table.enabled} and ${table.eventType} is not null`),
+  ],
+);
+
+// Matched events waiting for an automation's batch window to close.
+export const agentAutomationEventTable = pgTable(
+  "agent_automation_event",
+  {
+    id: text("id")
+      .$defaultFn(() => createId())
+      .primaryKey(),
+    automationId: text("automation_id")
+      .notNull()
+      .references(() => agentAutomationTable.id, { onDelete: "cascade" }),
+    dedupeKey: text("dedupe_key").notNull(),
+    consumedAt: timestamp("consumed_at", { mode: "date" }),
+    payload: jsonb("payload").$type<AutomationEventRef>(),
+    createdAt: timestamp("created_at", { mode: "date" })
+      .default(utcNow)
+      .notNull(),
+  },
+  (table) => [
+    unique("agent_automation_event_dedupe_unique").on(
+      table.automationId,
+      table.dedupeKey,
+    ),
+    index("agent_automation_event_pending_idx")
+      .on(table.automationId, table.createdAt)
+      .where(sql`${table.consumedAt} is null`),
+  ],
+);
+
+// Coding jobs started from an applied code.run proposal. Jobs run outside
+// Kaneo (repo-ci: the customer's GitHub Actions); Kaneo dispatches them, then
+// commits their changeset and opens the pull request with its own credential.
+export const agentJobTable = pgTable(
+  "agent_job",
+  {
+    id: text("id")
+      .$defaultFn(() => createId())
+      .primaryKey(),
+    runId: text("run_id")
+      .notNull()
+      .references(() => agentRunTable.id, { onDelete: "cascade" }),
+    proposalId: text("proposal_id")
+      .unique()
+      .references(() => agentProposalTable.id, { onDelete: "set null" }),
+    workspaceId: text("workspace_id")
+      .notNull()
+      .references(() => workspaceTable.id, { onDelete: "cascade" }),
+    projectId: text("project_id")
+      .notNull()
+      .references(() => projectTable.id, { onDelete: "cascade" }),
+    taskId: text("task_id").references(() => taskTable.id, {
+      onDelete: "set null",
+    }),
+    // The requester; jobs act for this user.
+    userId: text("user_id")
+      .notNull()
+      .references(() => userTable.id, { onDelete: "cascade" }),
+    integrationId: text("integration_id").references(
+      () => integrationTable.id,
+      { onDelete: "set null" },
+    ),
+    requestId: text("request_id").notNull(),
+    backend: text("backend", { enum: ["repo-ci"] })
+      .notNull()
+      .default("repo-ci"),
+    status: text("status", {
+      enum: [
+        "queued",
+        "dispatched",
+        "running",
+        "committing",
+        "completed",
+        "failed",
+        "cancelled",
+      ],
+    })
+      .notNull()
+      .default("queued"),
+    outcome: text("outcome", { enum: ["pr_opened", "no_changes"] }),
+    phase: text("phase"),
+    progress: text("progress"),
+    instructions: text("instructions").notNull(),
+    model: text("model").notNull(),
+    workflowRef: text("workflow_ref"),
+    workflowSha: text("workflow_sha"),
+    // Repository identity is fixed when the job is created; claims and
+    // commits are checked against these values, not the current integration.
+    repositoryOwner: text("repository_owner").notNull(),
+    repositoryName: text("repository_name").notNull(),
+    // GitHub numeric IDs can exceed the int4 range.
+    repositoryId: bigint("repository_id", { mode: "number" }).notNull(),
+    baseRef: text("base_ref"),
+    baseSha: text("base_sha"),
+    branch: text("branch").notNull(),
+    externalRef: text("external_ref"),
+    externalUrl: text("external_url"),
+    // SHA-256 of the callback credential; the raw value is never stored.
+    credentialHash: text("credential_hash"),
+    commitSha: text("commit_sha"),
+    prNumber: integer("pr_number"),
+    prUrl: text("pr_url"),
+    summary: text("summary"),
+    error: text("error"),
+    attempts: integer("attempts").notNull().default(0),
+    leaseOwner: text("lease_owner"),
+    leaseExpiresAt: timestamp("lease_expires_at", { mode: "date" }),
+    heartbeatAt: timestamp("heartbeat_at", { mode: "date" }),
+    deadline: timestamp("deadline", { mode: "date" }).notNull(),
+    createdAt: timestamp("created_at", { mode: "date" })
+      .default(utcNow)
+      .notNull(),
+    dispatchAttemptedAt: timestamp("dispatch_attempted_at"),
+    dispatchedAt: timestamp("dispatched_at", { mode: "date" }),
+    startedAt: timestamp("started_at", { mode: "date" }),
+    finishedAt: timestamp("finished_at", { mode: "date" }),
+  },
+  (table) => [
+    unique("agent_job_request_unique").on(
+      table.workspaceId,
+      table.userId,
+      table.requestId,
+    ),
+    index("agent_job_queue_idx").on(table.status, table.createdAt),
+    index("agent_job_run_idx").on(table.runId, table.createdAt),
+    index("agent_job_owner_idx").on(
+      table.workspaceId,
+      table.userId,
+      table.createdAt,
+    ),
+  ],
+);
+
+// Uploaded job results (gzip JSON), kept out of agent_job so list and detail
+// queries never load them. Deleted when the job reaches a terminal state.
+export const agentJobChangesetTable = pgTable("agent_job_changeset", {
+  jobId: text("job_id")
+    .primaryKey()
+    .references(() => agentJobTable.id, { onDelete: "cascade" }),
+  data: bytea("data").notNull(),
+  createdAt: timestamp("created_at", { mode: "date" })
+    .default(utcNow)
+    .notNull(),
+});
+
+export const agentJobEventTable = pgTable(
+  "agent_job_event",
+  {
+    sequence: serial("sequence").primaryKey(),
+    jobId: text("job_id")
+      .notNull()
+      .references(() => agentJobTable.id, { onDelete: "cascade" }),
+    phase: text("phase").notNull(),
+    createdAt: timestamp("created_at", { mode: "date" })
+      .default(utcNow)
+      .notNull(),
+  },
+  (table) => [index("agent_job_event_job_idx").on(table.jobId, table.sequence)],
+);

@@ -1,7 +1,10 @@
+import type { AgentModelPolicy } from "../agent/providers/types";
+
 export const DEFAULT_INSTANCE_NAME = "Kaneo";
 
 /** What the `instance_settings` row holds, with defaults for a missing row. */
 export type StoredInstanceSettings = {
+  agentModels: AgentModelPolicy | null;
   instanceName: string | null;
   registrationEnabled: boolean;
   passwordRegistrationEnabled: boolean;
@@ -25,6 +28,7 @@ export type InstanceSettings = Omit<StoredInstanceSettings, "instanceName"> & {
 };
 
 export const DEFAULT_STORED_SETTINGS: StoredInstanceSettings = {
+  agentModels: null,
   instanceName: null,
   registrationEnabled: true,
   passwordRegistrationEnabled: true,

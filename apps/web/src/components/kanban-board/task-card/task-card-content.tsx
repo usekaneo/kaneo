@@ -1,4 +1,4 @@
-import { Trash2Icon } from "lucide-react";
+import { Sparkles, Trash2Icon } from "lucide-react";
 import { memo, type TouchEvent, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { TaskPullRequests } from "@/components/task/task-pull-requests";
@@ -31,6 +31,7 @@ import { cn } from "@/lib/cn";
 import { isOwnDomEvent } from "@/lib/is-own-dom-event";
 import { isTaskCompleted } from "@/lib/due-date-status";
 import { toast } from "@/lib/toast";
+import { useAgentPanelStore } from "@/store/agent-panel";
 import useBulkSelectionStore from "@/store/bulk-selection";
 import useProjectStore from "@/store/project";
 import { useUserPreferencesStore } from "@/store/user-preferences";
@@ -81,6 +82,9 @@ function TaskCardContent({
   );
   const isTaskFocused = useBulkSelectionStore(
     (state) => state.focusedTaskId === task.id,
+  );
+  const proposedChange = useAgentPanelStore(
+    (state) => state.proposedByTaskId[task.id],
   );
   const showIdRow = showTaskNumbers || showAssignees || isTaskSelected;
 
@@ -138,7 +142,12 @@ function TaskCardContent({
                 : "border-board-card-border bg-board-card shadow-board-card",
               isDragging
                 ? "border-board-card-border-hover bg-board-card shadow-[0_8px_24px_rgb(0_0_0/0.12)]"
-                : !isTaskFocused && "hover:border-board-card-border-hover",
+                : !isTaskFocused &&
+                    !proposedChange &&
+                    "hover:border-board-card-border-hover",
+              proposedChange &&
+                !isTaskSelected &&
+                "border-info ring-[3px] ring-info/12",
               isTaskSelected &&
                 "border-board-card-selected-border bg-board-card-selected",
               isTaskFocused && "border-board-card-focus",
@@ -210,6 +219,15 @@ function TaskCardContent({
                   max={2}
                   className="contents"
                 />
+              </div>
+            )}
+
+            {proposedChange && (
+              <div className="mt-2.5 flex items-center gap-1.5 rounded-md bg-info/8 px-2 py-1.5 font-medium text-[11px] text-info-foreground">
+                <Sparkles aria-hidden="true" className="size-3 shrink-0" />
+                <span className="truncate">
+                  {t("agent:overlay.proposed", { change: proposedChange })}
+                </span>
               </div>
             )}
           </div>

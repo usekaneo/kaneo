@@ -1,0 +1,44 @@
+---
+title: GitHub coding jobs
+description: Run approved coding jobs in your own GitHub Actions runner and review a draft pull request.
+---
+
+Kaneo can dispatch an approved task to your repository's CI. The coding process returns file changes to Kaneo; the API creates a new branch, commits the changes, and opens a draft pull request linked to the task. Nothing is merged automatically.
+
+## Create the optional Agent App
+
+Keep your existing [Kaneo integration App](/core/integrations/github/setup) unchanged. Register a second GitHub App, such as **Kaneo Agent**, in [Developer Settings](https://github.com/settings/apps). Give it repository **Contents: write**, **Pull requests: write**, **Actions: write**, and **Metadata: read**. Do not grant Workflows permission. Disable webhooks; this App needs no callback URL or OAuth flow.
+
+Generate a private key, record the App ID, and install the Agent App on selected repositories. The repository must also be connected to the task's Kaneo project through the existing verified GitHub integration.
+
+Set `KANEO_AGENT_GITHUB_APP_ID` and `KANEO_AGENT_GITHUB_APP_PRIVATE_KEY` (or `KANEO_AGENT_GITHUB_APP_PRIVATE_KEY_FILE`) in the API environment. Literal `\n` PEM separators and `KANEO_AGENT_GITHUB_APP_PRIVATE_KEY_BASE64` are also supported. `KANEO_AGENT_GITHUB_APP_SLUG` is optional. Restart the API to load the credentials. Coding starts also require the existing assistant configuration to be enabled.
+
+## Add the workflow
+
+Copy [`packages/agent-job/templates/kaneo-agent.yml`](https://github.com/usekaneo/kaneo/blob/main/packages/agent-job/templates/kaneo-agent.yml) into your repository as `.github/workflows/kaneo-agent.yml` on the default branch. Keep the `job` input and `run-name` unchanged.
+
+Set repository Actions variables `KANEO_API_URL` (your public API URL) and `KANEO_AGENT_SOURCE_REF` (a reviewed full commit SHA in `usekaneo/kaneo` that contains the wrapper). Add your own `OPENROUTER_API_KEY` CI secret. The template builds the wrapper from pinned source, with OpenCode 1.19.5 pinned by lockfile integrity. No unpublished npm package or separate action is required.
+
+The workflow grants only `contents: read` and `id-token: write`, and disables checkout credential persistence. Use a disposable GitHub-hosted runner. Its model secret is your own; model usage is billed by your provider. Kaneo stores no coding-job model key or coding spend estimate.
+
+## Opt in and start
+
+A workspace administrator with `workspace:manage_settings` can opt a project repository in through `PATCH /api/github-integration/project/{projectId}` with `{"codingAgentEnabled":true}`. Use `false` to disable new jobs and prevent pending changesets from being committed. The opt-in has no settings control yet.
+
+Starting requires a Kaneo user session, `agent:run_code`, project/task read access, and a linked GitHub account with repository write, maintain, or admin access. Owner and newly seeded admin roles have `agent:run_code` by default; edited/existing stored role permissions remain under your control. An owner can grant the new permission where necessary.
+
+`POST /api/agent/{workspaceId}/jobs` accepts a UUID `requestId`, `taskId`, `integrationId`, `instructions`, and optional `baseRef`. Reusing the request ID with the same input returns the same job. An approved `code.run` proposal starts the same kind of job. Jobs stay private unless their conversation is shared, and project access still applies when reading them.
+
+In the web app, **Fix with agent** in the task header starts a job: pick the repository when the project has several, edit the instructions drafted from the task, and start. The job lands in a new agent conversation. The button appears only when coding jobs are configured, you have `agent:run_code`, and the task's project has an opted-in repository; it stays disabled while none is ready. When the assistant proposes a coding job, it appears with the other proposed changes and starts when you apply it.
+
+The run thread shows the job's state (queued, starting, working, opening PR, then PR opened, no changes, failed, or stopped), links to the GitHub Actions run and the draft PR, and offers **Stop job** until PR creation begins. Recent runs show the same state or the PR number. People the conversation is shared with see job status without the stop or apply controls.
+
+A workspace may have two active jobs, with one per requester and at most ten starts per requester per workspace per hour. `KANEO_CODE_JOB_TIMEOUT_MINUTES` defaults to 30 (5–120). `KANEO_CODE_MODEL` defaults to `OPENROUTER_MODEL`. The default OIDC audience is exactly `KANEO_API_URL`; a custom `KANEO_CODE_OIDC_AUDIENCE` must also be set in the workflow.
+
+## Policy and recovery
+
+Kaneo refuses default/base-branch writes, workflow definitions, local Actions, Git metadata, path traversal, new symlinks, more than 300 file operations, and more than 10 MiB of decoded file bytes. It never force-pushes or merges. Your normal PR checks and human review remain the final acceptance step.
+
+The claim is single use and bound to the repository ID, returned workflow run ID, first run attempt, trusted workflow path, and workflow commit. Callback credentials expire with the job and are revoked on upload, failure, or cancellation. Cancellation is available until PR creation begins; once the job is `committing`, close the resulting PR through GitHub if needed.
+
+Kaneo reconciles stale jobs and retries bounded dispatch/commit steps after transient errors. GitHub dispatch is not transactional: a crash and delayed run visibility can produce an extra CI run, but only the stored run may claim and write results. Never rerun a claimed workflow; start a fresh job with a new request ID. A persistent branch collision fails the job instead of moving someone else's branch.

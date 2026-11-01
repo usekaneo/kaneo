@@ -24,6 +24,7 @@ export const githubConfigSchema = v.object({
   syncRules: v.optional(
     v.custom<SyncRules>((value) => syncRulesSchema.safeParse(value).success),
   ),
+  codingAgent: v.optional(v.object({ enabled: v.boolean() })),
   branchPattern: v.optional(v.string()),
   customBranchRegex: v.optional(v.string()),
   commentTaskLinkOnGitHubIssue: v.optional(v.boolean()),

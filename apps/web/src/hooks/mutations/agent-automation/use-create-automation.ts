@@ -1,0 +1,20 @@
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import fetcher from "@/fetchers/agent-automation/create-automation";
+import { automationQueryKeys } from "@/hooks/queries/agent-automation/automation-query-keys";
+import { agentQueryKeys } from "@/hooks/queries/agent/agent-query-keys";
+import type { AutomationInput } from "@/types/agent-automation";
+
+export default function useCreateAutomation(workspaceId: string) {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (input: AutomationInput) => fetcher(workspaceId, input),
+    onSettled: () => {
+      void queryClient.invalidateQueries({
+        queryKey: automationQueryKeys.all(workspaceId),
+      });
+      void queryClient.invalidateQueries({
+        queryKey: agentQueryKeys.all(workspaceId),
+      });
+    },
+  });
+}

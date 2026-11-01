@@ -1,5 +1,5 @@
 import { ShortcutKeys } from "@/components/shortcuts/shortcut-keys";
-import type { ReactNode } from "react";
+import { Fragment, type ReactElement, type ReactNode } from "react";
 import { useTranslation } from "react-i18next";
 import Layout from "@/components/common/layout";
 import {
@@ -19,8 +19,16 @@ import {
 import useActiveWorkspace from "@/hooks/queries/workspace/use-active-workspace";
 import { cn } from "@/lib/cn";
 
+export type WorkspaceBreadcrumb = {
+  label: string;
+  // A router link element, e.g. <Link to="…" />.
+  link: ReactElement;
+};
+
 type WorkspaceLayoutProps = {
   title: string;
+  // Pages above this one, outermost first.
+  parents?: WorkspaceBreadcrumb[];
   headerActions?: ReactNode;
   children: ReactNode;
   onCreateProject?: () => void;
@@ -29,6 +37,7 @@ type WorkspaceLayoutProps = {
 
 export default function WorkspaceLayout({
   title,
+  parents = [],
   headerActions,
   children,
   className,
@@ -70,6 +79,19 @@ export default function WorkspaceLayout({
                     <BreadcrumbSeparator className="hidden sm:block" />
                   </>
                 )}
+                {parents.map((parent) => (
+                  <Fragment key={parent.label}>
+                    <BreadcrumbItem className="hidden min-w-0 sm:inline-flex">
+                      <BreadcrumbLink
+                        render={parent.link}
+                        className="min-w-0 truncate text-xs font-normal text-muted-foreground"
+                      >
+                        {parent.label}
+                      </BreadcrumbLink>
+                    </BreadcrumbItem>
+                    <BreadcrumbSeparator className="hidden sm:block" />
+                  </Fragment>
+                ))}
                 <BreadcrumbItem className="min-w-0">
                   <span className="truncate text-xs font-normal text-card-foreground">
                     {title}

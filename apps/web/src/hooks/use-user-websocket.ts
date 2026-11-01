@@ -1,9 +1,12 @@
+import { invalidateAgentJobQueries } from "@/lib/invalidate-agent-job-queries";
 import { workspaceStatusQueryKey } from "@/hooks/queries/workspace/use-workspace-archived";
 import { windowId } from "@kaneo/libs";
 import { useQueryClient } from "@tanstack/react-query";
 import { useLocation, useNavigate } from "@tanstack/react-router";
 import { useEffect, useRef } from "react";
 import { getApiUrl } from "@/fetchers/get-api-url";
+import { automationQueryKeys } from "@/hooks/queries/agent-automation/automation-query-keys";
+import { agentQueryKeys } from "@/hooks/queries/agent/agent-query-keys";
 import {
   evictInaccessibleWorkspaceCache,
   evictWorkspaceCache,
@@ -117,6 +120,7 @@ export function useUserWebSocket() {
             workspaceId?: string;
             workspaceIds?: string[] | null;
             reason?: string;
+            runId?: string;
           };
           if (message.type === "USER_ACCESS_REVOKED") {
             leaveSession();
@@ -189,6 +193,24 @@ export function useUserWebSocket() {
             ])
               void queryClient.invalidateQueries({ queryKey });
             reconcileProjectAccess(queryClient, workspaceId, () => !disposed);
+          }
+          if (
+            (message.type === "AGENT_RUN_UPDATED" ||
+              message.type === "AGENT_JOB_UPDATED") &&
+            message.workspaceId &&
+            message.runId
+          ) {
+            if (message.type === "AGENT_JOB_UPDATED")
+              void invalidateAgentJobQueries(queryClient, message.workspaceId);
+            void queryClient.invalidateQueries({
+              queryKey: agentQueryKeys.run(message.workspaceId, message.runId),
+            });
+            void queryClient.invalidateQueries({
+              queryKey: agentQueryKeys.recentRuns(message.workspaceId),
+            });
+            void queryClient.invalidateQueries({
+              queryKey: automationQueryKeys.all(message.workspaceId),
+            });
           }
           if (message.type === "NOTIFICATION_CREATED") {
             queryClient.invalidateQueries({ queryKey: ["notifications"] });

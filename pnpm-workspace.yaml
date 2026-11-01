@@ -51,6 +51,7 @@ patchedDependencies:
   node-forge@1.4.0: patches/node-forge@1.4.0.patch
   zod@3.25.76: patches/zod@3.25.76.patch
 allowBuilds:
+  opencode-ai: true
   "@prisma/engines": false
   "@sentry/node-cpu-profiler": false
   msw: false
@@ -106,5 +107,19 @@ minimumReleaseAgeExclude:
   - lucide-react@1.62.0
   - marked@18.1.2
   - postcss@8.5.32
+  - opencode-ai@1.19.5
+  - opencode-darwin-arm64@1.19.5
+  - opencode-darwin-x64-baseline@1.19.5
+  - opencode-darwin-x64@1.19.5
+  - opencode-linux-arm64-musl@1.19.5
+  - opencode-linux-arm64@1.19.5
+  - opencode-linux-x64-baseline-musl@1.19.5
+  - opencode-linux-x64-baseline@1.19.5
+  - opencode-linux-x64-musl@1.19.5
+  - opencode-linux-x64@1.19.5
+  - opencode-windows-arm64@1.19.5
+  - opencode-windows-x64-baseline@1.19.5
+  - opencode-windows-x64@1.19.5
+
   - "@expo/log-box@58.0.14"
   - "@expo/metro-runtime@58.0.16"

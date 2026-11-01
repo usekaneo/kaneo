@@ -1,0 +1,197 @@
+import { and, eq, isNotNull, or, type SQL } from "drizzle-orm";
+import { HTTPException } from "hono/http-exception";
+import type { Context, Next } from "hono";
+import db, { schema } from "../database";
+import { projectAccessCondition } from "../project-access/project-access-condition";
+import {
+  hasUserWorkspacePermission,
+  type PermissionMap,
+} from "../utils/require-workspace-permission";
+import { isBanActive } from "../utils/user-ban";
+import { workspaceArchivedError } from "../workspace/archive/workspace-archived-error";
+import {
+  conversationReadable,
+  touchedProjectsReadable,
+} from "./run-visibility";
+import type { AgentSubject } from "./types";
+
+export type AgentDatabase =
+  | typeof db
+  | Parameters<Parameters<typeof db.transaction>[0]>[0];
+
+export async function assertAgentAccess(
+  subject: AgentSubject,
+  permissions: PermissionMap = { project: ["read"], task: ["read"] },
+  database: AgentDatabase = db,
+) {
+  const [workspace] = await database
+    .select({ archivedAt: schema.workspaceTable.archivedAt })
+    .from(schema.workspaceTable)
+    .where(eq(schema.workspaceTable.id, subject.workspaceId))
+    .limit(1);
+  if (!workspace)
+    throw new HTTPException(404, { message: "Workspace not found" });
+  const [user] = await database
+    .select({
+      banned: schema.userTable.banned,
+      banExpires: schema.userTable.banExpires,
+      isAnonymous: schema.userTable.isAnonymous,
+    })
+    .from(schema.userTable)
+    .where(eq(schema.userTable.id, subject.userId))
+    .limit(1);
+  if (
+    !user ||
+    user.isAnonymous ||
+    isBanActive(user) ||
+    !(await hasUserWorkspacePermission(
+      subject.userId,
+      subject.workspaceId,
+      permissions,
+      database,
+    ))
+  ) {
+    throw new HTTPException(403, { message: "Insufficient agent permissions" });
+  }
+  // Checked after membership so outsiders cannot learn a workspace is archived.
+  if (workspace.archivedAt) throw workspaceArchivedError();
+  if (subject.projectId)
+    await assertAgentProject(subject, subject.projectId, database);
+}
+
+export async function assertAgentProject(
+  subject: AgentSubject,
+  projectId: string,
+  database: AgentDatabase = db,
+) {
+  const [project] = await database
+    .select({ id: schema.projectTable.id })
+    .from(schema.projectTable)
+    .where(
+      and(
+        eq(schema.projectTable.id, projectId),
+        eq(schema.projectTable.workspaceId, subject.workspaceId),
+        projectAccessCondition(subject.userId, schema.projectTable.id),
+      ),
+    )
+    .limit(1);
+  if (!project || (subject.projectId && subject.projectId !== projectId)) {
+    throw new HTTPException(404, {
+      message: "Project not found in agent scope",
+    });
+  }
+}
+
+export async function requireAgentSession(c: Context, next: Next) {
+  if (!c.get("session") || c.get("apiKey"))
+    throw new HTTPException(403, { message: "Agent requires a user session" });
+  await assertAgentAccess({
+    userId: c.get("userId"),
+    workspaceId: c.req.param("workspaceId") ?? "",
+    projectId: null,
+  });
+  return next();
+}
+
+// Owners always see their conversations. Others see a conversation only while
+// it is shared, they can read its project, and the shared-run rule in
+// run-visibility.ts holds; anything else is a 404 so hidden data stays
+// undiscoverable.
+function visibleTo(subject: AgentSubject, sharedRule: SQL) {
+  return and(
+    eq(schema.agentConversationTable.workspaceId, subject.workspaceId),
+    or(
+      eq(schema.agentConversationTable.userId, subject.userId),
+      and(isNotNull(schema.agentConversationTable.sharedAt), sharedRule),
+    ),
+  );
+}
+
+function assertOwner(subject: AgentSubject, ownerId: string) {
+  if (ownerId !== subject.userId)
+    throw new HTTPException(403, {
+      message: "Only the conversation owner can do this",
+    });
+}
+
+export async function getVisibleConversation(
+  subject: AgentSubject,
+  conversationId: string,
+  database: AgentDatabase = db,
+) {
+  const [conversation] = await database
+    .select()
+    .from(schema.agentConversationTable)
+    .where(
+      and(
+        eq(schema.agentConversationTable.id, conversationId),
+        visibleTo(subject, conversationReadable(subject)),
+      ),
+    )
+    .limit(1);
+  if (!conversation)
+    throw new HTTPException(404, { message: "Conversation not found" });
+  await assertAgentAccess(
+    { ...subject, projectId: conversation.projectId },
+    undefined,
+    database,
+  );
+  return conversation;
+}
+
+export async function getOwnedConversation(
+  subject: AgentSubject,
+  conversationId: string,
+  database: AgentDatabase = db,
+) {
+  const conversation = await getVisibleConversation(
+    subject,
+    conversationId,
+    database,
+  );
+  assertOwner(subject, conversation.userId);
+  return conversation;
+}
+
+export async function getVisibleRun(
+  subject: AgentSubject,
+  runId: string,
+  database: AgentDatabase = db,
+) {
+  const [run] = await database
+    .select()
+    .from(schema.agentRunTable)
+    .innerJoin(
+      schema.agentConversationTable,
+      eq(schema.agentRunTable.conversationId, schema.agentConversationTable.id),
+    )
+    .where(
+      and(
+        eq(schema.agentRunTable.id, runId),
+        visibleTo(subject, touchedProjectsReadable(subject)),
+      ),
+    )
+    .limit(1);
+  if (!run) throw new HTTPException(404, { message: "Run not found" });
+  const scoped = { ...subject, projectId: run.agent_conversation.projectId };
+  await assertAgentAccess(scoped, undefined, database);
+  return {
+    run: run.agent_run,
+    ownerId: run.agent_conversation.userId,
+    subject: scoped,
+  };
+}
+
+export async function getOwnedRun(
+  subject: AgentSubject,
+  runId: string,
+  database: AgentDatabase = db,
+) {
+  const {
+    run,
+    ownerId,
+    subject: scoped,
+  } = await getVisibleRun(subject, runId, database);
+  assertOwner(subject, ownerId);
+  return { run, subject: scoped };
+}

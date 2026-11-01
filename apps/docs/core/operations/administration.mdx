@@ -153,6 +153,28 @@ Open **Settings → Administration → Settings** to change how the instance beh
 
 Environment variables win. When `DISABLE_REGISTRATION`, `DISABLE_PASSWORD_REGISTRATION`, or `DISABLE_WORKSPACE_CREATION` is `true`, the matching setting is locked and shows which variable sets it. On a new instance, or one that never saved settings, everything behaves as before this page existed. Sign-in providers are listed on the [System](#check-system-status) page.
 
+### Agent models
+
+In **Agent models**, choose **Add model**, select a connected provider, search
+its models, and confirm **Add model**. Each model's row menu offers **Make
+default** and **Remove**. Changes save immediately. Users can choose between
+allowed models in the agent composer; automations use the same allowed list.
+
+Credentials remain on the server. Live catalogs are available for Anthropic,
+OpenAI, Google, OpenRouter, and OpenAI-compatible endpoints. For other adapters,
+enter a model ID. Choose a model with tool-call support; image and PDF support
+varies. Removing a model prevents new runs with it. Queued runs are rechecked,
+while running requests may finish. Automations using a removed model skip runs
+until their owner chooses an allowed model.
+
+Saved choices survive restarts and override environment model defaults.
+**Restore server defaults** removes the saved choices. Settings take effect
+within five seconds across API instances; open user pickers refresh within
+thirty seconds. These controls and `/api/admin/agent/*` require
+`instance:settings`; API keys and workspace admin roles alone do not grant access.
+The instance operator still controls credentials and the agent's master switch
+through [server configuration](/core/installation/environment-variables#project-assistant).
+
 ## Check system status
 
 Open **Settings → Administration → System** to check this instance and the services it relies on. The page checks again each time you open it or choose **Refresh**.

@@ -18,6 +18,10 @@ import { compress } from "hono/compress";
 import { cors } from "hono/cors";
 import { HTTPException } from "hono/http-exception";
 import activity from "./activity";
+import agent from "./agent";
+import { initializeAutomationEvents } from "./agent/automation/subscribe";
+import jobCallbacks from "./agent/code/routes/job-callbacks";
+import { initializeAgentWorker, shutdownAgentWorker } from "./agent/worker";
 import admin from "./admin";
 import { auth } from "./auth";
 import { forwardAuthRequest } from "./utils/forward-auth-request";
@@ -97,6 +101,7 @@ import {
   isPublicAsset,
 } from "./utils/authorize-asset-access";
 import { boundedRequestBody } from "./utils/bounded-request-body";
+import { buildContentDisposition } from "./utils/build-content-disposition";
 import { getInvitationDetails } from "./utils/check-registration-allowed";
 import { clientIpMiddleware } from "./utils/client-ip";
 import { runCustomOAuthCallback } from "./utils/custom-oauth-sign-in";
@@ -167,29 +172,6 @@ const SAFE_INLINE_ASSET_TYPES = new Set([
   "image/png",
   "image/webp",
 ]);
-
-function buildContentDisposition(filename: string, inline: boolean) {
-  const normalized = filename
-    .normalize("NFC")
-    .replace(/[\r\n"]/g, "")
-    .trim();
-  const safeFilename = normalized || "file";
-  const asciiFallback =
-    safeFilename
-      .normalize("NFKD")
-      .replace(/[\u0300-\u036f]/g, "")
-      .replace(/[\\/]/g, "-")
-      .replace(/[^\x20-\x7E]+/g, "_")
-      .replace(/\s+/g, " ")
-      .trim() || "file";
-  const encodedFilename = encodeURIComponent(safeFilename).replace(
-    /['()*]/g,
-    (char) => `%${char.charCodeAt(0).toString(16).toUpperCase()}`,
-  );
-
-  const disposition = inline ? "inline" : "attachment";
-  return `${disposition}; filename="${asciiFallback}"; filename*=UTF-8''${encodedFilename}`;
-}
 
 export function createApp() {
   const app = new Hono<AppVariables>();
@@ -441,6 +423,7 @@ export function createApp() {
     );
 
   api.route("/calendar-feed", publicCalendarFeed);
+  api.route("/agent-jobs", jobCallbacks);
 
   api.post("/github-integration/webhook", handleGithubWebhookRoute);
 
@@ -875,6 +858,7 @@ export function createApp() {
   const importApi = api.route("/import", importRoutes);
   const userApi = api.route("/user", user);
   const adminApi = api.route("/admin", admin);
+  const agentApi = api.route("/agent", agent);
 
   app.route(
     "/",
@@ -983,6 +967,7 @@ export function createApp() {
     api,
     injectWebSocket,
     activityApi,
+    agentApi,
     billingApi,
     columnApi,
     commentApi,
@@ -1051,9 +1036,11 @@ export async function runStartupTasks() {
   await migrateColumns();
   await seedDefaultWorkspaceRoles();
 
+  await initializeAutomationEvents();
   initializePlugins();
   initializeScheduler();
   await initializeWebSocketAdapter();
+  initializeAgentWorker();
 }
 
 export async function startServer(
@@ -1090,6 +1077,7 @@ export async function startServer(
 
     console.log("🛑 Shutting down gracefully...");
     shutdownScheduler();
+    await shutdownAgentWorker();
     await stopWebhookWorker();
     await shutdownWebSocketAdapter();
     server.close();
@@ -1118,6 +1106,7 @@ const {
   app,
   injectWebSocket,
   activityApi,
+  agentApi,
   billingApi,
   columnApi,
   commentApi,
@@ -1164,6 +1153,7 @@ if (isMainModule) {
 }
 
 export type AppType =
+  | typeof agentApi
   | typeof billingApi
   | typeof configApi
   | typeof projectApi

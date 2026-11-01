@@ -1,10 +1,17 @@
 import { DndContext, TouchSensor, useSensor, useSensors } from "@dnd-kit/core";
 import { SortableContext } from "@dnd-kit/sortable";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { cleanup, fireEvent, render, screen } from "@testing-library/react";
+import {
+  act,
+  cleanup,
+  fireEvent,
+  render,
+  screen,
+} from "@testing-library/react";
 import type { ReactNode } from "react";
 import { afterEach, expect, it, vi } from "vite-plus/test";
 import type { CardField } from "@/components/custom-fields/card-fields";
+import { useAgentPanelStore } from "@/store/agent-panel";
 import type Task from "@/types/task";
 import TaskCard from "./task-card";
 
@@ -77,6 +84,7 @@ afterEach(() => {
   cleanup();
   onDragStart.mockClear();
   cardFields.length = 0;
+  useAgentPanelStore.getState().setProposed({});
 });
 
 const queryClient = new QueryClient();
@@ -194,4 +202,12 @@ it("keeps details in the rendered open column despite a final column sharing its
   view.rerender(<TaskCard task={task} isFinalColumn />);
   expect(screen.queryByText("Regression label")).not.toBeInTheDocument();
   expect(screen.getByText("Open work")).toBeVisible();
+});
+
+it("marks a card the agent proposes to change", () => {
+  render(<TaskCard task={task} isFinalColumn={false} />, { wrapper });
+  expect(screen.queryByText("agent:overlay.proposed")).toBeNull();
+
+  act(() => useAgentPanelStore.getState().setProposed({ task: "Priority" }));
+  expect(screen.getByText("agent:overlay.proposed")).toBeVisible();
 });

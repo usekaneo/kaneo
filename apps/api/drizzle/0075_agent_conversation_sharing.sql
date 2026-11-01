@@ -1,0 +1,2 @@
+ALTER TABLE "agent_conversation" ADD COLUMN "shared_at" timestamp;--> statement-breakpoint
+CREATE INDEX "agent_conversation_shared_idx" ON "agent_conversation" USING btree ("workspace_id") WHERE "agent_conversation"."shared_at" is not null;

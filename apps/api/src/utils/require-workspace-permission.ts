@@ -3,6 +3,7 @@ import type { Context, Next } from "hono";
 import { HTTPException } from "hono/http-exception";
 import db, { schema } from "../database";
 import { ApiError } from "../errors/api-error";
+import { hasInstanceAdminRole } from "./instance-admin-role";
 import { isInstanceAdmin } from "./is-instance-admin";
 import { missingPermissions } from "./missing-permissions";
 import {
@@ -13,6 +14,8 @@ import {
   satisfies,
 } from "./role-permissions";
 import { splitRoles } from "./split-roles";
+
+export type { PermissionMap };
 
 async function storedRolePermissions(
   workspaceId: string,
@@ -116,8 +119,15 @@ async function memberRoles(
 ): Promise<{ roles: string[]; stored: StoredRolePermission[] }> {
   const userId = c.get("userId");
   if (!userId) return { roles: [], stored: [] };
+  return userMemberRoles(userId, workspaceId);
+}
 
-  const [member] = await db
+async function userMemberRoles(
+  userId: string,
+  workspaceId: string,
+  database: Pick<typeof db, "select"> = db,
+): Promise<{ roles: string[]; stored: StoredRolePermission[] }> {
+  const [member] = await database
     .select({ role: schema.workspaceUserTable.role })
     .from(schema.workspaceUserTable)
     .where(
@@ -137,8 +147,31 @@ async function memberRoles(
   const roles = splitRoles(member?.role);
   return {
     roles,
-    stored: await storedRolePermissions(workspaceId, roles, db),
+    stored: await storedRolePermissions(workspaceId, roles, database),
   };
+}
+
+// Background jobs have no Hono context. Resolve the current role from the same
+// permission source as HTTP requests instead of saving a grant at enqueue time.
+export async function hasUserWorkspacePermission(
+  userId: string,
+  workspaceId: string,
+  permissions: PermissionMap,
+  database: Pick<typeof db, "select"> = db,
+) {
+  const [user] = await database
+    .select({ role: schema.userTable.role })
+    .from(schema.userTable)
+    .where(eq(schema.userTable.id, userId))
+    .limit(1);
+  if (!user) return false;
+  if (hasInstanceAdminRole(user.role)) return true;
+  const { roles, stored } = await userMemberRoles(
+    userId,
+    workspaceId,
+    database,
+  );
+  return rolesAllow(roles, stored, permissions);
 }
 
 export function requireApiKeyScope(permissions: PermissionMap) {

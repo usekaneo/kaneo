@@ -5,6 +5,7 @@ import {
   Inbox,
   type LucideIcon,
   Mail,
+  Sparkles,
   Users,
 } from "lucide-react";
 import { useTranslation } from "react-i18next";
@@ -15,6 +16,7 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
+import useAgentConfig from "@/hooks/queries/agent/use-agent-config";
 import { usePendingInvitations } from "@/hooks/queries/invitation/use-pending-invitations";
 import useGetNotifications from "@/hooks/queries/notification/use-get-notifications";
 import useGetAssignedTasks from "@/hooks/queries/task/use-get-assigned-tasks";
@@ -27,6 +29,8 @@ type NavItem = {
   url: string;
   count?: number;
   emphasizeCount?: boolean;
+  // Also active on pages below this URL.
+  nested?: boolean;
 };
 
 export function NavMain() {
@@ -39,6 +43,7 @@ export function NavMain() {
   const { data: invitations = [] } = usePendingInvitations();
   const { data: notifications = [] } = useGetNotifications(workspace?.id);
   const { data: assignedTasks } = useGetAssignedTasks(workspace?.id, true);
+  const { data: agentConfig } = useAgentConfig(workspace?.id);
 
   if (!workspace) return null;
 
@@ -49,6 +54,16 @@ export function NavMain() {
 
   const navItems: NavItem[] = [
     { title: t("navigation:sidebar.home"), icon: House, url: homeUrl },
+    ...(agentConfig?.enabled
+      ? [
+          {
+            title: t("navigation:sidebar.agent"),
+            icon: Sparkles,
+            url: `${homeUrl}/agent`,
+            nested: true,
+          },
+        ]
+      : []),
     {
       title: t("navigation:sidebar.inbox"),
       icon: Inbox,
@@ -88,7 +103,10 @@ export function NavMain() {
             <SidebarMenuItem key={item.url}>
               <SidebarMenuButton
                 tooltip={item.title}
-                isActive={pathname === item.url}
+                isActive={
+                  pathname === item.url ||
+                  (item.nested === true && pathname.startsWith(`${item.url}/`))
+                }
                 size="default"
                 className="h-8 text-sm"
                 onClick={() => navigate({ to: item.url })}

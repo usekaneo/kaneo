@@ -11,6 +11,8 @@ const project = vi.hoisted(() => ({
   },
 }));
 
+const agentConfig = vi.hoisted(() => ({ enabled: false }));
+
 vi.mock("@tanstack/react-router", () => ({
   useNavigate: () => vi.fn(),
   useLocation: () => ({ pathname: "/board" }),
@@ -55,8 +57,18 @@ vi.mock("@/components/shared/modals/create-project-modal", () => ({
   default: () => null,
 }));
 vi.mock("@/components/page-title", () => ({ default: () => null }));
+vi.mock("@/hooks/queries/agent/use-agent-config", () => ({
+  default: () => ({ data: agentConfig }),
+}));
+vi.mock("@/components/agent/agent-button", () => ({
+  AgentButton: () => <button type="button">Agent</button>,
+}));
+vi.mock("@/components/agent/agent-panel", () => ({ AgentPanel: () => null }));
 
-afterEach(cleanup);
+afterEach(() => {
+  cleanup();
+  agentConfig.enabled = false;
+});
 
 function renderLayout() {
   render(
@@ -125,5 +137,23 @@ describe("ProjectLayout access states", () => {
     expect(backlog.getAttribute("href")).toBe(
       "/dashboard/workspace/$workspaceId/project/$projectId/backlog",
     );
+  });
+
+  it("shows the agent button only when the agent is enabled", () => {
+    project.current = { data: { name: "Alpha" }, error: null };
+    renderLayout();
+    expect(screen.queryByRole("button", { name: "Agent" })).toBeNull();
+
+    cleanup();
+    agentConfig.enabled = true;
+    renderLayout();
+    expect(screen.getByRole("button", { name: "Agent" })).toBeVisible();
+  });
+
+  it("hides the agent button when the project is unavailable", () => {
+    agentConfig.enabled = true;
+    project.current = { data: undefined, error: new HttpError(403, "denied") };
+    renderLayout();
+    expect(screen.queryByRole("button", { name: "Agent" })).toBeNull();
   });
 });

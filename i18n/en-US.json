@@ -2507,6 +2507,39 @@
 			"checkoutSuccess": {
 				"title": "Thanks for subscribing",
 				"description": "Payment received. The plan below updates once it's confirmed."
+			},
+			"ai": {
+				"title": "AI credit",
+				"description": "Prepaid balance shared by everyone in this workspace. Used by the assistant and automations.",
+				"available": "Available",
+				"reserved": "{{amount}} on hold for running requests or costs awaiting confirmation, out of {{balance}} total.",
+				"depleted": "AI requests are paused until you add credit. Everything else in Kaneo keeps working.",
+				"trial": "Each workspace owner gets $1 of free credit once, after verifying their email. There's no monthly allowance, and credit doesn't refill automatically.",
+				"adminOnly": "Only workspace admins can add credit.",
+				"unavailable": "Buying credit isn't set up on this instance yet.",
+				"purchaseError": "Couldn't open checkout. Try again.",
+				"loadError": "Couldn't load AI credit.",
+				"retry": "Try again",
+				"history": "Recent activity",
+				"date": "Date",
+				"activity": "Activity",
+				"amount": "Amount",
+				"usage": "AI usage",
+				"trialEntry": "Trial credit",
+				"topup": "Credit purchase",
+				"reversal": "Payment reversal",
+				"disabled": "AI billing is disabled on this instance.",
+				"paymentPending": "Thanks! Your credit appears here once the payment is confirmed. This page updates on its own.",
+				"pricing": "AI usage costs {{multiplier}}× the model provider's price. Before each request, we hold enough credit for the model's maximum request size, then return whatever isn't used.",
+				"pausedBadge": "Paused",
+				"depletedMember": "AI requests are paused until an admin adds credit. Everything else in Kaneo keeps working.",
+				"addTitle": "Add credit",
+				"addDescription": "One-time payment of {{minimum}} or more. No subscription.",
+				"amountLabel": "Amount in US dollars",
+				"amountInvalid": "Enter an amount in dollars and cents, like 12.50.",
+				"amountMinimum": "The minimum is {{amount}}.",
+				"amountMaximum": "The maximum is {{amount}}.",
+				"checkout": "Continue to checkout"
 			}
 		},
 		"chatIntegrations": {
@@ -2840,6 +2873,38 @@
 				"response": "Invalid response"
 			},
 			"save": "Save"
+		},
+		"adminAgent": {
+			"title": "Agent models",
+			"description": "Choose the models everyone can use and the default for new runs. Provider credentials stay on the server.",
+			"provider": "Provider",
+			"model": "Model",
+			"modelId": "Model ID",
+			"searchModels": "Search available models…",
+			"loadingModels": "Loading models…",
+			"noMatches": "No matching models.",
+			"add": "Add model",
+			"adding": "Adding…",
+			"addDescription": "Pick a model from a provider configured on the server.",
+			"enterModelId": "Enter a model ID instead",
+			"browseModels": "Browse available models",
+			"catalogError": "The model list is unavailable. You can enter a model ID or retry.",
+			"noProviders": "Configure a provider on the server to choose its models.",
+			"emptyTitle": "No models",
+			"noModels": "Add at least one model to make it available to users.",
+			"unavailable": "The agent is disabled or a selected provider is unavailable. Your choices will apply when it is available.",
+			"defaultBadge": "Default",
+			"rowActions": "Actions for {{model}}",
+			"makeDefault": "Make default",
+			"remove": "Remove",
+			"limit": "You can allow up to 20 models.",
+			"restoreDefaults": "Restore server defaults",
+			"restoreTitle": "Restore server defaults?",
+			"restoreDescription": "The model list and default will come from the server configuration again.",
+			"restore": "Restore",
+			"saved": "Agent model settings saved",
+			"saveError": "Could not save agent model settings.",
+			"loadError": "Could not load agent model settings."
 		}
 	},
 	"navigation": {
@@ -2873,7 +2938,8 @@
 			"home": "Home",
 			"inbox": "Inbox",
 			"myTasks": "My tasks",
-			"invitePeople": "Invite people"
+			"invitePeople": "Invite people",
+			"agent": "Agent"
 		},
 		"projectList": {
 			"viewProject": "View Project",
@@ -2947,6 +3013,7 @@
 				"logOut": "Log out",
 				"showDisplayOptions": "Display options",
 				"dismissToasts": "Dismiss all toasts",
+				"toggleAgent": "Toggle agent",
 				"toggleSidebar": "Toggle sidebar",
 				"goToHome": "Go to home",
 				"goToInbox": "Go to inbox",
@@ -5163,6 +5230,426 @@
 		},
 		"permissions": {
 			"photos": "Kaneo uses your photos to attach images to tasks and comments, and for your profile photo."
+		}
+	},
+	"agent": {
+		"title": "Agent",
+		"composer": {
+			"panelPlaceholder": "Ask anything, or type @ to mention a task…",
+			"followUp": "Ask a follow-up…",
+			"send": "Send",
+			"stop": "Stop the agent",
+			"model": "Model: {{model}}",
+			"mentionResults": "Tasks and projects",
+			"reviewMode": "Ask before changes",
+			"reviewModeHint": "The agent only proposes changes. Nothing changes until you review and apply it.",
+			"attach": "Attach files",
+			"removeAttachment": "Remove {{name}}",
+			"attachmentErrors": {
+				"tooMany_one": "You can attach up to {{count}} file.",
+				"tooMany_other": "You can attach up to {{count}} files.",
+				"tooLarge": "That file is too large. Attach up to 50,000 characters per file and 100,000 in total.",
+				"fileTooLarge": "Images and PDFs can be up to {{size}} MB.",
+				"unsupported": "Attach images, PDFs, or text files like .md, .txt, .csv or .json.",
+				"unreadable": "{{name}} couldn't be read as that file type.",
+				"empty": "That file is empty.",
+				"tooManyPending": "Too many attachments are waiting to be sent. Send or remove some first.",
+				"uploadFailed": "{{name}} couldn't be uploaded. Try again."
+			},
+			"previewAttachment": "Preview {{name}}",
+			"uploading": "Uploading {{name}}"
+		},
+		"panel": {
+			"label": "Agent panel",
+			"history": "Previous conversations",
+			"historyEmpty": "No conversations yet",
+			"historyError": "Couldn't load conversations",
+			"newConversation": "New conversation",
+			"close": "Close agent",
+			"introTitle": "What should we look at in {{project}}?",
+			"introBody": "I can read tasks, comments and workload here, then propose changes for you to review."
+		},
+		"suggestions": {
+			"risk": "What's at risk this week?",
+			"workload": "Is anyone overloaded?",
+			"statusUpdate": "Draft a status update"
+		},
+		"run": {
+			"working": "Working…",
+			"steps_one": "Worked through {{count}} step",
+			"steps_other": "Worked through {{count}} steps",
+			"stepRunning": "Running…",
+			"stepDone": "Done",
+			"cancelled": "Stopped before finishing.",
+			"loadError": "Couldn't load this run."
+		},
+		"thread": {
+			"loadError": "Couldn't load this conversation."
+		},
+		"review": {
+			"label": "Proposed changes",
+			"title_one": "{{count}} proposed change",
+			"title_other": "{{count}} proposed changes",
+			"nothingApplied": "Nothing applied yet",
+			"appliedCount_one": "{{count}} applied",
+			"appliedCount_other": "{{count}} applied",
+			"undoHint": "Undo anytime",
+			"discard": "Discard",
+			"apply_one": "Apply {{count}} change",
+			"apply_other": "Apply {{count}} changes",
+			"appliedToast_one": "Applied {{count}} change",
+			"appliedToast_other": "Applied {{count}} changes",
+			"failedToast_one": "{{count}} change couldn't be applied",
+			"failedToast_other": "{{count}} changes couldn't be applied",
+			"failedDescription": "The task changed or you no longer have access. Ask the agent again for a fresh proposal.",
+			"undoneToast": "Change undone",
+			"undoConflict": "Someone edited this task since, so it can't be undone automatically.",
+			"undoCommentConflict": "This comment was edited or deleted, so it can't be undone automatically."
+		},
+		"proposal": {
+			"action": {
+				"create": "Create task",
+				"update": "Update task",
+				"assign": "Assign",
+				"reassign": "Reassign",
+				"unassign": "Unassign",
+				"setDueDate": "Set due date",
+				"moveDueDate": "Move due date",
+				"clearDueDate": "Clear due date",
+				"priority": "Change priority",
+				"rename": "Rename",
+				"comment": "Post comment",
+				"code": "Run coding agent"
+			},
+			"status": {
+				"pending": "Pending",
+				"applied": "Applied",
+				"discarded": "Discarded",
+				"undone": "Undone"
+			},
+			"undo": "Undo",
+			"unassigned": "Unassigned",
+			"unknownMember": "Former member",
+			"noDueDate": "No due date"
+		},
+		"overlay": {
+			"proposed": "Proposed: {{change}}",
+			"assignee": "assign to {{value}}",
+			"dueDate": "due {{value}}",
+			"priority": "priority {{value}}",
+			"rename": "rename",
+			"update": "update task",
+			"comment": "comment"
+		},
+		"home": {
+			"title": "What can I take off your plate?",
+			"placeholder": "Describe what you need, like turning meeting notes into tasks…",
+			"examplesTitle": "Try asking",
+			"examplesHint": "Click an example to start",
+			"examples": {
+				"plan": {
+					"title": "Plan",
+					"description": "Turn ideas and notes into tasks with owners, priorities and dates.",
+					"first": "Turn my meeting notes into tasks",
+					"second": "Plan the next two weeks from the backlog"
+				},
+				"triage": {
+					"title": "Triage",
+					"description": "Sort incoming work: prioritize it, spot duplicates, route it to the right person.",
+					"first": "Prioritize everything new in the backlog",
+					"second": "Find duplicate bug reports"
+				},
+				"report": {
+					"title": "Report",
+					"description": "Summaries built from tasks, comments and workload.",
+					"first": "Write a status update I can post in chat",
+					"second": "What did the team finish since Monday?"
+				}
+			}
+		},
+		"recent": {
+			"title": "Recent runs",
+			"empty": "Nothing yet. Ask something above to get started.",
+			"loadError": "Couldn't load recent runs.",
+			"toReview_one": "{{count}} change to review",
+			"toReview_other": "{{count}} changes to review",
+			"applied_one": "Applied {{count}} change",
+			"applied_other": "Applied {{count}} changes",
+			"status": {
+				"queued": "Queued",
+				"running": "Working…",
+				"awaiting_review": "Ready to review",
+				"completed": "Answered",
+				"failed": "Failed",
+				"cancelled": "Stopped"
+			}
+		},
+		"sharing": {
+			"share": "Share with workspace",
+			"stop": "Stop sharing",
+			"shared": "Shared with workspace",
+			"sharedToast": "Conversation shared with your workspace",
+			"stoppedToast": "Conversation is private again",
+			"startedBy": "Started by {{name}}"
+		},
+		"unavailable": {
+			"title": "The agent isn't set up on this instance",
+			"description": "An instance admin can enable it with KANEO_AGENT_ENABLED and an OpenRouter API key. Your past runs stay available below."
+		},
+		"errors": {
+			"generic": "The agent couldn't do that. Try again.",
+			"rateLimited": "You've started a lot of runs. Wait a minute and try again.",
+			"conflict": "This conversation already has a run in progress.",
+			"unavailable": "The agent isn't available on this instance right now.",
+			"entitlement": "This workspace's plan doesn't include the agent.",
+			"forbidden": "You don't have access to this anymore.",
+			"unsupportedAttachments": "This model can't read the attached images or files. Remove them and try again.",
+			"aiCredit": "AI credit is depleted or reserved. Add credit in workspace billing to continue."
+		},
+		"automations": {
+			"title": "Automations",
+			"new": "New automation",
+			"newShort": "New",
+			"newTitle": "New automation",
+			"editTitle": "Edit automation",
+			"viewAll": "View all",
+			"empty": "No automations yet",
+			"noMatches": "No automations match these filters",
+			"loadError": "Couldn't load automations.",
+			"notFound": "This automation couldn't be loaded.",
+			"backToList": "All automations",
+			"you": "You",
+			"ownedBy": "Owned by {{name}}",
+			"runsAsName": "Runs as {{name}}",
+			"enabledLabel": "Run {{name}}",
+			"onEvent": "On event",
+			"toReview_one": "{{count}} to review",
+			"toReview_other": "{{count}} to review",
+			"failedOn": "Failed · {{date}}",
+			"monthCost": "{{cost}} this month",
+			"runNow": "Run now",
+			"runNowToast": "Run started",
+			"openRun": "Open run",
+			"edit": "Edit",
+			"moreActions": "More actions",
+			"createdToast": "Automation created",
+			"savedToast": "Automation saved",
+			"kinds": {
+				"label": "Automation type",
+				"all": "All",
+				"agent": "Agent",
+				"rules": "Rules"
+			},
+			"columns": {
+				"name": "Name",
+				"scope": "Scope",
+				"output": "Output",
+				"owner": "Owner",
+				"lastRun": "Last run",
+				"nextRun": "Next run"
+			},
+			"scope": {
+				"workspace": "Workspace",
+				"wholeWorkspace": "Whole workspace"
+			},
+			"output": {
+				"proposals": "Proposals",
+				"digest": "Inbox digest",
+				"proposalsLong": "Proposals for review",
+				"digestLong": "Inbox digest"
+			},
+			"events": {
+				"task_created": "Task created",
+				"task_moved": "Task moved to a column",
+				"due_date_passed": "Due date passed",
+				"pr_opened": "Pull request opened",
+				"pr_merged": "Pull request merged",
+				"comment_added": "Comment added"
+			},
+			"trigger": {
+				"dailyAt": "Daily at {{time}}",
+				"weeklyAt": "{{days}} at {{time}}",
+				"everyHours_one": "Every hour",
+				"everyHours_other": "Every {{count}} hours"
+			},
+			"filters": {
+				"onlyIf": "Only if",
+				"add": "Filter",
+				"label": "Label",
+				"column": "Column",
+				"project": "Project",
+				"owner": "Owner",
+				"none": "Nothing to choose",
+				"labelIs": "Label is {{name}}",
+				"columnIs": "Column is {{name}}",
+				"projectIs": "Project is {{name}}",
+				"remove": "Remove {{name}}",
+				"clear": "Clear {{name}} filter"
+			},
+			"status": {
+				"pausedAccess": "Paused · owner lost access",
+				"pausedFailures": "Paused after repeated failures",
+				"off": "Off",
+				"budget": "Budget reached",
+				"dailyLimit": "Daily limit reached",
+				"unavailable": "Model unavailable",
+				"overlap": "Skipped · previous run still working"
+			},
+			"errors": {
+				"budget": "This workspace's monthly automation budget is used up.",
+				"dailyLimit": "This automation reached its daily run limit.",
+				"overlap": "A run is already in progress.",
+				"unavailable": "This automation can't run right now.",
+				"limit": "You've reached the automation limit for this workspace.",
+				"disabled": "Turn the automation on before running it.",
+				"ownerChanged": "This automation has a new owner. Reload to see it.",
+				"model": "That model isn't available anymore. Pick another one.",
+				"invalid": "Check the automation's settings and try again."
+			},
+			"form": {
+				"name": "Name",
+				"namePlaceholder": "Untitled automation",
+				"prompt": "Prompt",
+				"promptPlaceholder": "Describe what the agent should do each time. Type @ to mention tasks or projects…",
+				"mention": "Mention a task or project",
+				"trigger": "Trigger",
+				"schedule": "Schedule",
+				"eventTab": "Event",
+				"event": "Event",
+				"frequency": "Frequency",
+				"frequencies": {
+					"daily": "Daily",
+					"weekly": "Weekly",
+					"interval": "Every few hours"
+				},
+				"interval": "Interval",
+				"time": "Time",
+				"timezone": "Time zone",
+				"noTimezones": "No matching time zones",
+				"scope": "Scope",
+				"output": "Output",
+				"dailyLimit": "Runs per day",
+				"runsAs": "Runs as",
+				"create": "Create automation",
+				"save": "Save changes",
+				"errors": {
+					"nameRequired": "Give the automation a name.",
+					"nameTooLong": "Use 200 characters or fewer.",
+					"promptRequired": "Write what the agent should do.",
+					"promptTooLong": "Prompts can be up to 16,000 characters.",
+					"tooManyMentions": "Mention at most 10 tasks or projects.",
+					"time": "Pick a time.",
+					"weekdays": "Pick at least one day.",
+					"intervalHours": "Pick 1 to 24 hours.",
+					"dailyRunLimit": "Use a whole number from 1 to 100."
+				}
+			},
+			"pagination": {
+				"label": "Automation pages",
+				"range": "{{from}}–{{to}} of {{total}}",
+				"previous": "Previous page",
+				"next": "Next page"
+			},
+			"rule": {
+				"badge": "Rule",
+				"moveTo": "Move to {{column}}",
+				"when": {
+					"branch_push": "Move to {{column}} when a branch is pushed",
+					"pr_opened": "Move to {{column}} when a pull request opens",
+					"pr_merged": "Move to {{column}} when a pull request merges",
+					"issue_opened": "Move to {{column}} when an issue opens",
+					"issue_closed": "Move to {{column}} when an issue closes"
+				}
+			},
+			"runs": {
+				"title": "Runs",
+				"empty": "No runs yet",
+				"loadError": "Couldn't load runs.",
+				"manual": "Manual run",
+				"scheduled": "Scheduled run",
+				"event": "Event",
+				"andMore_one": "{{label}} and {{count}} more",
+				"andMore_other": "{{label}} and {{count}} more",
+				"moreEvents_one": "{{count}} more event",
+				"moreEvents_other": "{{count}} more events",
+				"scheduledFor": "Scheduled for {{time}}",
+				"startedManually": "Started with Run now",
+				"openTask": "Open task",
+				"tokens": "{{value}} tokens",
+				"newer": "Newer",
+				"older": "Older"
+			},
+			"delete": {
+				"action": "Delete",
+				"title": "Delete {{name}}?",
+				"confirm": "Delete automation",
+				"toast": "Automation deleted"
+			},
+			"takeOver": {
+				"action": "Take over",
+				"title": "Take over {{name}}?",
+				"confirm": "Take over",
+				"toast": "You own this automation now. Turn it on when you're ready."
+			}
+		},
+		"code": {
+			"status": {
+				"queued": "Queued",
+				"dispatched": "Starting",
+				"running": "Working",
+				"committing": "Opening PR",
+				"completed": "Finished",
+				"failed": "Failed",
+				"cancelled": "Stopped",
+				"prOpened": "PR #{{number}} opened",
+				"noChanges": "No changes"
+			},
+			"phase": {
+				"starting": "Starting GitHub Actions",
+				"working": "Editing code",
+				"testing": "Running tests",
+				"collecting": "Collecting changes",
+				"openingPr": "Opening pull request"
+			},
+			"history": "Job history",
+			"actionsRun": "Actions run",
+			"failure": {
+				"generic": "The coding job failed.",
+				"repositoryUnavailable": "The repository is no longer available.",
+				"workflowMissing": "The Kaneo agent workflow is missing from the repository.",
+				"appPermission": "The Kaneo Agent app is missing repository permissions.",
+				"dispatchFailed": "GitHub Actions couldn't start the job.",
+				"claimTimeout": "The workflow never picked up the job.",
+				"ciRunFailed": "The GitHub Actions run failed.",
+				"timedOut": "The job ran out of time.",
+				"accessRevoked": "Access to the repository was revoked.",
+				"changesetRejected": "The changes broke a repository safety rule.",
+				"branchExists": "The job's branch already exists.",
+				"commitFailed": "Kaneo couldn't commit the changes.",
+				"agentFailed": "The coding agent stopped with an error.",
+				"setupFailed": "The job couldn't set up the repository.",
+				"noModelKey": "The repository has no OPENROUTER_API_KEY secret."
+			},
+			"cancel": {
+				"action": "Stop job",
+				"title": "Stop this coding job?",
+				"confirm": "Stop job",
+				"toast": "Coding job stopped"
+			},
+			"errors": {
+				"limit": "You already have a coding job running or reached the hourly limit. Try again later.",
+				"committing": "The pull request is already being opened, so the job can't be stopped."
+			},
+			"start": {
+				"action": "Fix with agent",
+				"title": "Fix with agent",
+				"repository": "Repository",
+				"instructions": "Instructions",
+				"submit": "Start",
+				"toast": "Coding agent started",
+				"openRun": "Open run",
+				"noRepository": "No repository available"
+			}
 		}
 	}
 }

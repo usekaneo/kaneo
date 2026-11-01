@@ -96,6 +96,9 @@ async function listPublicTableNames(): Promise<string[]> {
 }
 
 export async function resetTestDatabase() {
+  const { invalidateInstanceSettings } =
+    await import("../../../apps/api/src/instance-settings/get-instance-settings");
+  invalidateInstanceSettings();
   await ensureTestDatabaseMigrated();
 
   const tableNames = await listPublicTableNames();

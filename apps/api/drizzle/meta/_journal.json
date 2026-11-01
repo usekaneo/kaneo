@@ -512,6 +512,69 @@
       "when": 1793132486358,
       "tag": "0072_instance_webhooks",
       "breakpoints": true
+    },
+    {
+      "idx": 73,
+      "version": "7",
+      "when": 1793188838398,
+      "tag": "0073_agent_assistant",
+      "breakpoints": true
+    },
+    {
+      "idx": 74,
+      "version": "7",
+      "when": 1793191575878,
+      "tag": "0074_agent_attachments",
+      "breakpoints": true
+    },
+    {
+      "idx": 75,
+      "version": "7",
+      "when": 1793200116638,
+      "tag": "0075_agent_conversation_sharing",
+      "breakpoints": true
+    },
+    {
+      "idx": 76,
+      "version": "7",
+      "when": 1793205563409,
+      "tag": "0076_agent_run_touched_projects",
+      "breakpoints": true
+    },
+    {
+      "idx": 77,
+      "version": "7",
+      "when": 1793215342007,
+      "tag": "0077_agent_automations",
+      "breakpoints": true
+    },
+    {
+      "idx": 78,
+      "version": "7",
+      "when": 1793217741471,
+      "tag": "0078_agent_coding_jobs",
+      "breakpoints": true
+    },
+    {
+      "idx": 79,
+      "version": "7",
+      "when": 1793530880011,
+      "tag": "0079_purple_madrox",
+      "breakpoints": true
+    },
+    {
+      "idx": 80,
+      "version": "7",
+      "when": 1793533160656,
+      "tag": "0080_tricky_magik",
+      "breakpoints": true
+    },
+    {
+      "idx": 81,
+      "version": "7",
+      "when": 1793534691033,
+      "tag": "0081_real_scarecrow",
+      "breakpoints": true
     }
   ]
 }

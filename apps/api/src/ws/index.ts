@@ -1207,3 +1207,17 @@ subscribeToEvent<{
     tasks: data.tasks,
   });
 });
+
+subscribeToEvent<{
+  userId: string;
+  workspaceId: string;
+  runId: string;
+  jobId: string;
+}>("agent.job_updated", async ({ userId, workspaceId, runId, jobId }) => {
+  broadcastToUser(userId, {
+    type: "AGENT_JOB_UPDATED",
+    workspaceId,
+    runId,
+    jobId,
+  });
+});

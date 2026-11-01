@@ -47,6 +47,7 @@ export const SHORTCUTS = {
   logOut: { keys: ["alt+shift+q"], category: "general" },
   showDisplayOptions: { keys: ["shift+v"], category: "general", scope: "view" },
   dismissToasts: { keys: ["mod+alt+x"], category: "general" },
+  toggleAgent: { keys: ["mod+j"], category: "general" },
 
   toggleSidebar: { keys: ["["], category: "navigation" },
   goToHome: { keys: ["g h"], category: "navigation" },

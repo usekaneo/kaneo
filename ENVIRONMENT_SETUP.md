@@ -55,6 +55,14 @@ The first non-guest account completes instance setup. Keep this local instance p
 
 ## Optional features
 
+To use the local assistant with direct Claude API access, add
+`KANEO_AGENT_ENABLED=true`, `KANEO_AGENT_MODEL=anthropic:claude-sonnet-5-5`, and
+`ANTHROPIC_API_KEY` (or `ANTHROPIC_API_KEY_FILE`) to the root `.env`, then restart
+the API. Other AI SDK providers and local model servers use the same agent UI;
+see the [provider setup guide](apps/api/src/agent/providers/README.md) for
+credentials, model lists, community adapters, and cost-reporting limits.
+GitHub coding jobs use separate repository-side credentials.
+
 Use the [environment reference](https://kaneo.app/docs/core/installation/environment-variables) for server settings and defaults.
 
 - **Uploads:** configure S3-compatible storage. [Silo](https://kaneo.app/docs/core/installation/silo) is the documented self-hosted option. The API and browser must both reach its endpoint.
