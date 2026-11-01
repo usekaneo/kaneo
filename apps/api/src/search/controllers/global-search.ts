@@ -76,7 +76,9 @@ function getActivitySearchContent(
     case "priority_changed":
       return `changed priority from ${toDisplayCase(String(data.oldPriority ?? ""))} to ${toDisplayCase(String(data.newPriority ?? ""))}`;
     case "unassigned":
-      return "unassigned the task";
+      return data.removedAssignee
+        ? `unassigned ${String(data.removedAssignee)} from the task`
+        : "unassigned the task";
     case "assignee_changed":
       return data.isSelfAssigned
         ? "assigned the task to themselves"

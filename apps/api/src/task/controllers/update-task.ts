@@ -8,9 +8,14 @@ import {
   recordTaskMutation,
 } from "./task-mutation-effects";
 import {
-  assertAssignableUser,
+  assertAssignableUsers,
   getProjectWorkspaceId,
 } from "../../utils/assert-assignable-user";
+import { resolveRequestedAssignees } from "../assignees/assignee-set";
+import {
+  loadAssigneeIds,
+  replaceTaskAssignees,
+} from "../assignees/task-assignees";
 import { boardDescription, descriptionDeferred } from "../description-pages";
 import { assertValidTaskStatus } from "../validate-task-fields";
 import { assertTaskPosition } from "./next-task-position";
@@ -27,6 +32,7 @@ async function updateTask(
   position: number,
   userId?: string,
   currentUserId?: string,
+  assigneeIds?: string[],
 ) {
   assertTaskPosition(position);
 
@@ -61,11 +67,19 @@ async function updateTask(
 
   await assertValidTaskStatus(status, projectId);
 
-  const normalizedUserId = userId?.trim() || undefined;
+  const currentAssigneeIds =
+    (await loadAssigneeIds([existingTask], db)).get(id) ?? [];
+  const nextAssigneeIds = resolveRequestedAssignees(
+    { assigneeIds, userId },
+    { primary: existingTask.userId, ids: currentAssigneeIds },
+  );
+  const addedAssigneeIds = nextAssigneeIds.filter(
+    (assignee) => !currentAssigneeIds.includes(assignee),
+  );
 
-  if (normalizedUserId && normalizedUserId !== existingTask.userId) {
-    await assertAssignableUser(
-      normalizedUserId,
+  if (addedAssigneeIds.length > 0) {
+    await assertAssignableUsers(
+      addedAssigneeIds,
       await getProjectWorkspaceId(projectId),
       projectId,
     );
@@ -78,6 +92,7 @@ async function updateTask(
     ),
   });
 
+  let assigneeChange = { added: [] as string[], removed: [] as string[] };
   const initialPosition = existingTask.position;
   const initialStatus = existingTask.status;
   const updatedTask = await db.transaction(async (tx) => {
@@ -127,7 +142,6 @@ async function updateTask(
         description,
         priority,
         position,
-        userId: normalizedUserId ?? null,
       })
       .where(and(eq(taskTable.id, id), eq(taskTable.projectId, projectId)))
       .returning({
@@ -135,6 +149,11 @@ async function updateTask(
         description: boardDescription,
         descriptionDeferred,
       });
+    if (task) {
+      const change = await replaceTaskAssignees(tx, task, nextAssigneeIds);
+      assigneeChange = { added: change.added, removed: change.removed };
+      task.userId = change.primary;
+    }
     if (task)
       await recordTaskMutation(
         tx,
@@ -159,6 +178,7 @@ async function updateTask(
     },
     { ...updatedTask, description: description ?? updatedTask.description },
     currentUserId,
+    { assignees: assigneeChange },
   );
 
   await publishEvent("task.updated", {
@@ -169,7 +189,7 @@ async function updateTask(
     userId: currentUserId,
   });
 
-  return updatedTask;
+  return { ...updatedTask, assigneeIds: nextAssigneeIds };
 }
 
 export default updateTask;

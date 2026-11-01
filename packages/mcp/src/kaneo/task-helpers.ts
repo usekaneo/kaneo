@@ -16,6 +16,7 @@ export type TaskUpdatePatch = {
   startDate?: string | null;
   dueDate?: string | null;
   userId?: string | null;
+  assigneeIds?: string[];
 };
 
 /**
@@ -24,7 +25,7 @@ export type TaskUpdatePatch = {
 export function buildFullTaskUpdateBody(
   existing: Record<string, unknown>,
   patch: TaskUpdatePatch,
-): Record<string, string | number | undefined> {
+): Record<string, string | number | string[] | undefined> {
   const positionRaw = patch.position ?? existing.position;
   const position =
     typeof positionRaw === "number"
@@ -94,7 +95,7 @@ export function buildFullTaskUpdateBody(
     patch.dueDate !== undefined ? patch.dueDate : existing.dueDate,
   );
 
-  const body: Record<string, string | number | undefined> = {
+  const body: Record<string, string | number | string[] | undefined> = {
     title,
     description,
     status,
@@ -111,6 +112,11 @@ export function buildFullTaskUpdateBody(
   }
   if (userId !== undefined) {
     body.userId = userId;
+  }
+  // Sent only when asked for: echoing the primary above already keeps the
+  // existing co-assignees in place.
+  if (patch.assigneeIds !== undefined) {
+    body.assigneeIds = patch.assigneeIds;
   }
 
   return body;

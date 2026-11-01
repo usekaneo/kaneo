@@ -1,3 +1,4 @@
+import { loadAssigneeIds } from "../../task/assignees/task-assignees";
 import { eq } from "drizzle-orm";
 import { HTTPException } from "hono/http-exception";
 import db from "../../database";
@@ -80,20 +81,22 @@ async function createComment(
     });
   }
 
-  if (
-    task?.assigneeId &&
-    task.assigneeId !== userId &&
-    !mentionedIds.includes(task.assigneeId)
-  ) {
+  const assigneeIds = task
+    ? ((
+        await loadAssigneeIds([{ id: taskId, userId: task.assigneeId }], db)
+      ).get(taskId) ?? [])
+    : [];
+  for (const assigneeId of assigneeIds) {
+    if (assigneeId === userId || mentionedIds.includes(assigneeId)) continue;
     await createNotification({
-      userId: task.assigneeId,
+      userId: assigneeId,
       type: "task_comment",
       eventData: {
-        taskTitle: task.title,
+        taskTitle: task?.title,
         commenterName: user?.name ?? null,
         commentPreview: content.slice(0, 160),
-        projectId: task.projectId,
-        workspaceId: task.workspaceId,
+        projectId: task?.projectId,
+        workspaceId: task?.workspaceId,
       },
       resourceId: taskId,
       resourceType: "task",

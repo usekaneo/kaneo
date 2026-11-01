@@ -17,9 +17,11 @@ import {
   readHiddenOptions,
   readOptions,
 } from "../../custom-field/choice-options";
+import { normalizeAssigneeIds } from "../assignees/assignee-set";
+import { replaceTaskAssignees } from "../assignees/task-assignees";
 import { publishEvent } from "../../events";
 import {
-  assertAssignableUser,
+  assertAssignableUsers,
   getProjectWorkspaceId,
 } from "../../utils/assert-assignable-user";
 import type { TaskRecurrence } from "../recurrence/schema";
@@ -56,6 +58,7 @@ async function createTask({
   projectId,
   currentUserId,
   userId,
+  assigneeIds,
   title,
   status,
   startDate,
@@ -69,6 +72,7 @@ async function createTask({
   projectId: string;
   currentUserId: string;
   userId?: string;
+  assigneeIds?: string[];
   title: string;
   status: string;
   startDate?: Date;
@@ -83,7 +87,8 @@ async function createTask({
   const resolvedPriority = priority || "no-priority";
   const normalizedCustomFields = deduplicateCustomFields(customFields);
 
-  const normalizedUserId = userId?.trim() || undefined;
+  const requestedAssignees = normalizeAssigneeIds(assigneeIds ?? [userId]);
+  const normalizedUserId = requestedAssignees[0];
 
   await assertValidTaskStatus(resolvedStatus, projectId);
 
@@ -135,9 +140,9 @@ async function createTask({
 
   let assignee: { name: string } | undefined;
 
-  if (normalizedUserId) {
-    await assertAssignableUser(
-      normalizedUserId,
+  if (requestedAssignees.length > 0) {
+    await assertAssignableUsers(
+      requestedAssignees,
       await getProjectWorkspaceId(projectId),
       projectId,
     );
@@ -145,7 +150,7 @@ async function createTask({
     [assignee] = await db
       .select({ name: userTable.name })
       .from(userTable)
-      .where(eq(userTable.id, normalizedUserId));
+      .where(eq(userTable.id, requestedAssignees[0] ?? ""));
   }
 
   const column = await db.query.columnTable.findFirst({
@@ -186,6 +191,10 @@ async function createTask({
         position: nextPosition,
       })
       .returning();
+
+    if (task && requestedAssignees.length > 0) {
+      await replaceTaskAssignees(tx, task, requestedAssignees);
+    }
 
     if (task && draftAssetIds?.length) {
       const referenced = extractAssetIds(description);
@@ -256,6 +265,7 @@ async function createTask({
   return {
     ...createdTask,
     assigneeName: assignee?.name,
+    assigneeIds: requestedAssignees,
   };
 }
 

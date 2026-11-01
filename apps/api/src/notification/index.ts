@@ -1,3 +1,4 @@
+import { loadAssigneeIds } from "../task/assignees/task-assignees";
 import { eq } from "drizzle-orm";
 import db from "../database";
 import { projectTable, taskTable } from "../database/schema";
@@ -302,23 +303,34 @@ subscribeToEvent<{
   title: string;
   assigneeId?: string;
 }>("task.status_changed", async (data) => {
-  if (data.assigneeId && data.assigneeId !== data.userId) {
-    const [task] = await db
-      .select({ projectId: taskTable.projectId })
-      .from(taskTable)
-      .where(eq(taskTable.id, data.taskId))
-      .limit(1);
+  if (!data.assigneeId) return;
+  const [task] = await db
+    .select({ id: taskTable.id, projectId: taskTable.projectId })
+    .from(taskTable)
+    .where(eq(taskTable.id, data.taskId))
+    .limit(1);
 
-    const [project] = task
-      ? await db
-          .select({ workspaceId: projectTable.workspaceId })
-          .from(projectTable)
-          .where(eq(projectTable.id, task.projectId))
-          .limit(1)
-      : [];
+  const [project] = task
+    ? await db
+        .select({ workspaceId: projectTable.workspaceId })
+        .from(projectTable)
+        .where(eq(projectTable.id, task.projectId))
+        .limit(1)
+    : [];
 
+  // Everyone assigned hears about it, not just the primary assignee.
+  const assigneeIds = new Set([
+    data.assigneeId,
+    ...(task
+      ? ((await loadAssigneeIds([{ id: task.id, userId: null }], db)).get(
+          task.id,
+        ) ?? [])
+      : []),
+  ]);
+  for (const assigneeId of assigneeIds) {
+    if (assigneeId === data.userId) continue;
     await createNotification({
-      userId: data.assigneeId,
+      userId: assigneeId,
       type: "task_status_changed",
       eventData: {
         taskTitle: data.title,

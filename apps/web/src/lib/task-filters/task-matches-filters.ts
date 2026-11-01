@@ -10,6 +10,7 @@ import {
   DUE_DATE_FILTER_VALUES,
 } from "@/hooks/use-task-filters";
 import type Task from "@/types/task";
+import { getAssigneeFilterKeys } from "../task-assignees";
 import { customFieldSubjectId } from "./filter-subject-id";
 
 export type TaskFilterContext = {
@@ -91,7 +92,10 @@ export function taskMatchesFilters(
     [
       "assignee",
       filters.assignee,
-      () => filters.assignee?.includes(task.userId ?? "") ?? false,
+      () =>
+        getAssigneeFilterKeys(task).some((id) =>
+          filters.assignee?.includes(id),
+        ),
     ],
     [
       "dueDate",

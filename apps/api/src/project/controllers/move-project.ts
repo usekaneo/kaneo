@@ -1,3 +1,4 @@
+import { pruneAssignees } from "../../task/assignees/task-assignees";
 import { and, eq, inArray, isNotNull, max, notInArray, sql } from "drizzle-orm";
 import { HTTPException } from "hono/http-exception";
 import createActivities from "../../activity/controllers/create-activities";
@@ -9,6 +10,7 @@ import {
   labelTable,
   projectTable,
   resourceLinkTable,
+  taskAssigneeTable,
   taskRelationTable,
   taskTable,
   userNotificationWorkspaceProjectTable,
@@ -157,23 +159,25 @@ async function moveProject(
         projectId: id,
       });
 
-      const tasks = await tx
-        .select({
-          id: taskTable.id,
-          userId: taskTable.userId,
-        })
+      // Everyone assigned to a task here, as primary or not.
+      const assigneeRows = await tx
+        .selectDistinct({ userId: taskTable.userId })
         .from(taskTable)
+        .where(and(eq(taskTable.projectId, id), isNotNull(taskTable.userId)));
+      const extraRows = await tx
+        .selectDistinct({ userId: taskAssigneeTable.userId })
+        .from(taskAssigneeTable)
+        .innerJoin(taskTable, eq(taskAssigneeTable.taskId, taskTable.id))
         .where(eq(taskTable.projectId, id));
-
-      let unassigned: typeof tasks = [];
       const assigneeIds = [
         ...new Set(
-          tasks
-            .map((task) => task.userId)
+          [...assigneeRows, ...extraRows]
+            .map((row) => row.userId)
             .filter((userId): userId is string => Boolean(userId)),
         ),
       ];
 
+      let unassigned: { id: string }[] = [];
       if (assigneeIds.length > 0) {
         const targetMembers = await tx
           .select({ userId: workspaceUserTable.userId })
@@ -190,28 +194,13 @@ async function moveProject(
           id,
           tx,
         );
-        // Kept as rows rather than a count: each one needs an activity row
-        // afterwards, keyed by task id.
-        unassigned = tasks.filter(
-          (task) => task.userId && !memberIds.has(task.userId),
-        );
-
-        if (unassigned.length > 0) {
-          // Predicated on the assignees rather than the task ids: the member set
-          // is bounded by workspace size, while the task list isn't, and Postgres
-          // caps a statement at 65535 bind parameters.
-          await tx
-            .update(taskTable)
-            .set({ userId: null })
-            .where(
-              and(
-                eq(taskTable.projectId, id),
-                isNotNull(taskTable.userId),
-                memberIds.size > 0
-                  ? notInArray(taskTable.userId, [...memberIds])
-                  : undefined,
-              ),
-            );
+        // Anyone who is not a member of the target workspace drops off every
+        // task; the primary moves to the next remaining assignee. Kept as rows
+        // because each affected task needs an activity row afterwards.
+        if (assigneeIds.some((userId) => !memberIds.has(userId))) {
+          unassigned = (
+            await pruneAssignees(tx, eq(taskTable.projectId, id), memberIds)
+          ).map((taskId) => ({ id: taskId }));
         }
       }
 

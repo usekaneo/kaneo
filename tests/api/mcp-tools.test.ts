@@ -166,6 +166,35 @@ describe("MCP tool catalog", () => {
     expect(lastRequest().body).toEqual({ userId: null });
   });
 
+  it("sets several assignees at once and requires some assignee argument", async () => {
+    await call("update_task_assignee", {
+      taskId: "t1",
+      assigneeIds: ["u1", "u2"],
+    });
+    expect(lastRequest()).toMatchObject({
+      url: "http://api.test/api/task/assignee/t1",
+      method: "PUT",
+      body: { assigneeIds: ["u1", "u2"] },
+    });
+
+    apiFetch.mockClear();
+    const result = await call("update_task_assignee", { taskId: "t1" });
+    expect(result.isError).toBe(true);
+    expect(apiFetch).not.toHaveBeenCalled();
+  });
+
+  it("creates a task with several assignees", async () => {
+    await call("create_task", {
+      projectId: "p1",
+      title: "Lead",
+      description: "",
+      priority: "low",
+      status: "to-do",
+      assigneeIds: ["u1", "u2"],
+    });
+    expect(lastRequest().body).toMatchObject({ assigneeIds: ["u1", "u2"] });
+  });
+
   it("rejects an empty assignee id rather than sending it", async () => {
     const result = await call("update_task_assignee", {
       taskId: "t1",

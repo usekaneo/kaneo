@@ -1,4 +1,4 @@
-import { eq } from "drizzle-orm";
+import { eq, inArray } from "drizzle-orm";
 import db from "../../database";
 import {
   activityTable,
@@ -50,6 +50,37 @@ export async function recordTaskMutation(
   }
 }
 
+async function publishAssigneeEvents(
+  common: { taskId: string; projectId: string; userId?: string; title: string },
+  previousPrimary: string | null,
+  { added, removed }: { added: string[]; removed: string[] },
+) {
+  const names =
+    added.length + removed.length > 0
+      ? await db
+          .select({ id: userTable.id, name: userTable.name })
+          .from(userTable)
+          .where(inArray(userTable.id, [...added, ...removed]))
+      : [];
+  for (const id of added) {
+    await publishEvent("task.assignee_changed", {
+      ...common,
+      oldAssignee: previousPrimary,
+      newAssignee: names.find((user) => user.id === id)?.name,
+      newAssigneeId: id,
+      type: "assignee_changed",
+    });
+  }
+  for (const id of removed) {
+    await publishEvent("task.unassigned", {
+      ...common,
+      removedAssigneeId: id,
+      removedAssignee: names.find((user) => user.id === id)?.name,
+      type: "unassigned",
+    });
+  }
+}
+
 export async function publishTaskMutation(
   before: Partial<TaskBefore>,
   after: Pick<TaskBefore, "id" | "projectId" | "title"> & Partial<TaskBefore>,
@@ -59,6 +90,9 @@ export async function publishTaskMutation(
     skipRelationRefresh?: boolean;
     fields?: Array<keyof Changes>;
     assigneeName?: string | null;
+    // When given, replaces the single-assignee comparison: one event per person
+    // added or removed, so only the newly added get notified.
+    assignees?: { added: string[]; removed: string[] };
     sourceIntegrationId?: string;
   } = {},
 ) {
@@ -114,7 +148,14 @@ export async function publishTaskMutation(
       newPriority: after.priority,
       type: "priority_changed",
     });
-  if (changed("userId")) {
+  if (options.assignees) {
+    if (!options.fields || options.fields.includes("userId"))
+      await publishAssigneeEvents(
+        common,
+        before.userId ?? null,
+        options.assignees,
+      );
+  } else if (changed("userId")) {
     const assignee =
       options.assigneeName !== undefined
         ? { name: options.assigneeName ?? undefined }

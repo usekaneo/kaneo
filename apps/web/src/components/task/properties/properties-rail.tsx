@@ -15,7 +15,7 @@ import TaskPriorityPopover from "../task-priority-popover";
 import { TaskRecurrenceBadge } from "../task-recurrence-badge";
 import TaskStartDatePopover from "../task-start-date-popover";
 import TaskStatusPopover from "../task-status-popover";
-import { AssigneeAvatar } from "./assignee-avatar";
+import { AssigneeValue } from "./assignee-value";
 import { dueDateTextClass } from "./due-date-text-class";
 import { LabelsValue } from "./labels-value";
 import { PropertyRow } from "./property-row";
@@ -82,21 +82,11 @@ export function PropertiesRail({
         <PropertyRow label={t("tasks:assignee.label")}>
           <TaskAssigneePopover task={task} workspaceId={workspaceId}>
             <PropertyValue data-task-action="assignee" shortcutId="assignTask">
-              <AssigneeAvatar
+              <AssigneeValue
+                task={task}
                 name={assignee?.user?.name || task.assigneeName}
                 image={assignee?.user?.image}
-                assigned={Boolean(task.userId)}
               />
-              <span
-                className={cn(
-                  "truncate",
-                  !task.userId && "text-muted-foreground",
-                )}
-              >
-                {assignee?.user?.name ||
-                  task.assigneeName ||
-                  t("tasks:popover.assignee.unassigned")}
-              </span>
             </PropertyValue>
           </TaskAssigneePopover>
         </PropertyRow>

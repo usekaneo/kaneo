@@ -1,3 +1,4 @@
+import { withAssignees } from "../assignees/task-assignees";
 import { boundedTaskRead } from "../bounded-read";
 import { alias } from "drizzle-orm/pg-core";
 import { boardDescription, descriptionDeferred } from "../description-pages";
@@ -49,8 +50,11 @@ async function getTask(taskId: string, board = false, userId?: string) {
     });
   }
 
-  if (!board) return task[0];
-  const { workspaceId, ...result } = task[0];
+  const [withAssignee] = await withAssignees([task[0]], db);
+  if (!withAssignee)
+    throw new HTTPException(404, { message: "Task not found" });
+  if (!board) return withAssignee;
+  const { workspaceId, ...result } = withAssignee;
   if (!workspaceId) return result;
   const parent = alias(taskTable, "parent");
   const parents = await db

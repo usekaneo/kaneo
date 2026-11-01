@@ -939,6 +939,7 @@ const task = apiRouter<BaseVariables & { workspaceId: string }>()
       priority,
       status,
       userId,
+      assigneeIds,
       recurrence,
       customFields,
       draftAssetIds,
@@ -959,6 +960,7 @@ const task = apiRouter<BaseVariables & { workspaceId: string }>()
       projectId,
       currentUserId: c.get("userId"),
       userId: userId,
+      assigneeIds,
       title,
       description,
       startDate: parsedStartDate,
@@ -1034,6 +1036,7 @@ const task = apiRouter<BaseVariables & { workspaceId: string }>()
       projectId,
       position,
       userId,
+      assigneeIds,
     } = c.req.valid("json");
 
     const currentUserId = c.get("userId");
@@ -1061,6 +1064,7 @@ const task = apiRouter<BaseVariables & { workspaceId: string }>()
       position,
       userId,
       currentUserId,
+      assigneeIds,
     );
 
     return c.json(task, 200);
@@ -1109,10 +1113,15 @@ const task = apiRouter<BaseVariables & { workspaceId: string }>()
   })
   .openapi(updateTaskAssigneeRoute, async (c) => {
     const { id } = c.req.valid("param");
-    const { userId } = c.req.valid("json");
+    const { userId, assigneeIds } = c.req.valid("json");
     const currentUserId = c.get("userId");
 
-    const task = await updateTaskAssignee({ id, userId, currentUserId });
+    const task = await updateTaskAssignee({
+      id,
+      userId,
+      assigneeIds,
+      currentUserId,
+    });
 
     return c.json(task, 200);
   })

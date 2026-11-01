@@ -311,8 +311,21 @@ subscribeToEvent<{
   userId: string;
   title: string;
   type: string;
+  removedAssigneeId?: string;
+  removedAssignee?: string;
 }>("task.unassigned", async (data) => {
-  await createActivity(data.taskId, data.type, data.userId, null, {});
+  await createActivity(
+    data.taskId,
+    data.type,
+    data.userId,
+    null,
+    data.removedAssigneeId
+      ? {
+          removedAssigneeId: data.removedAssigneeId,
+          removedAssignee: data.removedAssignee,
+        }
+      : {},
+  );
 });
 
 subscribeToEvent<{
