@@ -21,6 +21,9 @@ BEGIN
   SET "assignee_id" = (
     SELECT "ta"."user_id" FROM "task_assignee" AS "ta"
     WHERE "ta"."task_id" = "task"."id" AND "ta"."user_id" <> OLD."id"
+      -- A user deleted earlier in the same statement still has its rows (the
+      -- cascade runs at the end), so skip anyone who no longer exists.
+      AND EXISTS (SELECT 1 FROM "user" AS "u" WHERE "u"."id" = "ta"."user_id")
     ORDER BY "ta"."created_at", "ta"."id"
     LIMIT 1
   )

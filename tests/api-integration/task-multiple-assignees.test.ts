@@ -251,7 +251,10 @@ describe("multiple assignees: deleted primary", () => {
   });
 });
 
-describe("multiple assignees: events that webhooks and plugins see", () => {
+describe("multiple assignees: events", () => {
+  const sent = (name: string) =>
+    published.filter((event) => event.name === name).length;
+
   it("reports moving a task from one person to another as one assignment, as before", async () => {
     const { alice, bob, task } = await setup();
     await setAssignees(task.id, { userId: alice.id });
@@ -262,14 +265,28 @@ describe("multiple assignees: events that webhooks and plugins see", () => {
     expect(assigneeEvents()).toEqual(["task.assignee_changed"]);
   });
 
-  it("does not report an unassignment while someone is still assigned", async () => {
-    const { alice, bob, task } = await setup();
-    await setAssignees(task.id, { assigneeIds: [alice.id, bob.id] });
+  it("keeps co-assignee changes away from webhooks and plugins, which only know the primary", async () => {
+    const { alice, bob, carol, task } = await setup();
+    await setAssignees(task.id, { assigneeIds: [alice.id] });
     published.length = 0;
 
-    await setAssignees(task.id, { assigneeIds: [alice.id] });
+    await setAssignees(task.id, { assigneeIds: [alice.id, bob.id, carol.id] });
+    await setAssignees(task.id, { assigneeIds: [alice.id, carol.id] });
 
     expect(assigneeEvents()).toEqual([]);
+  });
+
+  it("still tells every open client when a co-assignee is added or removed", async () => {
+    const { alice, bob, task } = await setup();
+    await setAssignees(task.id, { assigneeIds: [alice.id] });
+    published.length = 0;
+
+    await setAssignees(task.id, { assigneeIds: [alice.id, bob.id] });
+    expect(sent("task.assignees_changed")).toBe(1);
+
+    // A removal with the primary unchanged used to publish nothing at all.
+    await setAssignees(task.id, { assigneeIds: [alice.id] });
+    expect(sent("task.assignees_changed")).toBe(2);
   });
 
   it("reports an unassignment only when nobody is left", async () => {
@@ -282,17 +299,17 @@ describe("multiple assignees: events that webhooks and plugins see", () => {
     expect(assigneeEvents()).toEqual(["task.unassigned", "task.unassigned"]);
   });
 
-  it("tells every added person about an addition", async () => {
+  it("notifies each person added once, and not a co-assignee who is promoted", async () => {
     const { alice, bob, carol, task } = await setup();
-    await setAssignees(task.id, { assigneeIds: [alice.id] });
-    published.length = 0;
+    await setAssignees(task.id, { assigneeIds: [alice.id, bob.id] });
+    const before = (await notificationsFor(bob.id)).length;
 
-    await setAssignees(task.id, { assigneeIds: [alice.id, bob.id, carol.id] });
+    // Alice leaves; Bob, already on the task, becomes primary. Carol is added.
+    await setAssignees(task.id, { assigneeIds: [bob.id, carol.id] });
 
-    expect(assigneeEvents()).toEqual([
-      "task.assignee_changed",
-      "task.assignee_changed",
-    ]);
+    expect(await primaryOf(task.id)).toBe(bob.id);
+    expect((await notificationsFor(bob.id)).length).toBe(before);
+    expect(await notificationsFor(carol.id)).toHaveLength(1);
   });
 });
 
@@ -361,6 +378,21 @@ describe("multiple assignees: the assignee endpoint contract", () => {
 
     await setAssignees(task.id, { assigneeIds: [alice.id] });
     expect(await assigneeRows(task.id)).toEqual([alice.id]);
+  });
+});
+
+describe("multiple assignees: deleting several users at once", () => {
+  it("does not fail when users sharing a task are deleted in one statement", async () => {
+    const { alice, bob, carol, task } = await setup();
+    await setAssignees(task.id, { assigneeIds: [alice.id, bob.id, carol.id] });
+
+    // Raw SQL, as an operator clearing out spam accounts would run it.
+    await db.execute(
+      sql`DELETE FROM "user" WHERE id IN (${alice.id}, ${bob.id})`,
+    );
+
+    expect(await primaryOf(task.id)).toBe(carol.id);
+    expect(await assigneeRows(task.id)).toEqual([carol.id]);
   });
 });
 

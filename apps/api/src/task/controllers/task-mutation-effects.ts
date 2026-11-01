@@ -59,9 +59,9 @@ async function publishAssigneeEvents(
 ) {
   // Only ids not already known are queried; callers publishing many tasks pass
   // one shared map so each distinct user is looked up once.
-  const missing = [...new Set([...added, ...removed])].filter(
-    (id) => !knownNames.has(id),
-  );
+  const missing = [
+    ...new Set([...added, ...removed, ...(primaryAfter ? [primaryAfter] : [])]),
+  ].filter((id) => !knownNames.has(id));
   if (missing.length > 0) {
     const rows = await db
       .select({ id: userTable.id, name: userTable.name })
@@ -69,25 +69,45 @@ async function publishAssigneeEvents(
       .where(inArray(userTable.id, missing));
     for (const row of rows) knownNames.set(row.id, row.name);
   }
-  for (const id of added) {
+
+  // Webhooks, plugins and the activity feed know a single assignee, so these
+  // two events describe the PRIMARY only: moving a task from Alice to Bob is one
+  // assignment, and adding or removing a co-assignee is invisible to them.
+  const primaryChanged = primaryAfter !== previousPrimary;
+  let notifiedViaPrimary: string | null = null;
+  if (primaryAfter && primaryChanged) {
+    const newlyAssigned = added.includes(primaryAfter);
+    if (newlyAssigned) notifiedViaPrimary = primaryAfter;
     await publishEvent("task.assignee_changed", {
       ...common,
       oldAssignee: previousPrimary,
-      newAssignee: knownNames.get(id),
-      newAssigneeId: id,
+      newAssignee: knownNames.get(primaryAfter),
+      newAssigneeId: primaryAfter,
+      // False when an existing co-assignee takes over as primary: nothing
+      // new has happened to them, so they are not notified.
+      newlyAssigned,
       type: "assignee_changed",
     });
+  } else if (primaryAfter === null) {
+    for (const id of removed) {
+      await publishEvent("task.unassigned", {
+        ...common,
+        removedAssigneeId: id,
+        removedAssignee: knownNames.get(id),
+        type: "unassigned",
+      });
+    }
   }
-  // Webhooks and plugins know only "assigned" and "unassigned". Moving a task
-  // from Alice to Bob must stay one assignment, as with a single assignee, so
-  // "unassigned" is sent only when nobody is left on the task.
-  if (primaryAfter !== null) return;
-  for (const id of removed) {
-    await publishEvent("task.unassigned", {
+
+  // Internal only: tells the other people on the task (notifications) and every
+  // open client (live refresh) that the set changed, whatever the primary did.
+  if (added.length > 0 || removed.length > 0) {
+    await publishEvent("task.assignees_changed", {
       ...common,
-      removedAssigneeId: id,
-      removedAssignee: knownNames.get(id),
-      type: "unassigned",
+      added,
+      removed,
+      primaryAfter,
+      notifiedViaPrimary,
     });
   }
 }
