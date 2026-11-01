@@ -389,8 +389,6 @@
 				}
 			},
 			"progress": "Stap {{current}} van {{total}}",
-			"welcome": "Welkom, {{name}}",
-			"settingUp": "{{name}} instellen",
 			"continue": "Doorgaan",
 			"signedInAs": "Ingelogd als {{email}}",
 			"signOut": "Uitloggen",
@@ -406,7 +404,7 @@
 				"title": "Start je eerste project",
 				"description": "We voegen een paar starttaken toe om je wegwijs te maken. Je kunt ze altijd hernoemen of verwijderen.",
 				"label": "Projectnaam",
-				"numbered": "Taken worden genummerd als"
+				"ticketStart": "Taak-ID's beginnen bij {{ticket}}."
 			},
 			"invite": {
 				"title": "Haal je team erbij",
@@ -433,7 +431,6 @@
 				"paymentNote": "Betalingen worden verwerkt door Creem."
 			},
 			"ready": {
-				"eyebrow": "Klaar",
 				"title": "{{name}} is klaar",
 				"description": "Dit hebben we ingesteld. Je kunt alles later nog wijzigen.",
 				"workspace": "Werkruimte",
@@ -446,9 +443,6 @@
 				"open": "{{name}} openen"
 			},
 			"preview": {
-				"live": "Livevoorbeeld van {{name}}",
-				"liveNoName": "Livevoorbeeld",
-				"ready": "{{name}} is klaar",
 				"untitled": "Je werkruimte"
 			}
 		},

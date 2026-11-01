@@ -390,8 +390,6 @@
 				}
 			},
 			"progress": "Étape {{current}} sur {{total}}",
-			"welcome": "Bienvenue, {{name}}",
-			"settingUp": "Configuration de {{name}}",
 			"continue": "Continuer",
 			"signedInAs": "Connecté en tant que {{email}}",
 			"signOut": "Se déconnecter",
@@ -407,7 +405,7 @@
 				"title": "Lancez votre premier projet",
 				"description": "Nous ajouterons quelques tâches de démarrage pour vous guider. Renommez-les ou supprimez-les à tout moment.",
 				"label": "Nom du projet",
-				"numbered": "Les tâches seront numérotées"
+				"ticketStart": "Les identifiants des tâches commenceront à {{ticket}}."
 			},
 			"invite": {
 				"title": "Invitez votre équipe",
@@ -436,7 +434,6 @@
 				"paymentNote": "Les paiements sont traités par Creem."
 			},
 			"ready": {
-				"eyebrow": "Tout est prêt",
 				"title": "{{name}} est prêt",
 				"description": "Voici ce que nous avons configuré. Vous pourrez tout modifier plus tard.",
 				"workspace": "Espace de travail",
@@ -451,9 +448,6 @@
 				"open": "Ouvrir {{name}}"
 			},
 			"preview": {
-				"live": "Aperçu en direct de {{name}}",
-				"liveNoName": "Aperçu en direct",
-				"ready": "{{name}} est prêt",
 				"untitled": "Votre espace de travail"
 			}
 		},

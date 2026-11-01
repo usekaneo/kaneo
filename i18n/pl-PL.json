@@ -391,8 +391,6 @@
 				}
 			},
 			"progress": "Krok {{current}} z {{total}}",
-			"welcome": "Witaj, {{name}}",
-			"settingUp": "Konfiguracja: {{name}}",
 			"continue": "Dalej",
 			"signedInAs": "Zalogowano jako {{email}}",
 			"signOut": "Wyloguj się",
@@ -408,7 +406,7 @@
 				"title": "Utwórz pierwszy projekt",
 				"description": "Dodamy kilka zadań startowych, które pomogą Ci się zorientować. Możesz je w każdej chwili zmienić lub usunąć.",
 				"label": "Nazwa projektu",
-				"numbered": "Zadania będą numerowane jako"
+				"ticketStart": "Identyfikatory zadań zaczną się od {{ticket}}."
 			},
 			"invite": {
 				"title": "Zaproś swój zespół",
@@ -439,7 +437,6 @@
 				"paymentNote": "Płatności obsługuje Creem."
 			},
 			"ready": {
-				"eyebrow": "Gotowe",
 				"title": "Obszar {{name}} jest gotowy",
 				"description": "Oto, co przygotowaliśmy. Wszystko możesz później zmienić.",
 				"workspace": "Obszar roboczy",
@@ -456,9 +453,6 @@
 				"open": "Otwórz {{name}}"
 			},
 			"preview": {
-				"live": "Podgląd na żywo: {{name}}",
-				"liveNoName": "Podgląd na żywo",
-				"ready": "Obszar {{name}} jest gotowy",
 				"untitled": "Twój obszar roboczy"
 			}
 		},

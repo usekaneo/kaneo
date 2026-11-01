@@ -1,5 +1,5 @@
 import { Plus, SendIcon } from "lucide-react";
-import { useEffect, useId, useState } from "react";
+import { useId, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
 import {
@@ -13,15 +13,10 @@ import { InviteEmailField } from "./invite-email-field";
 
 type InviteStepProps = {
   workspaceId: string;
-  onEmailsChange: (emails: string[]) => void;
   onDone: (sent: number) => void;
 };
 
-export function InviteStep({
-  workspaceId,
-  onEmailsChange,
-  onDone,
-}: InviteStepProps) {
+export function InviteStep({ workspaceId, onDone }: InviteStepProps) {
   const { t } = useTranslation();
   const { mutateAsync: invite } = useInviteWorkspaceUser();
   const [emails, setEmails] = useState<string[]>(() =>
@@ -33,10 +28,6 @@ export function InviteStep({
   const [sentSoFar, setSentSoFar] = useState(0);
   const idPrefix = useId();
   const filled = emails.filter((email) => email.trim()).length;
-
-  useEffect(() => {
-    onEmailsChange(emails);
-  }, [emails, onEmailsChange]);
 
   const update = (index: number, value: string) => {
     setEmails((current) => current.map((e, i) => (i === index ? value : e)));

@@ -389,8 +389,6 @@
 				}
 			},
 			"progress": "Addım {{current}} / {{total}}",
-			"welcome": "Xoş gəlmisiniz, {{name}}",
-			"settingUp": "{{name}} hazırlanır",
 			"continue": "Davam et",
 			"signedInAs": "{{email}} kimi daxil olmusunuz",
 			"signOut": "Çıxış",
@@ -406,7 +404,7 @@
 				"title": "İlk layihənizi başladın",
 				"description": "Sizə yol göstərmək üçün bir neçə başlanğıc tapşırığı əlavə edəcəyik. Onların adını istənilən vaxt dəyişə və ya silə bilərsiniz.",
 				"label": "Layihənin adı",
-				"numbered": "Tapşırıqlar belə nömrələnəcək:"
+				"ticketStart": "Tapşırıq ID-ləri {{ticket}} ilə başlayacaq."
 			},
 			"invite": {
 				"title": "Komandanızı gətirin",
@@ -433,7 +431,6 @@
 				"paymentNote": "Ödənişləri Creem emal edir."
 			},
 			"ready": {
-				"eyebrow": "Hər şey hazırdır",
 				"title": "{{name}} hazırdır",
 				"description": "Qurduqlarımız bunlardır. İstənilən vaxt dəyişə bilərsiniz.",
 				"workspace": "İş sahəsi",
@@ -446,9 +443,6 @@
 				"open": "{{name}} iş sahəsini aç"
 			},
 			"preview": {
-				"live": "Canlı önizləmə: {{name}}",
-				"liveNoName": "Canlı önizləmə",
-				"ready": "{{name}} hazırdır",
 				"untitled": "İş sahəniz"
 			}
 		},

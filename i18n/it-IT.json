@@ -390,8 +390,6 @@
 				}
 			},
 			"progress": "Passaggio {{current}} di {{total}}",
-			"welcome": "Ti diamo il benvenuto, {{name}}",
-			"settingUp": "Configurazione di {{name}}",
 			"continue": "Continua",
 			"signedInAs": "Accesso effettuato come {{email}}",
 			"signOut": "Esci",
@@ -407,7 +405,7 @@
 				"title": "Avvia il tuo primo progetto",
 				"description": "Aggiungeremo alcune attività iniziali per aiutarti a orientarti. Rinominale o eliminale quando vuoi.",
 				"label": "Nome del progetto",
-				"numbered": "Le attività saranno numerate"
+				"ticketStart": "Gli ID delle attività partiranno da {{ticket}}."
 			},
 			"invite": {
 				"title": "Porta il tuo team",
@@ -436,7 +434,6 @@
 				"paymentNote": "I pagamenti sono gestiti da Creem."
 			},
 			"ready": {
-				"eyebrow": "Tutto pronto",
 				"title": "{{name}} è pronto",
 				"description": "Ecco cosa abbiamo configurato. Puoi modificare tutto in seguito.",
 				"workspace": "Workspace",
@@ -451,9 +448,6 @@
 				"open": "Apri {{name}}"
 			},
 			"preview": {
-				"live": "Anteprima dal vivo di {{name}}",
-				"liveNoName": "Anteprima dal vivo",
-				"ready": "{{name}} è pronto",
 				"untitled": "Il tuo workspace"
 			}
 		},

@@ -390,8 +390,6 @@
 				}
 			},
 			"progress": "Etapa {{current}} de {{total}}",
-			"welcome": "Boas-vindas, {{name}}",
-			"settingUp": "Configurando {{name}}",
 			"continue": "Continuar",
 			"signedInAs": "Conectado como {{email}}",
 			"signOut": "Sair",
@@ -407,7 +405,7 @@
 				"title": "Comece seu primeiro projeto",
 				"description": "Vamos adicionar algumas tarefas iniciais para você se orientar. Renomeie ou exclua quando quiser.",
 				"label": "Nome do projeto",
-				"numbered": "As tarefas serão numeradas"
+				"ticketStart": "Os IDs das tarefas começarão em {{ticket}}."
 			},
 			"invite": {
 				"title": "Traga sua equipe",
@@ -436,7 +434,6 @@
 				"paymentNote": "Os pagamentos são processados pela Creem."
 			},
 			"ready": {
-				"eyebrow": "Tudo pronto",
 				"title": "{{name}} está pronto",
 				"description": "Veja o que configuramos. Você pode alterar tudo depois.",
 				"workspace": "Espaço de trabalho",
@@ -451,9 +448,6 @@
 				"open": "Abrir {{name}}"
 			},
 			"preview": {
-				"live": "Prévia ao vivo de {{name}}",
-				"liveNoName": "Prévia ao vivo",
-				"ready": "{{name}} está pronto",
 				"untitled": "Seu espaço de trabalho"
 			}
 		},

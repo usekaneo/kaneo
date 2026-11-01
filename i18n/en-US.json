@@ -389,14 +389,12 @@
 				}
 			},
 			"progress": "Step {{current}} of {{total}}",
-			"welcome": "Welcome, {{name}}",
-			"settingUp": "Setting up {{name}}",
 			"continue": "Continue",
 			"signedInAs": "Signed in as {{email}}",
 			"signOut": "Sign out",
 			"workspace": {
 				"title": "Name your workspace",
-				"description": "This is where your projects live. Use your team or company name, you can change it later."
+				"description": "This is where your projects live. Use your team or company name. You can change it later."
 			},
 			"usage": {
 				"title": "Who's it for?",
@@ -406,7 +404,7 @@
 				"title": "Start your first project",
 				"description": "We'll add a few starter tasks to show you around. Rename or delete them anytime.",
 				"label": "Project name",
-				"numbered": "Tasks will be numbered"
+				"ticketStart": "Task IDs will start at {{ticket}}."
 			},
 			"invite": {
 				"title": "Bring your team",
@@ -433,7 +431,6 @@
 				"paymentNote": "Payments are processed by Creem."
 			},
 			"ready": {
-				"eyebrow": "All set",
 				"title": "{{name}} is ready",
 				"description": "Here's what we set up. You can change any of it later.",
 				"workspace": "Workspace",
@@ -446,9 +443,6 @@
 				"open": "Open {{name}}"
 			},
 			"preview": {
-				"live": "Live preview of {{name}}",
-				"liveNoName": "Live preview",
-				"ready": "{{name}} is ready",
 				"untitled": "Your workspace"
 			}
 		},

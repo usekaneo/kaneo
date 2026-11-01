@@ -388,8 +388,6 @@
 				}
 			},
 			"progress": "Bước {{current}}/{{total}}",
-			"welcome": "Chào mừng, {{name}}",
-			"settingUp": "Đang thiết lập {{name}}",
 			"continue": "Tiếp tục",
 			"signedInAs": "Đăng nhập với tư cách {{email}}",
 			"signOut": "Đăng xuất",
@@ -405,7 +403,7 @@
 				"title": "Bắt đầu dự án đầu tiên",
 				"description": "Chúng tôi sẽ thêm vài công việc mẫu để hướng dẫn bạn. Bạn có thể đổi tên hoặc xóa chúng bất cứ lúc nào.",
 				"label": "Tên dự án",
-				"numbered": "Công việc sẽ được đánh số"
+				"ticketStart": "ID công việc sẽ bắt đầu từ {{ticket}}."
 			},
 			"invite": {
 				"title": "Mời nhóm của bạn",
@@ -430,7 +428,6 @@
 				"paymentNote": "Thanh toán được xử lý bởi Creem."
 			},
 			"ready": {
-				"eyebrow": "Đã sẵn sàng",
 				"title": "{{name}} đã sẵn sàng",
 				"description": "Đây là những gì chúng tôi đã thiết lập. Bạn có thể thay đổi bất cứ lúc nào.",
 				"workspace": "Không gian làm việc",
@@ -441,9 +438,6 @@
 				"open": "Mở {{name}}"
 			},
 			"preview": {
-				"live": "Xem trước trực tiếp {{name}}",
-				"liveNoName": "Xem trước trực tiếp",
-				"ready": "{{name}} đã sẵn sàng",
 				"untitled": "Không gian làm việc của bạn"
 			}
 		},

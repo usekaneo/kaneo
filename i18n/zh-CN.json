@@ -388,8 +388,6 @@
 				}
 			},
 			"progress": "第 {{current}} 步，共 {{total}} 步",
-			"welcome": "欢迎，{{name}}",
-			"settingUp": "正在设置 {{name}}",
 			"continue": "继续",
 			"signedInAs": "已登录为 {{email}}",
 			"signOut": "退出登录",
@@ -405,7 +403,7 @@
 				"title": "创建第一个项目",
 				"description": "我们会添加几个入门任务帮你熟悉。你可以随时重命名或删除它们。",
 				"label": "项目名称",
-				"numbered": "任务编号示例"
+				"ticketStart": "任务编号将从 {{ticket}} 开始。"
 			},
 			"invite": {
 				"title": "邀请你的团队",
@@ -430,7 +428,6 @@
 				"paymentNote": "付款由 Creem 处理。"
 			},
 			"ready": {
-				"eyebrow": "一切就绪",
 				"title": "{{name}} 已准备就绪",
 				"description": "以下是我们为你设置的内容，之后都可以修改。",
 				"workspace": "工作区",
@@ -441,9 +438,6 @@
 				"open": "打开 {{name}}"
 			},
 			"preview": {
-				"live": "{{name}} 实时预览",
-				"liveNoName": "实时预览",
-				"ready": "{{name}} 已准备就绪",
 				"untitled": "你的工作区"
 			}
 		},

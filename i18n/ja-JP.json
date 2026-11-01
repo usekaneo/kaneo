@@ -388,8 +388,6 @@
 				}
 			},
 			"progress": "ステップ {{current}}/{{total}}",
-			"welcome": "ようこそ、{{name}} さん",
-			"settingUp": "{{name}} をセットアップ中",
 			"continue": "続ける",
 			"signedInAs": "{{email}} でサインイン中",
 			"signOut": "サインアウト",
@@ -405,7 +403,7 @@
 				"title": "最初のプロジェクトを作成しましょう",
 				"description": "使い方がわかるように、いくつかのサンプルタスクを追加します。名前の変更や削除はいつでもできます。",
 				"label": "プロジェクト名",
-				"numbered": "タスク番号の例"
+				"ticketStart": "タスクIDは {{ticket}} から始まります。"
 			},
 			"invite": {
 				"title": "チームを招待しましょう",
@@ -430,7 +428,6 @@
 				"paymentNote": "お支払いは Creem によって処理されます。"
 			},
 			"ready": {
-				"eyebrow": "準備完了",
 				"title": "{{name}} の準備ができました",
 				"description": "以下の内容を設定しました。すべて後から変更できます。",
 				"workspace": "ワークスペース",
@@ -441,9 +438,6 @@
 				"open": "{{name}} を開く"
 			},
 			"preview": {
-				"live": "{{name}} のライブプレビュー",
-				"liveNoName": "ライブプレビュー",
-				"ready": "{{name}} の準備ができました",
 				"untitled": "あなたのワークスペース"
 			}
 		},

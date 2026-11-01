@@ -388,8 +388,6 @@
 				}
 			},
 			"progress": "{{total}}단계 중 {{current}}단계",
-			"welcome": "{{name}}님, 환영합니다",
-			"settingUp": "{{name}} 설정 중",
 			"continue": "계속",
 			"signedInAs": "{{email}} 계정으로 로그인됨",
 			"signOut": "로그아웃",
@@ -405,7 +403,7 @@
 				"title": "첫 프로젝트 시작하기",
 				"description": "사용법을 익힐 수 있도록 시작 작업 몇 개를 추가합니다. 언제든 이름을 바꾸거나 삭제할 수 있습니다.",
 				"label": "프로젝트 이름",
-				"numbered": "작업 번호 예시"
+				"ticketStart": "작업 ID는 {{ticket}}부터 시작합니다."
 			},
 			"invite": {
 				"title": "팀원 초대하기",
@@ -430,7 +428,6 @@
 				"paymentNote": "결제는 Creem에서 처리합니다."
 			},
 			"ready": {
-				"eyebrow": "준비 완료",
 				"title": "{{name}} 준비 완료",
 				"description": "설정한 내용은 다음과 같습니다. 언제든 변경할 수 있습니다.",
 				"workspace": "워크스페이스",
@@ -441,9 +438,6 @@
 				"open": "{{name}} 열기"
 			},
 			"preview": {
-				"live": "{{name}} 실시간 미리보기",
-				"liveNoName": "실시간 미리보기",
-				"ready": "{{name}} 준비 완료",
 				"untitled": "내 워크스페이스"
 			}
 		},
