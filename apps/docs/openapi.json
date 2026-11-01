@@ -4185,6 +4185,30 @@
           "updatedAt"
         ]
       },
+      "PullRequestLinkMetadata": {
+        "type": "object",
+        "properties": {
+          "state": {
+            "type": "string",
+            "enum": [
+              "open",
+              "closed"
+            ]
+          },
+          "merged": {
+            "type": "boolean",
+            "default": false
+          },
+          "draft": {
+            "type": "boolean",
+            "default": false
+          }
+        },
+        "required": [
+          "state"
+        ],
+        "description": "Pull request status. Only accepted for `pull_request` links."
+      },
       "DeletedExternalLink": {
         "type": "object",
         "properties": {
@@ -22917,7 +22941,7 @@
           "External Links"
         ],
         "summary": "Create an external link",
-        "description": "Add a resource link to a task",
+        "description": "Add a resource link to a task. Pass `resourceType: \"pull_request\"` with `metadata` to show the link as a pull request with its status.",
         "parameters": [
           {
             "schema": {
@@ -22943,6 +22967,18 @@
                   "title": {
                     "type": "string",
                     "maxLength": 200
+                  },
+                  "resourceType": {
+                    "type": "string",
+                    "enum": [
+                      "url",
+                      "pull_request"
+                    ],
+                    "default": "url",
+                    "description": "`url` for a resource link, or `pull_request` to show the link as a pull request with its status"
+                  },
+                  "metadata": {
+                    "$ref": "#/components/schemas/PullRequestLinkMetadata"
                   }
                 },
                 "required": [
@@ -23076,6 +23112,106 @@
       }
     },
     "/external-link/task/{taskId}/{id}": {
+      "patch": {
+        "operationId": "updateExternalLink",
+        "tags": [
+          "External Links"
+        ],
+        "summary": "Update a manual link",
+        "description": "Change the title of a manually added link, or the status of a manually added pull request link. Integration-managed links cannot be changed through this endpoint.",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "required": true,
+            "name": "taskId",
+            "in": "path"
+          },
+          {
+            "schema": {
+              "type": "string"
+            },
+            "required": true,
+            "name": "id",
+            "in": "path"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "title": {
+                    "type": "string",
+                    "maxLength": 200
+                  },
+                  "metadata": {
+                    "$ref": "#/components/schemas/PullRequestLinkMetadata"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Link updated",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CreatedExternalLink"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid link data",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "No permission to update the task",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Task or manual resource link not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "429": {
+            "$ref": "#/components/responses/ApiKeyRateLimited"
+          }
+        }
+      },
       "delete": {
         "operationId": "deleteExternalLink",
         "tags": [
