@@ -590,7 +590,7 @@ const updateTaskAssigneeRoute = createRoute({
   tags: ["Tasks"],
   summary: "Update task assignee",
   description:
-    "Assign a task to a workspace member, or send null to unassign it.",
+    "Assign a task to one workspace member (userId), to several (assigneeIds, the complete set), or unassign it. Send at least one of the two fields. See each field for how the current primary assignee is treated.",
   middleware: [
     workspaceAccess.fromTask(),
     requireWorkspacePermission({ task: ["assign"] }),

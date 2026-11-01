@@ -1,0 +1,46 @@
+---
+title: "Contacts and leads"
+description: "Keep a shared list of customers and prospects, link tasks to them as leads, and follow every interaction on a timeline."
+---
+
+Contacts is a light, shared address book for sales. A **lead** is not a new kind of object: it is an ordinary task linked to a contact. Because leads are tasks, they already appear on the board and the calendar, and they use due dates and reminders like any other work.
+
+## Add a contact
+
+1. Open **Contacts** in the sidebar.
+2. Choose **Add contact**.
+3. Enter a name. Optionally add a phone number, an email address and notes.
+4. Choose a **type** (retailer, distributor, end user, partner or other) and the **region** where the contact operates, then save.
+
+Everyone in the workspace shares the same list. Search by name, phone or email, and filter by type and region. The **Leads** column counts the tasks linked to each contact that you can open. Type and region come from fixed lists so filtering stays clean.
+
+## Turn a task into a lead
+
+Open a task and set **Contact** in its properties. The contact's name then appears on the task's card on the board and on its bar in the calendar. Set the contact to **No contact** to unlink it. Deleting a contact keeps its tasks and only removes the link.
+
+Use the task's **due date** as the next follow-up. Your usual reminders and the calendar then show who needs a call today.
+
+## Follow-up timeline
+
+Select a contact's name to open its panel:
+
+- **Leads:** the contact's tasks, next follow-up first. Overdue follow-ups are red and today's are amber.
+- **Log interaction:** write what happened (a call, a visit, a quote), choose the lead if there is more than one, and optionally set the **next follow-up** date. The note is saved as a comment on the lead and the date becomes its due date.
+- **Timeline:** every comment on the contact's leads, newest first, with who wrote it and when. Comments from integrations are included.
+
+Because an interaction is an ordinary comment, it also shows in the task itself, and anything you comment on a lead appears on the contact's timeline.
+
+## Who can see and change contacts
+
+| Action | Needed |
+| --- | --- |
+| See contacts and their timelines | Read access to the workspace |
+| Add a contact | Permission to create tasks |
+| Edit a contact or log an interaction | Permission to update tasks |
+| Delete a contact | Permission to delete tasks |
+
+The timeline and the lead counts leave out leads in projects you cannot open. Contacts are shared across the whole workspace, so everyone who can read the workspace sees every contact's phone number, email and notes.
+
+## Automate it
+
+The API and the MCP server expose contacts, so a chat bot or an AI assistant can add contacts and leads. See the [MCP guide](/core/integrations/mcp) and the **Contacts** endpoints in the API reference. Create a lead with `create_task` and a `contactId`, link an existing task with `set_task_contact`, and log an interaction with `create_task_comment`.

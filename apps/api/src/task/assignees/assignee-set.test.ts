@@ -52,4 +52,13 @@ describe("assignee set rules", () => {
     expect(resolveRequestedAssignees({}, current)).toEqual([]);
     expect(resolveRequestedAssignees({ userId: null }, current)).toEqual([]);
   });
+
+  it("treats the first assignee as the primary when the stored one is missing", () => {
+    const current = { primary: null, ids: ["b", "c"] };
+    expect(resolveRequestedAssignees({ userId: "b" }, current)).toEqual([
+      "b",
+      "c",
+    ]);
+    expect(resolveRequestedAssignees({ userId: "c" }, current)).toEqual(["c"]);
+  });
 });

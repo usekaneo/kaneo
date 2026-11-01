@@ -476,6 +476,7 @@ async function duplicateTask({
     ...duplicatedTask,
     taskId: duplicatedTask.id,
     userId: duplicatedTask.userId ?? "",
+    assigneeIds,
     currentUserId,
     type: "created",
     content: null,

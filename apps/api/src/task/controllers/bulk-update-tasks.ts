@@ -17,7 +17,7 @@ import { removeLabelFromGitea } from "../../plugins/gitea/utils/sync-label-to-gi
 import { removeLabelFromGitHub } from "../../plugins/github/utils/sync-label-to-github";
 import { removeLabelFromGitlab } from "../../plugins/gitlab/utils/sync-label-to-gitlab";
 import { assertAssignableUser } from "../../utils/assert-assignable-user";
-import { replaceTaskAssignees } from "../assignees/task-assignees";
+import { replaceAssigneesWithOne } from "../assignees/task-assignees";
 import { publishTaskMutation } from "./task-mutation-effects";
 import { getSubtaskParentProjects } from "../get-subtask-parent-projects";
 import {
@@ -288,18 +288,7 @@ async function bulkUpdateTasks({
             message: "Tasks changed projects; retry the operation",
           });
         // One person replaces whoever was assigned, as with the single field.
-        const changes = new Map<
-          string,
-          { added: string[]; removed: string[]; primary: string | null }
-        >();
-        for (const task of locked) {
-          const { added, removed, primary } = await replaceTaskAssignees(
-            tx,
-            task,
-            assigneeId ? [assigneeId] : [],
-          );
-          changes.set(task.id, { added, removed, primary });
-        }
+        const changes = await replaceAssigneesWithOne(tx, locked, assigneeId);
         return { locked, changes };
       });
       updatedCount = before.locked.length;

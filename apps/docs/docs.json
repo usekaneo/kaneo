@@ -66,6 +66,7 @@
 							"core/functional/backlog-planning",
 							"core/functional/calendar-and-gantt",
 							"core/functional/pinned-resources",
+							"core/functional/contacts-and-leads",
 							"core/functional/configure-workflows",
 							"core/functional/manage-workspace-labels"
 						]

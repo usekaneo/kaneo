@@ -52,7 +52,7 @@ export default function TaskAssigneePopover({
       await updateTaskAssignee({
         ...task,
         userId: ids[0] ?? null,
-        assigneeIds: ids,
+        replaceAssigneeIds: ids,
       });
     } catch (error) {
       toast.error(
@@ -86,6 +86,7 @@ export default function TaskAssigneePopover({
             t("tasks:popover.assignee.unassigned"),
           )}
           onSelect={toggle}
+          multiple
         />
       </PopoverContent>
     </Popover>

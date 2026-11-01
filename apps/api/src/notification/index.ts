@@ -251,19 +251,26 @@ const notification = apiRouter()
 subscribeToEvent<{
   taskId: string;
   userId: string;
+  assigneeIds?: string[];
   currentUserId?: string;
   title: string;
   projectId: string;
 }>("task.created", async (data) => {
-  if (data.userId && data.userId !== data.currentUserId) {
-    const [project] = await db
-      .select({ workspaceId: projectTable.workspaceId })
-      .from(projectTable)
-      .where(eq(projectTable.id, data.projectId))
-      .limit(1);
+  // Everyone assigned at creation is new to the task, not only the primary.
+  const recipients = [
+    ...new Set(data.assigneeIds?.length ? data.assigneeIds : [data.userId]),
+  ].filter((id) => id && id !== data.currentUserId);
+  if (recipients.length === 0) return;
 
+  const [project] = await db
+    .select({ workspaceId: projectTable.workspaceId })
+    .from(projectTable)
+    .where(eq(projectTable.id, data.projectId))
+    .limit(1);
+
+  for (const recipient of recipients) {
     await createNotification({
-      userId: data.userId,
+      userId: recipient,
       type: "task_created",
       eventData: {
         taskTitle: data.title,

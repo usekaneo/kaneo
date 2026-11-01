@@ -13,6 +13,7 @@ import {
   createWorkspaceMember,
 } from "./helpers/fixtures";
 import { addWorkspaceMember } from "./helpers/project-access/add-workspace-member";
+import { handOverPrimaryAssignments } from "../../apps/api/src/task/assignees/hand-over-primary-assignments";
 import { createRestrictedWorkspace } from "./helpers/project-access/create-restricted-workspace";
 import { projectAccessApi } from "./helpers/project-access/project-access-api";
 import { putMemberProjectAccess } from "./helpers/project-access/put-member-project-access";
@@ -187,6 +188,79 @@ describe("multiple assignees: compatibility with the single assignee", () => {
   });
 });
 
+describe("multiple assignees: deleted primary", () => {
+  it("hands the primary to the next assignee before the user is deleted", async () => {
+    const { alice, bob, carol, task } = await setup();
+    await setAssignees(task.id, { assigneeIds: [alice.id, bob.id, carol.id] });
+
+    await handOverPrimaryAssignments(alice.id);
+    await db.delete(schema.userTable).where(eq(schema.userTable.id, alice.id));
+
+    expect(await primaryOf(task.id)).toBe(bob.id);
+    expect(await assigneeRows(task.id)).toEqual([bob.id, carol.id]);
+  });
+
+  it("leaves no primary only when nobody else is assigned", async () => {
+    const { alice, task } = await setup();
+    await setAssignees(task.id, { assigneeIds: [alice.id] });
+
+    await handOverPrimaryAssignments(alice.id);
+    await db.delete(schema.userTable).where(eq(schema.userTable.id, alice.id));
+
+    expect(await primaryOf(task.id)).toBeNull();
+    expect(await assigneeRows(task.id)).toEqual([]);
+  });
+
+  it("does not let a plain edit by a member drop or reject co-assignees when the stored primary is already missing", async () => {
+    const { owner, alice, bob, carol, task, fixture } = await setup();
+    await setAssignees(task.id, { assigneeIds: [bob.id, carol.id] });
+    // A row left behind by a deletion that predates the hand-over.
+    await db
+      .update(schema.taskTable)
+      .set({ userId: null })
+      .where(eq(schema.taskTable.id, task.id));
+    const member = await addWorkspaceMember(owner.workspace.id);
+    mockAuthenticatedSession(member);
+
+    // Readers report the first assignee as primary, and clients echo it back.
+    const response = await call(`/task/${task.id}`, "PUT", {
+      title: "Renamed by a member",
+      status: fixture.columns.todo.slug,
+      priority: "high",
+      projectId: fixture.project.id,
+      position: task.position ?? 1,
+      userId: bob.id,
+    });
+
+    expect(response.status).toBe(200);
+    expect(await assigneeRows(task.id)).toEqual([bob.id, carol.id]);
+    expect(alice.id).toBeDefined();
+  });
+});
+
+describe("multiple assignees: the assignee endpoint contract", () => {
+  it("rejects an empty body instead of unassigning everyone", async () => {
+    const { alice, bob, task } = await setup();
+    await setAssignees(task.id, { assigneeIds: [alice.id, bob.id] });
+
+    const response = await setAssignees(task.id, {});
+
+    expect(response.status).toBe(400);
+    expect(await assigneeRows(task.id)).toEqual([alice.id, bob.id]);
+  });
+
+  it("makes one person the only assignee with assigneeIds, but keeps the set when the current primary is echoed", async () => {
+    const { alice, bob, task } = await setup();
+    await setAssignees(task.id, { assigneeIds: [alice.id, bob.id] });
+
+    await setAssignees(task.id, { userId: alice.id });
+    expect(await assigneeRows(task.id)).toEqual([alice.id, bob.id]);
+
+    await setAssignees(task.id, { assigneeIds: [alice.id] });
+    expect(await assigneeRows(task.id)).toEqual([alice.id]);
+  });
+});
+
 describe("multiple assignees: adding and removing people", () => {
   it("adds several people, keeps the first as primary and removes one at a time", async () => {
     const { alice, bob, carol, task } = await setup();
@@ -234,6 +308,32 @@ describe("multiple assignees: adding and removing people", () => {
     expect(await assigneeRows(body.id)).toEqual([bob.id, alice.id]);
   });
 
+  it("tells every assignee when a task is created with several", async () => {
+    const { alice, bob, carol, fixture } = await setup();
+
+    await call(`/task/${fixture.project.id}`, "POST", {
+      title: "Shared lead",
+      description: "",
+      priority: "medium",
+      status: fixture.columns.todo.slug,
+      assigneeIds: [alice.id, bob.id],
+    });
+
+    const created = (userId: string) =>
+      db
+        .select()
+        .from(schema.notificationTable)
+        .where(
+          and(
+            eq(schema.notificationTable.userId, userId),
+            eq(schema.notificationTable.type, "task_created"),
+          ),
+        );
+    expect(await created(alice.id)).toHaveLength(1);
+    expect(await created(bob.id)).toHaveLength(1);
+    expect(await created(carol.id)).toHaveLength(0);
+  });
+
   it("bulk assign replaces the whole set with one person", async () => {
     const { alice, bob, task, fixture } = await setup();
     const second = await seedTask(fixture, 2);
@@ -249,6 +349,38 @@ describe("multiple assignees: adding and removing people", () => {
     expect(await assigneeRows(task.id)).toEqual([bob.id]);
     expect(await assigneeRows(second.id)).toEqual([bob.id]);
     expect(await primaryOf(task.id)).toBe(bob.id);
+  });
+
+  it("bulk assign handles tasks in different starting states in one go", async () => {
+    const { alice, bob, carol, task, fixture } = await setup();
+    const unassigned = await seedTask(fixture, 2);
+    const alreadyBob = await seedTask(fixture, 3);
+    const legacy = await seedTask(fixture, 4, carol.id);
+    await setAssignees(task.id, { assigneeIds: [alice.id, bob.id, carol.id] });
+    await setAssignees(alreadyBob.id, { assigneeIds: [bob.id, alice.id] });
+
+    const ids = [task.id, unassigned.id, alreadyBob.id, legacy.id];
+    const assign = await call("/task/bulk", "PATCH", {
+      taskIds: ids,
+      operation: "updateAssignee",
+      value: bob.id,
+    });
+    expect(assign.status).toBe(200);
+    for (const id of ids) {
+      expect(await assigneeRows(id)).toEqual([bob.id]);
+      expect(await primaryOf(id)).toBe(bob.id);
+    }
+
+    const clear = await call("/task/bulk", "PATCH", {
+      taskIds: ids,
+      operation: "updateAssignee",
+      value: null,
+    });
+    expect(clear.status).toBe(200);
+    for (const id of ids) {
+      expect(await assigneeRows(id)).toEqual([]);
+      expect(await primaryOf(id)).toBeNull();
+    }
   });
 
   it("limits the number of assignees", async () => {

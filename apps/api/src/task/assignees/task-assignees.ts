@@ -4,7 +4,10 @@ import {
   eq,
   inArray,
   isNotNull,
+  isNull,
+  ne,
   notInArray,
+  or,
   sql,
   type SQL,
 } from "drizzle-orm";
@@ -257,4 +260,58 @@ export async function removeAssignee(
     })
     .where(and(taskScope, eq(taskTable.userId, userId)));
   return affected;
+}
+
+// Bulk form of replaceTaskAssignees for "one person replaces everyone": three
+// statements however many tasks there are, instead of several per task. The
+// person becomes primary on every task. Callers hold the task locks.
+export async function replaceAssigneesWithOne(
+  tx: DbOrTx,
+  tasks: readonly { id: string; userId: string | null }[],
+  assigneeId: string | null,
+) {
+  const changes = new Map<
+    string,
+    { added: string[]; removed: string[]; primary: string | null }
+  >();
+  if (tasks.length === 0) return changes;
+
+  const taskIds = tasks.map((task) => task.id);
+  const before = await loadAssigneeIds(tasks, tx);
+  const after = assigneeId ? [assigneeId] : [];
+  for (const task of tasks) {
+    const { added, removed } = diffAssigneeIds(
+      before.get(task.id) ?? [],
+      after,
+    );
+    changes.set(task.id, { added, removed, primary: assigneeId });
+  }
+
+  await tx
+    .delete(taskAssigneeTable)
+    .where(
+      and(
+        inArray(taskAssigneeTable.taskId, taskIds),
+        assigneeId ? ne(taskAssigneeTable.userId, assigneeId) : undefined,
+      ),
+    );
+  if (assigneeId) {
+    await tx
+      .insert(taskAssigneeTable)
+      .values(taskIds.map((taskId) => ({ taskId, userId: assigneeId })))
+      .onConflictDoNothing();
+  }
+  await tx
+    .update(taskTable)
+    .set({ userId: assigneeId })
+    .where(
+      and(
+        inArray(taskTable.id, taskIds),
+        assigneeId
+          ? or(isNull(taskTable.userId), ne(taskTable.userId, assigneeId))
+          : isNotNull(taskTable.userId),
+      ),
+    );
+
+  return changes;
 }

@@ -13,6 +13,8 @@ type OptionMenuProps = {
   onQueryChange?: (query: string) => void;
   status?: ReactNode;
   inputHint?: ReactNode;
+  /** Several options can be selected at once, so assistive tech should say so. */
+  multiple?: boolean;
 };
 
 export function OptionMenu({
@@ -23,6 +25,7 @@ export function OptionMenu({
   onQueryChange,
   status,
   inputHint,
+  multiple = false,
 }: OptionMenuProps) {
   const { t } = useTranslation();
   const [query, setQuery] = useState("");
@@ -94,7 +97,10 @@ export function OptionMenu({
           <Autocomplete.Empty className="px-3 text-muted-foreground text-xs not-empty:py-5">
             {t("tasks:filterMenu.noResults")}
           </Autocomplete.Empty>
-          <Autocomplete.List className="max-h-72 overflow-y-auto p-1 empty:hidden">
+          <Autocomplete.List
+            aria-multiselectable={multiple || undefined}
+            className="max-h-72 overflow-y-auto p-1 empty:hidden"
+          >
             {(option: OptionMenuItem) => {
               const index = filtered.indexOf(option);
               return (
@@ -102,6 +108,7 @@ export function OptionMenu({
                   key={option.value}
                   value={option}
                   aria-current={option.selected || undefined}
+                  {...(multiple ? { "aria-selected": !!option.selected } : {})}
                   onClick={() => onSelect(option.value)}
                   className="flex h-8 cursor-default select-none items-center gap-2 rounded-md px-2 text-[13px] text-foreground outline-none data-highlighted:bg-accent [&_svg]:size-3.5"
                 >

@@ -34,6 +34,19 @@ describe("matches", () => {
     expect(matches(f, task({ assigneeId: "u1" }))).toBe(false);
   });
 
+  it("matches a task when any of its assignees is selected", () => {
+    const shared = task({ assigneeId: "u1", assigneeIds: ["u1", "u2"] });
+    expect(matches({ ...emptyFilters, assignees: ["u2"] }, shared)).toBe(true);
+    expect(matches({ ...emptyFilters, assignees: ["u3"] }, shared)).toBe(false);
+    // Older servers send no assigneeIds; the single assignee still decides.
+    expect(
+      matches(
+        { ...emptyFilters, assignees: ["u1"] },
+        task({ assigneeId: "u1" }),
+      ),
+    ).toBe(true);
+  });
+
   it("treats tasks without a priority as no-priority", () => {
     const f = { ...emptyFilters, priorities: ["no-priority"] };
     expect(matches(f, task())).toBe(true);

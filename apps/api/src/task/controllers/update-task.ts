@@ -67,24 +67,6 @@ async function updateTask(
 
   await assertValidTaskStatus(status, projectId);
 
-  const currentAssigneeIds =
-    (await loadAssigneeIds([existingTask], db)).get(id) ?? [];
-  const nextAssigneeIds = resolveRequestedAssignees(
-    { assigneeIds, userId },
-    { primary: existingTask.userId, ids: currentAssigneeIds },
-  );
-  const addedAssigneeIds = nextAssigneeIds.filter(
-    (assignee) => !currentAssigneeIds.includes(assignee),
-  );
-
-  if (addedAssigneeIds.length > 0) {
-    await assertAssignableUsers(
-      addedAssigneeIds,
-      await getProjectWorkspaceId(projectId),
-      projectId,
-    );
-  }
-
   const column = await db.query.columnTable.findFirst({
     where: and(
       eq(columnTable.projectId, projectId),
@@ -93,6 +75,7 @@ async function updateTask(
   });
 
   let assigneeChange = { added: [] as string[], removed: [] as string[] };
+  let nextAssigneeIds: string[] = [];
   const initialPosition = existingTask.position;
   const initialStatus = existingTask.status;
   const updatedTask = await db.transaction(async (tx) => {
@@ -129,6 +112,27 @@ async function updateTask(
         message: "Task order changed; refresh before updating",
       });
     existingTask = locked;
+
+    // Resolved and validated under the task lock: a concurrent assignee change
+    // cannot be lost, and someone just removed for lack of access cannot be
+    // re-added from a stale read.
+    const currentAssigneeIds =
+      (await loadAssigneeIds([locked], tx)).get(id) ?? [];
+    nextAssigneeIds = resolveRequestedAssignees(
+      { assigneeIds, userId },
+      { primary: locked.userId, ids: currentAssigneeIds },
+    );
+    const addedAssigneeIds = nextAssigneeIds.filter(
+      (assignee) => !currentAssigneeIds.includes(assignee),
+    );
+    if (addedAssigneeIds.length > 0) {
+      await assertAssignableUsers(
+        addedAssigneeIds,
+        await getProjectWorkspaceId(projectId, tx),
+        projectId,
+        tx,
+      );
+    }
 
     const [task] = await tx
       .update(taskTable)

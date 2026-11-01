@@ -12937,7 +12937,7 @@
           "Tasks"
         ],
         "summary": "Update task assignee",
-        "description": "Assign a task to a workspace member, or send null to unassign it.",
+        "description": "Assign a task to one workspace member (userId), to several (assigneeIds, the complete set), or unassign it. Send at least one of the two fields. See each field for how the current primary assignee is treated.",
         "parameters": [
           {
             "schema": {
@@ -12960,7 +12960,7 @@
                       "string",
                       "null"
                     ],
-                    "description": "Assign this one user, replacing everyone else. Null unassigns. Ignored when assigneeIds is sent."
+                    "description": "Assign one user. Null unassigns everyone. For compatibility with older clients, sending the task's current primary assignee changes nothing and keeps the other assignees; any other user replaces everyone. Ignored when assigneeIds is sent. To make one person the only assignee, send assigneeIds instead."
                   },
                   "assigneeIds": {
                     "type": "array",

@@ -270,6 +270,7 @@ async function createTask({
     ...createdTask,
     taskId: createdTask.id,
     userId: createdTask.userId ?? "",
+    assigneeIds: requestedAssignees,
     currentUserId: currentUserId,
     type: "created",
     content: null,

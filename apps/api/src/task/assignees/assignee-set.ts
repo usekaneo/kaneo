@@ -40,6 +40,9 @@ export function resolveRequestedAssignees(
 ): string[] {
   if (input.assigneeIds != null) return normalizeAssigneeIds(input.assigneeIds);
   const userId = input.userId?.trim() || null;
-  if (userId && userId === current.primary) return [...current.ids];
+  // A stored primary can be missing while co-assignees remain (rows written
+  // before a hand-over existed); the first assignee is what readers report.
+  const primary = current.primary ?? current.ids[0] ?? null;
+  if (userId && userId === primary) return [...current.ids];
   return userId ? [userId] : [];
 }

@@ -923,7 +923,7 @@ export function registerTools(
     "update_task_assignee",
     {
       description:
-        "Set who a task is assigned to. Pass assigneeIds for several people (replaces the current set), or userId for one person (null unassigns). Either way the given people replace the current assignees.",
+        "Set who a task is assigned to. Pass assigneeIds for the complete set of people (this replaces the current set, so use it to make someone the only assignee), or userId for one person (null unassigns everyone). Note: userId equal to the task's current primary assignee changes nothing and keeps the others; use assigneeIds to replace them.",
       inputSchema: z.object({
         taskId: nonEmptyString,
         userId: nonEmptyString

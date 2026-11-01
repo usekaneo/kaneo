@@ -150,16 +150,21 @@ export const importTasksBody = z.object({
 
 export const updateStatusBody = z.object({ status: z.string() });
 export const updatePriorityBody = z.object({ priority });
-export const updateAssigneeBody = z.object({
-  userId: z.string().nullable().optional().openapi({
-    description:
-      "Assign this one user, replacing everyone else. Null unassigns. Ignored when assigneeIds is sent.",
-  }),
-  assigneeIds: z.array(z.string()).max(20).optional().openapi({
-    description:
-      "The complete set of assignees, replacing the current one. The current primary assignee keeps that role while it stays in the set; otherwise the first id becomes primary. An empty array unassigns.",
-  }),
-});
+export const updateAssigneeBody = z
+  .object({
+    userId: z.string().nullable().optional().openapi({
+      description:
+        "Assign one user. Null unassigns everyone. For compatibility with older clients, sending the task's current primary assignee changes nothing and keeps the other assignees; any other user replaces everyone. Ignored when assigneeIds is sent. To make one person the only assignee, send assigneeIds instead.",
+    }),
+    assigneeIds: z.array(z.string()).max(20).optional().openapi({
+      description:
+        "The complete set of assignees, replacing the current one. The current primary assignee keeps that role while it stays in the set; otherwise the first id becomes primary. An empty array unassigns.",
+    }),
+  })
+  .refine(
+    (body) => body.userId !== undefined || body.assigneeIds !== undefined,
+    "Send userId or assigneeIds",
+  );
 export const updateTaskContactBody = z.object({
   contactId: z
     .string()

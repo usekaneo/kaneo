@@ -167,6 +167,8 @@ export type BoardTask = {
   userId?: string | null;
   assigneeName?: string | null;
   assigneeId?: string | null;
+  /** Every assignee; `assigneeId` is the primary one. Absent on older servers. */
+  assigneeIds?: string[];
   assigneeImage?: string | null;
   projectId: string;
   subtaskCounts?: { completed?: number; total?: number } | null;
