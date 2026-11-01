@@ -1,6 +1,6 @@
 import { apiRouter, createRoute, jsonResponse, z } from "../../openapi";
 import { middleware, mutationMiddleware, errors } from "./common";
-import { getAgentConfig } from "../config";
+import { getEffectiveAgentConfig } from "../effective-config";
 import { getModelLabel } from "../model-label";
 import { createConversation } from "../controllers/create-conversation";
 import { getConversation } from "../controllers/get-conversation";
@@ -45,7 +45,7 @@ const routes = apiRouter()
     createRoute({
       method: "get",
       path: "/{workspaceId}/config",
-      operationId: "getAgentConfig",
+      operationId: "getEffectiveAgentConfig",
       tags: ["Agent"],
       summary: "Get instance agent availability",
       middleware,
@@ -59,7 +59,7 @@ const routes = apiRouter()
       },
     }),
     async (c) => {
-      const config = getAgentConfig();
+      const config = await getEffectiveAgentConfig();
       return c.json(
         {
           enabled: Boolean(config),

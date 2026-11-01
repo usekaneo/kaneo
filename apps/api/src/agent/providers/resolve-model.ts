@@ -14,17 +14,28 @@ function isProvider(value: unknown): value is AgentProvider {
   );
 }
 
-async function loadCommunityProvider(id: string) {
+async function loadCommunityRegistry() {
   const path = getProviderModule();
   if (!path) throw new Error("Agent provider is not configured");
   // Only the operator's absolute module path is imported, never request input.
   const module: { default?: unknown } = await import(pathToFileURL(path).href);
   const providers = module.default;
-  if (
-    !providers ||
-    typeof providers !== "object" ||
-    !Object.hasOwn(providers, id)
-  )
+  if (!providers || typeof providers !== "object")
+    throw new Error("Agent provider is not registered");
+  return providers;
+}
+
+export async function listCommunityProviderNames() {
+  const providers = await loadCommunityRegistry();
+  return Object.keys(providers).filter(
+    (id) =>
+      /^[a-z][a-z0-9-]*$/.test(id) && isProvider(Reflect.get(providers, id)),
+  );
+}
+
+export async function loadCommunityProvider(id: string) {
+  const providers = await loadCommunityRegistry();
+  if (!Object.hasOwn(providers, id))
     throw new Error("Agent provider is not registered");
   const provider: unknown = Reflect.get(providers, id);
   if (!isProvider(provider)) throw new Error("Invalid agent provider");

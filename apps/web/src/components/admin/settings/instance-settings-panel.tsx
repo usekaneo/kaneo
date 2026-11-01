@@ -9,6 +9,7 @@ import { GeneralSection } from "./general-section";
 import { IntegrationsSection } from "./integrations-section";
 import { RegistrationSection } from "./registration-section";
 import { WorkspacesSection } from "./workspaces-section";
+import { AgentSection } from "./agent/agent-section";
 
 function InstanceSettingsPanel() {
   const { t } = useTranslation();
@@ -40,6 +41,7 @@ function InstanceSettingsPanel() {
           <RegistrationSection {...sectionProps} />
           <WorkspacesSection {...sectionProps} />
           <IntegrationsSection {...sectionProps} />
+          <AgentSection />
         </>
       ) : null}
     </SettingsPage>

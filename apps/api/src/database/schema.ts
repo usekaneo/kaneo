@@ -1,4 +1,5 @@
 import { createId } from "@paralleldrive/cuid2";
+import type { AgentModelPolicy } from "../agent/providers/types";
 import { relations, sql } from "drizzle-orm";
 import {
   boolean,
@@ -272,6 +273,7 @@ export const instanceRoleTable = pgTable("instance_role", {
 // A single row (id "instance"). Without it, every setting has its default.
 export const instanceSettingsTable = pgTable("instance_settings", {
   id: text("id").primaryKey().default("instance"),
+  agentModels: jsonb("agent_models").$type<AgentModelPolicy>(),
   instanceName: text("instance_name"),
   registrationEnabled: boolean("registration_enabled").default(true).notNull(),
   passwordRegistrationEnabled: boolean("password_registration_enabled")

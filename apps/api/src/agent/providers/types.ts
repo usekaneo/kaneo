@@ -2,6 +2,8 @@ import type { ProviderV3, ProviderV4 } from "@ai-sdk/provider";
 
 export type AgentProvider = ProviderV3 | ProviderV4;
 
+export type AgentModelPolicy = { model: string; models: string[] };
+
 export type ProviderSettings = {
   apiKey?: string;
   baseURL?: string;

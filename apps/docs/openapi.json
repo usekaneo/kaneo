@@ -28952,6 +28952,364 @@
         }
       }
     },
+    "/admin/agent/settings": {
+      "get": {
+        "operationId": "getAdminAgentSettings",
+        "tags": [
+          "Admin"
+        ],
+        "summary": "Get the instance's allowed agent models and connected providers",
+        "responses": {
+          "200": {
+            "description": "Model settings, without credentials",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "enabled": {
+                      "type": "boolean"
+                    },
+                    "managed": {
+                      "type": "boolean"
+                    },
+                    "model": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    },
+                    "models": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "id": {
+                            "type": "string"
+                          },
+                          "label": {
+                            "type": "string"
+                          }
+                        },
+                        "required": [
+                          "id",
+                          "label"
+                        ]
+                      }
+                    },
+                    "providers": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "id": {
+                            "type": "string"
+                          },
+                          "label": {
+                            "type": "string"
+                          }
+                        },
+                        "required": [
+                          "id",
+                          "label"
+                        ]
+                      }
+                    }
+                  },
+                  "required": [
+                    "enabled",
+                    "managed",
+                    "model",
+                    "models",
+                    "providers"
+                  ]
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid credentials",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Instance settings permission required; API keys are rejected",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "429": {
+            "$ref": "#/components/responses/ApiKeyRateLimited"
+          }
+        }
+      },
+      "patch": {
+        "operationId": "updateAdminAgentSettings",
+        "tags": [
+          "Admin"
+        ],
+        "summary": "Choose the default and allowed agent models",
+        "description": "Instance settings permission is required. Saves a persistent model policy for conversations and automations; null restores environment defaults. Keys remain server-side. Other API instances pick up changes within five seconds.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "policy": {
+                    "type": [
+                      "object",
+                      "null"
+                    ],
+                    "properties": {
+                      "model": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 200
+                      },
+                      "models": {
+                        "type": "array",
+                        "items": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 200
+                        },
+                        "minItems": 1,
+                        "maxItems": 20
+                      }
+                    },
+                    "required": [
+                      "model",
+                      "models"
+                    ],
+                    "additionalProperties": false
+                  }
+                },
+                "required": [
+                  "policy"
+                ],
+                "additionalProperties": false
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Saved model settings",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "enabled": {
+                      "type": "boolean"
+                    },
+                    "managed": {
+                      "type": "boolean"
+                    },
+                    "model": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    },
+                    "models": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "id": {
+                            "type": "string"
+                          },
+                          "label": {
+                            "type": "string"
+                          }
+                        },
+                        "required": [
+                          "id",
+                          "label"
+                        ]
+                      }
+                    },
+                    "providers": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "id": {
+                            "type": "string"
+                          },
+                          "label": {
+                            "type": "string"
+                          }
+                        },
+                        "required": [
+                          "id",
+                          "label"
+                        ]
+                      }
+                    }
+                  },
+                  "required": [
+                    "enabled",
+                    "managed",
+                    "model",
+                    "models",
+                    "providers"
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid model policy or a provider is not configured",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid credentials",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Instance settings permission required; API keys are rejected",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "429": {
+            "$ref": "#/components/responses/ApiKeyRateLimited"
+          }
+        }
+      }
+    },
+    "/admin/agent/models": {
+      "get": {
+        "operationId": "listAdminAgentModels",
+        "tags": [
+          "Admin"
+        ],
+        "summary": "Discover models from a connected provider",
+        "description": "Lists provider-reported models for Anthropic, OpenAI, Google, OpenRouter, or a configured OpenAI-compatible endpoint. Other adapters support manual model IDs. Model listing does not guarantee tool or attachment support.",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "pattern": "^[a-z][a-z0-9-]{0,63}$"
+            },
+            "required": true,
+            "name": "provider",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Provider model choices",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "supported": {
+                      "type": "boolean"
+                    },
+                    "models": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "id": {
+                            "type": "string"
+                          },
+                          "label": {
+                            "type": "string"
+                          }
+                        },
+                        "required": [
+                          "id",
+                          "label"
+                        ]
+                      }
+                    }
+                  },
+                  "required": [
+                    "supported",
+                    "models"
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid provider name",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid credentials",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Instance settings permission required; API keys are rejected",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "429": {
+            "$ref": "#/components/responses/ApiKeyRateLimited"
+          },
+          "502": {
+            "description": "Provider catalog unavailable",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/admin/webhooks": {
       "get": {
         "tags": [
@@ -29892,7 +30250,7 @@
     },
     "/agent/{workspaceId}/config": {
       "get": {
-        "operationId": "getAgentConfig",
+        "operationId": "getEffectiveAgentConfig",
         "tags": [
           "Agent"
         ],

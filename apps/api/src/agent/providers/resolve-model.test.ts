@@ -3,7 +3,7 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { afterAll, afterEach, expect, it, vi } from "vite-plus/test";
 import { builtinProviders } from "./builtins";
-import { resolveAgentModel } from "./resolve-model";
+import { resolveAgentModel, listCommunityProviderNames } from "./resolve-model";
 import { parseModelReference } from "./model-reference";
 
 afterEach(() => vi.unstubAllEnvs());
@@ -55,6 +55,7 @@ it("loads an SDK-compatible community provider from the operator's module", asyn
   };`,
   );
   vi.stubEnv("KANEO_AGENT_PROVIDERS_MODULE", path);
+  expect(await listCommunityProviderNames()).toEqual(["local"]);
   const model = await resolveAgentModel("local:my-model", {
     models: ["local:my-model"],
     providers: { local: {} },

@@ -4,7 +4,7 @@ import { config } from "dotenv-mono";
 import { parseAgentModels } from "./model-list";
 import { parseModelReference } from "./providers/model-reference";
 import { getProviderSettings } from "./providers/settings";
-import type { ProviderSettings } from "./providers/types";
+import type { AgentModelPolicy, ProviderSettings } from "./providers/types";
 
 // Vite's .env.local must not hide server-only keys in the root .env.
 config({ priorities: { ".env": 100 } });
@@ -17,10 +17,13 @@ const settingsSchema = z.object({
   concurrency: z.coerce.number().int().min(1).max(4).default(1),
 });
 
-export function getAgentConfig() {
+export function getAgentConfig(policy?: AgentModelPolicy | null) {
   if (process.env.KANEO_AGENT_ENABLED !== "true") return null;
   const result = settingsSchema.safeParse({
-    model: process.env.KANEO_AGENT_MODEL ?? process.env.OPENROUTER_MODEL,
+    model:
+      policy?.model ??
+      process.env.KANEO_AGENT_MODEL ??
+      process.env.OPENROUTER_MODEL,
     maxSteps: process.env.KANEO_AGENT_MAX_STEPS,
     maxOutputTokens: process.env.KANEO_AGENT_MAX_OUTPUT_TOKENS,
     timeoutMs: process.env.KANEO_AGENT_TIMEOUT_MS,
@@ -29,7 +32,9 @@ export function getAgentConfig() {
   if (!result.success) return null;
   const models = parseAgentModels(
     result.data.model,
-    process.env.KANEO_AGENT_MODELS ?? process.env.OPENROUTER_MODELS,
+    policy
+      ? policy.models.join(",")
+      : (process.env.KANEO_AGENT_MODELS ?? process.env.OPENROUTER_MODELS),
   );
   if (!models) return null;
   const providers: Record<string, ProviderSettings> = {};

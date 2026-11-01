@@ -33,10 +33,10 @@ export function AgentRecentRunRow({ run, onOpen }: AgentRecentRunRowProps) {
   );
 
   return (
-    <li className="border-border/60 border-b last:border-b-0">
+    <li>
       <button
         type="button"
-        className="flex h-12 w-full items-center gap-3 text-left transition-colors hover:bg-muted/40"
+        className="flex h-11 w-full items-center gap-3 rounded-lg px-2 text-left outline-none transition-colors hover:bg-muted/50 focus-visible:ring-2 focus-visible:ring-ring"
         onClick={onOpen}
       >
         <span className="flex size-4 shrink-0 items-center justify-center">
@@ -65,7 +65,7 @@ export function AgentRecentRunRow({ run, onOpen }: AgentRecentRunRowProps) {
         <time
           dateTime={run.createdAt}
           title={formatDateTime(run.createdAt)}
-          className="w-20 shrink-0 text-right text-muted-foreground text-xs"
+          className="min-w-20 shrink-0 whitespace-nowrap text-right text-muted-foreground text-xs"
         >
           {formatRelativeTime(run.createdAt)}
         </time>

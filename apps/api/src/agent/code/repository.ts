@@ -29,7 +29,7 @@ export async function codeRepository(
     database,
   );
   await requireWorkspaceEntitlement(subject.workspaceId);
-  if (!allowDisabled && !codeJobsEnabled())
+  if (!allowDisabled && !(await codeJobsEnabled()))
     throw new HTTPException(503, { message: "Coding jobs are not configured" });
   const task = await getScopedTask(subject, taskId, database);
   const integration = await database.query.integrationTable.findFirst({

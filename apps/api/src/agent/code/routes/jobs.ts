@@ -47,11 +47,12 @@ const jobs = apiRouter()
     async (c) => {
       const { hasUserWorkspacePermission } =
         await import("../../../utils/require-workspace-permission");
+      const enabled = await codeJobsEnabled();
       return c.json(
         {
-          enabled: codeJobsEnabled(),
+          enabled,
           canRunCode:
-            codeJobsEnabled() &&
+            enabled &&
             (await hasUserWorkspacePermission(
               c.get("userId"),
               c.req.valid("param").workspaceId,

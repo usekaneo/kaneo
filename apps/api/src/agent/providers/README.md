@@ -4,7 +4,22 @@ The assistant and automations use AI SDK language-model providers. Models must
 support tool calls; image and PDF input support depends on the model. Image,
 audio, and decision-only providers cannot run this language-model tool loop.
 
-Set server configuration in the root `.env`, then restart the API:
+Configure provider credentials on the server. Then open **Settings →
+Administration → Settings → Agent models** to choose the allowed models and
+default. Search the live catalog for Anthropic, OpenAI, Google, OpenRouter, or an
+OpenAI-compatible endpoint; enter a model ID for other adapters. Only users with
+`instance:settings` may change this policy. Workspace administrator privileges
+alone do not grant this instance-wide permission.
+
+Saved choices override environment model defaults and survive restarts. **Restore
+server defaults** removes the saved policy. API instances pick up changes within
+five seconds; open user pickers refresh within thirty seconds. Removed models
+cannot start new runs, and queued runs are rechecked before inference. Running
+requests may finish. Automations keep their chosen model and skip runs if it is
+no longer allowed. Changes are recorded in the admin audit log. Models must
+support tools; provider catalog listings do not guarantee tool or file support.
+
+The root `.env` supplies initial model defaults and credentials:
 
 ```dotenv
 KANEO_AGENT_ENABLED=true

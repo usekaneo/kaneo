@@ -4,6 +4,9 @@ import { getModelProvider } from "./get-model-provider";
 describe("getModelProvider", () => {
   it.each([
     ["anthropic/claude-opus-5", "anthropic"],
+    ["anthropic:claude-sonnet-5-5", "anthropic"],
+    ["openai:gpt-6-luna", "openai"],
+    ["openrouter:google/gemini-3-pro", "google"],
     ["openai/gpt-6-luna", "openai"],
     ["google/gemini-3-pro", "google"],
     ["OpenAI/gpt-6", "openai"],

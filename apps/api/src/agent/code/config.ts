@@ -1,7 +1,7 @@
 import { createPrivateKey } from "node:crypto";
 import { z } from "zod";
 import { resolveGithubPrivateKey } from "../../plugins/github/utils/github-app-client";
-import { getAgentConfig } from "../config";
+import { getEffectiveAgentConfig } from "../effective-config";
 
 const settingsSchema = z.object({
   model: z.string().trim().min(1).max(200).default("openai/gpt-6-luna"),
@@ -51,6 +51,6 @@ export function getCodeJobsConfig(): CodeJobsConfig | null {
 }
 
 /** Starting jobs also needs the assistant, whose UI shows runs and their jobs. */
-export function codeJobsEnabled() {
-  return Boolean(getAgentConfig() && getCodeJobsConfig());
+export async function codeJobsEnabled() {
+  return Boolean((await getEffectiveAgentConfig()) && getCodeJobsConfig());
 }

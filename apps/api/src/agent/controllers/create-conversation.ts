@@ -1,14 +1,14 @@
 import { HTTPException } from "hono/http-exception";
 import db, { schema } from "../../database";
 import { assertAgentAccess, assertAgentProject } from "../access";
-import { requireAgentConfig } from "../config";
+import { requireEffectiveAgentConfig } from "../effective-config";
 import type { AgentSubject } from "../types";
 
 export async function createConversation(
   subject: AgentSubject,
   input: { title: string; projectId?: string },
 ) {
-  requireAgentConfig();
+  await requireEffectiveAgentConfig();
   await assertAgentAccess(subject);
   if (input.projectId) await assertAgentProject(subject, input.projectId);
   const [conversation] = await db

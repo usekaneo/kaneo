@@ -1,7 +1,7 @@
 import { and, count, eq, isNull } from "drizzle-orm";
 import { HTTPException } from "hono/http-exception";
 import db, { schema } from "../../database";
-import { requireAgentConfig } from "../config";
+import { requireEffectiveAgentConfig } from "../effective-config";
 import {
   type AgentUploadMediaType,
   decodeAgentUpload,
@@ -14,7 +14,7 @@ export async function uploadAttachment(
   subject: AgentSubject,
   input: { name: string; mediaType: AgentUploadMediaType; data: string },
 ) {
-  requireAgentConfig();
+  await requireEffectiveAgentConfig();
   let data: Buffer;
   try {
     data = decodeAgentUpload(input.mediaType, input.data);

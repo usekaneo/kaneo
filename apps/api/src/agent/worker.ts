@@ -3,7 +3,7 @@ import { processCodeJobs } from "./code/process-code-jobs";
 import { randomUUID } from "node:crypto";
 import { and, eq } from "drizzle-orm";
 import db, { schema } from "../database";
-import { getAgentConfig } from "./config";
+import { getEffectiveAgentConfig } from "./effective-config";
 import { deliverAgentEffects } from "./effects";
 import { executeAgentRun, failExpiredRuns } from "./runner";
 
@@ -23,7 +23,7 @@ export async function processAgentQueue(signal: AbortSignal = shutdown.signal) {
   await failExpiredRuns();
   await completeAutomationRuns();
   await deliverAgentEffects();
-  const config = getAgentConfig();
+  const config = await getEffectiveAgentConfig();
   if (!config || signal.aborted) return;
   while (active.size < config.concurrency && !signal.aborted) {
     const owner = randomUUID();

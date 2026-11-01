@@ -16,7 +16,7 @@ import type { AgentSubject } from "../types";
 
 export async function listCodeRepositories(subject: AgentSubject) {
   if (
-    !codeJobsEnabled() ||
+    !(await codeJobsEnabled()) ||
     !(await hasUserWorkspacePermission(subject.userId, subject.workspaceId, {
       agent: ["run_code"],
     }))

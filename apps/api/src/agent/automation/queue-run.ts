@@ -1,7 +1,7 @@
 import { and, count, eq, gte, inArray, sql } from "drizzle-orm";
 import { schema } from "../../database";
 import type { AgentDatabase } from "../access";
-import { getAgentConfig } from "../config";
+import { getEffectiveAgentConfig } from "../effective-config";
 import { uniqueProjectIds } from "../touched-project-ids";
 import { ensureAutomationConversation } from "./ensure-conversation";
 import { parseMonthlyBudget, startOfUtcMonth } from "./limits";
@@ -112,7 +112,7 @@ export async function queueAutomationRun(
     );
   if ((activeForUser?.value ?? 0) >= 2 || (recentForUser?.value ?? 0) >= 10)
     return { queued: false, reason: "overlap" };
-  const config = getAgentConfig();
+  const config = await getEffectiveAgentConfig();
   if (!config) return { queued: false, reason: "unavailable" };
   if (
     (await runsInLastDay(database, automation.id, now)) >=

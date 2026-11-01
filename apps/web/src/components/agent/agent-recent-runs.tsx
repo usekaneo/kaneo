@@ -37,7 +37,7 @@ export function AgentRecentRuns({ workspaceId, onOpen }: AgentRecentRunsProps) {
           {t("agent:recent.empty")}
         </p>
       ) : (
-        <ul>
+        <ul className="-mx-2 mt-1.5 flex flex-col gap-0.5">
           {data.map((run) => (
             <AgentRecentRunRow
               key={run.id}

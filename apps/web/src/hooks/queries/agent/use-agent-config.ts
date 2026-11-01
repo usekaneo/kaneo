@@ -7,7 +7,8 @@ function useAgentConfig(workspaceId: string | undefined) {
     queryKey: agentQueryKeys.config(workspaceId ?? ""),
     queryFn: () => getAgentConfig(workspaceId ?? ""),
     enabled: Boolean(workspaceId),
-    staleTime: 5 * 60_000,
+    staleTime: 30_000,
+    refetchInterval: 30_000,
   });
 }
 

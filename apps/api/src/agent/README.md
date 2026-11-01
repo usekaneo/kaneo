@@ -4,7 +4,7 @@ The assistant uses AI SDK language-model providers, including direct Anthropic, 
 
 ## Configuration
 
-Set server configuration in the root `.env`:
+Configure credentials in the root `.env`. Instance admins can then select default and allowed models in **Settings → Administration → Settings → Agent models**; saved choices override environment model defaults. For example:
 
 ```dotenv
 KANEO_AGENT_ENABLED=true

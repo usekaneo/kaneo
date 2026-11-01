@@ -2,7 +2,7 @@ import { and, eq, inArray, count, gte, isNull } from "drizzle-orm";
 import { HTTPException } from "hono/http-exception";
 import db, { schema } from "../../database";
 import { getOwnedConversation } from "../access";
-import { requireAgentConfig } from "../config";
+import { requireEffectiveAgentConfig } from "../effective-config";
 import {
   type AgentRunAttachmentInput,
   toRunAttachmentInput,
@@ -20,7 +20,7 @@ export async function createRun(
     model?: string;
   },
 ) {
-  const config = requireAgentConfig();
+  const config = await requireEffectiveAgentConfig();
   const model = input.model ?? config.model;
   if (!config.models.includes(model))
     throw new HTTPException(400, {

@@ -14,12 +14,12 @@ function configured() {
   vi.stubEnv("KANEO_AGENT_GITHUB_APP_PRIVATE_KEY_BASE64", "");
   vi.stubEnv("KANEO_AGENT_GITHUB_APP_PRIVATE_KEY_FILE", "");
 }
-it("requires a separate valid App configuration without disabling the assistant", () => {
+it("requires a separate valid App configuration without disabling the assistant", async () => {
   configured();
-  expect(codeJobsEnabled()).toBe(true);
+  expect(await codeJobsEnabled()).toBe(true);
   expect(getCodeJobsConfig()?.jobTimeoutMinutes).toBe(30);
   vi.stubEnv("KANEO_AGENT_GITHUB_APP_PRIVATE_KEY", "invalid");
-  expect(codeJobsEnabled()).toBe(false);
+  expect(await codeJobsEnabled()).toBe(false);
 });
 it("accepts file/base64 key shapes and rejects invalid bounded settings", () => {
   configured();
@@ -30,4 +30,9 @@ it("accepts file/base64 key shapes and rejects invalid bounded settings", () => 
   expect(getCodeJobsConfig()?.privateKey).toBe(key);
   vi.stubEnv("KANEO_CODE_JOB_TIMEOUT_MINUTES", "999");
   expect(getCodeJobsConfig()).toBeNull();
+});
+
+vi.mock("../effective-config", async () => {
+  const { getAgentConfig } = await import("../config");
+  return { getEffectiveAgentConfig: async () => getAgentConfig() };
 });

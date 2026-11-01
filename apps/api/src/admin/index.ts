@@ -26,6 +26,7 @@ import updateWorkspaceMemberRole from "./controllers/update-workspace-member-rol
 import adminRoleRoutes from "./role-routes";
 import adminWebhookRoutes from "./webhook-routes";
 import adminSettingsRoutes from "./settings-routes";
+import { adminAgentRoutes } from "./agent/routes";
 import { getUserAccess } from "./roles/get-instance-access";
 import { instanceAccessSchema } from "./roles/schema";
 import adminUserAccountRoutes from "./user-account-routes";
@@ -544,6 +545,7 @@ const admin = apiRouter()
   .route("/users", adminUserAccountRoutes)
   .route("/roles", adminRoleRoutes)
   .route("/settings", adminSettingsRoutes)
+  .route("/agent", adminAgentRoutes)
   .route("/webhooks", adminWebhookRoutes)
   .route("/", adminUserSecurityRoutes);
 

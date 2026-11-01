@@ -3,7 +3,7 @@ import { HTTPException } from "hono/http-exception";
 import { z } from "zod";
 import db, { schema } from "../../../database";
 import { assertAgentAccess, assertAgentProject } from "../../access";
-import { requireAgentConfig } from "../../config";
+import { requireEffectiveAgentConfig } from "../../effective-config";
 import type { AgentSubject } from "../../types";
 import { getOwnedAutomation } from "../access";
 import { ensureAutomationConversation } from "../ensure-conversation";
@@ -16,7 +16,7 @@ export async function saveAutomation(
   input: z.infer<typeof createAutomationSchema>,
   id?: string,
 ) {
-  const config = requireAgentConfig();
+  const config = await requireEffectiveAgentConfig();
   await assertAgentAccess(subject);
   if (input.projectId) await assertAgentProject(subject, input.projectId);
   if (input.trigger.type === "event" && input.trigger.filters.projectId)

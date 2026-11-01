@@ -11605,6 +11605,134 @@
 						"errors",
 						"save"
 					]
+				},
+				"adminAgent": {
+					"type": "object",
+					"additionalProperties": false,
+					"properties": {
+						"title": {
+							"type": "string"
+						},
+						"description": {
+							"type": "string"
+						},
+						"provider": {
+							"type": "string"
+						},
+						"model": {
+							"type": "string"
+						},
+						"modelId": {
+							"type": "string"
+						},
+						"searchModels": {
+							"type": "string"
+						},
+						"loadingModels": {
+							"type": "string"
+						},
+						"noMatches": {
+							"type": "string"
+						},
+						"add": {
+							"type": "string"
+						},
+						"adding": {
+							"type": "string"
+						},
+						"addDescription": {
+							"type": "string"
+						},
+						"enterModelId": {
+							"type": "string"
+						},
+						"browseModels": {
+							"type": "string"
+						},
+						"catalogError": {
+							"type": "string"
+						},
+						"noProviders": {
+							"type": "string"
+						},
+						"emptyTitle": {
+							"type": "string"
+						},
+						"noModels": {
+							"type": "string"
+						},
+						"unavailable": {
+							"type": "string"
+						},
+						"defaultBadge": {
+							"type": "string"
+						},
+						"rowActions": {
+							"type": "string"
+						},
+						"makeDefault": {
+							"type": "string"
+						},
+						"remove": {
+							"type": "string"
+						},
+						"limit": {
+							"type": "string"
+						},
+						"restoreDefaults": {
+							"type": "string"
+						},
+						"restoreTitle": {
+							"type": "string"
+						},
+						"restoreDescription": {
+							"type": "string"
+						},
+						"restore": {
+							"type": "string"
+						},
+						"saved": {
+							"type": "string"
+						},
+						"saveError": {
+							"type": "string"
+						},
+						"loadError": {
+							"type": "string"
+						}
+					},
+					"required": [
+						"title",
+						"description",
+						"provider",
+						"model",
+						"modelId",
+						"searchModels",
+						"loadingModels",
+						"noMatches",
+						"add",
+						"adding",
+						"addDescription",
+						"enterModelId",
+						"browseModels",
+						"catalogError",
+						"noProviders",
+						"emptyTitle",
+						"noModels",
+						"unavailable",
+						"defaultBadge",
+						"rowActions",
+						"makeDefault",
+						"remove",
+						"limit",
+						"restoreDefaults",
+						"restoreTitle",
+						"restoreDescription",
+						"restore",
+						"saved",
+						"saveError",
+						"loadError"
+					]
 				}
 			},
 			"required": [
@@ -11664,7 +11792,8 @@
 				"adminOverview",
 				"adminRoles",
 				"adminSettings",
-				"adminWebhooks"
+				"adminWebhooks",
+				"adminAgent"
 			]
 		},
 		"navigation": {
