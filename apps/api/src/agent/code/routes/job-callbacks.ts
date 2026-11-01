@@ -9,7 +9,13 @@ import {
 } from "../../../openapi";
 import { boundedRequestBody } from "../../../utils/bounded-request-body";
 import { withoutOutboundTelemetry } from "../../../utils/sensitive-outbound";
-import { claimJob, failJob, heartbeatJob, uploadChangeset } from "../callbacks";
+import {
+  authenticateJob,
+  claimJob,
+  failJob,
+  heartbeatJob,
+  uploadChangeset,
+} from "../callbacks";
 import { changesetSchema, CHANGESET_REQUEST_BYTES } from "../changeset-schema";
 import { JOB_REPORTED_ERRORS } from "../lifecycle";
 import { callbackRateLimit } from "../callback-rate-limit";
@@ -34,6 +40,12 @@ function bearer(c: Context) {
   return value.slice(7);
 }
 const accepted = z.object({ accepted: z.literal(true) });
+const authenticateChangeset: MiddlewareHandler = async (c, next) => {
+  // Reject invalid credentials before allocating the large upload buffer.
+  // uploadChangeset checks again after reading, so revocation still takes effect.
+  await authenticateJob(c.req.param("jobId") ?? "", bearer(c));
+  await next();
+};
 const callbacks = apiRouter()
   .openapi(
     createRoute({
@@ -130,7 +142,11 @@ const callbacks = apiRouter()
       security: [],
       summary:
         "Upload a single bounded changeset; Kaneo creates the branch, commit, and draft PR",
-      middleware: [...common, boundedRequestBody(CHANGESET_REQUEST_BYTES)],
+      middleware: [
+        ...common,
+        authenticateChangeset,
+        boundedRequestBody(CHANGESET_REQUEST_BYTES),
+      ],
       request: {
         params,
         body: {

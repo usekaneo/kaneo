@@ -12,6 +12,7 @@ import {
 import db, { schema } from "../../apps/api/src/database";
 import { createApp } from "../../apps/api/src/index";
 import { processCodeJobs } from "../../apps/api/src/agent/code/process-code-jobs";
+import jobCallbacks from "../../apps/api/src/agent/code/routes/job-callbacks";
 import { createAgentTools } from "../../apps/api/src/agent/tools";
 import { createProposal } from "../../apps/api/src/agent/controllers/create-proposal";
 import { mockAuthenticatedSession, mockAnonymousSession } from "./helpers/auth";
@@ -522,6 +523,101 @@ describe("repo-ci coding jobs", () => {
       ).toBe("completed");
     },
   );
+  it.each(["missing", "invalid", "other-job", "expired", "revoked"] as const)(
+    "rejects %s credentials before reading changeset bytes",
+    async (kind) => {
+      const ctx = await setup();
+      const job = await (await ctx.start()).json();
+      await processCodeJobs();
+      const claim = await (
+        await ctx.post(
+          "/api/agent-jobs/claim",
+          { jobId: job.id },
+          await ctx.oidc(),
+        )
+      ).json();
+      if (kind === "expired")
+        await db
+          .update(schema.agentJobTable)
+          .set({ deadline: new Date(0) })
+          .where(eq(schema.agentJobTable.id, job.id));
+      if (kind === "revoked")
+        expect((await ctx.post(`/jobs/${job.id}/cancel`)).status).toBe(200);
+      mockAnonymousSession();
+      const pull = vi.fn();
+      const body = new ReadableStream({ pull }, { highWaterMark: 0 });
+      const jobId = kind === "other-job" ? "other-job" : job.id;
+      const token = kind === "invalid" ? "wrong-token" : claim.credential;
+      const request = new Request(`http://localhost/${jobId}/changeset`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          ...(kind === "missing" ? {} : { Authorization: `Bearer ${token}` }),
+        },
+        body,
+        duplex: "half",
+      } as RequestInit);
+      try {
+        // Test the callback router directly: client-IP header forwarding in the
+        // outer app transfers streams and can prefetch a chunk on Node.
+        const response = await jobCallbacks.request(request);
+        expect(response.status).toBe(
+          kind === "missing" || kind === "invalid" ? 403 : 410,
+        );
+        expect(pull).not.toHaveBeenCalled();
+        expect(request.bodyUsed).toBe(false);
+        expect(
+          await db.select().from(schema.agentJobChangesetTable),
+        ).toHaveLength(0);
+      } finally {
+        await body.cancel();
+      }
+    },
+  );
+
+  it("rechecks changeset credentials when they are revoked during the body read", async () => {
+    const ctx = await setup();
+    const job = await (await ctx.start()).json();
+    await processCodeJobs();
+    const claim = await (
+      await ctx.post(
+        "/api/agent-jobs/claim",
+        { jobId: job.id },
+        await ctx.oidc(),
+      )
+    ).json();
+    mockAnonymousSession();
+    const response = await ctx.app.request(
+      new Request(`http://localhost/api/agent-jobs/${job.id}/changeset`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${claim.credential}`,
+        },
+        body: new ReadableStream(
+          {
+            async pull(controller) {
+              await db
+                .update(schema.agentJobTable)
+                .set({ credentialHash: null })
+                .where(eq(schema.agentJobTable.id, job.id));
+              controller.enqueue(
+                new TextEncoder().encode(JSON.stringify(changes)),
+              );
+              controller.close();
+            },
+          },
+          { highWaterMark: 0 },
+        ),
+        duplex: "half",
+      } as RequestInit),
+    );
+    expect(response.status).toBe(410);
+    expect(await db.select().from(schema.agentJobChangesetTable)).toHaveLength(
+      0,
+    );
+  });
+
   it("rejects wrong repository/run claims, workflow edits, and cross-job credentials; cancellation revokes callbacks", async () => {
     const ctx = await setup();
     const job = await (await ctx.start()).json();
