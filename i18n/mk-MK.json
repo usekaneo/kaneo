@@ -4465,7 +4465,8 @@
 				"empty": "Нема врски",
 				"url": "URL",
 				"titleLabel": "Наслов",
-				"optional": "Опционално"
+				"optional": "Опционално",
+				"openFailed": "Couldn’t open this link."
 			},
 			"time": {
 				"title": "Време",

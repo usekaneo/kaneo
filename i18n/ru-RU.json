@@ -4671,7 +4671,8 @@
 				"empty": "Нет ссылок",
 				"url": "URL",
 				"titleLabel": "Название",
-				"optional": "Необязательно"
+				"optional": "Необязательно",
+				"openFailed": "Couldn’t open this link."
 			},
 			"time": {
 				"title": "Время",

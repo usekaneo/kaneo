@@ -12,6 +12,12 @@ describe("linkHost", () => {
     expect(linkHost("https://wiki.example.com/page")).toBe("wiki.example.com");
   });
 
+  it("shows the scheme for app links", () => {
+    expect(linkHost("obsidian://open?vault=Agents&file=Notes")).toBe(
+      "obsidian",
+    );
+  });
+
   it("returns null for a value that is not a URL", () => {
     expect(linkHost("not a url")).toBeNull();
   });
