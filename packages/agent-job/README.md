@@ -1,6 +1,6 @@
 # Kaneo CI coding job
 
-`@kaneo/agent-job` claims a dispatched Kaneo coding job using GitHub Actions OIDC, runs OpenCode 1.19.5 headlessly, collects additions/edits/deletions in an isolated Git index, and uploads the changeset. The API creates the branch, commit, and draft PR. The wrapper never receives the Agent App installation token.
+`@kaneo/agent-job` claims a dispatched Kaneo coding job using GitHub Actions OIDC, runs OpenCode 1.19.5 headlessly, collects additions/edits/deletions using private Git metadata, and uploads the changeset. The API creates the branch, commit, and draft PR. The wrapper never receives the Agent App installation token.
 
 ## Workflow setup
 
@@ -26,6 +26,8 @@ The wrapper exchanges Actions' OIDC JWT at `POST /api/agent-jobs/claim`. It retr
 The coding process receives an isolated home and an explicit environment containing its model key, PATH, temporary-directory configuration, and restrictive OpenCode settings. It receives no callback credential, OIDC request credential, or GitHub token. Raw occurrences of known job/model credentials in collected file bytes abort the upload. This is not an OS sandbox or an egress firewall: use a disposable GitHub-hosted runner, and apply your own CI/network policy. Do not run jobs on a persistent runner carrying unrelated credentials.
 
 Changesets support at most 300 paths and 10 MiB of decoded file content, including binary and executable files. New symlinks and submodules are rejected. API policy also refuses CI definitions/local actions, Git metadata, traversal, and protected branches. CI logs contain only wrapper outcomes; the Actions run URL is the log link. No model output is sent to Kaneo as progress.
+
+Before the coding process starts, the wrapper copies the approved base tree into a separate temporary Git repository outside the checkout. Collection uses that repository's config, index, and independent object store, with the worktree fixed to the checkout. It never reads the checkout's mutable Git config after the agent runs, so agent-written filters, fsmonitor commands, includes, or worktree redirects cannot control collection. Temporary metadata is removed when the job finishes or fails.
 
 ## Development
 

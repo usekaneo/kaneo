@@ -1,4 +1,5 @@
 import { mkdtemp, writeFile, rm, unlink, mkdir, chmod } from "node:fs/promises";
+import { existsSync } from "node:fs";
 import { join } from "node:path";
 import { tmpdir } from "node:os";
 import {
@@ -9,7 +10,8 @@ import {
   it,
   vi,
 } from "vite-plus/test";
-import { git, collectChanges } from "./git.js";
+import { git } from "./git.js";
+import { prepareChangeCollector } from "./prepare-change-collector.js";
 import { runJob, type JobOptions } from "./run-job.js";
 
 let cwd: string;
@@ -123,6 +125,32 @@ describe("CI job wrapper", () => {
     ).toEqual({ code: "agent_failed" });
     expect(JSON.stringify(requests)).not.toContain("secret-output");
   });
+  it("does not execute clean filters written by the coding agent", async () => {
+    const marker = join(cwd, ".git", "filter-executed");
+    await runJob(options(), {
+      fetch: fetchMock,
+      runAgent: async () => {
+        await writeFile(join(cwd, ".gitattributes"), "*.txt filter=probe\n");
+        await writeFile(join(cwd, "old.txt"), "changed");
+        await git(cwd, [
+          "config",
+          "filter.probe.clean",
+          `touch '${marker.replaceAll("'", "'\\''")}'; cat`,
+        ]);
+      },
+    });
+    expect(existsSync(marker)).toBe(false);
+    expect(
+      requests.find((request) => request.url.endsWith("/changeset"))?.body,
+    ).toMatchObject({
+      files: expect.arrayContaining([
+        expect.objectContaining({
+          path: "old.txt",
+          content: Buffer.from("changed").toString("base64"),
+        }),
+      ]),
+    });
+  });
   it("rejects a failed claim before running any coding CLI", async () => {
     const runAgent = vi.fn();
     await expect(
@@ -137,22 +165,27 @@ describe("CI job wrapper", () => {
     expect(runAgent).not.toHaveBeenCalled();
   });
   it("collects binary files and executable mode using an isolated index", async () => {
-    await writeFile(join(cwd, "binary"), Buffer.from([0, 255, 1]));
-    await writeFile(join(cwd, "script"), "#!/bin/sh\n");
-    await chmod(join(cwd, "script"), 0o755);
-    const files = await collectChanges(cwd, baseSha);
-    expect(files).toContainEqual({
-      action: "upsert",
-      path: "binary",
-      mode: "100644",
-      content: "AP8B",
-    });
-    expect(files).toContainEqual(
-      expect.objectContaining({ path: "script", mode: "100755" }),
-    );
-    expect((await git(cwd, ["diff", "--cached", "--name-only"])).length).toBe(
-      0,
-    );
+    const collector = await prepareChangeCollector(cwd, baseSha);
+    try {
+      await writeFile(join(cwd, "binary"), Buffer.from([0, 255, 1]));
+      await writeFile(join(cwd, "script"), "#!/bin/sh\n");
+      await chmod(join(cwd, "script"), 0o755);
+      const files = await collector.collect();
+      expect(files).toContainEqual({
+        action: "upsert",
+        path: "binary",
+        mode: "100644",
+        content: "AP8B",
+      });
+      expect(files).toContainEqual(
+        expect.objectContaining({ path: "script", mode: "100755" }),
+      );
+      expect((await git(cwd, ["diff", "--cached", "--name-only"])).length).toBe(
+        0,
+      );
+    } finally {
+      await collector.dispose();
+    }
   });
   it("stops when a heartbeat rejects a cancelled job", async () => {
     vi.useFakeTimers();

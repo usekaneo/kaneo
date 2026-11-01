@@ -1,5 +1,6 @@
 import { claimSchema, type JobSpec } from "./protocol.js";
-import { collectChanges, git } from "./git.js";
+import { git } from "./git.js";
+import { prepareChangeCollector } from "./prepare-change-collector.js";
 import { runOpencode } from "./opencode.js";
 
 export type JobOptions = {
@@ -101,6 +102,7 @@ export async function runJob(
     return response;
   };
   let pending: Promise<unknown> | undefined;
+  let collector: Awaited<ReturnType<typeof prepareChangeCollector>> | undefined;
   const timer = setInterval(() => {
     if (pending) return;
     pending = callback("heartbeat", { phase: "working" })
@@ -118,11 +120,12 @@ export async function runJob(
     const clean = await git(options.cwd, ["status", "--porcelain"]);
     if (clean.length) throw new Error("Clean checkout required");
     await git(options.cwd, ["checkout", "--detach", spec.baseSha]);
+    collector = await prepareChangeCollector(options.cwd, spec.baseSha);
     await callback("heartbeat", { phase: "working" });
     await runAgent(options.cwd, spec, options.modelKey, signal);
     signal.throwIfAborted();
     await callback("heartbeat", { phase: "collecting" });
-    const files = await collectChanges(options.cwd, spec.baseSha);
+    const files = await collector.collect();
     signal.throwIfAborted();
     const changes = files.length
       ? {
@@ -159,5 +162,6 @@ export async function runJob(
     clearInterval(timer);
     controller.abort();
     await pending;
+    await collector?.dispose();
   }
 }
