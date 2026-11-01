@@ -498,6 +498,13 @@
       "when": 1793483702777,
       "tag": "0070_lovely_wind_dancer",
       "breakpoints": true
+    },
+    {
+      "idx": 71,
+      "version": "7",
+      "when": 1793528939199,
+      "tag": "0071_common_black_crow",
+      "breakpoints": true
     }
   ]
 }

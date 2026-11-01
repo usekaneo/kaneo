@@ -23,6 +23,8 @@ import {
   taskRelationTable,
   userTable,
 } from "../../database/schema";
+import { taskAssignedTo } from "../assignees/task-assigned-to";
+import { withAssignees } from "../assignees/task-assignees";
 import { boundedTaskRead, type TaskReadDatabase } from "../bounded-read";
 import {
   boardDescription,
@@ -129,7 +131,7 @@ async function getTasksPage(
   }
 
   if (options.assigneeId) {
-    conditions.push(eq(taskTable.userId, options.assigneeId));
+    conditions.push(taskAssignedTo(options.assigneeId));
   }
 
   if (options.dueBefore) {
@@ -165,6 +167,8 @@ async function getTasksPage(
         sql`${taskTable}.xmin::text`,
         userTable.name,
         userTable.image,
+        // Shown on public boards, so a change of co-assignee must bump it too.
+        sql`(select coalesce(string_agg(a.user_id || ':' || u.name || ':' || coalesce(u.image, ''), ',' order by a.created_at, a.id), '') from task_assignee a join "user" u on u.id = a.user_id where a.task_id = ${taskTable.id})`,
       ]),
     })
     .from(taskTable)
@@ -207,7 +211,10 @@ async function getTasksPage(
     .where(whereClause)
     .orderBy(orderByClause, asc(taskTable.id));
 
-  const paginatedTasks = await query.limit(pageSize).offset(offset);
+  const paginatedTasks = await withAssignees(
+    await query.limit(pageSize).offset(offset),
+    db,
+  );
 
   const taskIds = paginatedTasks.map((task) => task.id);
 

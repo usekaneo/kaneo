@@ -2,6 +2,11 @@ import { createId } from "@paralleldrive/cuid2";
 import { and, eq, isNotNull } from "drizzle-orm";
 import { HTTPException } from "hono/http-exception";
 import db from "../../database";
+import { pickPrimaryAssignee } from "../assignees/assignee-set";
+import {
+  loadAssigneeIds,
+  replaceTaskAssignees,
+} from "../assignees/task-assignees";
 import {
   assetTable,
   columnTable,
@@ -144,6 +149,7 @@ class RuleAlreadyMovedError extends Error {}
 
 type DuplicatedTask = typeof taskTable.$inferSelect & {
   assigneeName: string | undefined;
+  assigneeIds: string[];
 };
 
 function duplicateTask(options: DuplicateTaskOptions): Promise<DuplicatedTask>;
@@ -191,23 +197,26 @@ async function duplicateTask({
   await assertValidTaskStatus(status, sourceTask.projectId);
   // A manual copy reports a departed assignee; an occurrence goes unassigned
   // so the series keeps going.
-  let userId = sourceTask.userId;
-  if (userId) {
-    const members = await filterAssignableUsers([userId], project.workspaceId);
-    if (!members.has(userId)) {
-      if (!occurrence) {
-        throw new HTTPException(403, { message: NOT_ASSIGNABLE });
-      }
-      userId = null;
+  const sourceIds =
+    (await loadAssigneeIds([sourceTask], db)).get(sourceTask.id) ?? [];
+  let assigneeIds = sourceIds;
+  if (assigneeIds.length > 0) {
+    const members = await filterAssignableUsers(
+      assigneeIds,
+      project.workspaceId,
+    );
+    if (!occurrence && assigneeIds.some((id) => !members.has(id))) {
+      throw new HTTPException(403, { message: NOT_ASSIGNABLE });
     }
-  }
-  if (userId) {
     const permitted = await filterUsersWithProjectAccess(
-      [userId],
+      assigneeIds.filter((id) => members.has(id)),
       sourceTask.projectId,
     );
-    if (!permitted.has(userId)) userId = null;
+    assigneeIds = assigneeIds.filter(
+      (id) => members.has(id) && permitted.has(id),
+    );
   }
+  const userId = pickPrimaryAssignee(sourceTask.userId, assigneeIds);
   const column = await db.query.columnTable.findFirst({
     where: and(
       eq(columnTable.projectId, sourceTask.projectId),
@@ -401,6 +410,10 @@ async function duplicateTask({
         })
         .returning();
 
+      if (task && assigneeIds.length > 0) {
+        await replaceTaskAssignees(tx, task, assigneeIds);
+      }
+
       if (!task) {
         throw new HTTPException(500, {
           message: "Failed to duplicate task",
@@ -484,6 +497,7 @@ async function duplicateTask({
   return {
     ...duplicatedTask,
     assigneeName: assignee?.name,
+    assigneeIds,
   };
 }
 

@@ -1,4 +1,5 @@
 import { and, eq, inArray, not } from "drizzle-orm";
+import { removeAssignee } from "../task/assignees/task-assignees";
 import createActivities from "../activity/controllers/create-activities";
 import { schema } from "../database";
 import type { DbOrTx } from "./db-or-tx";
@@ -8,32 +9,22 @@ export async function unassignInaccessibleTasks(
   database: DbOrTx,
   change: { workspaceId: string; userId: string; actorId: string },
 ): Promise<{ id: string; projectId: string }[]> {
-  const unassigned = await database
-    .update(schema.taskTable)
-    .set({ userId: null })
-    .where(
-      and(
-        eq(schema.taskTable.userId, change.userId),
-        inArray(
-          schema.taskTable.projectId,
-          database
-            .select({ id: schema.projectTable.id })
-            .from(schema.projectTable)
-            .where(
-              and(
-                eq(schema.projectTable.workspaceId, change.workspaceId),
-                not(
-                  projectAccessCondition(change.userId, schema.projectTable.id),
-                ),
-              ),
-            ),
+  const unassigned = await removeAssignee(
+    database,
+    change.userId,
+    inArray(
+      schema.taskTable.projectId,
+      database
+        .select({ id: schema.projectTable.id })
+        .from(schema.projectTable)
+        .where(
+          and(
+            eq(schema.projectTable.workspaceId, change.workspaceId),
+            not(projectAccessCondition(change.userId, schema.projectTable.id)),
+          ),
         ),
-      ),
-    )
-    .returning({
-      id: schema.taskTable.id,
-      projectId: schema.taskTable.projectId,
-    });
+    ),
+  );
 
   await createActivities(
     unassigned.map((task) => ({

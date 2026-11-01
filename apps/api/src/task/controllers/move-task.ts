@@ -1,3 +1,4 @@
+import { loadAssigneeIds, pruneAssignees } from "../assignees/task-assignees";
 import { and, asc, eq, isNotNull, notInArray } from "drizzle-orm";
 import { HTTPException } from "hono/http-exception";
 import createActivities from "../../activity/controllers/create-activities";
@@ -168,35 +169,36 @@ async function moveTask({
     }
 
     let movedTask = updatedTask;
-    const assigneeId = updatedTask.userId;
-    if (
-      assigneeId &&
-      !(
-        await filterUsersWithProjectAccess(
-          [assigneeId],
-          destinationProjectId,
-          tx,
-        )
-      ).has(assigneeId)
-    ) {
-      const [unassignedTask] = await tx
-        .update(taskTable)
-        .set({ userId: null })
-        .where(eq(taskTable.id, taskId))
-        .returning();
-      movedTask = unassignedTask ?? { ...updatedTask, userId: null };
-      await createActivities(
-        [
-          {
-            taskId,
-            type: "unassigned",
-            userId: currentUserId,
-            content: null,
-            eventData: {},
-          },
-        ],
+    const assigneeIds =
+      (await loadAssigneeIds([updatedTask], tx)).get(taskId) ?? [];
+    if (assigneeIds.length > 0) {
+      // Project-level access can differ within a workspace; anyone who cannot
+      // open the destination project drops off the task.
+      const permitted = await filterUsersWithProjectAccess(
+        assigneeIds,
+        destinationProjectId,
         tx,
       );
+      if (assigneeIds.some((id) => !permitted.has(id))) {
+        await pruneAssignees(tx, eq(taskTable.id, taskId), permitted);
+        const [refreshed] = await tx
+          .select()
+          .from(taskTable)
+          .where(eq(taskTable.id, taskId));
+        movedTask = refreshed ?? updatedTask;
+        await createActivities(
+          [
+            {
+              taskId,
+              type: "unassigned",
+              userId: currentUserId,
+              content: null,
+              eventData: {},
+            },
+          ],
+          tx,
+        );
+      }
     }
 
     await tx

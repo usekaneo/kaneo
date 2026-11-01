@@ -10,17 +10,26 @@ type AssignableMember = {
   image?: string | null;
 };
 
+// `current` is one assignee or, for multi-select menus, the whole set.
 export function assigneeMenuOptions(
   members: AssignableMember[],
-  current: string | null | undefined,
+  current: string | null | undefined | readonly string[],
   unassignedLabel: string,
 ): OptionMenuItem[] {
+  const selectedIds =
+    current === undefined || current === null
+      ? []
+      : typeof current === "string"
+        ? current
+          ? [current]
+          : []
+        : current;
   return [
     {
       value: "",
       label: unassignedLabel,
       icon: <UnassignedAvatar className="size-4 text-[8px]" />,
-      selected: current !== undefined && !current,
+      selected: current !== undefined && selectedIds.length === 0,
     },
     ...members.map((member) => ({
       value: member.id,
@@ -33,7 +42,7 @@ export function assigneeMenuOptions(
           </AvatarFallback>
         </Avatar>
       ),
-      selected: member.id === current,
+      selected: selectedIds.includes(member.id),
     })),
   ];
 }

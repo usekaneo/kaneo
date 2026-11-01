@@ -13,6 +13,7 @@ function useCreateTask() {
       title,
       description,
       userId,
+      assigneeIds,
       projectId,
       status,
       startDate,
@@ -34,6 +35,7 @@ function useCreateTask() {
         customFields,
         draftAssetIds,
         recurrence,
+        assigneeIds,
       ),
     onSuccess: (_data, variables) => {
       invalidateMyWork(queryClient);

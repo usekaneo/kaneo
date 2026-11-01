@@ -45,6 +45,12 @@ const contactRegionSchema = z.enum([
 const nonEmptyString = z.string().trim().min(1);
 const optionalNonEmptyString = nonEmptyString.optional();
 const nullableOptionalNonEmptyString = nonEmptyString.nullable().optional();
+const assigneeIdsSchema = z
+  .array(nonEmptyString)
+  .max(20)
+  .describe(
+    "Every assignee's user ID. The first is the primary assignee. An empty array unassigns.",
+  );
 const isoDateTimeSchema = z.string().datetime({ offset: true });
 const optionalIsoDateTimeSchema = isoDateTimeSchema.optional();
 const nullableOptionalIsoDateTimeSchema = isoDateTimeSchema
@@ -227,7 +233,9 @@ export function registerTools(
     projectId: nonEmptyString,
     status: optionalNonEmptyString,
     priority: prioritySchema.optional(),
-    assigneeId: optionalNonEmptyString,
+    assigneeId: optionalNonEmptyString.describe(
+      "Only tasks this user is assigned to, as primary or co-assignee.",
+    ),
     page: z.number().int().min(1).max(1_000_000).optional(),
     relatedPage: z.number().int().min(1).max(1_000_000).optional(),
     limit: z.number().int().min(1).max(100).optional(),
@@ -320,10 +328,11 @@ export function registerTools(
           .min(1)
           .optional()
           .describe("Contact this task is a lead for; see list_contacts."),
+        assigneeIds: assigneeIdsSchema.optional(),
       }),
     },
     async (args) => {
-      const body: Record<string, string | undefined> = {
+      const body: Record<string, string | string[] | undefined> = {
         title: args.title,
         description: args.description,
         priority: args.priority,
@@ -340,6 +349,9 @@ export function registerTools(
       }
       if (args.contactId !== undefined) {
         body.contactId = args.contactId;
+      }
+      if (args.assigneeIds !== undefined) {
+        body.assigneeIds = args.assigneeIds;
       }
       return run(() =>
         client.json(`/api/task/${encodeURIComponent(args.projectId)}`, {
@@ -385,6 +397,7 @@ export function registerTools(
     startDate: nullableOptionalIsoDateTimeSchema,
     dueDate: nullableOptionalIsoDateTimeSchema,
     userId: nullableOptionalNonEmptyString,
+    assigneeIds: assigneeIdsSchema.optional(),
   });
 
   registerTool(
@@ -910,21 +923,33 @@ export function registerTools(
     "update_task_assignee",
     {
       description:
-        "Assign a task to a workspace member, or pass a null userId to unassign it.",
+        "Set who a task is assigned to. Pass assigneeIds for several people (replaces the current set), or userId for one person (null unassigns). Either way the given people replace the current assignees.",
       inputSchema: z.object({
         taskId: nonEmptyString,
         userId: nonEmptyString
           .nullable()
-          .describe("Member user ID, or null to unassign"),
+          .optional()
+          .describe("Single member user ID, or null to unassign"),
+        assigneeIds: assigneeIdsSchema.optional(),
       }),
     },
     async (args) =>
-      run(() =>
-        client.json(`/api/task/assignee/${encodeURIComponent(args.taskId)}`, {
-          method: "PUT",
-          body: JSON.stringify({ userId: args.userId }),
-        }),
-      ),
+      run(async () => {
+        if (args.userId === undefined && args.assigneeIds === undefined) {
+          throw new Error("Pass assigneeIds or userId.");
+        }
+        return client.json(
+          `/api/task/assignee/${encodeURIComponent(args.taskId)}`,
+          {
+            method: "PUT",
+            body: JSON.stringify(
+              args.assigneeIds !== undefined
+                ? { assigneeIds: args.assigneeIds }
+                : { userId: args.userId },
+            ),
+          },
+        );
+      }),
   );
 
   registerTool(

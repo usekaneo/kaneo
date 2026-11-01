@@ -9,6 +9,11 @@ import {
 import { useUpdateTaskAssignee } from "@/hooks/mutations/task/use-update-task-assignee";
 import useGetProjectMembers from "@/hooks/queries/workspace-users/use-get-project-members";
 import { useWorkspacePermission } from "@/hooks/use-workspace-permission";
+import {
+  getTaskAssigneeIds,
+  sameAssigneeSet,
+  toggleAssignee,
+} from "@/lib/task-assignees";
 import { toast } from "@/lib/toast";
 import type Task from "@/types/task";
 import { assigneeMenuOptions } from "./menus/assignee-menu-options";
@@ -26,6 +31,7 @@ export default function TaskAssigneePopover({
 }: TaskAssigneePopoverProps) {
   const { t } = useTranslation();
   const [open, setOpen] = useState(false);
+  const [draft, setDraft] = useState<string[] | null>(null);
   const { mutateAsync: updateTaskAssignee } = useUpdateTaskAssignee();
   const { data: members = [] } = useGetProjectMembers({
     workspaceId,
@@ -35,10 +41,19 @@ export default function TaskAssigneePopover({
 
   if (!canAssignTasks()) return <>{children}</>;
 
-  const changeAssignee = async (userId: string) => {
-    setOpen(false);
+  const currentIds = getTaskAssigneeIds(task);
+
+  // Toggling only edits a draft; the set is saved once when the popover closes.
+  const toggle = (userId: string) =>
+    setDraft((ids) => toggleAssignee(ids ?? currentIds, userId));
+
+  const save = async (ids: string[]) => {
     try {
-      await updateTaskAssignee({ ...task, userId });
+      await updateTaskAssignee({
+        ...task,
+        userId: ids[0] ?? null,
+        assigneeIds: ids,
+      });
     } catch (error) {
       toast.error(
         error instanceof Error
@@ -48,8 +63,18 @@ export default function TaskAssigneePopover({
     }
   };
 
+  const handleOpenChange = (next: boolean) => {
+    setOpen(next);
+    if (next) {
+      setDraft(null);
+      return;
+    }
+    if (draft && !sameAssigneeSet(draft, currentIds)) void save(draft);
+    setDraft(null);
+  };
+
   return (
-    <Popover open={open} onOpenChange={setOpen}>
+    <Popover open={open} onOpenChange={handleOpenChange}>
       <PopoverTrigger asChild>{children}</PopoverTrigger>
       <PopoverContent className="w-60 p-0" align="start">
         <OptionMenu
@@ -57,10 +82,10 @@ export default function TaskAssigneePopover({
           placeholder={t("tasks:bulk.assigneePlaceholder")}
           options={assigneeMenuOptions(
             members,
-            task.userId ?? null,
+            draft ?? currentIds,
             t("tasks:popover.assignee.unassigned"),
           )}
-          onSelect={changeAssignee}
+          onSelect={toggle}
         />
       </PopoverContent>
     </Popover>

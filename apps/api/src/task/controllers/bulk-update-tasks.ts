@@ -8,7 +8,6 @@ import {
   labelTable,
   projectTable,
   taskTable,
-  userTable,
   taskReminderSentTable,
   workspaceUserTable,
 } from "../../database/schema";
@@ -17,6 +16,7 @@ import { removeLabelFromGitea } from "../../plugins/gitea/utils/sync-label-to-gi
 import { removeLabelFromGitHub } from "../../plugins/github/utils/sync-label-to-github";
 import { removeLabelFromGitlab } from "../../plugins/gitlab/utils/sync-label-to-gitlab";
 import { assertAssignableUser } from "../../utils/assert-assignable-user";
+import { replaceTaskAssignees } from "../assignees/task-assignees";
 import { publishTaskMutation } from "./task-mutation-effects";
 import { getSubtaskParentProjects } from "../get-subtask-parent-projects";
 import {
@@ -253,12 +253,6 @@ async function bulkUpdateTasks({
         );
       }
 
-      const assignee = assigneeId
-        ? await db.query.userTable.findFirst({
-            columns: { name: true },
-            where: eq(userTable.id, assigneeId),
-          })
-        : undefined;
       const before = await db.transaction(async (tx) => {
         const locked = await tx
           .select({
@@ -283,23 +277,37 @@ async function bulkUpdateTasks({
           throw new HTTPException(409, {
             message: "Tasks changed projects; retry the operation",
           });
-        await tx
-          .update(taskTable)
-          .set({ userId: assigneeId })
-          .where(inArray(taskTable.id, foundIds));
-        return locked;
+        // One person replaces whoever was assigned, as with the single field.
+        const changes = new Map<
+          string,
+          { added: string[]; removed: string[]; primary: string | null }
+        >();
+        for (const task of locked) {
+          const { added, removed, primary } = await replaceTaskAssignees(
+            tx,
+            task,
+            assigneeId ? [assigneeId] : [],
+          );
+          changes.set(task.id, { added, removed, primary });
+        }
+        return { locked, changes };
       });
-      updatedCount = before.length;
-      for (const task of before)
+      updatedCount = before.locked.length;
+      for (const task of before.locked) {
+        const change = before.changes.get(task.id);
         await publishTaskMutation(
           task,
-          {
-            ...task,
-            userId: assigneeId,
-          },
+          { ...task, userId: change?.primary ?? null },
           userId,
-          { fields: ["userId"], assigneeName: assignee?.name ?? null },
+          {
+            fields: ["userId"],
+            assignees: {
+              added: change?.added ?? [],
+              removed: change?.removed ?? [],
+            },
+          },
         );
+      }
       break;
     }
 

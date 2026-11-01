@@ -1,3 +1,4 @@
+import { replaceTaskAssignees } from "../assignees/task-assignees";
 import { and, asc, eq } from "drizzle-orm";
 import { HTTPException } from "hono/http-exception";
 import db from "../../database";
@@ -135,6 +136,10 @@ async function importTasks(
             position,
           })
           .returning();
+
+        if (task && assigneeId) {
+          await replaceTaskAssignees(tx, task, [assigneeId]);
+        }
 
         return task;
       });
