@@ -1,8 +1,12 @@
+import { execFileSync } from "node:child_process";
 import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
 import test from "node:test";
 import { parseAllDocuments, stringify } from "yaml";
-import { dependencyKey, packageIdentity } from "./dependency-graph-identity.mjs";
+import {
+  dependencyKey,
+  packageIdentity,
+} from "./dependency-graph-identity.mjs";
 import { buildManifest } from "./dependency-graph-lock.mjs";
 import { buildSnapshot, lockPaths } from "./dependency-graph-snapshot.mjs";
 import { main } from "./dependency-graph.mjs";
@@ -79,14 +83,24 @@ function changedApplication(change) {
 // No network or file writes are needed to validate a constructed payload.
 function assertPayload(snapshot) {
   assert.deepEqual(Object.keys(snapshot).sort(), [
-    "detector", "job", "manifests", "ref", "scanned", "sha", "version",
+    "detector",
+    "job",
+    "manifests",
+    "ref",
+    "scanned",
+    "sha",
+    "version",
   ]);
   assert.equal(snapshot.version, 0);
   assert.match(snapshot.sha, /^(?:[a-f\d]{40}|[a-f\d]{64})$/i);
   assert.match(snapshot.ref, /^refs\//);
   assert.ok(Number.isFinite(Date.parse(snapshot.scanned)));
   assert.deepEqual(Object.keys(snapshot.job).sort(), ["correlator", "id"]);
-  assert.deepEqual(Object.keys(snapshot.detector).sort(), ["name", "url", "version"]);
+  assert.deepEqual(Object.keys(snapshot.detector).sort(), [
+    "name",
+    "url",
+    "version",
+  ]);
   const descriptions = [
     ...Object.values(snapshot.job),
     ...Object.values(snapshot.detector),
@@ -97,7 +111,11 @@ function assertPayload(snapshot) {
   }
   assert.deepEqual(Object.keys(snapshot.manifests), lockPaths);
   for (const [path, manifest] of Object.entries(snapshot.manifests)) {
-    assert.deepEqual(Object.keys(manifest).sort(), ["file", "name", "resolved"]);
+    assert.deepEqual(Object.keys(manifest).sort(), [
+      "file",
+      "name",
+      "resolved",
+    ]);
     assert.equal(manifest.name, path);
     assert.deepEqual(manifest.file, { source_location: path });
     assert.ok(Object.keys(manifest.resolved).length);
@@ -276,9 +294,14 @@ test("actual root and e2e locks cover every main-document package with valid pay
     const lock = documents.find((document) => document.settings);
     assert.ok(lock);
     const expected = [
-      ...new Set(Object.keys(lock.packages).map((key) => packageIdentity(key).purl)),
+      ...new Set(
+        Object.keys(lock.packages).map((key) => packageIdentity(key).purl),
+      ),
     ].sort();
-    assert.deepEqual(Object.keys(snapshot.manifests[path].resolved).sort(), expected);
+    assert.deepEqual(
+      Object.keys(snapshot.manifests[path].resolved).sort(),
+      expected,
+    );
   }
   for (const name of ["qs", "node-forge", "deepmerge"]) {
     assert.ok(
@@ -295,16 +318,28 @@ test("actual root and e2e locks cover every main-document package with valid pay
 });
 
 test("CLI dry-run builds the real payload without networking or file writes", async (t) => {
-  let output = "";
-  t.mock.method(process.stdout, "write", (chunk) => {
-    output += chunk;
-    return true;
-  });
+  // Node's test runner also uses stdout for its binary protocol. Capture a
+  // separate CLI process instead of intercepting that protocol in this worker.
+  const code = `
+    globalThis.fetch = () => { throw new Error("Unexpected network access"); };
+    const { main } = await import("./scripts/ci/dependency-graph.mjs");
+    await main(["--dry-run"], ${JSON.stringify({ GITHUB_SHA: context.sha, GITHUB_REF: context.ref })});
+  `;
+  const env = { ...process.env };
+  delete env.NODE_TEST_CONTEXT;
+  const output = execFileSync(
+    process.execPath,
+    ["--input-type=module", "--eval", code],
+    {
+      env,
+      encoding: "utf8",
+      maxBuffer: 16 * 1024 * 1024,
+    },
+  );
+  assertPayload(JSON.parse(output));
   const network = t.mock.method(globalThis, "fetch", () => {
     throw new Error("Unexpected network access");
   });
-  await main(["--dry-run"], { GITHUB_SHA: context.sha, GITHUB_REF: context.ref });
-  assertPayload(JSON.parse(output));
   assert.equal(network.mock.callCount(), 0);
   await assert.rejects(
     main(["--submit"], {
@@ -336,7 +371,10 @@ test("trusted submission sends one complete snapshot to GitHub and rejects unsuc
     GITHUB_TOKEN: "synthetic-test-token",
   };
   const network = t.mock.method(globalThis, "fetch", async (url, options) => {
-    assert.equal(url, "https://api.github.com/repos/usekaneo/kaneo/dependency-graph/snapshots");
+    assert.equal(
+      url,
+      "https://api.github.com/repos/usekaneo/kaneo/dependency-graph/snapshots",
+    );
     assert.equal(options.method, "POST");
     assert.equal(options.redirect, "error");
     assert.equal(options.headers.Authorization, "Bearer synthetic-test-token");
@@ -348,8 +386,12 @@ test("trusted submission sends one complete snapshot to GitHub and rejects unsuc
   });
   await main(["--submit"], env);
   assert.equal(network.mock.callCount(), 1);
-  network.mock.mockImplementation(async () => Response.json({ result: "ERROR" }, { status: 201 }));
+  network.mock.mockImplementation(async () =>
+    Response.json({ result: "ERROR" }, { status: 201 }),
+  );
   await assert.rejects(main(["--submit"], env), /did not report SUCCESS/);
-  network.mock.mockImplementation(async () => new Response(null, { status: 403 }));
+  network.mock.mockImplementation(
+    async () => new Response(null, { status: 403 }),
+  );
   await assert.rejects(main(["--submit"], env), /HTTP 403/);
 });

@@ -10,11 +10,14 @@ describe("stored ownership review", () => {
   );
 
   it.each([
-    null, undefined, "member", "member, recruiter", "owner", "member,owner", "owner, owner",
-  ])(
-    "preserves roles with no ambiguous ownership grant (%j)",
-    (role) => {
-      expect(() => assertStoredOwnerRoleSafe(role)).not.toThrow();
-    },
-  );
+    null,
+    undefined,
+    "member",
+    "member, recruiter",
+    "owner",
+    "member,owner",
+    "owner, owner",
+  ])("preserves roles with no ambiguous ownership grant (%j)", (role) => {
+    expect(() => assertStoredOwnerRoleSafe(role)).not.toThrow();
+  });
 });

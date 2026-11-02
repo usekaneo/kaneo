@@ -1,6 +1,9 @@
 import { posix } from "node:path";
 import { parseAllDocuments } from "yaml";
-import { dependencyKey, packageIdentity } from "./dependency-graph-identity.mjs";
+import {
+  dependencyKey,
+  packageIdentity,
+} from "./dependency-graph-identity.mjs";
 
 const groups = ["dependencies", "optionalDependencies", "devDependencies"];
 
@@ -20,8 +23,12 @@ function mainDocument(source) {
   const candidates = [];
   for (const document of documents) {
     if (document.errors.length) throw new Error(document.errors[0].message);
-    const lock = mapping(document.toJS({ maxAliasCount: 100 }), "lock document");
-    if (lock.lockfileVersion !== "9.0") throw new Error("Expected pnpm lockfile version 9.0");
+    const lock = mapping(
+      document.toJS({ maxAliasCount: 100 }),
+      "lock document",
+    );
+    if (lock.lockfileVersion !== "9.0")
+      throw new Error("Expected pnpm lockfile version 9.0");
     const importers = Object.values(mapping(lock.importers, "importers"));
     if (!importers.length) throw new Error("Empty importers");
     for (const importer of importers) mapping(importer, "importer");
@@ -34,9 +41,11 @@ function mainDocument(source) {
         "packageManagerDependencies" in importer,
     );
     if (application && !environment) candidates.push(lock);
-    else if (!environment || application) throw new Error("Unrecognized or mixed lock document");
+    else if (!environment || application)
+      throw new Error("Unrecognized or mixed lock document");
   }
-  if (candidates.length !== 1) throw new Error("Expected exactly one application lock document");
+  if (candidates.length !== 1)
+    throw new Error("Expected exactly one application lock document");
   return candidates[0];
 }
 
@@ -62,12 +71,14 @@ export function buildManifest(source, path) {
   for (const [key, value] of Object.entries(snapshots)) {
     mapping(value, key);
     const { base, purl } = packageIdentity(key);
-    if (!packageBases.has(base)) throw new Error(`Snapshot missing package: ${key}`);
+    if (!packageBases.has(base))
+      throw new Error(`Snapshot missing package: ${key}`);
     covered.add(base);
     identities.set(key, purl);
   }
   for (const base of packageBases) {
-    if (!covered.has(base)) throw new Error(`Package missing snapshot: ${base}`);
+    if (!covered.has(base))
+      throw new Error(`Package missing snapshot: ${base}`);
   }
 
   function resolve(name, reference) {
@@ -88,7 +99,9 @@ export function buildManifest(source, path) {
       for (const [name, reference] of Object.entries(references)) {
         const child = resolve(name, reference);
         children.add(child);
-        resolved.get(identities.get(key)).dependencies.add(identities.get(child));
+        resolved
+          .get(identities.get(key))
+          .dependencies.add(identities.get(child));
       }
     }
     edges.set(key, children);
@@ -99,10 +112,14 @@ export function buildManifest(source, path) {
   const developmentRoots = [];
   for (const [importerPath, importer] of Object.entries(lock.importers)) {
     for (const group of groups) {
-      for (const [name, value] of Object.entries(dependencyGroup(importer, group))) {
+      for (const [name, value] of Object.entries(
+        dependencyGroup(importer, group),
+      )) {
         const { version } = mapping(value, name);
         if (typeof version === "string" && version.startsWith("link:")) {
-          const target = posix.normalize(posix.join(importerPath, version.slice(5)));
+          const target = posix.normalize(
+            posix.join(importerPath, version.slice(5)),
+          );
           if (!Object.hasOwn(lock.importers, target)) {
             throw new Error(`Missing workspace importer: ${target}`);
           }
@@ -111,7 +128,9 @@ export function buildManifest(source, path) {
         }
         const key = resolve(name, version);
         direct.add(identities.get(key));
-        (group === "devDependencies" ? developmentRoots : runtimeRoots).push(key);
+        (group === "devDependencies" ? developmentRoots : runtimeRoots).push(
+          key,
+        );
       }
     }
   }

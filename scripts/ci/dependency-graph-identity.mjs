@@ -10,11 +10,17 @@ export function packageIdentity(key) {
     if (depth < 0) throw new Error(`Invalid pnpm suffix: ${key}`);
   }
   if (depth !== 0) throw new Error(`Invalid pnpm suffix: ${key}`);
-  const match = /^(?<name>(?:@[^/@\s]+\/)?[^/@\s]+)@(?<version>\d+\.\d+\.\d+(?:-[\da-zA-Z.-]+)?(?:\+[\da-zA-Z.-]+)?)$/.exec(base);
+  const match =
+    /^(?<name>(?:@[^/@\s]+\/)?[^/@\s]+)@(?<version>\d+\.\d+\.\d+(?:-[\da-zA-Z.-]+)?(?:\+[\da-zA-Z.-]+)?)$/.exec(
+      base,
+    );
   if (!match) throw new Error(`Unsupported npm package identity: ${key}`);
   const { name, version } = match.groups;
   const encodedName = name.split("/").map(encodeURIComponent).join("/");
-  return { base, purl: `pkg:npm/${encodedName}@${encodeURIComponent(version)}` };
+  return {
+    base,
+    purl: `pkg:npm/${encodedName}@${encodeURIComponent(version)}`,
+  };
 }
 
 export function dependencyKey(name, reference) {

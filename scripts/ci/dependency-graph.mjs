@@ -4,7 +4,9 @@ import { buildSnapshot, lockPaths } from "./dependency-graph-snapshot.mjs";
 
 export async function main(args = process.argv.slice(2), env = process.env) {
   if (args.length !== 1 || !["--dry-run", "--submit"].includes(args[0])) {
-    throw new Error("Usage: node scripts/ci/dependency-graph.mjs --dry-run|--submit");
+    throw new Error(
+      "Usage: node scripts/ci/dependency-graph.mjs --dry-run|--submit",
+    );
   }
   const sources = Object.fromEntries(
     await Promise.all(
@@ -52,14 +54,18 @@ export async function main(args = process.argv.slice(2), env = process.env) {
     throw new Error(`Dependency submission failed: HTTP ${response.status}`);
   }
   const result = await response.json();
-  if (result.result !== "SUCCESS") throw new Error("Dependency submission did not report SUCCESS");
+  if (result.result !== "SUCCESS")
+    throw new Error("Dependency submission did not report SUCCESS");
   for (const [path, manifest] of Object.entries(snapshot.manifests)) {
     const count = Object.keys(manifest.resolved).length;
     console.log(`${path}: submitted ${count} npm packages`);
   }
 }
 
-if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
+if (
+  process.argv[1] &&
+  import.meta.url === pathToFileURL(process.argv[1]).href
+) {
   main().catch((error) => {
     console.error(error.message);
     process.exitCode = 1;

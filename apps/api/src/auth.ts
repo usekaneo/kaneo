@@ -624,7 +624,8 @@ export const auth = betterAuth({
           });
         },
         beforeCreateInvitation: async ({ invitation }) => {
-          const role = normalizeInvitationRole(invitation.role) ?? invitation.role;
+          const role =
+            normalizeInvitationRole(invitation.role) ?? invitation.role;
           await assertInvitationOwnerAllowed({ ...invitation, role });
           const access = await resolveInvitationProjectAccess({
             ...invitation,
