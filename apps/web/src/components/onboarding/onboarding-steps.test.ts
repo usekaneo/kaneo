@@ -1,6 +1,5 @@
 import { describe, expect, it } from "vite-plus/test";
 import {
-  getInitials,
   getNextStep,
   getOnboardingSteps,
   getStepProgress,
@@ -46,14 +45,5 @@ describe("onboarding steps", () => {
     });
     expect(getNextStep(steps, "project")).toBe("ready");
     expect(getNextStep(steps, "ready")).toBe("ready");
-  });
-
-  it.each([
-    ["sarah@acme.com", "S"],
-    ["  mark.k@acme.com", "M"],
-    ["élodie@acme.fr", "É"],
-    ["", ""],
-  ])("takes the initial of %j", (value, initial) => {
-    expect(getInitials(value)).toBe(initial);
   });
 });

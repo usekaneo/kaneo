@@ -232,7 +232,10 @@
 			"passwordRequired": "Εισάγετε τον κωδικό πρόσβασής σας.",
 			"passwordTooShort": "Χρησιμοποιήστε τουλάχιστον 8 χαρακτήρες.",
 			"disposableEmail": "Χρησιμοποιήστε μια μόνιμη διεύθυνση email. Με προσωρινές διευθύνσεις δεν μπορούν να δημιουργηθούν λογαριασμοί.",
-			"continueWithEmail": "Συνέχεια με email"
+			"continueWithEmail": "Συνέχεια με email",
+			"captchaChecking": "Γίνεται ένας γρήγορος έλεγχος ασφαλείας πριν συνεχίσετε.",
+			"captchaFailed": "Ο έλεγχος ασφαλείας δεν φορτώθηκε, οπότε η σύνδεση έχει σταματήσει. Ελέγξτε τη σύνδεσή σας ή το πρόγραμμα αποκλεισμού περιεχομένου.",
+			"captchaRetry": "Δοκιμάστε ξανά"
 		},
 		"checkEmail": {
 			"pageTitle": "Ελέγξτε το email σας",
@@ -389,8 +392,6 @@
 				}
 			},
 			"progress": "Βήμα {{current}} από {{total}}",
-			"welcome": "Καλώς ήρθατε, {{name}}",
-			"settingUp": "Ρύθμιση του {{name}}",
 			"continue": "Συνέχεια",
 			"signedInAs": "Σύνδεση ως {{email}}",
 			"signOut": "Αποσύνδεση",
@@ -406,7 +407,7 @@
 				"title": "Ξεκινήστε το πρώτο σας έργο",
 				"description": "Θα προσθέσουμε μερικές αρχικές εργασίες για να σας βοηθήσουμε να εξοικειωθείτε. Μετονομάστε τις ή διαγράψτε τις όποτε θέλετε.",
 				"label": "Όνομα έργου",
-				"numbered": "Οι εργασίες θα αριθμούνται"
+				"ticketStart": "Τα αναγνωριστικά εργασιών θα ξεκινούν από {{ticket}}."
 			},
 			"invite": {
 				"title": "Φέρτε την ομάδα σας",
@@ -433,7 +434,6 @@
 				"paymentNote": "Οι πληρωμές διεκπεραιώνονται από την Creem."
 			},
 			"ready": {
-				"eyebrow": "Όλα έτοιμα",
 				"title": "Το {{name}} είναι έτοιμο",
 				"description": "Αυτά ρυθμίσαμε. Μπορείτε να αλλάξετε οτιδήποτε αργότερα.",
 				"workspace": "Χώρος εργασίας",
@@ -446,9 +446,6 @@
 				"open": "Άνοιγμα του {{name}}"
 			},
 			"preview": {
-				"live": "Ζωντανή προεπισκόπηση του {{name}}",
-				"liveNoName": "Ζωντανή προεπισκόπηση",
-				"ready": "Το {{name}} είναι έτοιμο",
 				"untitled": "Ο χώρος εργασίας σας"
 			}
 		},
@@ -3790,7 +3787,11 @@
 		},
 		"board": {
 			"reorderFailed": "Could not move task. Please try again.",
-			"keyboardInstructions": "Πατήστε Space για προεπισκόπηση και Enter για να ανοίξετε αυτή την εργασία. Χρησιμοποιήστε Alt ή Option με τα βέλη για να τη μετακινήσετε."
+			"keyboardInstructions": "Πατήστε Space για προεπισκόπηση και Enter για να ανοίξετε αυτή την εργασία. Χρησιμοποιήστε Alt ή Option με τα βέλη για να τη μετακινήσετε.",
+			"loadErrorTitle": "Αυτός ο πίνακας δεν φορτώθηκε",
+			"loadErrorDescription": "Κάτι πήγε στραβά κατά τη λήψη των εργασιών. Ελέγξτε τη σύνδεσή σας και δοκιμάστε ξανά.",
+			"refreshError": "Δεν ήταν δυνατή η ανανέωση του πίνακα, οπότε μπορεί να μην είναι ενημερωμένος.",
+			"tryAgain": "Δοκιμάστε ξανά"
 		},
 		"recurrence": {
 			"daily_one": "Κάθε ημέρα",
@@ -4551,7 +4552,6 @@
 				"linkCopied": "Ο σύνδεσμος αντιγράφηκε",
 				"more": "Περισσότερα",
 				"editTitle": "Επεξεργασία τίτλου",
-				"editDescription": "Επεξεργασία περιγραφής",
 				"addDescription": "Προσθήκη περιγραφής…"
 			}
 		},
@@ -4601,23 +4601,22 @@
 			"parentFailed": "Η εργασία δημιουργήθηκε, αλλά δεν ήταν δυνατή η σύνδεσή της με τη γονική εργασία."
 		},
 		"editor": {
-			"description": "Περιγραφή",
 			"placeholder": "Προσθήκη περιγραφής… Υποστηρίζεται Markdown.",
-			"write": "Σύνταξη",
-			"preview": "Προεπισκόπηση",
-			"nothingToPreview": "Τίποτα για προεπισκόπηση",
 			"bold": "Έντονα",
 			"italic": "Πλάγια",
 			"heading": "Επικεφαλίδα",
 			"list": "Λίστα",
 			"code": "Κώδικας",
 			"link": "Σύνδεσμος",
-			"boldPlaceholder": "έντονα",
-			"italicPlaceholder": "πλάγια",
-			"codePlaceholder": "κώδικας",
-			"linkPlaceholder": "σύνδεσμος",
 			"insertImage": "Εισαγωγή εικόνας",
-			"attachment": "Συνημμένο"
+			"attachment": "Συνημμένο",
+			"applyLink": "Apply",
+			"checklist": "Checklist",
+			"linkUrl": "URL",
+			"numberedList": "Numbered list",
+			"quote": "Quote",
+			"removeLink": "Remove link",
+			"hideKeyboard": "Hide keyboard"
 		},
 		"composer": {
 			"reply": "Απάντηση στον/στην {{name}}…",
@@ -5024,6 +5023,21 @@
 				"confirmPlaceholder": "Πληκτρολογήστε τον ξανά",
 				"mismatch": "Οι κωδικοί δεν ταιριάζουν",
 				"signOutOthers": "Αποσύνδεση άλλων συσκευών"
+			},
+			"deleteAccount": {
+				"confirm": "Delete account",
+				"confirmLabel": "Type {{email}} to confirm",
+				"description": "Permanently delete your account and its data.",
+				"modalDescription": "This permanently deletes your account and cannot be undone. Workspaces only you belong to are deleted with it. Elsewhere, your tasks stay and become unassigned, and your comments are removed.",
+				"modalTitle": "Delete your account?",
+				"noPassword": "This account has no password. Leave the field empty.",
+				"password": "Password",
+				"passwordHint": "Leave empty if you sign in without a password.",
+				"sectionTitle": "Danger zone",
+				"sessionTooOld": "For your security, enter your password, or sign out and sign in again before deleting your account.",
+				"success": "Your account was deleted",
+				"title": "Delete account",
+				"wrongPassword": "That password is not correct."
 			}
 		},
 		"notificationSettings": {

@@ -42,12 +42,3 @@ export function getNextStep(
 ): OnboardingStepId {
   return steps[steps.indexOf(current) + 1] ?? "ready";
 }
-
-export function getInitials(value: string) {
-  const parts = value
-    .trim()
-    .split(/[\s@._-]+/)
-    .filter(Boolean);
-  if (parts.length === 0) return "";
-  return Array.from(parts[0] ?? "")[0]?.toUpperCase() ?? "";
-}

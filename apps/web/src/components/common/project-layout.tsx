@@ -96,7 +96,7 @@ export default function ProjectLayout({
   };
 
   return (
-    <Layout>
+    <>
       <Layout.Header
         className={cn("h-11 border-border/80 px-2", {
           "bg-card/90 backdrop-blur": !!background,
@@ -185,6 +185,6 @@ export default function ProjectLayout({
         open={isCreateProjectModalOpen}
         onClose={() => setIsCreateProjectModalOpen(false)}
       />
-    </Layout>
+    </>
   );
 }

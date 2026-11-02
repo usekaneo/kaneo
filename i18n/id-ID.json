@@ -232,7 +232,10 @@
 			"passwordRequired": "Masukkan kata sandi Anda.",
 			"passwordTooShort": "Gunakan minimal 8 karakter.",
 			"disposableEmail": "Gunakan alamat email permanen. Alamat email sekali pakai tidak dapat digunakan untuk membuat akun.",
-			"continueWithEmail": "Lanjutkan dengan email"
+			"continueWithEmail": "Lanjutkan dengan email",
+			"captchaChecking": "Menjalankan pemeriksaan keamanan singkat sebelum Anda dapat melanjutkan.",
+			"captchaFailed": "Pemeriksaan keamanan tidak termuat, jadi proses masuk dijeda. Periksa koneksi atau pemblokir konten Anda.",
+			"captchaRetry": "Coba lagi"
 		},
 		"checkEmail": {
 			"pageTitle": "Periksa Email Anda",
@@ -388,8 +391,6 @@
 				}
 			},
 			"progress": "Langkah {{current}} dari {{total}}",
-			"welcome": "Selamat datang, {{name}}",
-			"settingUp": "Menyiapkan {{name}}",
 			"continue": "Lanjutkan",
 			"signedInAs": "Masuk sebagai {{email}}",
 			"signOut": "Keluar",
@@ -405,7 +406,7 @@
 				"title": "Mulai proyek pertama Anda",
 				"description": "Kami akan menambahkan beberapa tugas awal untuk memandu Anda. Ganti nama atau hapus kapan saja.",
 				"label": "Nama proyek",
-				"numbered": "Tugas akan diberi nomor"
+				"ticketStart": "ID tugas akan dimulai dari {{ticket}}."
 			},
 			"invite": {
 				"title": "Ajak tim Anda",
@@ -430,7 +431,6 @@
 				"paymentNote": "Pembayaran diproses oleh Creem."
 			},
 			"ready": {
-				"eyebrow": "Semua siap",
 				"title": "{{name}} sudah siap",
 				"description": "Inilah yang kami siapkan. Anda dapat mengubah semuanya nanti.",
 				"workspace": "Ruang kerja",
@@ -441,9 +441,6 @@
 				"open": "Buka {{name}}"
 			},
 			"preview": {
-				"live": "Pratinjau langsung {{name}}",
-				"liveNoName": "Pratinjau langsung",
-				"ready": "{{name}} sudah siap",
 				"untitled": "Ruang kerja Anda"
 			}
 		},
@@ -3727,7 +3724,11 @@
 		},
 		"board": {
 			"reorderFailed": "Could not move task. Please try again.",
-			"keyboardInstructions": "Tekan Spasi untuk pratinjau dan Enter untuk membuka tugas ini. Gunakan Alt atau Option dengan tombol panah untuk memindahkannya."
+			"keyboardInstructions": "Tekan Spasi untuk pratinjau dan Enter untuk membuka tugas ini. Gunakan Alt atau Option dengan tombol panah untuk memindahkannya.",
+			"loadErrorTitle": "Papan ini tidak termuat",
+			"loadErrorDescription": "Terjadi masalah saat mengambil tugasnya. Periksa koneksi Anda dan coba lagi.",
+			"refreshError": "Papan ini tidak dapat diperbarui, jadi mungkin belum terbaru.",
+			"tryAgain": "Coba lagi"
 		},
 		"recurrence": {
 			"daily_other": "Setiap {{count}} hari",
@@ -4474,7 +4475,6 @@
 				"linkCopied": "Tautan disalin",
 				"more": "Lainnya",
 				"editTitle": "Edit judul",
-				"editDescription": "Edit deskripsi",
 				"addDescription": "Tambahkan deskripsi…"
 			}
 		},
@@ -4523,23 +4523,22 @@
 			"parentFailed": "Tugas dibuat, tetapi tidak dapat ditautkan ke tugas induk."
 		},
 		"editor": {
-			"description": "Deskripsi",
 			"placeholder": "Tambahkan deskripsi… Mendukung Markdown.",
-			"write": "Tulis",
-			"preview": "Pratinjau",
-			"nothingToPreview": "Tidak ada yang bisa dipratinjau",
 			"bold": "Tebal",
 			"italic": "Miring",
 			"heading": "Judul",
 			"list": "Daftar",
 			"code": "Kode",
 			"link": "Tautan",
-			"boldPlaceholder": "tebal",
-			"italicPlaceholder": "miring",
-			"codePlaceholder": "kode",
-			"linkPlaceholder": "tautan",
 			"insertImage": "Sisipkan gambar",
-			"attachment": "Lampiran"
+			"attachment": "Lampiran",
+			"applyLink": "Apply",
+			"checklist": "Checklist",
+			"linkUrl": "URL",
+			"numberedList": "Numbered list",
+			"quote": "Quote",
+			"removeLink": "Remove link",
+			"hideKeyboard": "Hide keyboard"
 		},
 		"composer": {
 			"reply": "Balas {{name}}…",
@@ -4934,6 +4933,21 @@
 				"confirmPlaceholder": "Ketik sekali lagi",
 				"mismatch": "Kata sandi tidak cocok",
 				"signOutOthers": "Keluar dari perangkat lain"
+			},
+			"deleteAccount": {
+				"confirm": "Delete account",
+				"confirmLabel": "Type {{email}} to confirm",
+				"description": "Permanently delete your account and its data.",
+				"modalDescription": "This permanently deletes your account and cannot be undone. Workspaces only you belong to are deleted with it. Elsewhere, your tasks stay and become unassigned, and your comments are removed.",
+				"modalTitle": "Delete your account?",
+				"noPassword": "This account has no password. Leave the field empty.",
+				"password": "Password",
+				"passwordHint": "Leave empty if you sign in without a password.",
+				"sectionTitle": "Danger zone",
+				"sessionTooOld": "For your security, enter your password, or sign out and sign in again before deleting your account.",
+				"success": "Your account was deleted",
+				"title": "Delete account",
+				"wrongPassword": "That password is not correct."
 			}
 		},
 		"notificationSettings": {

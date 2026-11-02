@@ -84,12 +84,16 @@ COPY packages/libs/package.json ./packages/libs/
 COPY packages/typescript-config ./packages/typescript-config
 COPY packages/libs ./packages/libs
 COPY packages/permissions ./packages/permissions
+COPY packages/editor ./packages/editor
 COPY i18n ./i18n
 COPY apps/web ./apps/web
 
 RUN pnpm install --frozen-lockfile
 
 WORKDIR /app/packages/permissions
+RUN pnpm run build
+
+WORKDIR /app/packages/editor
 RUN pnpm run build
 
 WORKDIR /app/apps/web

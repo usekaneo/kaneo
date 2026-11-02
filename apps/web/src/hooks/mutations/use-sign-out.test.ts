@@ -145,10 +145,37 @@ describe("custom OAuth sign-out", () => {
     await result.current.mutateAsync();
 
     expect(m.getIdToken).not.toHaveBeenCalled();
-    expect(m.navigate).toHaveBeenCalledWith({ to: "/auth/sign-in" });
+    expect(m.navigate).toHaveBeenCalledWith({
+      to: "/auth/sign-in",
+      replace: true,
+    });
     expect(signOutState.isRedirecting).toBe(false);
     handleUnauthorized();
     expect(location.replace).toHaveBeenCalledTimes(1);
+  });
+
+  it("leaves the app before ending a local session and returns on failure", async () => {
+    m.signOut.mockImplementation(async () => {
+      expect(m.navigate).toHaveBeenCalledWith({
+        to: "/auth/sign-in",
+        replace: true,
+      });
+      expect(signOutState.isRedirecting).toBe(true);
+      handleUnauthorized();
+      return { error: { message: "Sign-out failed" } };
+    });
+
+    const { result } = renderHook(() => useSignOut());
+    await expect(result.current.mutateAsync()).rejects.toThrow(
+      "Sign-out failed",
+    );
+
+    expect(location.replace).not.toHaveBeenCalled();
+    expect(m.navigate).toHaveBeenLastCalledWith({
+      href: "/dashboard",
+      replace: true,
+    });
+    expect(signOutState.isRedirecting).toBe(false);
   });
 
   it("does not end the session when pending edits cannot be saved", async () => {
