@@ -11,7 +11,22 @@ describe("splitRoles", () => {
   });
 
   it("trims names and drops empty and repeated entries", () => {
-    expect(splitRoles(" owner , ,viewer,owner,")).toEqual(["owner", "viewer"]);
+    expect(splitRoles(" member , ,viewer,member,")).toEqual([
+      "member",
+      "viewer",
+    ]);
+  });
+
+  it("never grants ownership by trimming a stored token", () => {
+    for (const role of [
+      " owner",
+      "owner ",
+      "member, owner",
+      "member,\towner\n",
+    ]) {
+      expect(splitRoles(role)).not.toContain("owner");
+    }
+    expect(splitRoles("member, owner,owner")).toEqual(["member", "owner"]);
   });
 
   it("returns an empty list for a missing or blank role", () => {

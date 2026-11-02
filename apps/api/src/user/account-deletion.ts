@@ -1,3 +1,5 @@
+import { isOwnerRole } from "../project-access/is-owner-role";
+
 export type WorkspaceMembershipSummary = {
   workspaceId: string;
   workspaceName: string;
@@ -13,10 +15,7 @@ export type AccountDeletionPlan = {
 };
 
 export function hasOwnerRole(role: string) {
-  return role
-    .split(",")
-    .map((entry) => entry.trim().toLowerCase())
-    .includes("owner");
+  return isOwnerRole(role);
 }
 
 export function planAccountDeletion(

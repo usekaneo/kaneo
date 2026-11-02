@@ -1,6 +1,6 @@
 # syntax=docker/dockerfile:1
 # Build stage
-FROM --platform=$BUILDPLATFORM node:24.22.1-alpine AS builder
+FROM --platform=$BUILDPLATFORM node:24.22.2-alpine AS builder
 
 # Sentry org/project are public identifiers (not secrets). The auth token
 # is the only real secret; it is mounted via `--mount=type=secret` during

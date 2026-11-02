@@ -8,6 +8,12 @@ on:
   pull_request:
     paths:
       - "apps/mobile/**"
+      - "packages/editor/**"
+      - "packages/typescript-config/**"
+      - "package.json"
+      - "pnpm-lock.yaml"
+      - "pnpm-workspace.yaml"
+      - "patches/**"
       - ".github/workflows/android.yml"
   workflow_dispatch:
 
@@ -36,11 +42,14 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7
         with:
-          node-version: 24.22.1
+          node-version: 24.22.2
           cache: pnpm
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
+
+      - name: Build the shared editor
+        run: pnpm --filter @kaneo/editor build
 
       - name: Generate the Android project
         run: pnpm --filter @kaneo/mobile exec expo prebuild --platform android --clean --no-install
