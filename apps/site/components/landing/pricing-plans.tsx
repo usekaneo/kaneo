@@ -7,16 +7,26 @@ import { Button } from "@/components/ui/button";
 
 const APP_URL = "https://cloud.kaneo.app";
 
+const MANAGED_CONTACT =
+  "mailto:support@kaneo.app?subject=Managed%20Kaneo%20instance&body=Team%20size%3A%0AIdentity%20provider%3A%0AAnything%20else%20we%20should%20know%3A";
+
+const MANAGED_PRICE = {
+  price: 299,
+  suffix: "/ month",
+  note: "Starting price, flat for the whole instance",
+};
+
 type Interval = "monthly" | "annual";
 
 type Plan = {
+  id?: string;
   name: string;
   tagline: string;
   checkout?: "personal" | "team";
   monthly: { price: number; suffix: string; note: string };
   annual: { price: number; suffix: string; note: string };
   features: string[];
-  cta: { href: string; label: string };
+  cta: { href: string; label: string; event?: string };
   highlighted?: boolean;
 };
 
@@ -60,17 +70,24 @@ const plans: Plan[] = [
     highlighted: true,
   },
   {
-    name: "Self-hosted",
-    tagline: "Run it on your own servers",
-    monthly: { price: 0, suffix: "forever", note: "MIT licensed" },
-    annual: { price: 0, suffix: "forever", note: "MIT licensed" },
+    id: "managed-instance",
+    name: "Managed instance",
+    tagline: "Your own Kaneo, run by us",
+    monthly: MANAGED_PRICE,
+    annual: MANAGED_PRICE,
     features: [
-      "Unlimited users and projects",
-      "Every feature, including SSO",
-      "Your data on your servers",
-      "Community support on Discord",
+      "A dedicated instance with its own database",
+      "Your own domain and single sign-on",
+      "Daily backups and regular restore tests",
+      "Upgrades and security fixes applied for you",
+      "Hosted in the EU",
+      "A direct line to the maintainers",
     ],
-    cta: { href: "/docs/core/installation", label: "Read installation guide" },
+    cta: {
+      href: MANAGED_CONTACT,
+      label: "Talk to us",
+      event: "Managed+Instance+Inquiry",
+    },
   },
 ];
 
@@ -112,7 +129,8 @@ export function PricingPlans() {
             return (
               <article
                 key={plan.name}
-                className={`flex min-w-0 flex-col p-6 lg:p-8 ${
+                id={plan.id}
+                className={`flex min-w-0 scroll-mt-24 flex-col p-6 lg:p-8 ${
                   plan.highlighted ? "bg-sidebar" : "bg-background"
                 }`}
               >
@@ -171,7 +189,11 @@ export function PricingPlans() {
                 <Button
                   variant={plan.highlighted ? "default" : "outline"}
                   size="lg"
-                  className="mt-8 h-12 w-full gap-3 px-4 text-sm sm:h-12"
+                  className={`mt-8 h-12 w-full gap-3 px-4 text-sm sm:h-12 ${
+                    plan.cta.event
+                      ? `plausible-event-name=${plan.cta.event}`
+                      : ""
+                  }`}
                   render={<a href={href} />}
                 >
                   {plan.cta.label}

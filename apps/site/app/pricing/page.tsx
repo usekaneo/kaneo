@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 import { Footer } from "@/components/landing/footer";
-import { ManagedInstance } from "@/components/landing/managed-instance";
 import { Navbar } from "@/components/landing/navbar";
 import { PageIntro } from "@/components/landing/page-intro";
 import { PricingPlans } from "@/components/landing/pricing-plans";
@@ -53,7 +52,6 @@ export default function PricingPage() {
 
             <div className="mt-12">
               <PricingPlans />
-              <ManagedInstance />
             </div>
           </div>
         </section>
