@@ -42,9 +42,27 @@ describe("ContactLocationCombobox", () => {
         onValueChange={vi.fn()}
       />,
     );
-    expect((screen.getByLabelText("Location") as HTMLInputElement).value).toBe(
-      "Not set",
+    // The none choice is the placeholder, not text the user would have to delete.
+    const input = screen.getByLabelText("Location") as HTMLInputElement;
+    expect(input.value).toBe("");
+    expect(input.placeholder).toBe("Not set");
+  });
+
+  it("selects the shown location when clicked or focused, so typing replaces it", () => {
+    render(
+      <ContactLocationCombobox
+        value="male"
+        items={items}
+        label="Location"
+        onValueChange={vi.fn()}
+      />,
     );
+    const input = screen.getByLabelText("Location") as HTMLInputElement;
+
+    fireEvent.click(input);
+
+    expect(input.selectionStart).toBe(0);
+    expect(input.selectionEnd).toBe(input.value.length);
   });
 
   it("lists every location when opened with one already chosen", async () => {

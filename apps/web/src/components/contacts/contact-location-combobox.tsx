@@ -20,7 +20,8 @@ type ContactLocationComboboxProps = {
 };
 
 // Locations can number in the hundreds, so this is searchable. The first item
-// is the "none" choice (value ""), which typing filters away like any other.
+// is the "none" choice (value ""). It is shown as the placeholder, never as text
+// in the field: text there would be prepended to whatever the user types.
 export function ContactLocationCombobox({
   value,
   items,
@@ -31,7 +32,9 @@ export function ContactLocationCombobox({
   disabled,
 }: ContactLocationComboboxProps) {
   const { t } = useTranslation();
-  const selected = items.find((item) => item.value === value) ?? items[0];
+  const none = items.find((item) => item.value === "");
+  const selected =
+    items.find((item) => item.value === value) ?? none ?? items[0];
 
   return (
     <Combobox
@@ -39,14 +42,17 @@ export function ContactLocationCombobox({
       value={selected ?? null}
       disabled={disabled}
       onValueChange={(next) => onValueChange(next?.value ?? "")}
-      itemToStringLabel={(item) => item.label}
+      itemToStringLabel={(item) => (item.value === "" ? "" : item.label)}
       isItemEqualToValue={(item, current) => item.value === current.value}
     >
       <ComboboxInput
         id={id}
         size={size}
         aria-label={label}
-        placeholder={t("workspace:contacts.searchLocations")}
+        placeholder={none?.label ?? t("workspace:contacts.searchLocations")}
+        // Select what is shown so typing replaces it instead of appending.
+        onFocus={(event) => event.currentTarget.select()}
+        onClick={(event) => event.currentTarget.select()}
       />
       <ComboboxPopup>
         <ComboboxEmpty>{t("workspace:contacts.noLocations")}</ComboboxEmpty>
