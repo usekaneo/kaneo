@@ -1,7 +1,11 @@
-# Kaneo on Coolify, built from this repository's source (a fork with local changes).
+# Kaneo on Coolify, run from a prebuilt image of this repository (a fork with local changes).
 #
-# Same stack as compose.coolify.yml, but the kaneo service is built from
-# Dockerfile.kaneo instead of pulling ghcr.io/usekaneo/kaneo, so fork changes ship on deploy.
+# Same stack as compose.coolify.yml, but the kaneo service uses this fork's own image,
+# ghcr.io/novas-mv/kaneo, instead of ghcr.io/usekaneo/kaneo, so the server never has to build.
+#
+# To ship a change: check out the commit you want, run ./deploy/publish-image.sh on a computer
+# with Docker (it builds, tags the image with the first 8 characters of the commit and pushes it),
+# then set that tag on the image line below and redeploy. Take a database backup first.
 #
 #   Public Repository -> https://github.com/novas-mv/kaneo-pm
 #   Build Pack: Docker Compose | Base Directory: / | Compose Location: /compose.coolify.fork.yml
@@ -9,7 +13,6 @@
 # Assign a domain to the "kaneo" service using its container port, e.g. https://kaneo.example.com:5173
 # The only required environment variable is KANEO_CLIENT_URL (your public URL, without :5173).
 # Do NOT set KANEO_API_URL: the entrypoint derives it from KANEO_CLIENT_URL.
-# The first build compiles the API and web app, so it takes several minutes.
 
 services:
   postgres:
