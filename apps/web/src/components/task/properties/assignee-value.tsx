@@ -9,6 +9,8 @@ type AssigneeValueProps = {
   name: string | null | undefined;
   image: string | null | undefined;
   labelClassName?: string;
+  /** Let a long name wrap to two lines instead of being cut off. */
+  wrap?: boolean;
 };
 
 // The assignee shown in the task panel: one person as before, or a small
@@ -18,9 +20,11 @@ export function AssigneeValue({
   name,
   image,
   labelClassName,
+  wrap = false,
 }: AssigneeValueProps) {
   const { t } = useTranslation();
   const assignees = task.assignees ?? [];
+  const textClass = wrap ? "line-clamp-2 break-words" : "truncate";
 
   if (assignees.length > 1) {
     const [first] = assignees;
@@ -28,7 +32,7 @@ export function AssigneeValue({
       <>
         <AssigneeStack assignees={assignees} ringClassName="ring-background" />
         <span
-          className={cn("truncate", labelClassName)}
+          className={cn(textClass, labelClassName)}
           title={assignees.map((assignee) => assignee.name).join(", ")}
         >
           {first?.name} +{assignees.length - 1}
@@ -46,7 +50,7 @@ export function AssigneeValue({
       />
       <span
         className={cn(
-          "truncate",
+          textClass,
           !task.userId && "text-muted-foreground",
           labelClassName,
         )}

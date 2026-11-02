@@ -49,7 +49,7 @@ export function PropertiesRail({
   const projectValue = (
     <>
       <ProjectIcon className="text-muted-foreground" />
-      <span className="truncate">{project?.name}</span>
+      <span className="line-clamp-2 break-words">{project?.name}</span>
     </>
   );
 
@@ -63,7 +63,7 @@ export function PropertiesRail({
           <TaskStatusPopover task={task}>
             <PropertyValue data-task-action="status" shortcutId="changeStatus">
               {getColumnIcon(task.status ?? "", status.isFinal, status.icon)}
-              <span className="truncate">{status.label}</span>
+              <span className="line-clamp-2 break-words">{status.label}</span>
             </PropertyValue>
           </TaskStatusPopover>
         </PropertyRow>
@@ -89,6 +89,7 @@ export function PropertiesRail({
                 task={task}
                 name={assignee?.user?.name || task.assigneeName}
                 image={assignee?.user?.image}
+                wrap
               />
             </PropertyValue>
           </TaskAssigneePopover>

@@ -63,4 +63,15 @@ describe("TaskContactRow", () => {
       screen.getByRole("combobox", { name: "workspace:contacts.taskLabel" }),
     ).toBeTruthy();
   });
+
+  it("shows the linked contact's whole name, wrapping instead of cutting it off", () => {
+    mocks.contacts = [
+      { id: "c1", name: "Scuba Butler Fuvahmulah Dive Centre" },
+    ];
+    render(<TaskContactRow {...props} contactId="c1" />);
+
+    const name = screen.getByText("Scuba Butler Fuvahmulah Dive Centre");
+    expect(name.className).toContain("line-clamp-2");
+    expect(name.className).not.toContain("truncate");
+  });
 });
