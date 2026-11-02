@@ -3654,7 +3654,8 @@
 			"showMore": "Show older",
 			"unknownAuthor": "Unknown",
 			"followUpError": "Interaction logged, but the follow-up date couldn't be set.",
-			"close": "Close"
+			"close": "Close",
+			"addFirst": "No contacts yet. Add one"
 		}
 	},
 	"team": {

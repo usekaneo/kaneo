@@ -1,3 +1,4 @@
+import { Link } from "@tanstack/react-router";
 import { UserRound } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { PropertyRow } from "@/components/task/properties/property-row";
@@ -33,8 +34,22 @@ export function TaskContactRow({
   const { data: contacts = [] } = useContacts(workspaceId);
   const { mutateAsync: setContact } = useSetTaskContact(workspaceId);
 
-  // Hide the row until it is useful: no contacts yet and none linked.
-  if (contacts.length === 0 && !contactId) return null;
+  // No contacts yet and none linked: keep the row so the feature is findable,
+  // and point at the page where the first contact is added.
+  if (contacts.length === 0 && !contactId) {
+    return (
+      <PropertyRow label={t("workspace:contacts.taskLabel")}>
+        <Link
+          to="/dashboard/workspace/$workspaceId/contacts"
+          params={{ workspaceId }}
+          className="flex h-7.5 min-w-0 flex-1 items-center gap-2 rounded-md px-2 text-[13px] text-muted-foreground outline-none transition-colors hover:bg-accent hover:text-foreground focus-visible:bg-accent [&_svg]:size-3.5 [&_svg]:shrink-0"
+        >
+          <UserRound aria-hidden="true" />
+          <span className="truncate">{t("workspace:contacts.addFirst")}</span>
+        </Link>
+      </PropertyRow>
+    );
+  }
 
   const items = [
     { value: NONE, label: t("workspace:contacts.noContact") },

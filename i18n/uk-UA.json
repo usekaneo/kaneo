@@ -3792,7 +3792,8 @@
 				"retailer": "Retailer"
 			},
 			"unknownAuthor": "Unknown",
-			"updateSuccess": "Contact updated"
+			"updateSuccess": "Contact updated",
+			"addFirst": "No contacts yet. Add one"
 		}
 	},
 	"team": {

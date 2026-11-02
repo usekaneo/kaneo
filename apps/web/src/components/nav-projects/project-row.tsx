@@ -10,7 +10,6 @@ import {
   Trash2,
 } from "lucide-react";
 import { useTranslation } from "react-i18next";
-import { ProjectProgress } from "@/components/project-progress";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -29,7 +28,6 @@ type RowProject = {
   id: string;
   name: string;
   icon: string | null;
-  statistics: { completionPercentage: number };
 };
 
 type GroupTarget = { id: string; name: string; icon: string | null };
@@ -72,11 +70,6 @@ export function ProjectRow({
       >
         <ProjectIcon aria-hidden="true" />
         <span className="min-w-0 flex-1 truncate">{project.name}</span>
-        {/* Gives way to the row menu, which sits here on hover. */}
-        <ProjectProgress
-          percentage={project.statistics.completionPercentage}
-          className="text-muted-foreground max-md:hidden group-focus-within/menu-item:opacity-0 group-hover/menu-item:opacity-0 group-has-data-popup-open/menu-item:opacity-0"
-        />
       </SidebarMenuButton>
 
       <DropdownMenu>
