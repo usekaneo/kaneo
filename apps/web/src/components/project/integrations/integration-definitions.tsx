@@ -1,4 +1,4 @@
-import { GitBranch, Webhook } from "lucide-react";
+import { Webhook } from "lucide-react";
 import type { ComponentType, SVGProps } from "react";
 import { DiscordIcon } from "@/components/icons/discord-icon";
 import { GiteaIcon } from "@/components/icons/gitea-icon";
@@ -7,6 +7,7 @@ import { GitlabIcon } from "@/components/icons/gitlab-icon";
 import { MattermostIcon } from "@/components/icons/mattermost-icon";
 import { SlackIcon } from "@/components/icons/slack-icon";
 import { TelegramIcon } from "@/components/icons/telegram-icon";
+import { TangledIcon } from "@/components/icons/tangled-icon";
 import { DiscordIntegrationSettings } from "@/components/project/discord-integration-settings";
 import { GenericWebhookIntegrationSettings } from "@/components/project/generic-webhook-integration-settings";
 import { GiteaIntegrationSettings } from "@/components/project/gitea-integration/gitea-integration-settings";
@@ -44,7 +45,7 @@ export const INTEGRATIONS: IntegrationDefinition[] = [
     category: "code",
     name: "Tangled",
     descriptionKey: "settings:projectIntegrations.tangledSectionSubtitle",
-    icon: GitBranch,
+    icon: TangledIcon,
     iconClassName: "text-foreground",
     Settings: TangledIntegrationSettings,
   },
