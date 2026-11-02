@@ -6,7 +6,6 @@ import useProjectStore from "@/store/project";
 import type Task from "@/types/task";
 
 export function useTaskCardClick(task: Task) {
-  const { project } = useProjectStore();
   const { data: workspace } = useActiveWorkspace();
   const navigate = useNavigate();
   const toggleSelection = useBulkSelectionStore(
@@ -18,7 +17,13 @@ export function useTaskCardClick(task: Task) {
   );
 
   function handleClick(e: React.MouseEvent<HTMLDivElement>) {
-    if (!project || !task || !workspace || !isOwnDomEvent(e)) return;
+    if (
+      !useProjectStore.getState().project ||
+      !task ||
+      !workspace ||
+      !isOwnDomEvent(e)
+    )
+      return;
 
     if (e.shiftKey) {
       e.preventDefault();

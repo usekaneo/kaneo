@@ -232,7 +232,10 @@
 			"passwordRequired": "Digite sua senha.",
 			"passwordTooShort": "Use pelo menos 8 caracteres.",
 			"disposableEmail": "Use um endereço de e-mail permanente. Endereços temporários não podem criar contas.",
-			"continueWithEmail": "Continuar com e-mail"
+			"continueWithEmail": "Continuar com e-mail",
+			"captchaChecking": "Fazendo uma verificação de segurança rápida antes de continuar.",
+			"captchaFailed": "A verificação de segurança não carregou, então o login está pausado. Verifique sua conexão ou bloqueador de conteúdo.",
+			"captchaRetry": "Tentar novamente"
 		},
 		"checkEmail": {
 			"pageTitle": "Verifique seu e-mail",
@@ -390,8 +393,6 @@
 				}
 			},
 			"progress": "Etapa {{current}} de {{total}}",
-			"welcome": "Boas-vindas, {{name}}",
-			"settingUp": "Configurando {{name}}",
 			"continue": "Continuar",
 			"signedInAs": "Conectado como {{email}}",
 			"signOut": "Sair",
@@ -407,7 +408,7 @@
 				"title": "Comece seu primeiro projeto",
 				"description": "Vamos adicionar algumas tarefas iniciais para você se orientar. Renomeie ou exclua quando quiser.",
 				"label": "Nome do projeto",
-				"numbered": "As tarefas serão numeradas"
+				"ticketStart": "Os IDs das tarefas começarão em {{ticket}}."
 			},
 			"invite": {
 				"title": "Traga sua equipe",
@@ -436,7 +437,6 @@
 				"paymentNote": "Os pagamentos são processados pela Creem."
 			},
 			"ready": {
-				"eyebrow": "Tudo pronto",
 				"title": "{{name}} está pronto",
 				"description": "Veja o que configuramos. Você pode alterar tudo depois.",
 				"workspace": "Espaço de trabalho",
@@ -451,9 +451,6 @@
 				"open": "Abrir {{name}}"
 			},
 			"preview": {
-				"live": "Prévia ao vivo de {{name}}",
-				"liveNoName": "Prévia ao vivo",
-				"ready": "{{name}} está pronto",
 				"untitled": "Seu espaço de trabalho"
 			}
 		},
@@ -3816,7 +3813,11 @@
 		},
 		"board": {
 			"reorderFailed": "Could not move task. Please try again.",
-			"keyboardInstructions": "Pressione Espaço para pré-visualizar e Enter para abrir esta tarefa. Use Alt ou Option com as setas para movê-la."
+			"keyboardInstructions": "Pressione Espaço para pré-visualizar e Enter para abrir esta tarefa. Use Alt ou Option com as setas para movê-la.",
+			"loadErrorTitle": "Este quadro não carregou",
+			"loadErrorDescription": "Algo deu errado ao buscar as tarefas. Verifique sua conexão e tente novamente.",
+			"refreshError": "Não foi possível atualizar este quadro, então ele pode estar desatualizado.",
+			"tryAgain": "Tentar novamente"
 		},
 		"recurrence": {
 			"daily_many": "A cada {{count}} dias",

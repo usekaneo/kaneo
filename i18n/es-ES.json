@@ -232,7 +232,10 @@
 			"passwordRequired": "Introduce tu contraseña.",
 			"passwordTooShort": "Usa al menos 8 caracteres.",
 			"disposableEmail": "Usa una dirección de correo permanente. Con direcciones desechables no se pueden crear cuentas.",
-			"continueWithEmail": "Continuar con correo electrónico"
+			"continueWithEmail": "Continuar con correo electrónico",
+			"captchaChecking": "Haciendo una comprobación de seguridad rápida antes de continuar.",
+			"captchaFailed": "La comprobación de seguridad no se ha cargado, así que el inicio de sesión está en pausa. Revisa tu conexión o tu bloqueador de contenido.",
+			"captchaRetry": "Reintentar"
 		},
 		"checkEmail": {
 			"pageTitle": "Verifica tu email",
@@ -390,8 +393,6 @@
 				}
 			},
 			"progress": "Paso {{current}} de {{total}}",
-			"welcome": "Te damos la bienvenida, {{name}}",
-			"settingUp": "Configurando {{name}}",
 			"continue": "Continuar",
 			"signedInAs": "Sesión iniciada como {{email}}",
 			"signOut": "Cerrar sesión",
@@ -407,7 +408,7 @@
 				"title": "Empieza tu primer proyecto",
 				"description": "Añadiremos algunas tareas iniciales para que te orientes. Puedes renombrarlas o eliminarlas cuando quieras.",
 				"label": "Nombre del proyecto",
-				"numbered": "Las tareas se numerarán así"
+				"ticketStart": "Los ID de las tareas empezarán en {{ticket}}."
 			},
 			"invite": {
 				"title": "Trae a tu equipo",
@@ -436,7 +437,6 @@
 				"paymentNote": "Los pagos los procesa Creem."
 			},
 			"ready": {
-				"eyebrow": "Todo listo",
 				"title": "{{name}} está listo",
 				"description": "Esto es lo que hemos configurado. Puedes cambiar cualquier cosa más adelante.",
 				"workspace": "Espacio de trabajo",
@@ -451,9 +451,6 @@
 				"open": "Abrir {{name}}"
 			},
 			"preview": {
-				"live": "Vista previa en directo de {{name}}",
-				"liveNoName": "Vista previa en directo",
-				"ready": "{{name}} está listo",
 				"untitled": "Tu espacio de trabajo"
 			}
 		},
@@ -3831,7 +3828,11 @@
 		},
 		"board": {
 			"reorderFailed": "Could not move task. Please try again.",
-			"keyboardInstructions": "Pulsa Espacio para ver la vista previa y Enter para abrir esta tarea. Usa Alt u Opción con las flechas para moverla."
+			"keyboardInstructions": "Pulsa Espacio para ver la vista previa y Enter para abrir esta tarea. Usa Alt u Opción con las flechas para moverla.",
+			"loadErrorTitle": "Este tablero no se ha cargado",
+			"loadErrorDescription": "Algo salió mal al obtener sus tareas. Revisa tu conexión e inténtalo de nuevo.",
+			"refreshError": "No se pudo actualizar este tablero, así que puede estar desactualizado.",
+			"tryAgain": "Reintentar"
 		},
 		"toolbar": {
 			"search": "Buscar tareas",

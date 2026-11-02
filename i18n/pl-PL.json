@@ -232,7 +232,10 @@
 			"passwordRequired": "Podaj hasło.",
 			"passwordTooShort": "Użyj co najmniej 8 znaków.",
 			"disposableEmail": "Użyj stałego adresu e-mail. Na adresy jednorazowe nie można zakładać kont.",
-			"continueWithEmail": "Kontynuuj z e-mailem"
+			"continueWithEmail": "Kontynuuj z e-mailem",
+			"captchaChecking": "Trwa szybka kontrola bezpieczeństwa, zanim przejdziesz dalej.",
+			"captchaFailed": "Kontrola bezpieczeństwa się nie załadowała, więc logowanie jest wstrzymane. Sprawdź połączenie lub bloker treści.",
+			"captchaRetry": "Spróbuj ponownie"
 		},
 		"checkEmail": {
 			"pageTitle": "Sprawdź e-mail",
@@ -391,8 +394,6 @@
 				}
 			},
 			"progress": "Krok {{current}} z {{total}}",
-			"welcome": "Witaj, {{name}}",
-			"settingUp": "Konfiguracja: {{name}}",
 			"continue": "Dalej",
 			"signedInAs": "Zalogowano jako {{email}}",
 			"signOut": "Wyloguj się",
@@ -408,7 +409,7 @@
 				"title": "Utwórz pierwszy projekt",
 				"description": "Dodamy kilka zadań startowych, które pomogą Ci się zorientować. Możesz je w każdej chwili zmienić lub usunąć.",
 				"label": "Nazwa projektu",
-				"numbered": "Zadania będą numerowane jako"
+				"ticketStart": "Identyfikatory zadań zaczną się od {{ticket}}."
 			},
 			"invite": {
 				"title": "Zaproś swój zespół",
@@ -439,7 +440,6 @@
 				"paymentNote": "Płatności obsługuje Creem."
 			},
 			"ready": {
-				"eyebrow": "Gotowe",
 				"title": "Obszar {{name}} jest gotowy",
 				"description": "Oto, co przygotowaliśmy. Wszystko możesz później zmienić.",
 				"workspace": "Obszar roboczy",
@@ -456,9 +456,6 @@
 				"open": "Otwórz {{name}}"
 			},
 			"preview": {
-				"live": "Podgląd na żywo: {{name}}",
-				"liveNoName": "Podgląd na żywo",
-				"ready": "Obszar {{name}} jest gotowy",
 				"untitled": "Twój obszar roboczy"
 			}
 		},
@@ -4167,7 +4164,11 @@
 		},
 		"board": {
 			"reorderFailed": "Could not move task. Please try again.",
-			"keyboardInstructions": "Naciśnij Spację, aby wyświetlić podgląd, i Enter, aby otworzyć to zadanie. Użyj Alt lub Option ze strzałkami, aby je przenieść."
+			"keyboardInstructions": "Naciśnij Spację, aby wyświetlić podgląd, i Enter, aby otworzyć to zadanie. Użyj Alt lub Option ze strzałkami, aby je przenieść.",
+			"loadErrorTitle": "Ta tablica się nie załadowała",
+			"loadErrorDescription": "Coś poszło nie tak podczas pobierania zadań. Sprawdź połączenie i spróbuj ponownie.",
+			"refreshError": "Nie udało się odświeżyć tablicy, więc może być nieaktualna.",
+			"tryAgain": "Spróbuj ponownie"
 		},
 		"recurrence": {
 			"daily_few": "Co {{count}} dni",

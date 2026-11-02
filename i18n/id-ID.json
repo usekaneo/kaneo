@@ -232,7 +232,10 @@
 			"passwordRequired": "Masukkan kata sandi Anda.",
 			"passwordTooShort": "Gunakan minimal 8 karakter.",
 			"disposableEmail": "Gunakan alamat email permanen. Alamat email sekali pakai tidak dapat digunakan untuk membuat akun.",
-			"continueWithEmail": "Lanjutkan dengan email"
+			"continueWithEmail": "Lanjutkan dengan email",
+			"captchaChecking": "Menjalankan pemeriksaan keamanan singkat sebelum Anda dapat melanjutkan.",
+			"captchaFailed": "Pemeriksaan keamanan tidak termuat, jadi proses masuk dijeda. Periksa koneksi atau pemblokir konten Anda.",
+			"captchaRetry": "Coba lagi"
 		},
 		"checkEmail": {
 			"pageTitle": "Periksa Email Anda",
@@ -388,8 +391,6 @@
 				}
 			},
 			"progress": "Langkah {{current}} dari {{total}}",
-			"welcome": "Selamat datang, {{name}}",
-			"settingUp": "Menyiapkan {{name}}",
 			"continue": "Lanjutkan",
 			"signedInAs": "Masuk sebagai {{email}}",
 			"signOut": "Keluar",
@@ -405,7 +406,7 @@
 				"title": "Mulai proyek pertama Anda",
 				"description": "Kami akan menambahkan beberapa tugas awal untuk memandu Anda. Ganti nama atau hapus kapan saja.",
 				"label": "Nama proyek",
-				"numbered": "Tugas akan diberi nomor"
+				"ticketStart": "ID tugas akan dimulai dari {{ticket}}."
 			},
 			"invite": {
 				"title": "Ajak tim Anda",
@@ -430,7 +431,6 @@
 				"paymentNote": "Pembayaran diproses oleh Creem."
 			},
 			"ready": {
-				"eyebrow": "Semua siap",
 				"title": "{{name}} sudah siap",
 				"description": "Inilah yang kami siapkan. Anda dapat mengubah semuanya nanti.",
 				"workspace": "Ruang kerja",
@@ -441,9 +441,6 @@
 				"open": "Buka {{name}}"
 			},
 			"preview": {
-				"live": "Pratinjau langsung {{name}}",
-				"liveNoName": "Pratinjau langsung",
-				"ready": "{{name}} sudah siap",
 				"untitled": "Ruang kerja Anda"
 			}
 		},
@@ -3690,7 +3687,11 @@
 		},
 		"board": {
 			"reorderFailed": "Could not move task. Please try again.",
-			"keyboardInstructions": "Tekan Spasi untuk pratinjau dan Enter untuk membuka tugas ini. Gunakan Alt atau Option dengan tombol panah untuk memindahkannya."
+			"keyboardInstructions": "Tekan Spasi untuk pratinjau dan Enter untuk membuka tugas ini. Gunakan Alt atau Option dengan tombol panah untuk memindahkannya.",
+			"loadErrorTitle": "Papan ini tidak termuat",
+			"loadErrorDescription": "Terjadi masalah saat mengambil tugasnya. Periksa koneksi Anda dan coba lagi.",
+			"refreshError": "Papan ini tidak dapat diperbarui, jadi mungkin belum terbaru.",
+			"tryAgain": "Coba lagi"
 		},
 		"recurrence": {
 			"daily_other": "Setiap {{count}} hari",

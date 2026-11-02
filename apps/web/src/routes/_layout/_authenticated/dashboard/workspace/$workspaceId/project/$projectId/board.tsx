@@ -5,6 +5,8 @@ import ProjectLayout from "@/components/common/project-layout";
 import KanbanBoard from "@/components/kanban-board";
 import ListView from "@/components/list-view";
 import PageTitle from "@/components/page-title";
+import { BoardLoadError } from "@/components/project/board-load-error";
+import { BoardRefreshError } from "@/components/project/board-refresh-error";
 import { DisplaySection } from "@/components/project/display/display-section";
 import { TaskDisplayOptions } from "@/components/project/display/task-display-options";
 import { ActiveFiltersBar } from "@/components/project/task-filters/active-filters-bar";
@@ -14,6 +16,7 @@ import { useProjectTaskView } from "@/components/project/toolbar/use-project-tas
 import { LayoutSwitch } from "@/components/project/views/layout-switch";
 import CreateTaskModal from "@/components/shared/modals/create-task-modal";
 import TaskDetailsSheet from "@/components/task/task-details-sheet";
+import { Skeleton } from "@/components/ui/skeleton";
 import { useGetTasks } from "@/hooks/queries/task/use-get-tasks";
 import { useBoardSort } from "@/hooks/use-board-sort";
 import { cn } from "@/lib/cn";
@@ -22,6 +25,7 @@ import { countColumnTasks } from "@/lib/task-filters/count-tasks";
 import { useBackgroundStore } from "@/store/background";
 import useProjectStore from "@/store/project";
 import { useUserPreferencesStore } from "@/store/user-preferences";
+import type { ProjectWithTasks } from "@/types/project";
 
 type BoardSearchParams = {
   taskId?: string;
@@ -45,33 +49,34 @@ const skeletonColumns = [
 
 function BoardSkeleton() {
   return (
-    <div className="flex h-full w-full gap-4 p-4 overflow-hidden">
-      {skeletonColumns.map((col) => (
-        <div key={col.key} className="flex w-72 shrink-0 flex-col gap-3">
-          <div className="flex items-center gap-2 px-1">
-            <div className="h-3 w-3 rounded-full bg-muted animate-pulse" />
-            <div className="h-4 w-24 rounded bg-muted animate-pulse" />
-            <div className="h-4 w-5 rounded bg-muted animate-pulse" />
-          </div>
-          <div className="flex flex-col gap-2.5">
-            {Array.from({ length: col.cards }, (_, i) => `${col.key}-${i}`).map(
-              (cardKey) => (
+    <div className="delayed-reveal flex h-full w-full overflow-hidden bg-linear-to-b from-muted/20 to-background">
+      <div className="flex h-full min-w-max gap-4 px-4 py-4 md:px-5">
+        {skeletonColumns.map((col) => (
+          <div
+            key={col.key}
+            className="flex h-full max-w-96 min-w-[min(20rem,calc(100vw-4.5rem))] shrink-0 flex-1 flex-col"
+          >
+            <div className="flex h-8 shrink-0 items-center gap-2 mt-1 pr-2 pl-3">
+              <Skeleton className="size-3.5 rounded-full" />
+              <Skeleton className="h-3 w-24" />
+            </div>
+            <div className="flex flex-col gap-2 px-1.5 pt-1.5">
+              {Array.from(
+                { length: col.cards },
+                (_, i) => `${col.key}-${i}`,
+              ).map((cardKey) => (
                 <div
                   key={cardKey}
-                  className="rounded-lg border border-border bg-card p-3 space-y-2.5"
+                  className="flex flex-col gap-2.5 rounded-[10px] border border-board-card-border bg-board-card p-3"
                 >
-                  <div className="h-3.5 w-4/5 rounded bg-muted animate-pulse" />
-                  <div className="h-3 w-3/5 rounded bg-muted animate-pulse" />
-                  <div className="flex items-center gap-2 pt-1">
-                    <div className="h-5 w-5 rounded-full bg-muted animate-pulse" />
-                    <div className="h-3 w-16 rounded bg-muted animate-pulse" />
-                  </div>
+                  <Skeleton className="h-3 w-12" />
+                  <Skeleton className="h-3.5 w-4/5" />
                 </div>
-              ),
-            )}
+              ))}
+            </div>
           </div>
-        </div>
-      ))}
+        ))}
+      </div>
     </div>
   );
 }
@@ -88,7 +93,9 @@ function RouteComponent() {
     isSuccess: boardLoaded,
     refetch: retryBoard,
   } = useGetTasks(projectId);
-  const { project, setProject } = useProjectStore();
+  const { project: storedProject, setProject } = useProjectStore();
+  const project: ProjectWithTasks | undefined =
+    storedProject?.id === projectId ? storedProject : data;
   const viewMode = useUserPreferencesStore((state) => state.viewMode);
   const [isTaskModalOpen, setIsTaskModalOpen] = useState(false);
   const { sort, setSort } = useBoardSort(projectId);
@@ -198,18 +205,12 @@ function RouteComponent() {
           </p>
         )}
 
-        {boardError && (
-          <p role="alert" className="p-4 text-destructive">
-            {t("tasks:calendar.loadError")}{" "}
-            <button
-              type="button"
-              className="underline"
-              onClick={() => void retryBoard()}
-            >
-              {t("tasks:descriptionRetry")}
-            </button>
-          </p>
-        )}
+        {boardError && sortedProject ? (
+          <BoardRefreshError
+            isRetrying={boardFetching}
+            onRetry={() => void retryBoard()}
+          />
+        ) : null}
         <div
           className={cn("flex h-full flex-1 overflow-hidden", {
             "bg-background": !background,
@@ -218,6 +219,7 @@ function RouteComponent() {
           {sortedProject ? (
             viewMode === "board" ? (
               <KanbanBoard
+                key={projectId}
                 project={sortedProject}
                 disableCollectionActions={boardFetching || boardError}
                 disableDragDrop={
@@ -232,6 +234,7 @@ function RouteComponent() {
               />
             ) : (
               <ListView
+                key={projectId}
                 project={sortedProject}
                 disableCollectionActions={boardFetching || boardError}
                 disableDragDrop={
@@ -239,7 +242,12 @@ function RouteComponent() {
                 }
               />
             )
-          ) : boardError ? null : (
+          ) : boardError ? (
+            <BoardLoadError
+              isRetrying={boardFetching}
+              onRetry={() => void retryBoard()}
+            />
+          ) : (
             <BoardSkeleton />
           )}
         </div>

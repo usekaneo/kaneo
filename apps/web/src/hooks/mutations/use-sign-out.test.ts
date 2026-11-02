@@ -20,13 +20,17 @@ const m = vi.hoisted(() => ({
   drain: vi.fn(),
   clear: vi.fn(),
   clearQueries: vi.fn(),
+  clearMutations: vi.fn(),
 }));
 
 vi.mock("@tanstack/react-query", () => ({
   useMutation: ({ mutationFn }: { mutationFn: () => Promise<unknown> }) => ({
     mutateAsync: mutationFn,
   }),
-  useQueryClient: () => ({ clear: m.clearQueries }),
+  useQueryClient: () => ({
+    removeQueries: m.clearQueries,
+    getMutationCache: () => ({ clear: m.clearMutations }),
+  }),
 }));
 vi.mock("@tanstack/react-router", () => ({ useNavigate: () => m.navigate }));
 vi.mock("@/lib/auth-client", () => ({
@@ -147,10 +151,37 @@ describe("custom OAuth sign-out", () => {
     await result.current.mutateAsync();
 
     expect(m.getIdToken).not.toHaveBeenCalled();
-    expect(m.navigate).toHaveBeenCalledWith({ to: "/auth/sign-in" });
+    expect(m.navigate).toHaveBeenCalledWith({
+      to: "/auth/sign-in",
+      replace: true,
+    });
     expect(signOutState.isRedirecting).toBe(false);
     handleUnauthorized();
     expect(location.replace).toHaveBeenCalledTimes(1);
+  });
+
+  it("leaves the app before ending a local session and returns on failure", async () => {
+    m.signOut.mockImplementation(async () => {
+      expect(m.navigate).toHaveBeenCalledWith({
+        to: "/auth/sign-in",
+        replace: true,
+      });
+      expect(signOutState.isRedirecting).toBe(true);
+      handleUnauthorized();
+      return { error: { message: "Sign-out failed" } };
+    });
+
+    const { result } = renderHook(() => useSignOut());
+    await expect(result.current.mutateAsync()).rejects.toThrow(
+      "Sign-out failed",
+    );
+
+    expect(location.replace).not.toHaveBeenCalled();
+    expect(m.navigate).toHaveBeenLastCalledWith({
+      href: "/dashboard",
+      replace: true,
+    });
+    expect(signOutState.isRedirecting).toBe(false);
   });
 
   it("does not end the session when pending edits cannot be saved", async () => {
@@ -192,18 +223,36 @@ describe("custom OAuth sign-out", () => {
 });
 
 describe("query cache cleanup on sign-out", () => {
-  it("clears the query cache before navigating to sign-in", async () => {
+  it("drops user data once the local session has ended", async () => {
+    m.signOut.mockImplementation(async () => {
+      expect(m.navigate).toHaveBeenCalledWith({
+        to: "/auth/sign-in",
+        replace: true,
+      });
+      expect(m.clearQueries).not.toHaveBeenCalled();
+      return { data: { success: true }, error: null };
+    });
+
     const { result } = renderHook(() => useSignOut());
     await result.current.mutateAsync();
 
     expect(m.clearQueries).toHaveBeenCalledTimes(1);
-    expect(m.navigate).toHaveBeenCalledTimes(1);
+    expect(m.clearMutations).toHaveBeenCalledTimes(1);
     expect(m.clear.mock.invocationCallOrder[0]).toBeLessThan(
       m.clearQueries.mock.invocationCallOrder[0],
     );
-    expect(m.clearQueries.mock.invocationCallOrder[0]).toBeLessThan(
-      m.navigate.mock.invocationCallOrder[0],
-    );
+  });
+
+  it("keeps the config and instance status the auth pages reuse", async () => {
+    const { result } = renderHook(() => useSignOut());
+    await result.current.mutateAsync();
+
+    const { predicate } = m.clearQueries.mock.calls[0][0] as {
+      predicate: (query: { queryKey: unknown[] }) => boolean;
+    };
+    expect(predicate({ queryKey: ["config"] })).toBe(false);
+    expect(predicate({ queryKey: ["instance-status"] })).toBe(false);
+    expect(predicate({ queryKey: ["tasks", "project-1"] })).toBe(true);
   });
 
   it("clears the query cache before redirecting to the IdP", async () => {

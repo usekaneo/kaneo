@@ -232,7 +232,10 @@
 			"passwordRequired": "请输入密码。",
 			"passwordTooShort": "请至少使用 8 个字符。",
 			"disposableEmail": "请使用长期有效的邮箱地址。一次性邮箱无法创建账户。",
-			"continueWithEmail": "使用邮箱继续"
+			"continueWithEmail": "使用邮箱继续",
+			"captchaChecking": "正在进行快速安全检查，完成后即可继续。",
+			"captchaFailed": "安全检查未能加载，因此登录已暂停。请检查网络连接或内容拦截器。",
+			"captchaRetry": "重试"
 		},
 		"checkEmail": {
 			"pageTitle": "请检查你的邮箱",
@@ -388,8 +391,6 @@
 				}
 			},
 			"progress": "第 {{current}} 步，共 {{total}} 步",
-			"welcome": "欢迎，{{name}}",
-			"settingUp": "正在设置 {{name}}",
 			"continue": "继续",
 			"signedInAs": "已登录为 {{email}}",
 			"signOut": "退出登录",
@@ -405,7 +406,7 @@
 				"title": "创建第一个项目",
 				"description": "我们会添加几个入门任务帮你熟悉。你可以随时重命名或删除它们。",
 				"label": "项目名称",
-				"numbered": "任务编号示例"
+				"ticketStart": "任务编号将从 {{ticket}} 开始。"
 			},
 			"invite": {
 				"title": "邀请你的团队",
@@ -430,7 +431,6 @@
 				"paymentNote": "付款由 Creem 处理。"
 			},
 			"ready": {
-				"eyebrow": "一切就绪",
 				"title": "{{name}} 已准备就绪",
 				"description": "以下是我们为你设置的内容，之后都可以修改。",
 				"workspace": "工作区",
@@ -441,9 +441,6 @@
 				"open": "打开 {{name}}"
 			},
 			"preview": {
-				"live": "{{name}} 实时预览",
-				"liveNoName": "实时预览",
-				"ready": "{{name}} 已准备就绪",
 				"untitled": "你的工作区"
 			}
 		},
@@ -3690,7 +3687,11 @@
 		},
 		"board": {
 			"reorderFailed": "无法移动任务，请重试。",
-			"keyboardInstructions": "按空格键预览，按 Enter 打开此任务。按住 Alt 或 Option 并使用方向键移动任务。"
+			"keyboardInstructions": "按空格键预览，按 Enter 打开此任务。按住 Alt 或 Option 并使用方向键移动任务。",
+			"loadErrorTitle": "此看板未能加载",
+			"loadErrorDescription": "获取任务时出错。请检查网络连接后重试。",
+			"refreshError": "无法刷新此看板，内容可能不是最新的。",
+			"tryAgain": "重试"
 		},
 		"recurrence": {
 			"daily_other": "每 {{count}} 天",

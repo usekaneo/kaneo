@@ -232,7 +232,10 @@
 			"passwordRequired": "パスワードを入力してください。",
 			"passwordTooShort": "8文字以上で入力してください。",
 			"disposableEmail": "恒久的なメールアドレスを使用してください。使い捨てのメールアドレスではアカウントを作成できません。",
-			"continueWithEmail": "メールアドレスで続ける"
+			"continueWithEmail": "メールアドレスで続ける",
+			"captchaChecking": "続行する前に簡単なセキュリティチェックを行っています。",
+			"captchaFailed": "セキュリティチェックを読み込めなかったため、サインインを一時停止しています。接続またはコンテンツブロッカーを確認してください。",
+			"captchaRetry": "再試行"
 		},
 		"checkEmail": {
 			"pageTitle": "メールを確認してください",
@@ -388,8 +391,6 @@
 				}
 			},
 			"progress": "ステップ {{current}}/{{total}}",
-			"welcome": "ようこそ、{{name}} さん",
-			"settingUp": "{{name}} をセットアップ中",
 			"continue": "続ける",
 			"signedInAs": "{{email}} でサインイン中",
 			"signOut": "サインアウト",
@@ -405,7 +406,7 @@
 				"title": "最初のプロジェクトを作成しましょう",
 				"description": "使い方がわかるように、いくつかのサンプルタスクを追加します。名前の変更や削除はいつでもできます。",
 				"label": "プロジェクト名",
-				"numbered": "タスク番号の例"
+				"ticketStart": "タスクIDは {{ticket}} から始まります。"
 			},
 			"invite": {
 				"title": "チームを招待しましょう",
@@ -430,7 +431,6 @@
 				"paymentNote": "お支払いは Creem によって処理されます。"
 			},
 			"ready": {
-				"eyebrow": "準備完了",
 				"title": "{{name}} の準備ができました",
 				"description": "以下の内容を設定しました。すべて後から変更できます。",
 				"workspace": "ワークスペース",
@@ -441,9 +441,6 @@
 				"open": "{{name}} を開く"
 			},
 			"preview": {
-				"live": "{{name}} のライブプレビュー",
-				"liveNoName": "ライブプレビュー",
-				"ready": "{{name}} の準備ができました",
 				"untitled": "あなたのワークスペース"
 			}
 		},
@@ -3690,7 +3687,11 @@
 		},
 		"board": {
 			"reorderFailed": "Could not move task. Please try again.",
-			"keyboardInstructions": "Space でプレビュー、Enter でこのタスクを開きます。Alt または Option と矢印キーで移動できます。"
+			"keyboardInstructions": "Space でプレビュー、Enter でこのタスクを開きます。Alt または Option と矢印キーで移動できます。",
+			"loadErrorTitle": "このボードを読み込めませんでした",
+			"loadErrorDescription": "タスクの取得中に問題が発生しました。接続を確認して、もう一度お試しください。",
+			"refreshError": "ボードを更新できなかったため、内容が古い可能性があります。",
+			"tryAgain": "再試行"
 		},
 		"recurrence": {
 			"daily_other": "{{count}}日ごと",

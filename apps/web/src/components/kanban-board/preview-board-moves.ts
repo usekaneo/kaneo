@@ -15,6 +15,7 @@ export function previewBoardMoves(
         move.overId,
         appendOnly,
         move.insertAfterTarget,
+        false,
       )?.project ?? board,
     project,
   );

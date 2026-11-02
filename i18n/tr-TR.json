@@ -232,7 +232,10 @@
 			"passwordRequired": "Parolanızı girin.",
 			"passwordTooShort": "En az 8 karakter kullanın.",
 			"disposableEmail": "Kalıcı bir e-posta adresi kullanın. Geçici adreslerle hesap oluşturulamaz.",
-			"continueWithEmail": "E-posta ile devam et"
+			"continueWithEmail": "E-posta ile devam et",
+			"captchaChecking": "Devam etmeden önce kısa bir güvenlik kontrolü yapılıyor.",
+			"captchaFailed": "Güvenlik kontrolü yüklenmedi, bu yüzden giriş duraklatıldı. Bağlantınızı veya içerik engelleyicinizi kontrol edin.",
+			"captchaRetry": "Tekrar dene"
 		},
 		"checkEmail": {
 			"pageTitle": "E-postanızı Kontrol Edin",
@@ -389,8 +392,6 @@
 				}
 			},
 			"progress": "Adım {{current}} / {{total}}",
-			"welcome": "Hoş geldiniz, {{name}}",
-			"settingUp": "{{name}} hazırlanıyor",
 			"continue": "Devam et",
 			"signedInAs": "{{email}} olarak giriş yapıldı",
 			"signOut": "Çıkış yap",
@@ -406,7 +407,7 @@
 				"title": "İlk projenizi başlatın",
 				"description": "Size yol göstermesi için birkaç başlangıç görevi ekleyeceğiz. Bunları istediğiniz zaman yeniden adlandırabilir veya silebilirsiniz.",
 				"label": "Proje adı",
-				"numbered": "Görevler şöyle numaralandırılacak:"
+				"ticketStart": "Görev kimlikleri {{ticket}} ile başlayacak."
 			},
 			"invite": {
 				"title": "Ekibinizi getirin",
@@ -433,7 +434,6 @@
 				"paymentNote": "Ödemeler Creem tarafından işlenir."
 			},
 			"ready": {
-				"eyebrow": "Her şey hazır",
 				"title": "{{name}} hazır",
 				"description": "Kurduklarımız burada. Hepsini daha sonra değiştirebilirsiniz.",
 				"workspace": "Çalışma alanı",
@@ -446,9 +446,6 @@
 				"open": "{{name}} çalışma alanını aç"
 			},
 			"preview": {
-				"live": "Canlı önizleme: {{name}}",
-				"liveNoName": "Canlı önizleme",
-				"ready": "{{name}} hazır",
 				"untitled": "Çalışma alanınız"
 			}
 		},
@@ -3753,7 +3750,11 @@
 		},
 		"board": {
 			"reorderFailed": "Could not move task. Please try again.",
-			"keyboardInstructions": "Önizleme için Boşluk, bu talebi açmak için Enter tuşuna basın. Taşımak için Alt veya Option ile ok tuşlarını kullanın."
+			"keyboardInstructions": "Önizleme için Boşluk, bu talebi açmak için Enter tuşuna basın. Taşımak için Alt veya Option ile ok tuşlarını kullanın.",
+			"loadErrorTitle": "Bu pano yüklenmedi",
+			"loadErrorDescription": "Görevler alınırken bir sorun oluştu. Bağlantınızı kontrol edip tekrar deneyin.",
+			"refreshError": "Pano yenilenemedi, bu yüzden güncel olmayabilir.",
+			"tryAgain": "Tekrar dene"
 		},
 		"recurrence": {
 			"daily_one": "Her gün",

@@ -232,7 +232,10 @@
 			"passwordRequired": "Gib dein Passwort ein.",
 			"passwordTooShort": "Verwende mindestens 8 Zeichen.",
 			"disposableEmail": "Verwende eine dauerhafte E-Mail-Adresse. Mit Wegwerfadressen können keine Konten erstellt werden.",
-			"continueWithEmail": "Weiter mit E-Mail"
+			"continueWithEmail": "Weiter mit E-Mail",
+			"captchaChecking": "Kurze Sicherheitsprüfung, bevor es weitergeht.",
+			"captchaFailed": "Die Sicherheitsprüfung wurde nicht geladen, daher ist die Anmeldung pausiert. Prüfe deine Verbindung oder deinen Inhaltsblocker.",
+			"captchaRetry": "Erneut versuchen"
 		},
 		"checkEmail": {
 			"pageTitle": "Prüfe deine E-Mails",
@@ -389,8 +392,6 @@
 				}
 			},
 			"progress": "Schritt {{current}} von {{total}}",
-			"welcome": "Willkommen, {{name}}",
-			"settingUp": "{{name}} wird eingerichtet",
 			"continue": "Weiter",
 			"signedInAs": "Angemeldet als {{email}}",
 			"signOut": "Abmelden",
@@ -406,7 +407,7 @@
 				"title": "Starte dein erstes Projekt",
 				"description": "Wir fügen ein paar Startaufgaben hinzu, damit du dich zurechtfindest. Du kannst sie jederzeit umbenennen oder löschen.",
 				"label": "Projektname",
-				"numbered": "Aufgaben werden nummeriert als"
+				"ticketStart": "Aufgaben-IDs beginnen bei {{ticket}}."
 			},
 			"invite": {
 				"title": "Hol dein Team dazu",
@@ -433,7 +434,6 @@
 				"paymentNote": "Zahlungen werden von Creem abgewickelt."
 			},
 			"ready": {
-				"eyebrow": "Alles bereit",
 				"title": "{{name}} ist bereit",
 				"description": "Das haben wir eingerichtet. Du kannst alles später ändern.",
 				"workspace": "Workspace",
@@ -446,9 +446,6 @@
 				"open": "{{name}} öffnen"
 			},
 			"preview": {
-				"live": "Live-Vorschau von {{name}}",
-				"liveNoName": "Live-Vorschau",
-				"ready": "{{name}} ist bereit",
 				"untitled": "Dein Workspace"
 			}
 		},
@@ -3753,7 +3750,11 @@
 		},
 		"board": {
 			"reorderFailed": "Die Reihenfolge konnte nicht gespeichert werden.",
-			"keyboardInstructions": "Drücke die Leertaste für die Vorschau und Enter, um diese Aufgabe zu öffnen. Mit Alt oder Option und den Pfeiltasten verschiebst du sie."
+			"keyboardInstructions": "Drücke die Leertaste für die Vorschau und Enter, um diese Aufgabe zu öffnen. Mit Alt oder Option und den Pfeiltasten verschiebst du sie.",
+			"loadErrorTitle": "Dieses Board wurde nicht geladen",
+			"loadErrorDescription": "Beim Abrufen der Aufgaben ist etwas schiefgelaufen. Prüfe deine Verbindung und versuche es erneut.",
+			"refreshError": "Das Board konnte nicht aktualisiert werden und ist eventuell nicht aktuell.",
+			"tryAgain": "Erneut versuchen"
 		},
 		"recurrence": {
 			"daily_one": "Jeden Tag",

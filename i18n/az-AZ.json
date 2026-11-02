@@ -232,7 +232,10 @@
 			"passwordRequired": "Parolunuzu daxil edin.",
 			"passwordTooShort": "Ən azı 8 simvoldan istifadə edin.",
 			"disposableEmail": "Daimi e-poçt ünvanından istifadə edin. Birdəfəlik ünvanlarla hesab yaratmaq olmur.",
-			"continueWithEmail": "E-poçtla davam et"
+			"continueWithEmail": "E-poçtla davam et",
+			"captchaChecking": "Davam etməzdən əvvəl qısa təhlükəsizlik yoxlaması aparılır.",
+			"captchaFailed": "Təhlükəsizlik yoxlaması yüklənmədi, buna görə giriş dayandırılıb. Bağlantınızı və ya məzmun bloklayıcınızı yoxlayın.",
+			"captchaRetry": "Yenidən cəhd et"
 		},
 		"checkEmail": {
 			"pageTitle": "E-poçtunuzu yoxlayın",
@@ -389,8 +392,6 @@
 				}
 			},
 			"progress": "Addım {{current}} / {{total}}",
-			"welcome": "Xoş gəlmisiniz, {{name}}",
-			"settingUp": "{{name}} hazırlanır",
 			"continue": "Davam et",
 			"signedInAs": "{{email}} kimi daxil olmusunuz",
 			"signOut": "Çıxış",
@@ -406,7 +407,7 @@
 				"title": "İlk layihənizi başladın",
 				"description": "Sizə yol göstərmək üçün bir neçə başlanğıc tapşırığı əlavə edəcəyik. Onların adını istənilən vaxt dəyişə və ya silə bilərsiniz.",
 				"label": "Layihənin adı",
-				"numbered": "Tapşırıqlar belə nömrələnəcək:"
+				"ticketStart": "Tapşırıq ID-ləri {{ticket}} ilə başlayacaq."
 			},
 			"invite": {
 				"title": "Komandanızı gətirin",
@@ -433,7 +434,6 @@
 				"paymentNote": "Ödənişləri Creem emal edir."
 			},
 			"ready": {
-				"eyebrow": "Hər şey hazırdır",
 				"title": "{{name}} hazırdır",
 				"description": "Qurduqlarımız bunlardır. İstənilən vaxt dəyişə bilərsiniz.",
 				"workspace": "İş sahəsi",
@@ -446,9 +446,6 @@
 				"open": "{{name}} iş sahəsini aç"
 			},
 			"preview": {
-				"live": "Canlı önizləmə: {{name}}",
-				"liveNoName": "Canlı önizləmə",
-				"ready": "{{name}} hazırdır",
 				"untitled": "İş sahəniz"
 			}
 		},
@@ -3753,7 +3750,11 @@
 		},
 		"board": {
 			"reorderFailed": "Could not move task. Please try again.",
-			"keyboardInstructions": "Önbaxış üçün Boşluq, bu tapşırığı açmaq üçün Enter düyməsini basın. Köçürmək üçün Alt və ya Option ilə ox düymələrindən istifadə edin."
+			"keyboardInstructions": "Önbaxış üçün Boşluq, bu tapşırığı açmaq üçün Enter düyməsini basın. Köçürmək üçün Alt və ya Option ilə ox düymələrindən istifadə edin.",
+			"loadErrorTitle": "Bu lövhə yüklənmədi",
+			"loadErrorDescription": "Tapşırıqlar alınarkən xəta baş verdi. Bağlantınızı yoxlayın və yenidən cəhd edin.",
+			"refreshError": "Lövhəni yeniləmək mümkün olmadı, ona görə köhnə ola bilər.",
+			"tryAgain": "Yenidən cəhd et"
 		},
 		"recurrence": {
 			"daily_one": "Hər gün",

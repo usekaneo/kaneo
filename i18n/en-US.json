@@ -232,7 +232,10 @@
 			"passwordRequired": "Enter your password.",
 			"passwordTooShort": "Use at least 8 characters.",
 			"disposableEmail": "Use a permanent email address. Disposable addresses cannot create accounts.",
-			"continueWithEmail": "Continue with email"
+			"continueWithEmail": "Continue with email",
+			"captchaChecking": "Running a quick security check before you can continue.",
+			"captchaFailed": "The security check didn't load, so signing in is paused. Check your connection or content blocker.",
+			"captchaRetry": "Try again"
 		},
 		"checkEmail": {
 			"pageTitle": "Check Your Email",
@@ -389,14 +392,12 @@
 				}
 			},
 			"progress": "Step {{current}} of {{total}}",
-			"welcome": "Welcome, {{name}}",
-			"settingUp": "Setting up {{name}}",
 			"continue": "Continue",
 			"signedInAs": "Signed in as {{email}}",
 			"signOut": "Sign out",
 			"workspace": {
 				"title": "Name your workspace",
-				"description": "This is where your projects live. Use your team or company name, you can change it later."
+				"description": "This is where your projects live. Use your team or company name. You can change it later."
 			},
 			"usage": {
 				"title": "Who's it for?",
@@ -406,7 +407,7 @@
 				"title": "Start your first project",
 				"description": "We'll add a few starter tasks to show you around. Rename or delete them anytime.",
 				"label": "Project name",
-				"numbered": "Tasks will be numbered"
+				"ticketStart": "Task IDs will start at {{ticket}}."
 			},
 			"invite": {
 				"title": "Bring your team",
@@ -433,7 +434,6 @@
 				"paymentNote": "Payments are processed by Creem."
 			},
 			"ready": {
-				"eyebrow": "All set",
 				"title": "{{name}} is ready",
 				"description": "Here's what we set up. You can change any of it later.",
 				"workspace": "Workspace",
@@ -446,9 +446,6 @@
 				"open": "Open {{name}}"
 			},
 			"preview": {
-				"live": "Live preview of {{name}}",
-				"liveNoName": "Live preview",
-				"ready": "{{name}} is ready",
 				"untitled": "Your workspace"
 			}
 		},
@@ -3764,7 +3761,11 @@
 		"descriptionLoadError": "The description could not be loaded. Retry to load the current version.",
 		"board": {
 			"reorderFailed": "Could not move task. Please try again.",
-			"keyboardInstructions": "Press Space to preview and Enter to open this task. Use Alt or Option with the arrow keys to move it."
+			"keyboardInstructions": "Press Space to preview and Enter to open this task. Use Alt or Option with the arrow keys to move it.",
+			"loadErrorTitle": "This board didn't load",
+			"loadErrorDescription": "Something went wrong while fetching its tasks. Check your connection and try again.",
+			"refreshError": "Couldn't refresh this board, so it may be out of date.",
+			"tryAgain": "Try again"
 		},
 		"toolbar": {
 			"search": "Search tasks",

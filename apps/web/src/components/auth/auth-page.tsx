@@ -1,4 +1,6 @@
-import type { ReactNode } from "react";
+import { type ReactNode, useEffect, useState } from "react";
+import { cn } from "@/lib/cn";
+import { hasAuthEntered, markAuthEntered } from "./auth-entrance";
 import { AuthLegalFooter } from "./auth-legal-footer";
 
 type AuthPageProps = {
@@ -14,11 +16,25 @@ export function AuthPage({
   notice,
   children,
 }: AuthPageProps) {
+  const [isEntering] = useState(() => !hasAuthEntered());
+
+  useEffect(markAuthEntered, []);
+
   return (
-    <main className="h-svh w-full overflow-y-auto bg-background">
+    <main
+      className={cn(
+        "h-svh w-full overflow-y-auto bg-background",
+        isEntering && "motion-shell-enter",
+      )}
+    >
       <div className="flex min-h-full flex-col items-center">
         <div className="flex w-full grow flex-col items-center justify-center px-4 py-12 sm:px-6">
-          <div className="flex w-full max-w-[360px] flex-col">
+          <div
+            className={cn(
+              "flex w-full max-w-[360px] flex-col",
+              isEntering && "motion-shell-rise",
+            )}
+          >
             <div className="flex flex-col gap-5 pb-8">
               <img
                 src="/favicon.svg"

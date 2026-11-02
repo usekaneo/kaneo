@@ -55,9 +55,13 @@ function TaskCardContent({
   onDragTouchStart,
 }: TaskCardContentProps) {
   const { t } = useTranslation();
-  const { project } = useProjectStore();
+  const columns = useProjectStore((state) =>
+    isFinalColumn === undefined ? state.project?.columns : undefined,
+  );
+  const projectId = useProjectStore((state) => state.project?.id);
+  const projectSlug = useProjectStore((state) => state.project?.slug);
   const taskIsCompleted =
-    isFinalColumn ?? isTaskCompleted(task.status, project?.columns);
+    isFinalColumn ?? isTaskCompleted(task.status, columns);
   const hasPriority = Boolean(task.priority) && task.priority !== "no-priority";
   const { data: workspace } = useActiveWorkspace();
   const workspaceId = workspace?.id ?? "";
@@ -159,7 +163,7 @@ function TaskCardContent({
                           : "text-board-id",
                       )}
                     >
-                      {project?.slug}-{task.number}
+                      {projectSlug}-{task.number}
                     </span>
                   )}
                 </div>
@@ -215,11 +219,11 @@ function TaskCardContent({
           </div>
         </ContextMenuTrigger>
 
-        {hasOpenedMenu && project && workspace && (
+        {hasOpenedMenu && projectId && workspace && (
           <TaskCardContextMenuContent
             task={task}
             taskCardContext={{
-              projectId: project.id,
+              projectId,
               worskpaceId: workspace.id,
               workspaceSlug: workspace.slug,
             }}

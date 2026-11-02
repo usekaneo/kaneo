@@ -232,7 +232,10 @@
 			"passwordRequired": "Inserisci la tua password.",
 			"passwordTooShort": "Usa almeno 8 caratteri.",
 			"disposableEmail": "Usa un indirizzo email permanente. Con gli indirizzi usa e getta non è possibile creare account.",
-			"continueWithEmail": "Continua con l'email"
+			"continueWithEmail": "Continua con l'email",
+			"captchaChecking": "Breve controllo di sicurezza prima di continuare.",
+			"captchaFailed": "Il controllo di sicurezza non è stato caricato, quindi l'accesso è in pausa. Controlla la connessione o il blocco contenuti.",
+			"captchaRetry": "Riprova"
 		},
 		"checkEmail": {
 			"pageTitle": "Controlla la tua Email",
@@ -390,8 +393,6 @@
 				}
 			},
 			"progress": "Passaggio {{current}} di {{total}}",
-			"welcome": "Ti diamo il benvenuto, {{name}}",
-			"settingUp": "Configurazione di {{name}}",
 			"continue": "Continua",
 			"signedInAs": "Accesso effettuato come {{email}}",
 			"signOut": "Esci",
@@ -407,7 +408,7 @@
 				"title": "Avvia il tuo primo progetto",
 				"description": "Aggiungeremo alcune attività iniziali per aiutarti a orientarti. Rinominale o eliminale quando vuoi.",
 				"label": "Nome del progetto",
-				"numbered": "Le attività saranno numerate"
+				"ticketStart": "Gli ID delle attività partiranno da {{ticket}}."
 			},
 			"invite": {
 				"title": "Porta il tuo team",
@@ -436,7 +437,6 @@
 				"paymentNote": "I pagamenti sono gestiti da Creem."
 			},
 			"ready": {
-				"eyebrow": "Tutto pronto",
 				"title": "{{name}} è pronto",
 				"description": "Ecco cosa abbiamo configurato. Puoi modificare tutto in seguito.",
 				"workspace": "Workspace",
@@ -451,9 +451,6 @@
 				"open": "Apri {{name}}"
 			},
 			"preview": {
-				"live": "Anteprima dal vivo di {{name}}",
-				"liveNoName": "Anteprima dal vivo",
-				"ready": "{{name}} è pronto",
 				"untitled": "Il tuo workspace"
 			}
 		},
@@ -3816,7 +3813,11 @@
 		},
 		"board": {
 			"reorderFailed": "Could not move task. Please try again.",
-			"keyboardInstructions": "Premi Spazio per l'anteprima e Invio per aprire questa attività. Usa Alt o Opzione con le frecce per spostarla."
+			"keyboardInstructions": "Premi Spazio per l'anteprima e Invio per aprire questa attività. Usa Alt o Opzione con le frecce per spostarla.",
+			"loadErrorTitle": "Questa bacheca non è stata caricata",
+			"loadErrorDescription": "Si è verificato un problema durante il recupero delle attività. Controlla la connessione e riprova.",
+			"refreshError": "Impossibile aggiornare la bacheca, potrebbe non essere aggiornata.",
+			"tryAgain": "Riprova"
 		},
 		"recurrence": {
 			"daily_many": "Ogni {{count}} giorni",

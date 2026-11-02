@@ -12,6 +12,7 @@ import { requireWorkspacePermission } from "../utils/require-workspace-permissio
 import { workspaceAccess } from "../utils/workspace-access-middleware";
 import createExternalLink from "./controllers/create-external-link";
 import deleteExternalLink from "./controllers/delete-external-link";
+import updateExternalLink from "./controllers/update-external-link";
 import {
   createdExternalLinkSchema,
   deletedExternalLinkSchema,
@@ -21,6 +22,7 @@ import {
   createExternalLinkBody,
   deleteExternalLinkParam,
   taskIdParam,
+  updateExternalLinkBody,
 } from "./schema";
 
 const createExternalLinkRoute = createRoute({
@@ -29,7 +31,8 @@ const createExternalLinkRoute = createRoute({
   path: "/task/{taskId}",
   tags: ["External Links"],
   summary: "Create an external link",
-  description: "Add a resource link to a task",
+  description:
+    'Add a resource link to a task. Pass `resourceType: "pull_request"` with `metadata` to show the link as a pull request with its status.',
   middleware: [
     workspaceAccess.fromTaskId("taskId"),
     requireWorkspacePermission({ task: ["update"] }),
@@ -54,6 +57,34 @@ const createExternalLinkRoute = createRoute({
     401: errorResponse("Unauthorized"),
     403: errorResponse("No permission to update the task"),
     404: errorResponse("Task not found"),
+  },
+});
+
+const updateExternalLinkRoute = createRoute({
+  method: "patch",
+  operationId: "updateExternalLink",
+  path: "/task/{taskId}/{id}",
+  tags: ["External Links"],
+  summary: "Update a manual link",
+  description:
+    "Change the title of a manually added link, or the status of a manually added pull request link. Integration-managed links cannot be changed through this endpoint.",
+  middleware: [
+    workspaceAccess.fromTaskId("taskId"),
+    requireWorkspacePermission({ task: ["update"] }),
+  ] as const,
+  request: {
+    params: deleteExternalLinkParam,
+    body: {
+      required: true,
+      content: { "application/json": { schema: updateExternalLinkBody } },
+    },
+  },
+  responses: {
+    200: jsonResponse("Link updated", createdExternalLinkSchema),
+    400: errorResponse("Invalid link data"),
+    401: errorResponse("Unauthorized"),
+    403: errorResponse("No permission to update the task"),
+    404: errorResponse("Task or manual resource link not found"),
   },
 });
 
@@ -102,12 +133,14 @@ const getExternalLinksByTaskRoute = createRoute({
 const externalLink = apiRouter<BaseVariables & { workspaceId: string }>()
   .openapi(createExternalLinkRoute, async (c) => {
     const { taskId } = c.req.valid("param");
-    const { url, title } = c.req.valid("json");
+    const { url, title, resourceType, metadata } = c.req.valid("json");
 
     const link = await createExternalLink({
       taskId,
       url,
       title,
+      resourceType,
+      metadata,
       userId: c.get("userId"),
     });
 
@@ -116,6 +149,21 @@ const externalLink = apiRouter<BaseVariables & { workspaceId: string }>()
         ...link,
         metadata: link.metadata ? JSON.parse(link.metadata) : null,
       },
+      200,
+    );
+  })
+  .openapi(updateExternalLinkRoute, async (c) => {
+    const { taskId, id } = c.req.valid("param");
+    const { title, metadata } = c.req.valid("json");
+    const link = await updateExternalLink({
+      taskId,
+      id,
+      title,
+      metadata,
+      userId: c.get("userId"),
+    });
+    return c.json(
+      { ...link, metadata: link.metadata ? JSON.parse(link.metadata) : null },
       200,
     );
   })

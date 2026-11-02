@@ -88,16 +88,16 @@ vi.mock(
   }),
 );
 
-vi.mock("@/store/project", () => ({
-  default: (
-    selector?: (state: {
-      project: { id: string; slug: string; columns: never[] };
-    }) => unknown,
-  ) => {
-    const state = { project: { id: "project-1", slug: "kan", columns: [] } };
-    return selector ? selector(state) : state;
-  },
-}));
+vi.mock("@/store/project", () => {
+  const state = { project: { id: "project-1", slug: "kan", columns: [] } };
+  return {
+    default: Object.assign(
+      (selector?: (value: typeof state) => unknown) =>
+        selector ? selector(state) : state,
+      { getState: () => state },
+    ),
+  };
+});
 
 vi.mock("@/store/user-preferences", () => ({
   useUserPreferencesStore: () => ({

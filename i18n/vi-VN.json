@@ -232,7 +232,10 @@
 			"passwordRequired": "Nhập mật khẩu của bạn.",
 			"passwordTooShort": "Dùng ít nhất 8 ký tự.",
 			"disposableEmail": "Hãy dùng địa chỉ email cố định. Không thể tạo tài khoản bằng địa chỉ email dùng một lần.",
-			"continueWithEmail": "Tiếp tục với email"
+			"continueWithEmail": "Tiếp tục với email",
+			"captchaChecking": "Đang kiểm tra bảo mật nhanh trước khi bạn tiếp tục.",
+			"captchaFailed": "Không tải được bước kiểm tra bảo mật nên việc đăng nhập đang tạm dừng. Hãy kiểm tra kết nối hoặc trình chặn nội dung.",
+			"captchaRetry": "Thử lại"
 		},
 		"checkEmail": {
 			"pageTitle": "Kiểm tra email",
@@ -388,8 +391,6 @@
 				}
 			},
 			"progress": "Bước {{current}}/{{total}}",
-			"welcome": "Chào mừng, {{name}}",
-			"settingUp": "Đang thiết lập {{name}}",
 			"continue": "Tiếp tục",
 			"signedInAs": "Đăng nhập với tư cách {{email}}",
 			"signOut": "Đăng xuất",
@@ -405,7 +406,7 @@
 				"title": "Bắt đầu dự án đầu tiên",
 				"description": "Chúng tôi sẽ thêm vài công việc mẫu để hướng dẫn bạn. Bạn có thể đổi tên hoặc xóa chúng bất cứ lúc nào.",
 				"label": "Tên dự án",
-				"numbered": "Công việc sẽ được đánh số"
+				"ticketStart": "ID công việc sẽ bắt đầu từ {{ticket}}."
 			},
 			"invite": {
 				"title": "Mời nhóm của bạn",
@@ -430,7 +431,6 @@
 				"paymentNote": "Thanh toán được xử lý bởi Creem."
 			},
 			"ready": {
-				"eyebrow": "Đã sẵn sàng",
 				"title": "{{name}} đã sẵn sàng",
 				"description": "Đây là những gì chúng tôi đã thiết lập. Bạn có thể thay đổi bất cứ lúc nào.",
 				"workspace": "Không gian làm việc",
@@ -441,9 +441,6 @@
 				"open": "Mở {{name}}"
 			},
 			"preview": {
-				"live": "Xem trước trực tiếp {{name}}",
-				"liveNoName": "Xem trước trực tiếp",
-				"ready": "{{name}} đã sẵn sàng",
 				"untitled": "Không gian làm việc của bạn"
 			}
 		},
@@ -3690,7 +3687,11 @@
 		},
 		"board": {
 			"reorderFailed": "Could not move task. Please try again.",
-			"keyboardInstructions": "Nhấn Space để xem trước và Enter để mở công việc này. Dùng Alt hoặc Option với phím mũi tên để di chuyển."
+			"keyboardInstructions": "Nhấn Space để xem trước và Enter để mở công việc này. Dùng Alt hoặc Option với phím mũi tên để di chuyển.",
+			"loadErrorTitle": "Không tải được bảng này",
+			"loadErrorDescription": "Đã xảy ra lỗi khi lấy công việc. Hãy kiểm tra kết nối và thử lại.",
+			"refreshError": "Không thể làm mới bảng này nên có thể chưa được cập nhật.",
+			"tryAgain": "Thử lại"
 		},
 		"recurrence": {
 			"daily_other": "Mỗi {{count}} ngày",

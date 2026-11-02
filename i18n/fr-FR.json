@@ -232,7 +232,10 @@
 			"passwordRequired": "Saisissez votre mot de passe.",
 			"passwordTooShort": "Utilisez au moins 8 caractères.",
 			"disposableEmail": "Utilisez une adresse e-mail permanente. Les adresses jetables ne permettent pas de créer un compte.",
-			"continueWithEmail": "Continuer avec l'e-mail"
+			"continueWithEmail": "Continuer avec l'e-mail",
+			"captchaChecking": "Vérification de sécurité rapide avant de continuer.",
+			"captchaFailed": "La vérification de sécurité ne s'est pas chargée, la connexion est donc en pause. Vérifiez votre connexion ou votre bloqueur de contenu.",
+			"captchaRetry": "Réessayer"
 		},
 		"checkEmail": {
 			"pageTitle": "Vérifier vos mails",
@@ -390,8 +393,6 @@
 				}
 			},
 			"progress": "Étape {{current}} sur {{total}}",
-			"welcome": "Bienvenue, {{name}}",
-			"settingUp": "Configuration de {{name}}",
 			"continue": "Continuer",
 			"signedInAs": "Connecté en tant que {{email}}",
 			"signOut": "Se déconnecter",
@@ -407,7 +408,7 @@
 				"title": "Lancez votre premier projet",
 				"description": "Nous ajouterons quelques tâches de démarrage pour vous guider. Renommez-les ou supprimez-les à tout moment.",
 				"label": "Nom du projet",
-				"numbered": "Les tâches seront numérotées"
+				"ticketStart": "Les identifiants des tâches commenceront à {{ticket}}."
 			},
 			"invite": {
 				"title": "Invitez votre équipe",
@@ -436,7 +437,6 @@
 				"paymentNote": "Les paiements sont traités par Creem."
 			},
 			"ready": {
-				"eyebrow": "Tout est prêt",
 				"title": "{{name}} est prêt",
 				"description": "Voici ce que nous avons configuré. Vous pourrez tout modifier plus tard.",
 				"workspace": "Espace de travail",
@@ -451,9 +451,6 @@
 				"open": "Ouvrir {{name}}"
 			},
 			"preview": {
-				"live": "Aperçu en direct de {{name}}",
-				"liveNoName": "Aperçu en direct",
-				"ready": "{{name}} est prêt",
 				"untitled": "Votre espace de travail"
 			}
 		},
@@ -3816,7 +3813,11 @@
 		},
 		"board": {
 			"reorderFailed": "Impossible de déplacer la tâche. Veuillez réessayer.",
-			"keyboardInstructions": "Appuyez sur Espace pour l'aperçu et sur Entrée pour ouvrir cette tâche. Utilisez Alt ou Option avec les flèches pour la déplacer."
+			"keyboardInstructions": "Appuyez sur Espace pour l'aperçu et sur Entrée pour ouvrir cette tâche. Utilisez Alt ou Option avec les flèches pour la déplacer.",
+			"loadErrorTitle": "Ce tableau ne s'est pas chargé",
+			"loadErrorDescription": "Un problème est survenu lors de la récupération des tâches. Vérifiez votre connexion et réessayez.",
+			"refreshError": "Impossible d'actualiser ce tableau, il n'est peut-être pas à jour.",
+			"tryAgain": "Réessayer"
 		},
 		"recurrence": {
 			"daily_many": "Tous les {{count}} jours",

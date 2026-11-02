@@ -232,7 +232,10 @@
 			"passwordRequired": "請輸入密碼。",
 			"passwordTooShort": "請至少使用 8 個字元。",
 			"disposableEmail": "請使用長期有效的電子郵件地址。拋棄式地址無法建立帳號。",
-			"continueWithEmail": "使用電子郵件繼續"
+			"continueWithEmail": "使用電子郵件繼續",
+			"captchaChecking": "正在進行快速安全檢查，完成後即可繼續。",
+			"captchaFailed": "安全檢查未能載入，因此登入已暫停。請檢查網路連線或內容封鎖器。",
+			"captchaRetry": "重試"
 		},
 		"checkEmail": {
 			"pageTitle": "請查看你的電子郵件",
@@ -388,8 +391,6 @@
 				}
 			},
 			"progress": "第 {{current}} 步，共 {{total}} 步",
-			"welcome": "歡迎，{{name}}",
-			"settingUp": "正在設定 {{name}}",
 			"continue": "繼續",
 			"signedInAs": "已登入為 {{email}}",
 			"signOut": "登出",
@@ -405,7 +406,7 @@
 				"title": "建立第一個專案",
 				"description": "我們會加入幾個入門任務，幫助你熟悉操作。你可以隨時重新命名或刪除。",
 				"label": "專案名稱",
-				"numbered": "任務編號範例"
+				"ticketStart": "任務編號將從 {{ticket}} 開始。"
 			},
 			"invite": {
 				"title": "邀請你的團隊",
@@ -430,7 +431,6 @@
 				"paymentNote": "付款由 Creem 處理。"
 			},
 			"ready": {
-				"eyebrow": "一切就緒",
 				"title": "{{name}} 已準備就緒",
 				"description": "以下是我們為你設定的內容，之後都可以修改。",
 				"workspace": "工作區",
@@ -441,9 +441,6 @@
 				"open": "開啟 {{name}}"
 			},
 			"preview": {
-				"live": "{{name}} 即時預覽",
-				"liveNoName": "即時預覽",
-				"ready": "{{name}} 已準備就緒",
 				"untitled": "你的工作區"
 			}
 		},
@@ -3690,7 +3687,11 @@
 		},
 		"board": {
 			"reorderFailed": "無法移動任務，請再試一次。",
-			"keyboardInstructions": "按空白鍵預覽，按 Enter 開啟此任務。按住 Alt 或 Option 並使用方向鍵移動任務。"
+			"keyboardInstructions": "按空白鍵預覽，按 Enter 開啟此任務。按住 Alt 或 Option 並使用方向鍵移動任務。",
+			"loadErrorTitle": "此看板未能載入",
+			"loadErrorDescription": "取得任務時發生錯誤。請檢查網路連線後再試一次。",
+			"refreshError": "無法重新整理此看板，內容可能不是最新的。",
+			"tryAgain": "重試"
 		},
 		"recurrence": {
 			"daily_other": "每 {{count}} 天",
