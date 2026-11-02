@@ -25,22 +25,18 @@ const prioritySchema = z.enum([
   "urgent",
 ]);
 
-// Keep in step with apps/api/src/contact/options.ts.
-const contactTypeSchema = z.enum([
-  "retailer",
-  "distributor",
-  "end-user",
-  "partner",
-  "other",
-]);
-const contactRegionSchema = z.enum([
-  "male",
-  "hulhumale",
-  "north-atolls",
-  "central-atolls",
-  "south-atolls",
-  "other",
-]);
+// Types and locations are editable per workspace: pass an option's key or label
+// (see list_contact_options); the API validates them.
+const contactTypeSchema = z
+  .string()
+  .trim()
+  .min(1)
+  .describe("Contact type: an option key or label from list_contact_options");
+const contactRegionSchema = z
+  .string()
+  .trim()
+  .min(1)
+  .describe("Location: an option key or label from list_contact_options");
 
 const nonEmptyString = z.string().trim().min(1);
 const optionalNonEmptyString = nonEmptyString.optional();
@@ -707,10 +703,25 @@ export function registerTools(
   );
 
   registerTool(
+    "list_contact_options",
+    {
+      description:
+        "List a workspace's contact types and locations (regions) in display order, each with its key, label, and the number of contacts using it. Use a key or label as the type or region of list_contacts and create_contact.",
+      inputSchema: z.object({ workspaceId: nonEmptyString }),
+    },
+    async (args) =>
+      run(() =>
+        client.json(
+          `/api/contact/workspace/${encodeURIComponent(args.workspaceId)}/options`,
+        ),
+      ),
+  );
+
+  registerTool(
     "list_contacts",
     {
       description:
-        "List the workspace's shared sales contacts, optionally filtered by search text (name, phone, email), type, or region. Each has a leadCount of linked tasks.",
+        "List the workspace's shared sales contacts, optionally filtered by search text (name, phone, email), type, or region (an option key or label; see list_contact_options). Each has a leadCount of linked tasks, its type and region keys, and typeLabel/regionLabel (null when not set).",
       inputSchema: z.object({
         workspaceId: nonEmptyString,
         search: optionalNonEmptyString,
@@ -736,7 +747,7 @@ export function registerTools(
     "create_contact",
     {
       description:
-        "Add a shared sales contact to a workspace. Type and region default to 'other'. Link leads to it with create_task (contactId) or set_task_contact.",
+        "Add a shared sales contact to a workspace. Type and region are optional (key or label from list_contact_options; an unknown value is rejected with the valid choices) and stay not set when omitted. Link leads to it with create_task (contactId) or set_task_contact.",
       inputSchema: z.object({
         workspaceId: nonEmptyString,
         name: nonEmptyString,

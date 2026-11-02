@@ -2,13 +2,13 @@ import { describe, expect, it } from "vite-plus/test";
 import { formFromContact, isFormValid, toFields } from "./contact-form";
 
 describe("contact form", () => {
-  it("starts blank with the neutral type and region", () => {
+  it("starts blank with no type or location", () => {
     expect(formFromContact(null)).toEqual({
       name: "",
       phone: "",
       email: "",
-      type: "other",
-      region: "other",
+      type: "",
+      region: "",
       notes: "",
     });
   });
@@ -20,6 +20,15 @@ describe("contact form", () => {
       phone: null,
       email: null,
       notes: null,
+    });
+  });
+
+  it("sends a chosen option key and null when none is chosen", () => {
+    const base = { ...formFromContact(null), name: "Ali" };
+    expect(toFields(base)).toMatchObject({ type: null, region: null });
+    expect(toFields({ ...base, type: "partner", region: "x1" })).toMatchObject({
+      type: "partner",
+      region: "x1",
     });
   });
 

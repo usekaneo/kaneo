@@ -10,9 +10,20 @@ Contacts is a light, shared address book for sales. A **lead** is not a new kind
 1. Open **Contacts** in the sidebar.
 2. Choose **Add contact**.
 3. Enter a name. Optionally add a phone number, an email address and notes.
-4. Choose a **type** (retailer, distributor, end user, partner or other) and the **region** where the contact operates, then save.
+4. Optionally choose a **type** and a **location**, then save. Locations can run to hundreds of islands, so that picker is searchable: start typing a name. A contact with neither shows an em dash (—), meaning not set.
 
-Everyone in the workspace shares the same list. Search by name, phone or email, and filter by type and region. The **Leads** column counts the tasks linked to each contact that you can open. Type and region come from fixed lists so filtering stays clean.
+Everyone in the workspace shares the same list. Search by name, phone or email, and filter by type and location. The **Leads** column counts the tasks linked to each contact that you can open. Types and locations come from lists you control, so filtering stays clean.
+
+## Manage types and locations
+
+Workspace owners and admins edit the lists under **Settings, Workspace, Contacts**. There are two cards, **Contact types** and **Locations**. A new workspace starts with the types Retailer, Distributor, End user, Partner and Other, and the locations Malé, Hulhumalé, North atolls, Central atolls, South atolls and Other.
+
+- **Rename:** click a name, type, and press Enter or click away to save. Press Escape to cancel. Contacts keep their type or location when you rename it, and every contact shows the new name.
+- **Reorder:** use the up and down buttons. The order is the one people see in the pickers.
+- **Add:** type a name in the add field. To add many at once, paste into **Add several**, one name per line. Blank lines, repeats (ignoring capitals) and names already in the list are skipped, and you see how many were added and skipped. A single paste can hold any number of lines; a list holds up to 2000 entries.
+- **Delete:** the confirmation says how many contacts use it. Those contacts keep everything else but become not set. Deleting does not touch tasks. You cannot delete the last entry of a list, so there is always something to choose. To undo a delete, add the name again; contacts that lost it stay not set.
+
+Everyone who can read the workspace can use the lists when adding or editing a contact; only owners and admins (the **manage settings** permission) can change them.
 
 ## Turn a task into a lead
 
@@ -43,4 +54,4 @@ The timeline and the lead counts leave out leads in projects you cannot open. Co
 
 ## Automate it
 
-The API and the MCP server expose contacts, so a chat bot or an AI assistant can add contacts and leads. See the [MCP guide](/core/integrations/mcp) and the **Contacts** endpoints in the API reference. Create a lead with `create_task` and a `contactId`, link an existing task with `set_task_contact`, and log an interaction with `create_task_comment`.
+The API and the MCP server expose contacts, so a chat bot or an AI assistant can add contacts and leads. See the [MCP guide](/core/integrations/mcp) and the **Contacts** endpoints in the API reference. `list_contact_options` returns the type and location keys and labels; `create_contact` and `list_contacts` accept either the key or the label (any capitalisation) and reject unknown values with the valid choices. Contacts come back with `typeLabel` and `regionLabel` next to the keys. The options have their own endpoints for listing, adding (one or many), renaming, reordering and deleting. Create a lead with `create_task` and a `contactId`, link an existing task with `set_task_contact`, and log an interaction with `create_task_comment`.

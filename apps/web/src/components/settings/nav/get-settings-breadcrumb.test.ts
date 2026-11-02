@@ -7,6 +7,7 @@ const nav = buildSettingsNav({
   workspaceName: "Acme",
   billingEnabled: false,
   canImport: false,
+  canManageContactOptions: false,
   hasAdminAccess: true,
   projects: [{ id: "p1", name: "Kaneo Web" }],
 });

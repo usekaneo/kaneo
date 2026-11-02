@@ -2,6 +2,7 @@ import {
   Bell,
   Building2,
   Code,
+  Contact,
   CreditCard,
   Import,
   KeyRound,
@@ -25,6 +26,7 @@ type BuildSettingsNavInput = {
   workspaceName?: string;
   billingEnabled: boolean;
   canImport: boolean;
+  canManageContactOptions: boolean;
   hasAdminAccess: boolean;
   projects: { id: string; name: string; icon?: string | null }[];
 };
@@ -63,6 +65,7 @@ export function buildSettingsNav({
   workspaceName,
   billingEnabled,
   canImport,
+  canManageContactOptions,
   hasAdminAccess,
   projects,
 }: BuildSettingsNavInput): SettingsNav {
@@ -125,6 +128,16 @@ export function buildSettingsNav({
           to: "/dashboard/settings/workspace/labels",
           icon: Tag,
         },
+        ...(canManageContactOptions
+          ? [
+              {
+                id: "workspace-contacts",
+                label: t("settings:workspaceContacts.title"),
+                to: "/dashboard/settings/workspace/contacts",
+                icon: Contact,
+              },
+            ]
+          : []),
         ...(canImport
           ? [
               {

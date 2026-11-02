@@ -15,19 +15,15 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import type { Contact } from "@/fetchers/contact";
+import { useContactOptions } from "@/hooks/queries/contact/use-contact-options";
 import { useContacts } from "@/hooks/queries/contact/use-contacts";
 import { ContactDeleteDialog } from "./contact-delete-dialog";
 import { ContactDialog } from "./contact-dialog";
 import { ContactTimelineSheet } from "./contact-timeline-sheet";
+import { ContactLocationCombobox } from "./contact-location-combobox";
+import { contactOptionItems } from "./contact-option-items";
 import { ContactOptionSelect } from "./contact-option-select";
-import {
-  CONTACT_REGIONS,
-  CONTACT_TYPES,
-  contactRegionKey,
-  contactTypeKey,
-} from "./contact-options";
-
-const ALL = "all";
+import { ContactOptionValue } from "./contact-option-value";
 
 type ContactsPanelProps = {
   workspaceId: string;
@@ -46,8 +42,10 @@ export function ContactsPanel({
 }: ContactsPanelProps) {
   const { t } = useTranslation();
   const [search, setSearch] = useState("");
-  const [type, setType] = useState(ALL);
-  const [region, setRegion] = useState(ALL);
+  // Option keys; "" means no filter.
+  const [type, setType] = useState("");
+  const [region, setRegion] = useState("");
+  const { data: options } = useContactOptions(workspaceId);
   const [dialog, setDialog] = useState<DialogState>({
     open: false,
     contact: null,
@@ -63,13 +61,13 @@ export function ContactsPanel({
     refetch,
   } = useContacts(workspaceId, {
     search: search.trim(),
-    type: CONTACT_TYPES.find((option) => option === type),
-    region: CONTACT_REGIONS.find((option) => option === region),
+    type,
+    region,
   });
 
   const openDialog = (contact: Contact | null) =>
     setDialog((current) => ({ open: true, contact, key: current.key + 1 }));
-  const filtered = search.trim() !== "" || type !== ALL || region !== ALL;
+  const filtered = search.trim() !== "" || type !== "" || region !== "";
 
   const addButton = canCreate ? (
     <Button
@@ -110,26 +108,22 @@ export function ContactsPanel({
           <ContactOptionSelect
             size="sm"
             value={type}
-            options={[ALL, ...CONTACT_TYPES]}
-            labelKey={(option) =>
-              option === ALL
-                ? "workspace:contacts.allTypes"
-                : contactTypeKey(option)
-            }
+            items={contactOptionItems(
+              options?.types ?? [],
+              t("workspace:contacts.allTypes"),
+            )}
             label={t("workspace:contacts.type")}
             onValueChange={setType}
           />
         </div>
         <div className="w-44">
-          <ContactOptionSelect
+          <ContactLocationCombobox
             size="sm"
             value={region}
-            options={[ALL, ...CONTACT_REGIONS]}
-            labelKey={(option) =>
-              option === ALL
-                ? "workspace:contacts.allRegions"
-                : contactRegionKey(option)
-            }
+            items={contactOptionItems(
+              options?.regions ?? [],
+              t("workspace:contacts.allRegions"),
+            )}
             label={t("workspace:contacts.region")}
             onValueChange={setRegion}
           />
@@ -201,8 +195,12 @@ export function ContactsPanel({
                       {contact.name}
                     </button>
                   </TableCell>
-                  <TableCell>{t(contactTypeKey(contact.type))}</TableCell>
-                  <TableCell>{t(contactRegionKey(contact.region))}</TableCell>
+                  <TableCell>
+                    <ContactOptionValue label={contact.typeLabel} />
+                  </TableCell>
+                  <TableCell>
+                    <ContactOptionValue label={contact.regionLabel} />
+                  </TableCell>
                   <TableCell>
                     {contact.phone ? (
                       <a

@@ -438,6 +438,20 @@ describe("registerTools", () => {
       "/api/contact/workspace/ws-1?search=ali&region=male",
     );
 
+    await tools.get("list_contact_options")?.handler({ workspaceId: "ws-1" });
+    expect(client.json).toHaveBeenCalledWith(
+      "/api/contact/workspace/ws-1/options",
+    );
+
+    await tools.get("list_contacts")?.handler({
+      workspaceId: "ws-1",
+      type: "End user",
+      region: "Hulhumalé",
+    });
+    expect(client.json).toHaveBeenCalledWith(
+      `/api/contact/workspace/ws-1?${new URLSearchParams({ type: "End user", region: "Hulhumalé" })}`,
+    );
+
     await tools
       .get("create_contact")
       ?.handler({ workspaceId: "ws-1", name: "Ali", type: "retailer" });
@@ -461,10 +475,10 @@ describe("registerTools", () => {
       body: JSON.stringify({ contactId: null }),
     });
 
-    const invalid = await tools
+    const blank = await tools
       .get("create_contact")
-      ?.handler({ workspaceId: "ws-1", name: "X", region: "mars" });
-    expect(invalid?.isError).toBe(true);
+      ?.handler({ workspaceId: "ws-1", name: "X", region: "  " });
+    expect(blank?.isError).toBe(true);
   });
 
   it("creates a task relation with the expected body", async () => {
