@@ -119,7 +119,7 @@ For headless or sandboxed environments where opening a browser is impractical, s
 - Search: `search`
 - Projects: `list_projects`, `get_project`, `create_project`, `update_project`, `list_project_columns`
 - Tasks: `list_tasks`, `get_task`, `get_task_by_ticket_id`, `create_task`, `update_task`, `delete_task`, `move_task`, `update_task_status`, `update_task_assignee`, `update_task_due_date`, `update_task_recurrence`, `list_task_activity`
-- Contacts and leads: `list_contacts`, `create_contact`, `get_contact_timeline`, `set_task_contact`
+- Contacts and leads: `list_contact_options`, `list_contacts`, `create_contact`, `get_contact_timeline`, `set_task_contact`
 - Custom fields: `list_project_custom_fields`, `get_task_custom_field_values`, `set_task_custom_field_value`
 - Time entries: `list_task_time_entries`, `get_time_entry`, `create_time_entry`, `update_time_entry`
 - Comments: `list_task_comments`, `create_task_comment`, `update_task_comment`, `delete_task_comment`
@@ -136,6 +136,10 @@ pass `workspaceId` or `projectId` to select one.
 assign several people; the first is the primary assignee. To make one person
 the only assignee, pass `assigneeIds: [id]`: `userId` equal to the task's
 current primary assignee changes nothing and keeps the others.
+Contact types and locations are editable per workspace. `list_contact_options`
+returns them with their keys; `list_contacts` and `create_contact` take a key or
+a label (any case) as `type` and `region`, and reject unknown values with the
+valid choices. Contacts return `typeLabel` and `regionLabel` next to the keys.
 A lead is an ordinary task linked to a contact: create it with `create_task`
 (`contactId`) or link it with `set_task_contact`, and log an interaction with
 `create_task_comment`. `get_contact_timeline` returns the leads and comments.

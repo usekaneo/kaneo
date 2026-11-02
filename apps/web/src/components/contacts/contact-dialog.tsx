@@ -14,15 +14,17 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import type { Contact } from "@/fetchers/contact";
+import { useContactOptions } from "@/hooks/queries/contact/use-contact-options";
 import { useSaveContact } from "@/hooks/mutations/contact/use-save-contact";
 import { toast } from "@/lib/toast";
-import { formFromContact, isFormValid, toFields } from "./contact-form";
 import {
-  CONTACT_REGIONS,
-  CONTACT_TYPES,
-  contactRegionKey,
-  contactTypeKey,
-} from "./contact-options";
+  formFromContact,
+  isFormValid,
+  knownOptionKey,
+  toFields,
+} from "./contact-form";
+import { ContactLocationCombobox } from "./contact-location-combobox";
+import { contactOptionItems } from "./contact-option-items";
 import { ContactOptionSelect } from "./contact-option-select";
 
 type ContactDialogProps = {
@@ -41,8 +43,18 @@ export function ContactDialog({
   const { t } = useTranslation();
   const [form, setForm] = useState(() => formFromContact(contact));
   const { mutateAsync: save, isPending } = useSaveContact(workspaceId);
-  const ids = { name: useId(), phone: useId(), email: useId(), notes: useId() };
+  const ids = {
+    name: useId(),
+    phone: useId(),
+    email: useId(),
+    type: useId(),
+    region: useId(),
+    notes: useId(),
+  };
   const editing = contact !== null;
+  const { data: options, isPending: optionsPending } =
+    useContactOptions(workspaceId);
+  const notSet = t("workspace:contacts.notSet");
 
   const set = (field: keyof typeof form) => (value: string) =>
     setForm((current) => ({ ...current, [field]: value }));
@@ -51,7 +63,14 @@ export function ContactDialog({
     event.preventDefault();
     if (!isFormValid(form) || isPending) return;
     try {
-      await save({ id: contact?.id, fields: toFields(form) });
+      await save({
+        id: contact?.id,
+        fields: toFields({
+          ...form,
+          type: knownOptionKey(options?.types, form.type),
+          region: knownOptionKey(options?.regions, form.region),
+        }),
+      });
       toast.success(
         t(
           editing
@@ -117,21 +136,25 @@ export function ContactDialog({
             </div>
             <div className="grid grid-cols-2 gap-3">
               <div className="space-y-2">
-                <Label>{t("workspace:contacts.type")}</Label>
+                <Label htmlFor={ids.type}>{t("workspace:contacts.type")}</Label>
                 <ContactOptionSelect
+                  id={ids.type}
                   value={form.type}
-                  options={CONTACT_TYPES}
-                  labelKey={contactTypeKey}
+                  items={contactOptionItems(options?.types ?? [], notSet)}
+                  disabled={optionsPending}
                   label={t("workspace:contacts.type")}
                   onValueChange={set("type")}
                 />
               </div>
               <div className="space-y-2">
-                <Label>{t("workspace:contacts.region")}</Label>
-                <ContactOptionSelect
+                <Label htmlFor={ids.region}>
+                  {t("workspace:contacts.region")}
+                </Label>
+                <ContactLocationCombobox
+                  id={ids.region}
                   value={form.region}
-                  options={CONTACT_REGIONS}
-                  labelKey={contactRegionKey}
+                  items={contactOptionItems(options?.regions ?? [], notSet)}
+                  disabled={optionsPending}
                   label={t("workspace:contacts.region")}
                   onValueChange={set("region")}
                 />

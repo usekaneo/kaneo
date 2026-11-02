@@ -14,7 +14,6 @@ import { useContactTimeline } from "@/hooks/queries/contact/use-contact-timeline
 import { ContactInteractionForm } from "./contact-interaction-form";
 import { ContactLeadList } from "./contact-lead-list";
 import { ContactTimelineList } from "./contact-timeline-list";
-import { contactRegionKey, contactTypeKey } from "./contact-options";
 
 type ContactTimelineSheetProps = {
   workspaceId: string;
@@ -42,11 +41,7 @@ export function ContactTimelineSheet({
           <SheetTitle>{contact?.name}</SheetTitle>
           <SheetDescription>
             {contact
-              ? [
-                  t(contactTypeKey(contact.type)),
-                  t(contactRegionKey(contact.region)),
-                  contact.phone,
-                ]
+              ? [contact.typeLabel, contact.regionLabel, contact.phone]
                   .filter(Boolean)
                   .join(" · ")
               : null}

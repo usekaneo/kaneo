@@ -552,8 +552,9 @@ export const contactTable = pgTable(
     name: text("name").notNull(),
     phone: text("phone"),
     email: text("email"),
-    type: text("type").notNull().default("other"),
-    region: text("region").notNull().default("other"),
+    // Option keys from contact_option (a soft reference); null means not set.
+    type: text("type"),
+    region: text("region"),
     notes: text("notes"),
     createdAt: timestamp("created_at", { mode: "date" })
       .default(utcNow)
@@ -565,6 +566,46 @@ export const contactTable = pgTable(
   },
   (table) => [
     index("contact_workspace_name_idx").on(table.workspaceId, table.name),
+  ],
+);
+
+// Editable choices for a contact's type and region, per workspace. Contacts
+// store the stable key, so renaming only changes the label.
+export const contactOptionTable = pgTable(
+  "contact_option",
+  {
+    id: text("id")
+      .$defaultFn(() => createId())
+      .primaryKey(),
+    workspaceId: text("workspace_id")
+      .notNull()
+      .references(() => workspaceTable.id, {
+        onDelete: "cascade",
+        onUpdate: "cascade",
+      }),
+    kind: text("kind", { enum: ["type", "region"] }).notNull(),
+    key: text("key").notNull(),
+    label: text("label").notNull(),
+    position: integer("position").notNull(),
+    createdAt: timestamp("created_at", { mode: "date" })
+      .default(utcNow)
+      .notNull(),
+    updatedAt: timestamp("updated_at", { mode: "date" })
+      .default(utcNow)
+      .$onUpdate(() => new Date())
+      .notNull(),
+  },
+  (table) => [
+    uniqueIndex("contact_option_workspace_kind_key_idx").on(
+      table.workspaceId,
+      table.kind,
+      table.key,
+    ),
+    uniqueIndex("contact_option_workspace_kind_label_idx").on(
+      table.workspaceId,
+      table.kind,
+      sql`lower(${table.label})`,
+    ),
   ],
 );
 

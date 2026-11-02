@@ -2,6 +2,9 @@ import { and, asc, count, eq, ilike, or } from "drizzle-orm";
 import db from "../../database";
 import { contactTable, projectTable, taskTable } from "../../database/schema";
 import { projectAccessCondition } from "../../project-access/project-access-condition";
+import { contactColumns } from "../contact-columns";
+import { ensureDefaultOptions } from "../options/ensure-default-options";
+import { resolveOptionKey } from "../options/resolve-option";
 
 type ListContactsInput = {
   workspaceId: string;
@@ -20,9 +23,13 @@ async function listContacts({
   type,
   region,
 }: ListContactsInput) {
+  // Labels come from the options, so make sure the defaults exist first.
+  await ensureDefaultOptions(workspaceId);
   const conditions = [eq(contactTable.workspaceId, workspaceId)];
-  if (type) conditions.push(eq(contactTable.type, type));
-  if (region) conditions.push(eq(contactTable.region, region));
+  const typeKey = await resolveOptionKey(workspaceId, "type", type);
+  const regionKey = await resolveOptionKey(workspaceId, "region", region);
+  if (typeKey) conditions.push(eq(contactTable.type, typeKey));
+  if (regionKey) conditions.push(eq(contactTable.region, regionKey));
   if (search) {
     const pattern = `%${search.replace(/[\\%_]/g, "\\$&")}%`;
     const match = or(
@@ -35,16 +42,7 @@ async function listContacts({
 
   return db
     .select({
-      id: contactTable.id,
-      workspaceId: contactTable.workspaceId,
-      name: contactTable.name,
-      phone: contactTable.phone,
-      email: contactTable.email,
-      type: contactTable.type,
-      region: contactTable.region,
-      notes: contactTable.notes,
-      createdAt: contactTable.createdAt,
-      updatedAt: contactTable.updatedAt,
+      ...contactColumns,
       leadCount: count(projectTable.id),
     })
     .from(contactTable)

@@ -1,4 +1,3 @@
-import { useTranslation } from "react-i18next";
 import {
   Select,
   SelectItem,
@@ -7,41 +6,40 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 
+export type ContactOptionItem = { value: string; label: string };
+
 type ContactOptionSelectProps = {
   value: string;
-  options: readonly string[];
-  labelKey: (option: string) => string;
+  items: ContactOptionItem[];
   onValueChange: (value: string) => void;
+  label: string;
   id?: string;
-  label?: string;
   size?: "sm" | "default";
+  disabled?: boolean;
 };
 
 export function ContactOptionSelect({
   value,
-  options,
-  labelKey,
+  items,
   onValueChange,
-  id,
   label,
+  id,
   size,
+  disabled,
 }: ContactOptionSelectProps) {
-  const { t } = useTranslation();
-  const items = options.map((option) => ({
-    value: option,
-    label: t(labelKey(option)),
-  }));
-
   return (
     <Select
       items={items}
       value={value}
+      disabled={disabled}
       onValueChange={(next) => {
-        if (typeof next === "string" && next) onValueChange(next);
+        if (typeof next === "string") onValueChange(next);
       }}
     >
       <SelectTrigger id={id} aria-label={label} size={size}>
-        <SelectValue>{t(labelKey(value))}</SelectValue>
+        <SelectValue>
+          {items.find((item) => item.value === value)?.label ?? items[0]?.label}
+        </SelectValue>
       </SelectTrigger>
       <SelectPopup>
         {items.map((item) => (

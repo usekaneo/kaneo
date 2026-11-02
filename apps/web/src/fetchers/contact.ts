@@ -1,9 +1,5 @@
 import { client } from "@kaneo/libs";
 import type { InferResponseType } from "hono/client";
-import type {
-  ContactRegion,
-  ContactType,
-} from "@/components/contacts/contact-options";
 import { HttpError } from "@/lib/http-error";
 
 const contacts = client.contact.workspace[":workspaceId"];
@@ -14,15 +10,15 @@ export type ContactFields = {
   name: string;
   phone: string | null;
   email: string | null;
-  type: ContactType;
-  region: ContactRegion;
+  type: string | null;
+  region: string | null;
   notes: string | null;
 };
 
 export type ContactFilters = {
   search?: string;
-  type?: ContactType;
-  region?: ContactRegion;
+  type?: string;
+  region?: string;
 };
 
 export async function listContacts(

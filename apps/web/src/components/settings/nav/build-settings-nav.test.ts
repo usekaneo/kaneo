@@ -11,6 +11,7 @@ function build(
     workspaceName: "Acme",
     billingEnabled: false,
     canImport: false,
+    canManageContactOptions: false,
     hasAdminAccess: false,
     projects: [],
     ...overrides,
@@ -42,13 +43,34 @@ describe("buildSettingsNav", () => {
     expect(links(build())).not.toContain(
       "/dashboard/settings/workspace/import",
     );
-    expect(links(build({ canImport: true, billingEnabled: true }))).toEqual([
+    expect(
+      links(
+        build({
+          canImport: true,
+          billingEnabled: true,
+          canManageContactOptions: true,
+        }),
+      ),
+    ).toEqual([
       "/dashboard/settings/workspace/general",
       "/dashboard/settings/workspace/roles",
       "/dashboard/settings/workspace/labels",
+      "/dashboard/settings/workspace/contacts",
       "/dashboard/settings/workspace/import",
       "/dashboard/settings/workspace/billing",
     ]);
+  });
+
+  it("only offers the contacts page to people who can manage settings", () => {
+    const links = (nav: ReturnType<typeof build>) =>
+      nav.workspace.links.map((link) => link.to);
+
+    expect(links(build())).not.toContain(
+      "/dashboard/settings/workspace/contacts",
+    );
+    expect(links(build({ canManageContactOptions: true }))).toContain(
+      "/dashboard/settings/workspace/contacts",
+    );
   });
 
   it("only shows administration to instance admins", () => {
