@@ -2,8 +2,8 @@ apiVersion: v2
 name: kaneo
 description: "Kaneo: Project management that doesn't become the project."
 type: application
-version: 2.48.0
-appVersion: "2.48.0"
+version: 2.49.0
+appVersion: "2.49.0"
 keywords:
   - project-management
   - kanban
