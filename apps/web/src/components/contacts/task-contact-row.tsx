@@ -7,8 +7,8 @@ import {
   SelectItem,
   SelectPopup,
   SelectTrigger,
-  SelectValue,
 } from "@/components/ui/select";
+import { cn } from "@/lib/cn";
 import { toast } from "@/lib/toast";
 import { useSetTaskContact } from "@/hooks/mutations/contact/use-set-task-contact";
 import { useContacts } from "@/hooks/queries/contact/use-contacts";
@@ -42,10 +42,12 @@ export function TaskContactRow({
         <Link
           to="/dashboard/workspace/$workspaceId/contacts"
           params={{ workspaceId }}
-          className="flex h-7.5 min-w-0 flex-1 items-center gap-2 rounded-md px-2 text-[13px] text-muted-foreground outline-none transition-colors hover:bg-accent hover:text-foreground focus-visible:bg-accent [&_svg]:size-3.5 [&_svg]:shrink-0"
+          className="flex min-h-7.5 min-w-0 flex-1 items-center gap-2 rounded-md px-2 py-1.25 text-[13px] text-muted-foreground outline-none transition-colors hover:bg-accent hover:text-foreground focus-visible:bg-accent [&_svg]:size-3.5 [&_svg]:shrink-0"
         >
           <UserRound aria-hidden="true" />
-          <span className="truncate">{t("workspace:contacts.addFirst")}</span>
+          <span className="line-clamp-2 break-words">
+            {t("workspace:contacts.addFirst")}
+          </span>
         </Link>
       </PropertyRow>
     );
@@ -56,6 +58,7 @@ export function TaskContactRow({
     ...contacts.map((contact) => ({ value: contact.id, label: contact.name })),
   ];
   const value = contactId ?? NONE;
+  const label = items.find((item) => item.value === value)?.label;
 
   return (
     <PropertyRow label={t("workspace:contacts.taskLabel")}>
@@ -76,14 +79,23 @@ export function TaskContactRow({
         }}
       >
         <SelectTrigger
-          size="sm"
           aria-label={t("workspace:contacts.taskLabel")}
-          className="border-transparent bg-transparent shadow-none"
+          title={label}
+          // Looks like the other rail values: flat, no chevron, wraps long names.
+          className="h-auto min-h-7.5 w-full min-w-0 justify-start gap-2 rounded-md border-0 bg-transparent px-2 py-1.25 text-left font-medium text-[13px] shadow-none before:hidden hover:bg-accent focus-visible:bg-accent focus-visible:ring-0 data-popup-open:bg-accent sm:min-h-7.5 dark:bg-transparent [&>[data-slot=select-icon]]:hidden [&_svg]:size-3.5"
         >
-          <UserRound aria-hidden="true" className="text-muted-foreground" />
-          <SelectValue>
-            {items.find((item) => item.value === value)?.label}
-          </SelectValue>
+          <UserRound
+            aria-hidden="true"
+            className="size-3.5 shrink-0 text-muted-foreground"
+          />
+          <span
+            className={cn(
+              "line-clamp-2 min-w-0 flex-1 break-words text-left",
+              value === NONE && "text-muted-foreground",
+            )}
+          >
+            {label}
+          </span>
         </SelectTrigger>
         <SelectPopup>
           {items.map((item) => (
