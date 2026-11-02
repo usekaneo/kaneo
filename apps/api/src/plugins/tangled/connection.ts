@@ -5,6 +5,7 @@ import db from "../../database";
 import { integrationTable } from "../../database/schema";
 import { activeIntegrationCondition } from "../active-integration-condition";
 import { tangledConfigSchema, type TangledConfig } from "./config";
+import { withTangledAdmission } from "./transaction-admission";
 
 export type TangledConnection = {
   id: string;
@@ -60,36 +61,39 @@ export async function withTangledConnection<T>(
   ref: string | null,
   apply: (transaction: TangledTransaction) => Promise<T>,
 ): Promise<T> {
-  return db.transaction(async (tx) => {
-    await tx.execute(sql`set local lock_timeout = '2s'`);
-    await tx.execute(sql`set local statement_timeout = '25s'`);
-    if (ref !== null) {
-      const key = JSON.stringify([
-        connection.id,
-        connection.parsed.repositoryDid,
-        ref,
-      ]);
-      await tx.execute(
-        sql`select pg_advisory_xact_lock(hashtextextended(${key}, 0))`,
-      );
-    }
-    const [current] = await tx
-      .select({ id: integrationTable.id })
-      .from(integrationTable)
-      .where(
-        and(
-          eq(integrationTable.id, connection.id),
-          eq(integrationTable.projectId, connection.projectId),
-          eq(integrationTable.type, "tangled"),
-          eq(integrationTable.config, connection.config),
-          activeIntegrationCondition(),
-        ),
-      )
-      .for("share");
-    if (!current)
-      throw new HTTPException(409, {
-        message: "Tangled connection changed; retry with its current settings",
-      });
-    return apply(tx);
-  });
+  return withTangledAdmission(() =>
+    db.transaction(async (tx) => {
+      await tx.execute(sql`set local lock_timeout = '2s'`);
+      await tx.execute(sql`set local statement_timeout = '25s'`);
+      if (ref !== null) {
+        const key = JSON.stringify([
+          connection.id,
+          connection.parsed.repositoryDid,
+          ref,
+        ]);
+        await tx.execute(
+          sql`select pg_advisory_xact_lock(hashtextextended(${key}, 0))`,
+        );
+      }
+      const [current] = await tx
+        .select({ id: integrationTable.id })
+        .from(integrationTable)
+        .where(
+          and(
+            eq(integrationTable.id, connection.id),
+            eq(integrationTable.projectId, connection.projectId),
+            eq(integrationTable.type, "tangled"),
+            eq(integrationTable.config, connection.config),
+            activeIntegrationCondition(),
+          ),
+        )
+        .for("share");
+      if (!current)
+        throw new HTTPException(409, {
+          message:
+            "Tangled connection changed; retry with its current settings",
+        });
+      return apply(tx);
+    }),
+  );
 }

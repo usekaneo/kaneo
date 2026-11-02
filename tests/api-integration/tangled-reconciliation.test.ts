@@ -67,6 +67,138 @@ beforeEach(async () => {
 });
 
 describe("Tangled periodic reconciliation", () => {
+  it("baselines an existing branch before applying automation to a later head", async () => {
+    const context = await createTangledFixture();
+    const target = await db.query.columnTable.findFirst({
+      where: and(
+        eq(schema.columnTable.projectId, context.project.id),
+        eq(schema.columnTable.slug, "in-progress"),
+      ),
+    });
+    await db.insert(schema.workflowRuleTable).values({
+      projectId: context.project.id,
+      integrationType: "tangled",
+      eventType: "branch_push",
+      columnId: target!.id,
+    });
+    await reconcileTangledRepositories();
+    expect(await db.query.externalLinkTable.findMany()).toHaveLength(1);
+    expect(await db.query.taskTable.findFirst()).toMatchObject({
+      status: "done",
+    });
+    await reconcileTangledRepositories();
+    expect(await db.query.taskTable.findFirst()).toMatchObject({
+      status: "done",
+    });
+    upstream.head = "c".repeat(40);
+    await reconcileTangledRepositories();
+    expect(await db.query.taskTable.findFirst()).toMatchObject({
+      status: "in-progress",
+      columnId: target!.id,
+    });
+  });
+
+  it("preserves a manual status change after a branch baseline", async () => {
+    const context = await createTangledFixture();
+    const target = await db.query.columnTable.findFirst({
+      where: and(
+        eq(schema.columnTable.projectId, context.project.id),
+        eq(schema.columnTable.slug, "in-progress"),
+      ),
+    });
+    await db.insert(schema.workflowRuleTable).values({
+      projectId: context.project.id,
+      integrationType: "tangled",
+      eventType: "branch_push",
+      columnId: target!.id,
+    });
+    await reconcileTangledRepositories();
+    await db
+      .update(schema.taskTable)
+      .set({ status: "to-do", columnId: null })
+      .where(eq(schema.taskTable.id, context.task.id));
+    upstream.head = "c".repeat(40);
+    await reconcileTangledRepositories();
+    expect(await db.query.taskTable.findFirst()).toMatchObject({
+      status: "to-do",
+    });
+  });
+
+  it("establishes a new baseline after disconnecting and reconnecting", async () => {
+    const context = await createTangledFixture();
+    const target = await db.query.columnTable.findFirst({
+      where: and(
+        eq(schema.columnTable.projectId, context.project.id),
+        eq(schema.columnTable.slug, "in-progress"),
+      ),
+    });
+    await db.insert(schema.workflowRuleTable).values({
+      projectId: context.project.id,
+      integrationType: "tangled",
+      eventType: "branch_push",
+      columnId: target!.id,
+    });
+    await reconcileTangledRepositories();
+    await db
+      .update(schema.taskTable)
+      .set({ status: "to-do", columnId: null })
+      .where(eq(schema.taskTable.id, context.task.id));
+    await db
+      .delete(schema.integrationTable)
+      .where(eq(schema.integrationTable.id, context.integration.id));
+    await db.insert(schema.integrationTable).values({
+      projectId: context.project.id,
+      type: "tangled",
+      isActive: true,
+      config: JSON.stringify(tangledTestConfig),
+    });
+    await reconcileTangledRepositories();
+    expect(await db.query.taskTable.findFirst()).toMatchObject({
+      status: "to-do",
+    });
+    upstream.head = "c".repeat(40);
+    await reconcileTangledRepositories();
+    expect(await db.query.taskTable.findFirst()).toMatchObject({
+      status: "in-progress",
+    });
+  });
+
+  it("treats invalid stored head metadata as a baseline", async () => {
+    const context = await createTangledFixture();
+    const target = await db.query.columnTable.findFirst({
+      where: and(
+        eq(schema.columnTable.projectId, context.project.id),
+        eq(schema.columnTable.slug, "in-progress"),
+      ),
+    });
+    await db.insert(schema.workflowRuleTable).values({
+      projectId: context.project.id,
+      integrationType: "tangled",
+      eventType: "branch_push",
+      columnId: target!.id,
+    });
+    await db.insert(schema.externalLinkTable).values({
+      taskId: context.task.id,
+      integrationId: context.integration.id,
+      resourceType: "branch",
+      externalId: "KAN-12",
+      title: "KAN-12",
+      url: "https://tangled.example/owner/repo/tree/KAN-12",
+      metadata: "not-json",
+    });
+    upstream.head = "c".repeat(40);
+    await expect(reconcileTangledRepositories()).resolves.toEqual({
+      degraded: false,
+    });
+    expect(await db.query.taskTable.findFirst()).toMatchObject({
+      status: "done",
+    });
+    const [link] = await db.query.externalLinkTable.findMany();
+    expect(JSON.parse(link!.metadata!)).toMatchObject({
+      lastCommit: { sha: "c".repeat(40) },
+    });
+  });
+
   it("recovers a missed webhook and refreshes heads without changing task status", async () => {
     const context = await createTangledFixture();
     await expect(reconcileTangledRepositories()).resolves.toEqual({

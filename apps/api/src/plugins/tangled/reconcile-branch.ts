@@ -1,5 +1,9 @@
 import { and, eq } from "drizzle-orm";
-import { projectTable, taskTable } from "../../database/schema";
+import {
+  projectTable,
+  tangledTaskOwnershipTable,
+  taskTable,
+} from "../../database/schema";
 import { publishEvent } from "../../events";
 import { getSubtaskParentProjects } from "../../task/get-subtask-parent-projects";
 import {
@@ -14,6 +18,7 @@ import type { TangledOutcome } from "./outcome-types";
 import { createTangledReadClient } from "./read-client";
 import { recordTangledOutcome } from "./record-outcome";
 import { TangledRefNotFoundError } from "./request-json";
+import { storedBranchHead } from "./stored-branch-head";
 
 export async function reconcileTangledBranch(
   connection: TangledConnection,
@@ -80,7 +85,7 @@ export async function reconcileTangledBranch(
         return finish("failed", "upstream_failed");
       }
       const [task] = await tx
-        .select({ id: taskTable.id })
+        .select({ id: taskTable.id, statusRevision: taskTable.statusRevision })
         .from(taskTable)
         .where(
           and(
@@ -104,8 +109,24 @@ export async function reconcileTangledBranch(
       if (existing && existing.taskId !== task.id) {
         return finish("skipped", "branch_conflict");
       }
-      workflow.change = await applyTangledWorkflow(tx, connection, task.id);
-      if (workflow.change) workflow.taskId = task.id;
+      const previousHead = storedBranchHead(existing?.metadata ?? null);
+      if (eventType === "reconciliation" && previousHead === null) {
+        await tx
+          .insert(tangledTaskOwnershipTable)
+          .values({
+            taskId: task.id,
+            integrationId: connection.id,
+            statusRevision: task.statusRevision,
+          })
+          .onConflictDoNothing();
+      }
+      if (
+        eventType === "push" ||
+        (previousHead !== null && previousHead !== head.oid)
+      ) {
+        workflow.change = await applyTangledWorkflow(tx, connection, task.id);
+        if (workflow.change) workflow.taskId = task.id;
+      }
       if (
         existing?.taskId === task.id &&
         existing.url === url.href &&

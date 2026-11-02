@@ -55,9 +55,11 @@ Manual links and task status remain when a branch is deleted.
 
 To move tasks, open the project's **Automations** settings and choose a target column for Tangled's **Branch push** event.
 Without a rule, branch updates do not change task status.
-The periodic check can process matching branches that already exist, so test the rule with one task first.
-Once a person changes an automatically moved task's status, later Tangled reconciliation preserves that manual change, even if the person moves it back to its earlier status.
-Disconnecting the integration clears that ownership record; review existing branches and the workflow rule before reconnecting.
+The first periodic check links existing matching branches without moving their tasks.
+Later signed pushes or detected branch head changes can apply the rule.
+If the first webhook for a new branch is missed, its first periodic check links it without moving the task.
+Once a person changes a task's status after its scan baseline or an automatic move, later Tangled processing preserves that manual change, even if the person moves it back to its earlier status.
+Disconnecting the integration clears that ownership record; reconnecting establishes a new baseline.
 
 ## Check or disconnect
 
