@@ -8,6 +8,12 @@ on:
   pull_request:
     paths:
       - "apps/mobile/**"
+      - "packages/editor/**"
+      - "packages/typescript-config/**"
+      - "package.json"
+      - "pnpm-lock.yaml"
+      - "pnpm-workspace.yaml"
+      - "patches/**"
       - ".github/workflows/android.yml"
   workflow_dispatch:
 
@@ -41,6 +47,9 @@ jobs:
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
+
+      - name: Build the shared editor
+        run: pnpm --filter @kaneo/editor build
 
       - name: Generate the Android project
         run: pnpm --filter @kaneo/mobile exec expo prebuild --platform android --clean --no-install
