@@ -24,7 +24,10 @@ export async function applyTangledWorkflow(
   tx: TangledTransaction,
   connection: TangledConnection,
   taskId: string,
-): Promise<StatusChange | null> {
+): Promise<{
+  statusChange: StatusChange | null;
+  columnChanged: boolean;
+} | null> {
   const [task] = await tx
     .select()
     .from(taskTable)
@@ -89,16 +92,21 @@ export async function applyTangledWorkflow(
       target: tangledTaskOwnershipTable.taskId,
       set: { statusRevision: updated.statusRevision },
     });
-  if (task.status === updated.status) return null;
+  const columnChanged = task.columnId !== updated.columnId;
+  if (task.status === updated.status)
+    return columnChanged ? { statusChange: null, columnChanged } : null;
   return {
-    taskId: task.id,
-    projectId: task.projectId,
-    sourceIntegrationId: connection.id,
-    userId: null,
-    oldStatus: task.status,
-    newStatus: updated.status,
-    title: updated.title,
-    assigneeId: updated.userId,
-    type: "status_changed",
+    columnChanged,
+    statusChange: {
+      taskId: task.id,
+      projectId: task.projectId,
+      sourceIntegrationId: connection.id,
+      userId: null,
+      oldStatus: task.status,
+      newStatus: updated.status,
+      title: updated.title,
+      assigneeId: updated.userId,
+      type: "status_changed",
+    },
   };
 }

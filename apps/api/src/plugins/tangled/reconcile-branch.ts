@@ -1,6 +1,7 @@
 import { and, eq } from "drizzle-orm";
 import { projectTable, taskTable } from "../../database/schema";
 import { publishEvent } from "../../events";
+import { getSubtaskParentProjects } from "../../task/get-subtask-parent-projects";
 import {
   createOrUpdateExternalLink,
   findExternalLink,
@@ -26,7 +27,10 @@ export async function reconcileTangledBranch(
     throw new Error("Invalid Tangled branch reference");
   }
   let changedTaskId: string | null = null;
-  let statusChange: Awaited<ReturnType<typeof applyTangledWorkflow>> = null;
+  const workflow: {
+    change: Awaited<ReturnType<typeof applyTangledWorkflow>>;
+    taskId: string | null;
+  } = { change: null, taskId: null };
   const result = await withTangledConnection(
     connection,
     ref,
@@ -100,7 +104,8 @@ export async function reconcileTangledBranch(
       if (existing && existing.taskId !== task.id) {
         return finish("skipped", "branch_conflict");
       }
-      statusChange = await applyTangledWorkflow(tx, connection, task.id);
+      workflow.change = await applyTangledWorkflow(tx, connection, task.id);
+      if (workflow.change) workflow.taskId = task.id;
       if (
         existing?.taskId === task.id &&
         existing.url === url.href &&
@@ -125,12 +130,22 @@ export async function reconcileTangledBranch(
       return finish("applied", "branch_linked");
     },
   );
-  if (statusChange !== null)
-    await publishEvent("task.status_changed", statusChange);
-  if (changedTaskId !== null)
+  if (workflow.change !== null && workflow.taskId !== null) {
+    if (workflow.change.statusChange)
+      await publishEvent("task.status_changed", workflow.change.statusChange);
+    else if (workflow.change.columnChanged)
+      await publishEvent("subtask-parents.refresh", {
+        projects: await getSubtaskParentProjects([workflow.taskId]),
+      });
+    await publishEvent("task-relation.refresh", {
+      projectId: connection.projectId,
+    });
+  }
+  const updatedTaskId = changedTaskId ?? workflow.taskId;
+  if (updatedTaskId !== null)
     await publishEvent("task.updated", {
       projectId: connection.projectId,
-      taskId: changedTaskId,
+      taskId: updatedTaskId,
     });
   return result;
 }

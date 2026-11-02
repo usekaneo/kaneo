@@ -100,8 +100,10 @@ describe("Tangled webhook delivery", () => {
       columnId: target!.id,
     });
     const statuses: unknown[] = [];
+    const relationRefreshes: unknown[] = [];
     vi.spyOn(events, "publishEvent").mockImplementation(async (type, data) => {
       if (type === "task.status_changed") statuses.push(data);
+      if (type === "task-relation.refresh") relationRefreshes.push(data);
     });
     const { app } = createApp();
     expect(
@@ -116,11 +118,47 @@ describe("Tangled webhook delivery", () => {
     expect(statuses).toMatchObject([
       { taskId: context.task.id, oldStatus: "done", newStatus: "in-progress" },
     ]);
+    expect(relationRefreshes).toMatchObject([
+      { projectId: context.project.id },
+    ]);
     expect(
       (await deliver(app, context.integration.id, JSON.stringify(payload())))
         .status,
     ).toBe(200);
     expect(statuses).toHaveLength(1);
+    expect(relationRefreshes).toHaveLength(1);
+  });
+
+  it("publishes updates when a workflow changes only the column of a linked task", async () => {
+    const context = await fixture();
+    const { app } = createApp();
+    const body = JSON.stringify(payload());
+    expect((await deliver(app, context.integration.id, body)).status).toBe(200);
+    const done = await db.query.columnTable.findFirst({
+      where: and(
+        eq(schema.columnTable.projectId, context.project.id),
+        eq(schema.columnTable.slug, "done"),
+      ),
+    });
+    await db.insert(schema.workflowRuleTable).values({
+      projectId: context.project.id,
+      integrationType: "tangled",
+      eventType: "branch_push",
+      columnId: done!.id,
+    });
+    const published: string[] = [];
+    vi.spyOn(events, "publishEvent").mockImplementation(async (type) => {
+      published.push(type);
+    });
+
+    expect((await deliver(app, context.integration.id, body)).status).toBe(200);
+    expect(await db.query.taskTable.findFirst()).toMatchObject({
+      status: "done",
+      columnId: done!.id,
+    });
+    expect(published).toContain("task.updated");
+    expect(published).toContain("task-relation.refresh");
+    expect(published).not.toContain("task.status_changed");
   });
 
   it("preserves a manual status change on later pushes even after moving away and back", async () => {
