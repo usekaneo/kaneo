@@ -13,6 +13,7 @@ import {
 import { extractTaskNumberFromBranch } from "../github/utils/branch-matcher";
 import { tangledRefSchema } from "./api-contract";
 import { applyTangledWorkflow } from "./apply-workflow";
+import { logTangledFailure } from "./log-failure";
 import { withTangledConnection, type TangledConnection } from "./connection";
 import type { TangledOutcome } from "./outcome-types";
 import { createTangledReadClient } from "./read-client";
@@ -67,7 +68,8 @@ export async function reconcileTangledBranch(
       let repository: Awaited<ReturnType<typeof client.getRepository>>;
       try {
         repository = await client.getRepository();
-      } catch {
+      } catch (error) {
+        logTangledFailure("repository_lookup", error);
         return finish("failed", "upstream_failed");
       }
       if (
@@ -82,6 +84,7 @@ export async function reconcileTangledBranch(
       } catch (error) {
         if (error instanceof TangledRefNotFoundError)
           return finish("skipped", "branch_missing");
+        logTangledFailure("branch_lookup", error);
         return finish("failed", "upstream_failed");
       }
       const [task] = await tx

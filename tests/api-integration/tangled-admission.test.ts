@@ -1,6 +1,6 @@
 import { sql } from "drizzle-orm";
 import { afterAll, beforeEach, describe, expect, it, vi } from "vite-plus/test";
-import db from "../../apps/api/src/database";
+import db, { getDatabasePool } from "../../apps/api/src/database";
 import {
   loadTangledConnection,
   withTangledConnection,
@@ -91,6 +91,7 @@ describe("Tangled transaction admission", () => {
     const startedTwo = new Promise<void>((resolve) => {
       enoughStarted = resolve;
     });
+    let deadlineTimer: ReturnType<typeof setTimeout> | undefined;
     const requests = Array.from({ length: 5 }, (_, index) =>
       withTangledConnection(
         connection,
@@ -105,14 +106,35 @@ describe("Tangled transaction admission", () => {
     try {
       await startedTwo;
       await new Promise((resolve) => setTimeout(resolve, 100));
-      const available = await Promise.race([
-        db.execute(sql`select 1`).then(() => true),
-        new Promise<boolean>((resolve) =>
-          setTimeout(() => resolve(false), 500),
-        ),
+      const pool = getDatabasePool();
+      const poolCounts = () => ({
+        max: pool.options.max,
+        total: pool.totalCount,
+        idle: pool.idleCount,
+        waiting: pool.waitingCount,
+        tangledStarted: started,
+        tangledNotStarted: requests.length - started,
+      });
+      const beforeQuery = poolCounts();
+      const queryStarted = performance.now();
+      const result = await Promise.race([
+        db.execute(sql`select 1`).then(() => ({ available: true })),
+        new Promise<{ available: false; diagnostics: unknown }>((resolve) => {
+          deadlineTimer = setTimeout(() => {
+            resolve({
+              available: false,
+              diagnostics: {
+                beforeQuery,
+                atDeadline: poolCounts(),
+                elapsedMs: Math.round(performance.now() - queryStarted),
+              },
+            });
+          }, 500);
+        }),
       ]);
-      expect(available).toBe(true);
+      expect(result.available, JSON.stringify(result)).toBe(true);
     } finally {
+      if (deadlineTimer) clearTimeout(deadlineTimer);
       release();
       await Promise.allSettled(requests);
     }

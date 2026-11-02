@@ -346,6 +346,31 @@ describe("Tangled webhook delivery", () => {
     expect(published).not.toHaveBeenCalled();
   });
 
+  it("logs a safe category when webhook persistence fails", async () => {
+    const context = await fixture();
+    const privateError = Object.assign(new Error("private webhook secret"), {
+      code: "23505",
+    });
+    vi.spyOn(outcomes, "recordTangledOutcome").mockRejectedValue(privateError);
+    const logs = vi.spyOn(console, "error").mockImplementation(() => {});
+    const { app } = createApp();
+
+    const response = await deliver(
+      app,
+      context.integration.id,
+      JSON.stringify(payload()),
+    );
+
+    expect(response.status).toBe(503);
+    expect(logs).toHaveBeenCalledWith("Tangled processing failed", {
+      stage: "webhook",
+      category: "database_constraint",
+    });
+    expect(JSON.stringify(logs.mock.calls)).not.toContain(
+      "private webhook secret",
+    );
+  });
+
   it("rejects malformed branch refs as bad requests rather than retryable failures", async () => {
     const context = await fixture();
     const { app } = createApp();
@@ -544,6 +569,7 @@ describe("Tangled webhook delivery", () => {
   it("returns retryable failures without changing links and exposes only sanitized outcomes to managers", async () => {
     const context = await fixture();
     upstream.available = false;
+    const logs = vi.spyOn(console, "error").mockImplementation(() => {});
     const { app } = createApp();
     const response = await deliver(
       app,
@@ -551,6 +577,13 @@ describe("Tangled webhook delivery", () => {
       JSON.stringify(payload()),
     );
     expect(response.status).toBe(503);
+    expect(logs).toHaveBeenCalledWith("Tangled processing failed", {
+      stage: "repository_lookup",
+      category: "unexpected",
+    });
+    expect(JSON.stringify(logs.mock.calls)).not.toContain(
+      "private-upstream-error",
+    );
     expect(await response.text()).not.toContain("private-upstream-error");
     expect(await db.query.externalLinkTable.findMany()).toHaveLength(0);
     mockAuthenticatedSession(context.user);

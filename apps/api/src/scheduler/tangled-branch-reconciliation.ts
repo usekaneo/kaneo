@@ -12,6 +12,7 @@ import {
   type TangledConnection,
 } from "../plugins/tangled/connection";
 import { createTangledReadClient } from "../plugins/tangled/read-client";
+import { logTangledFailure } from "../plugins/tangled/log-failure";
 import { reconcileTangledBranch } from "../plugins/tangled/reconcile-branch";
 import { removeMissingTangledBranch } from "../plugins/tangled/remove-missing-branch";
 import { recordTangledOutcome } from "../plugins/tangled/record-outcome";
@@ -105,8 +106,9 @@ export async function reconcileTangledRepositories(): Promise<{
             .where(
               eq(tangledIntegrationStateTable.integrationId, candidate.id),
             );
-        } catch {
+        } catch (error) {
           degraded = true;
+          logTangledFailure("reconciliation", error);
           if (connection) {
             await withTangledConnection(connection, null, (tx) =>
               recordTangledOutcome(tx, candidate.id, {
@@ -115,11 +117,10 @@ export async function reconcileTangledRepositories(): Promise<{
                 code: "upstream_failed",
                 ref: null,
               }),
-            ).catch(() => {});
+            ).catch((error: unknown) =>
+              logTangledFailure("reconciliation", error),
+            );
           }
-          console.warn("Tangled reconciliation could not complete", {
-            integrationId: candidate.id,
-          });
         }
       }
       return { degraded };

@@ -235,6 +235,23 @@ describe("Tangled periodic reconciliation", () => {
     );
   });
 
+  it("logs a safe category when a scheduled scan fails", async () => {
+    await createTangledFixture();
+    upstream.failedHost = "api.tangled.example";
+    const logs = vi.spyOn(console, "error").mockImplementation(() => {});
+
+    await expect(reconcileTangledRepositories()).resolves.toEqual({
+      degraded: true,
+    });
+    expect(logs).toHaveBeenCalledWith("Tangled processing failed", {
+      stage: "reconciliation",
+      category: "unexpected",
+    });
+    expect(JSON.stringify(logs.mock.calls)).not.toContain(
+      "private-upstream-error",
+    );
+  });
+
   it("does not let one failed integration prevent another from recovering", async () => {
     const failed = await createTangledFixture();
     const healthy = await createTangledFixture();
@@ -320,6 +337,23 @@ describe("Tangled periodic reconciliation", () => {
     upstream.omittedBranch = "KAN-12";
     await reconcileTangledRepositories();
     expect(await db.query.externalLinkTable.findMany()).toHaveLength(1);
+  });
+
+  it("logs a safe category when a branch lookup fails", async () => {
+    await createTangledFixture();
+    upstream.refError = "private branch response";
+    const logs = vi.spyOn(console, "error").mockImplementation(() => {});
+
+    await expect(reconcileTangledRepositories()).resolves.toEqual({
+      degraded: true,
+    });
+    expect(logs).toHaveBeenCalledWith("Tangled processing failed", {
+      stage: "branch_lookup",
+      category: "unexpected",
+    });
+    expect(JSON.stringify(logs.mock.calls)).not.toContain(
+      "private branch response",
+    );
   });
 
   it("preserves a missing branch link when the ref recheck fails for another reason", async () => {

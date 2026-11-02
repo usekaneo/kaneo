@@ -12,6 +12,7 @@ import {
 } from "../plugins/tangled/connection";
 import { tangledRefSchema } from "../plugins/tangled/api-contract";
 import { validateTangledPayload } from "../plugins/tangled/payload";
+import { logTangledFailure } from "../plugins/tangled/log-failure";
 import { reconcileTangledBranch } from "../plugins/tangled/reconcile-branch";
 import { recordTangledOutcome } from "../plugins/tangled/record-outcome";
 import { verifyTangledSignature } from "../plugins/tangled/utils/verify-signature";
@@ -122,7 +123,11 @@ export const tangledWebhook = apiRouter().openapi(webhookRoute, async (c) => {
       return c.json({ status: "skipped" as const }, 200);
     return c.json({ status: "processed" as const }, 200);
   } catch (error) {
-    if (error instanceof HTTPException) throw error;
+    if (error instanceof HTTPException) {
+      if (error.status === 500) logTangledFailure("webhook", error);
+      throw error;
+    }
+    logTangledFailure("webhook", error);
     throw new HTTPException(503, {
       message: "Tangled delivery could not be committed; retry later",
     });
