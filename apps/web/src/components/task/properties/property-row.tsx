@@ -9,7 +9,7 @@ type PropertyRowProps = {
 
 export function PropertyRow({
   label,
-  align = "center",
+  align = "start",
   children,
 }: PropertyRowProps) {
   return (
@@ -22,6 +22,7 @@ export function PropertyRow({
       <span
         className={cn(
           "w-21 shrink-0 truncate pl-2 text-muted-foreground text-xs",
+          // Stays level with the first line when the value wraps.
           align === "start" && "flex h-8 items-center",
         )}
       >
