@@ -4411,10 +4411,32 @@
             ]
           },
           "type": {
-            "type": "string"
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "Key of the contact's type option; null when not set."
+          },
+          "typeLabel": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "Current label of the type; null when not set."
           },
           "region": {
-            "type": "string"
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "Key of the contact's location option; null when not set."
+          },
+          "regionLabel": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "Current label of the location; null when not set."
           },
           "notes": {
             "type": [
@@ -4442,7 +4464,9 @@
           "phone",
           "email",
           "type",
+          "typeLabel",
           "region",
+          "regionLabel",
           "notes",
           "createdAt",
           "updatedAt"
@@ -4567,6 +4591,90 @@
         "required": [
           "leads",
           "entries"
+        ]
+      },
+      "ContactOptions": {
+        "type": "object",
+        "properties": {
+          "types": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ContactOption"
+            }
+          },
+          "regions": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ContactOption"
+            }
+          }
+        },
+        "required": [
+          "types",
+          "regions"
+        ]
+      },
+      "ContactOption": {
+        "type": "object",
+        "properties": {
+          "key": {
+            "type": "string",
+            "description": "Stable identifier stored on contacts. It never changes when the label is renamed."
+          },
+          "label": {
+            "type": "string"
+          },
+          "position": {
+            "type": "integer"
+          },
+          "contactCount": {
+            "type": "integer",
+            "description": "Number of contacts currently using this option."
+          }
+        },
+        "required": [
+          "key",
+          "label",
+          "position",
+          "contactCount"
+        ]
+      },
+      "CreateContactOptionsResult": {
+        "type": "object",
+        "properties": {
+          "created": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ContactOption"
+            }
+          },
+          "skipped": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "Names not added because they already exist or were repeated in the request."
+          }
+        },
+        "required": [
+          "created",
+          "skipped"
+        ]
+      },
+      "DeleteContactOptionResult": {
+        "type": "object",
+        "properties": {
+          "key": {
+            "type": "string"
+          },
+          "affectedContacts": {
+            "type": "integer",
+            "description": "Contacts that had this option and now have none."
+          }
+        },
+        "required": [
+          "key",
+          "affectedContacts"
         ]
       },
       "WorkflowRule": {
@@ -23619,7 +23727,7 @@
           "Contacts"
         ],
         "summary": "List contacts",
-        "description": "List the workspace's shared sales contacts by name, optionally filtered by search text, type, or region. Returns at most 500.",
+        "description": "List the workspace's shared sales contacts by name, optionally filtered by search text, type, or region (an option key or label). Each contact has the type and region keys plus their current labels (null when not set). Returns at most 500.",
         "parameters": [
           {
             "schema": {
@@ -23643,31 +23751,22 @@
           {
             "schema": {
               "type": "string",
-              "enum": [
-                "retailer",
-                "distributor",
-                "end-user",
-                "partner",
-                "other"
-              ]
+              "maxLength": 120,
+              "description": "Only contacts with this contact type, given as its key or label (case-insensitive)."
             },
             "required": false,
+            "description": "Only contacts with this contact type, given as its key or label (case-insensitive).",
             "name": "type",
             "in": "query"
           },
           {
             "schema": {
               "type": "string",
-              "enum": [
-                "male",
-                "hulhumale",
-                "north-atolls",
-                "central-atolls",
-                "south-atolls",
-                "other"
-              ]
+              "maxLength": 120,
+              "description": "Only contacts with this location, given as its key or label (case-insensitive)."
             },
             "required": false,
+            "description": "Only contacts with this location, given as its key or label (case-insensitive).",
             "name": "region",
             "in": "query"
           }
@@ -23682,6 +23781,16 @@
                   "items": {
                     "$ref": "#/components/schemas/Contact"
                   }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Unknown type or region",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
                 }
               }
             }
@@ -23727,7 +23836,7 @@
           "Contacts"
         ],
         "summary": "Create a contact",
-        "description": "Add a shared contact. Type and region default to `other` and must come from the fixed lists.",
+        "description": "Add a shared contact. Type and region are optional; when given they must be an option key or label from this workspace's lists (see the options routes) and are stored as the key. Omitted means not set.",
         "parameters": [
           {
             "schema": {
@@ -23768,29 +23877,20 @@
                     "description": "Email address; empty clears it"
                   },
                   "type": {
-                    "type": "string",
-                    "enum": [
-                      "retailer",
-                      "distributor",
-                      "end-user",
-                      "partner",
-                      "other"
+                    "type": [
+                      "string",
+                      "null"
                     ],
-                    "default": "other",
-                    "description": "What kind of contact this is"
+                    "maxLength": 120,
+                    "description": "Contact type, as an option key or label (see the options routes); empty clears it"
                   },
                   "region": {
-                    "type": "string",
-                    "enum": [
-                      "male",
-                      "hulhumale",
-                      "north-atolls",
-                      "central-atolls",
-                      "south-atolls",
-                      "other"
+                    "type": [
+                      "string",
+                      "null"
                     ],
-                    "default": "other",
-                    "description": "Where the contact operates"
+                    "maxLength": 120,
+                    "description": "Location, as an option key or label (see the options routes); empty clears it"
                   },
                   "notes": {
                     "type": [
@@ -23945,7 +24045,7 @@
           "Contacts"
         ],
         "summary": "Update a contact",
-        "description": "Change a contact. Send null to clear phone, email, or notes.",
+        "description": "Change a contact. Send null to clear phone, email, notes, type, or region. Type and region take an option key or label.",
         "parameters": [
           {
             "schema": {
@@ -23994,27 +24094,20 @@
                     "description": "Email address; empty clears it"
                   },
                   "type": {
-                    "type": "string",
-                    "enum": [
-                      "retailer",
-                      "distributor",
-                      "end-user",
-                      "partner",
-                      "other"
+                    "type": [
+                      "string",
+                      "null"
                     ],
-                    "description": "What kind of contact this is"
+                    "maxLength": 120,
+                    "description": "Contact type, as an option key or label (see the options routes); empty clears it"
                   },
                   "region": {
-                    "type": "string",
-                    "enum": [
-                      "male",
-                      "hulhumale",
-                      "north-atolls",
-                      "central-atolls",
-                      "south-atolls",
-                      "other"
+                    "type": [
+                      "string",
+                      "null"
                     ],
-                    "description": "Where the contact operates"
+                    "maxLength": 120,
+                    "description": "Location, as an option key or label (see the options routes); empty clears it"
                   },
                   "notes": {
                     "type": [
@@ -24151,6 +24244,520 @@
           },
           "404": {
             "description": "Workspace or contact not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "429": {
+            "$ref": "#/components/responses/ApiKeyRateLimited"
+          }
+        }
+      }
+    },
+    "/contact/workspace/{workspaceId}/options": {
+      "get": {
+        "operationId": "listContactOptions",
+        "tags": [
+          "Contacts"
+        ],
+        "summary": "List contact types and locations",
+        "description": "The workspace's contact types and locations in display order, each with its key, label, position, and the number of contacts using it. The built-in defaults are created the first time this is read.",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "required": true,
+            "name": "workspaceId",
+            "in": "path"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Contact options",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ContactOptions"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid credentials",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Missing workspace:read permission",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Workspace not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "429": {
+            "$ref": "#/components/responses/ApiKeyRateLimited"
+          }
+        }
+      },
+      "post": {
+        "operationId": "createContactOptions",
+        "tags": [
+          "Contacts"
+        ],
+        "summary": "Add contact types or locations",
+        "description": "Add one name (`label`) or many (`labels`, up to 500, for pasting a list of islands or atolls) to the end of a list. Names are trimmed, blanks are dropped, and repeats or names that already exist (ignoring case) are skipped and reported. A list holds at most 2000 options.",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "required": true,
+            "name": "workspaceId",
+            "in": "path"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "kind": {
+                    "type": "string",
+                    "enum": [
+                      "type",
+                      "region"
+                    ],
+                    "description": "`type` for contact types, `region` for locations."
+                  },
+                  "label": {
+                    "type": "string",
+                    "maxLength": 120,
+                    "description": "A single name to add."
+                  },
+                  "labels": {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "maxLength": 120,
+                      "description": "Name shown to people; unique per list, ignoring case."
+                    },
+                    "maxItems": 500,
+                    "description": "Several names to add at once (at most 500). Blanks are dropped, repeats and names that already exist are skipped. A list holds at most 2000 options."
+                  }
+                },
+                "required": [
+                  "kind"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "What was added and skipped",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CreateContactOptionsResult"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request or the list would be too long",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid credentials",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Missing workspace:manage_settings permission",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Workspace not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "429": {
+            "$ref": "#/components/responses/ApiKeyRateLimited"
+          }
+        }
+      }
+    },
+    "/contact/workspace/{workspaceId}/options/{kind}/order": {
+      "put": {
+        "operationId": "reorderContactOptions",
+        "tags": [
+          "Contacts"
+        ],
+        "summary": "Reorder contact types or locations",
+        "description": "Set the display order of one list. Send the option keys in the new order; options left out keep their relative order after the listed ones. Returns all options.",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "required": true,
+            "name": "workspaceId",
+            "in": "path"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "enum": [
+                "type",
+                "region"
+              ],
+              "description": "`type` for contact types, `region` for locations."
+            },
+            "required": true,
+            "description": "`type` for contact types, `region` for locations.",
+            "name": "kind",
+            "in": "path"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "keys": {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "maxItems": 2000,
+                    "description": "Option keys in the new order. Options not listed keep their relative order after the listed ones."
+                  }
+                },
+                "required": [
+                  "keys"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Contact options",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ContactOptions"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Unknown or repeated key",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid credentials",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Missing workspace:manage_settings permission",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Workspace not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "429": {
+            "$ref": "#/components/responses/ApiKeyRateLimited"
+          }
+        }
+      }
+    },
+    "/contact/workspace/{workspaceId}/options/{kind}/{key}": {
+      "patch": {
+        "operationId": "renameContactOption",
+        "tags": [
+          "Contacts"
+        ],
+        "summary": "Rename a contact type or location",
+        "description": "Change an option's label. Its key stays the same, so contacts using it stay linked.",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "required": true,
+            "name": "workspaceId",
+            "in": "path"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "enum": [
+                "type",
+                "region"
+              ],
+              "description": "`type` for contact types, `region` for locations."
+            },
+            "required": true,
+            "description": "`type` for contact types, `region` for locations.",
+            "name": "kind",
+            "in": "path"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "minLength": 1
+            },
+            "required": true,
+            "name": "key",
+            "in": "path"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "label": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 120,
+                    "description": "Name shown to people; unique per list, ignoring case."
+                  }
+                },
+                "required": [
+                  "label"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Option renamed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ContactOption"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid label",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid credentials",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Missing workspace:manage_settings permission",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Workspace or option not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Another option already has this label",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "429": {
+            "$ref": "#/components/responses/ApiKeyRateLimited"
+          }
+        }
+      },
+      "delete": {
+        "operationId": "deleteContactOption",
+        "tags": [
+          "Contacts"
+        ],
+        "summary": "Delete a contact type or location",
+        "description": "Remove an option. Contacts that used it become not set; the response says how many. The last option of a list cannot be deleted.",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "required": true,
+            "name": "workspaceId",
+            "in": "path"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "enum": [
+                "type",
+                "region"
+              ],
+              "description": "`type` for contact types, `region` for locations."
+            },
+            "required": true,
+            "description": "`type` for contact types, `region` for locations.",
+            "name": "kind",
+            "in": "path"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "minLength": 1
+            },
+            "required": true,
+            "name": "key",
+            "in": "path"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Option deleted",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DeleteContactOptionResult"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "This is the last option of its list",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid credentials",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Missing workspace:manage_settings permission",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Workspace or option not found",
             "content": {
               "application/json": {
                 "schema": {

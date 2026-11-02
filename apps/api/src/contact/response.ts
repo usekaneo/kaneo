@@ -7,8 +7,18 @@ export const contactSchema = z
     name: z.string(),
     phone: z.string().nullable(),
     email: z.string().nullable(),
-    type: z.string(),
-    region: z.string(),
+    type: z.string().nullable().openapi({
+      description: "Key of the contact's type option; null when not set.",
+    }),
+    typeLabel: z.string().nullable().openapi({
+      description: "Current label of the type; null when not set.",
+    }),
+    region: z.string().nullable().openapi({
+      description: "Key of the contact's location option; null when not set.",
+    }),
+    regionLabel: z.string().nullable().openapi({
+      description: "Current label of the location; null when not set.",
+    }),
     notes: z.string().nullable(),
     leadCount: z.number().int().optional().openapi({
       description: "Number of tasks (leads) linked to this contact.",

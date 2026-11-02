@@ -1,15 +1,25 @@
 import { z } from "../openapi";
-import { CONTACT_REGIONS, CONTACT_TYPES } from "./options";
 
 export const workspaceParam = z.object({ workspaceId: z.string() });
 export const contactParam = z.object({ id: z.string() });
+
+const optionFilter = (what: string) =>
+  z
+    .string()
+    .trim()
+    .max(120)
+    .transform((value) => value || undefined)
+    .optional()
+    .openapi({
+      description: `Only contacts with this ${what}, given as its key or label (case-insensitive).`,
+    });
 
 export const listContactsQuery = z.object({
   search: z.string().trim().max(120).optional().openapi({
     description: "Match against name, phone, or email (case-insensitive).",
   }),
-  type: z.enum(CONTACT_TYPES).optional(),
-  region: z.enum(CONTACT_REGIONS).optional(),
+  type: optionFilter("contact type"),
+  region: optionFilter("location"),
 });
 
 const optionalText = (max: number, description: string) =>
@@ -25,8 +35,14 @@ const fields = {
   name: z.string().trim().min(1).max(120).describe("Person or company name"),
   phone: optionalText(40, "Phone number"),
   email: optionalText(254, "Email address"),
-  type: z.enum(CONTACT_TYPES).describe("What kind of contact this is"),
-  region: z.enum(CONTACT_REGIONS).describe("Where the contact operates"),
+  type: optionalText(
+    120,
+    "Contact type, as an option key or label (see the options routes)",
+  ),
+  region: optionalText(
+    120,
+    "Location, as an option key or label (see the options routes)",
+  ),
   notes: optionalText(2000, "Free-form notes"),
 };
 
@@ -34,8 +50,8 @@ export const createContactBody = z.object({
   name: fields.name,
   phone: fields.phone.optional(),
   email: fields.email.optional(),
-  type: fields.type.default("other"),
-  region: fields.region.default("other"),
+  type: fields.type.optional(),
+  region: fields.region.optional(),
   notes: fields.notes.optional(),
 });
 
