@@ -54,6 +54,14 @@ export function AgentProposalReview({
         destinations.get(proposal.id)?.ready,
     )
     .map((proposal) => proposal.id);
+  const canUndoSelection =
+    selectedIds.length > 0 &&
+    pending.every(
+      (proposal) =>
+        !selectedIds.includes(proposal.id) ||
+        proposal.action.type === "task.update" ||
+        proposal.action.type === "comment.create",
+    );
   const appliedCount = [...proposals, ...codeProposals].filter(
     (proposal) => proposal.status === "applied",
   ).length;
@@ -186,11 +194,13 @@ export function AgentProposalReview({
       </ul>
       {canReview && (
         <footer className="flex items-center justify-between gap-2 border-border/60 border-t px-3 py-2.5">
-          <span className="flex items-center gap-1.5 text-muted-foreground text-xs">
-            <Undo2 aria-hidden="true" className="size-3" />
-            {t("agent:review.undoHint")}
-          </span>
-          <div className="flex shrink-0 items-center gap-1.5">
+          {canUndoSelection && (
+            <span className="flex items-center gap-1.5 text-muted-foreground text-xs">
+              <Undo2 aria-hidden="true" className="size-3" />
+              {t("agent:review.undoHint")}
+            </span>
+          )}
+          <div className="ml-auto flex shrink-0 items-center gap-1.5">
             <Button
               variant="outline"
               size="sm"

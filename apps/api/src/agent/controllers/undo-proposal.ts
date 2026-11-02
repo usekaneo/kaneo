@@ -1,6 +1,7 @@
 import { and, eq } from "drizzle-orm";
 import { HTTPException } from "hono/http-exception";
 import db, { schema } from "../../database";
+import { publishEvent } from "../../events";
 import { requireWorkspaceEntitlement } from "../../billing/controllers/require-entitlement";
 import { recordTaskMutation } from "../../task/controllers/task-mutation-effects";
 import { assertAssignableUser } from "../../utils/assert-assignable-user";
@@ -18,9 +19,9 @@ export async function undoProposal(subject: AgentSubject, proposalId: string) {
     .from(schema.agentProposalTable)
     .where(eq(schema.agentProposalTable.id, proposalId));
   if (!row) throw new HTTPException(404, { message: "Proposal not found" });
-  await getOwnedRun(subject, row.runId);
+  const { run } = await getOwnedRun(subject, row.runId);
   await requireWorkspaceEntitlement(subject.workspaceId);
-  return db.transaction(async (tx) => {
+  const result = await db.transaction(async (tx) => {
     const { subject: scoped } = await getOwnedRun(subject, row.runId, tx);
     await tx
       .select({ id: schema.agentRunTable.id })
@@ -137,4 +138,11 @@ export async function undoProposal(subject: AgentSubject, proposalId: string) {
       .where(eq(schema.agentProposalTable.id, proposalId));
     return { id: proposalId, status: "undone" as const };
   });
+  await publishEvent("agent.run_updated", {
+    userId: subject.userId,
+    workspaceId: subject.workspaceId,
+    runId: row.runId,
+    conversationId: run.conversationId,
+  });
+  return result;
 }

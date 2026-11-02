@@ -218,8 +218,8 @@ describe("agent comment proposals", () => {
       after: { id: ctx.task.id, commentId: comment?.id },
     });
 
-    // Nothing is published until the outbox runs after commit.
-    expect(publishEvent).not.toHaveBeenCalled();
+    // Comment effects wait for the outbox; the owner's review update is immediate.
+    expect(ctx.events("comment.created")).toHaveLength(0);
     await deliverAgentEffects();
     await deliverAgentEffects();
     expect(ctx.events("comment.created")).toEqual([

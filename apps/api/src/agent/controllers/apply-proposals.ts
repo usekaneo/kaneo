@@ -3,6 +3,7 @@ import { notifyJob } from "../code/notify";
 import { and, eq, inArray } from "drizzle-orm";
 import { HTTPException } from "hono/http-exception";
 import db, { schema } from "../../database";
+import { publishEvent } from "../../events";
 import { requireWorkspaceEntitlement } from "../../billing/controllers/require-entitlement";
 import createTask from "../../task/controllers/create-task";
 import { recordTaskMutation } from "../../task/controllers/task-mutation-effects";
@@ -21,7 +22,7 @@ export async function applyProposals(
   runId: string,
   proposalIds: string[],
 ) {
-  await getOwnedRun(subject, runId);
+  const { run } = await getOwnedRun(subject, runId);
   await requireWorkspaceEntitlement(subject.workspaceId);
   const found = await db
     .select({ id: schema.agentProposalTable.id })
@@ -221,6 +222,12 @@ export async function applyProposals(
             .update(schema.agentRunTable)
             .set({ status: "completed" })
             .where(eq(schema.agentRunTable.id, runId));
+      });
+      await publishEvent("agent.run_updated", {
+        userId: subject.userId,
+        workspaceId: subject.workspaceId,
+        runId,
+        conversationId: run.conversationId,
       });
       const job = await db.query.agentJobTable.findFirst({
         where: eq(schema.agentJobTable.proposalId, proposalId),

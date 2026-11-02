@@ -125,6 +125,7 @@ describe("AgentProposalReview", () => {
 
   it("shows the destination, initial status, and full creation description", () => {
     render(<AgentProposalReview workspaceId="ws" run={creationRun} />);
+    expect(screen.queryByText("agent:review.undoHint")).not.toBeInTheDocument();
     expect(screen.getByText("Project Bravo")).toBeInTheDocument();
     expect(screen.getByText("Done")).toBeInTheDocument();
     expect(screen.getByTestId("markdown")).toHaveTextContent(
@@ -156,6 +157,7 @@ describe("AgentProposalReview", () => {
   );
   it("lets the owner select, apply, discard, and undo", () => {
     render(<AgentProposalReview workspaceId="ws" run={run} />);
+    expect(screen.getByText("agent:review.undoHint")).toBeInTheDocument();
     expect(screen.getByRole("checkbox")).toBeInTheDocument();
     expect(
       screen.getByRole("button", { name: "agent:review.discard" }),
@@ -180,6 +182,7 @@ describe("AgentProposalReview", () => {
         getTaskKey={() => "WEB-135"}
       />,
     );
+    expect(screen.queryByText("agent:review.undoHint")).not.toBeInTheDocument();
     expect(screen.getByText("agent:proposal.action.code")).toBeInTheDocument();
     expect(screen.getByText("usekaneo/kaneo")).toBeInTheDocument();
     expect(screen.getByText("main")).toBeInTheDocument();

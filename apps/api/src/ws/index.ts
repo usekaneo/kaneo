@@ -1212,6 +1212,23 @@ subscribeToEvent<{
   userId: string;
   workspaceId: string;
   runId: string;
+  conversationId: string;
+}>(
+  "agent.run_updated",
+  async ({ userId, workspaceId, runId, conversationId }) => {
+    broadcastToUser(userId, {
+      type: "AGENT_RUN_UPDATED",
+      workspaceId,
+      runId,
+      conversationId,
+    });
+  },
+);
+
+subscribeToEvent<{
+  userId: string;
+  workspaceId: string;
+  runId: string;
   jobId: string;
 }>("agent.job_updated", async ({ userId, workspaceId, runId, jobId }) => {
   broadcastToUser(userId, {

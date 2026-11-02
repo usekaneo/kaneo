@@ -549,7 +549,11 @@ describe("reviewed mutations", () => {
       })
       .where(eq(schema.agentEffectTable.id, effect.id));
     await deliverAgentEffects();
-    expect(publishEvent).not.toHaveBeenCalled();
+    expect(
+      vi
+        .mocked(publishEvent)
+        .mock.calls.filter(([name]) => name.startsWith("task.")),
+    ).toHaveLength(0);
     await db
       .update(schema.agentEffectTable)
       .set({ leaseExpiresAt: new Date(0) })

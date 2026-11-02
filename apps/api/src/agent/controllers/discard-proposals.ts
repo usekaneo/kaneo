@@ -1,6 +1,7 @@
 import { and, eq, inArray } from "drizzle-orm";
 import { HTTPException } from "hono/http-exception";
 import db, { schema } from "../../database";
+import { publishEvent } from "../../events";
 import { getOwnedRun } from "../access";
 import type { AgentSubject } from "../types";
 
@@ -9,8 +10,8 @@ export async function discardProposals(
   runId: string,
   proposalIds: string[],
 ) {
-  await getOwnedRun(subject, runId);
-  return db.transaction(async (tx) => {
+  const { run } = await getOwnedRun(subject, runId);
+  const result = await db.transaction(async (tx) => {
     const [run] = await tx
       .select()
       .from(schema.agentRunTable)
@@ -57,4 +58,11 @@ export async function discardProposals(
         .where(eq(schema.agentRunTable.id, runId));
     return { proposalIds: discarded.map((proposal) => proposal.id) };
   });
+  await publishEvent("agent.run_updated", {
+    userId: subject.userId,
+    workspaceId: subject.workspaceId,
+    runId,
+    conversationId: run.conversationId,
+  });
+  return result;
 }
