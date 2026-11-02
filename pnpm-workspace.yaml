@@ -106,3 +106,5 @@ minimumReleaseAgeExclude:
   - lucide-react@1.62.0
   - marked@18.1.2
   - postcss@8.5.32
+  - "@expo/log-box@58.0.14"
+  - "@expo/metro-runtime@58.0.16"

@@ -23,7 +23,7 @@ export function ActivityFeed({ workspaceId }: ActivityFeedProps) {
       <SectionHeader title={t("workspace:home.activity.title")} />
 
       {isLoading ? (
-        <div className="flex flex-col gap-4 pt-4">
+        <div className="delayed-reveal flex flex-col gap-4 pt-4">
           {[1, 2, 3].map((row) => (
             <div key={row} className="flex gap-2.5">
               <Skeleton className="size-6 rounded-full" />

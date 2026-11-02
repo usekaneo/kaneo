@@ -1,5 +1,8 @@
+import {
+  isValidUrl,
+  KaneoIssueLink as KaneoIssueLinkNode,
+} from "@kaneo/editor";
 import { useQuery } from "@tanstack/react-query";
-import { mergeAttributes, Node } from "@tiptap/core";
 import type { NodeViewProps } from "@tiptap/react";
 import { NodeViewWrapper, ReactNodeViewRenderer } from "@tiptap/react";
 import { useTranslation } from "react-i18next";
@@ -10,7 +13,6 @@ import {
 } from "@/components/ui/preview-card";
 import getProject from "@/fetchers/project/get-project";
 import getTask from "@/fetchers/task/get-task";
-import { escapeHtml, isValidUrl } from "./url-safety";
 
 function parseTaskRouteFromUrl(url: string) {
   try {
@@ -120,56 +122,8 @@ function KaneoIssueLinkView({ node }: NodeViewProps) {
   );
 }
 
-export const KaneoIssueLink = Node.create({
-  name: "kaneoIssueLink",
-  group: "inline",
-  inline: true,
-  atom: true,
-  selectable: false,
-
-  addAttributes() {
-    return {
-      url: { default: "" },
-      issueKey: { default: "" },
-      taskId: { default: "" },
-    };
-  },
-
-  parseHTML() {
-    return [
-      { tag: "kaneo-issue-link[url]" },
-      { tag: "span[data-type='kaneo-issue-link'][data-url]" },
-    ];
-  },
-
-  renderHTML({ HTMLAttributes }) {
-    return [
-      "kaneo-issue-link",
-      mergeAttributes(HTMLAttributes, {
-        "data-type": "kaneo-issue-link",
-        "data-url": HTMLAttributes.url,
-        "data-issue-key": HTMLAttributes.issueKey,
-        "data-task-id": HTMLAttributes.taskId,
-        url: HTMLAttributes.url,
-        "issue-key": HTMLAttributes.issueKey,
-        "task-id": HTMLAttributes.taskId,
-      }),
-    ];
-  },
-
+export const KaneoIssueLink = KaneoIssueLinkNode.extend({
   addNodeView() {
     return ReactNodeViewRenderer(KaneoIssueLinkView);
-  },
-
-  renderMarkdown(
-    node: { attrs?: { url?: string; issueKey?: string; taskId?: string } },
-    _helpers: unknown,
-    _context: unknown,
-  ) {
-    const url = String(node.attrs?.url || "");
-    const issueKey = String(node.attrs?.issueKey || "");
-    const taskId = String(node.attrs?.taskId || "");
-    if (!url) return "";
-    return `\n<kaneo-issue-link url="${escapeHtml(url)}" issue-key="${escapeHtml(issueKey)}" task-id="${escapeHtml(taskId)}" />\n`;
   },
 });

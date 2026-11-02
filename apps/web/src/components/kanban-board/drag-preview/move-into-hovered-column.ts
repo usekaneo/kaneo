@@ -8,5 +8,7 @@ export function moveIntoHoveredColumn(
   overId: string,
 ) {
   if (!getHoveredOtherColumnId(board, activeId, overId)) return null;
-  return moveBoardTask(board, activeId, overId, false, false)?.project ?? null;
+  return (
+    moveBoardTask(board, activeId, overId, false, false, false)?.project ?? null
+  );
 }

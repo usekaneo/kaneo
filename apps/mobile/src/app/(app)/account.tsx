@@ -20,6 +20,7 @@ import {
   Switch,
   TextField,
 } from "@/components/ui";
+import { DeleteAccountSheet } from "@/features/account/delete-account-sheet";
 import { api } from "@/lib/api/endpoints";
 import { signOut } from "@/lib/auth";
 import {
@@ -44,6 +45,7 @@ export default function AccountScreen() {
   const [photoMenu, setPhotoMenu] = useState(false);
   const [changingPassword, setChangingPassword] = useState(false);
   const [confirmSignOut, setConfirmSignOut] = useState(false);
+  const [deletingAccount, setDeletingAccount] = useState(false);
 
   // Keep the cached name and email (shown offline and in mentions) in step with the server.
   useEffect(() => {
@@ -233,6 +235,25 @@ export default function AccountScreen() {
           </Group>
         </Section>
 
+        <Section
+          title={t("mobile:account.deleteAccount.sectionTitle")}
+          style={{ paddingBottom: 24 }}
+        >
+          <Group>
+            <GroupRow last onPress={() => setDeletingAccount(true)}>
+              <View style={{ flex: 1, gap: 2 }}>
+                <Txt variant="body" tone="danger">
+                  {t("mobile:account.deleteAccount.title")}
+                </Txt>
+                <Txt variant="caption" tone="faint">
+                  {t("mobile:account.deleteAccount.description")}
+                </Txt>
+              </View>
+              <ChevronRight size={16} color={c.placeholder} />
+            </GroupRow>
+          </Group>
+        </Section>
+
         <View style={{ paddingHorizontal: 16 }}>
           <Button
             label={t("mobile:account.signOut.button")}
@@ -269,6 +290,11 @@ export default function AccountScreen() {
       <ChangePasswordSheet
         visible={changingPassword}
         onClose={() => setChangingPassword(false)}
+      />
+      <DeleteAccountSheet
+        visible={deletingAccount}
+        email={me.data?.email ?? session.userEmail}
+        onClose={() => setDeletingAccount(false)}
       />
       <ConfirmDialog
         visible={confirmSignOut}

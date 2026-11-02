@@ -232,7 +232,10 @@
 			"passwordRequired": "Introduce tu contraseña.",
 			"passwordTooShort": "Usa al menos 8 caracteres.",
 			"disposableEmail": "Usa una dirección de correo permanente. Con direcciones desechables no se pueden crear cuentas.",
-			"continueWithEmail": "Continuar con correo electrónico"
+			"continueWithEmail": "Continuar con correo electrónico",
+			"captchaChecking": "Haciendo una comprobación de seguridad rápida antes de continuar.",
+			"captchaFailed": "La comprobación de seguridad no se ha cargado, así que el inicio de sesión está en pausa. Revisa tu conexión o tu bloqueador de contenido.",
+			"captchaRetry": "Reintentar"
 		},
 		"checkEmail": {
 			"pageTitle": "Verifica tu email",
@@ -390,8 +393,6 @@
 				}
 			},
 			"progress": "Paso {{current}} de {{total}}",
-			"welcome": "Te damos la bienvenida, {{name}}",
-			"settingUp": "Configurando {{name}}",
 			"continue": "Continuar",
 			"signedInAs": "Sesión iniciada como {{email}}",
 			"signOut": "Cerrar sesión",
@@ -407,7 +408,7 @@
 				"title": "Empieza tu primer proyecto",
 				"description": "Añadiremos algunas tareas iniciales para que te orientes. Puedes renombrarlas o eliminarlas cuando quieras.",
 				"label": "Nombre del proyecto",
-				"numbered": "Las tareas se numerarán así"
+				"ticketStart": "Los ID de las tareas empezarán en {{ticket}}."
 			},
 			"invite": {
 				"title": "Trae a tu equipo",
@@ -436,7 +437,6 @@
 				"paymentNote": "Los pagos los procesa Creem."
 			},
 			"ready": {
-				"eyebrow": "Todo listo",
 				"title": "{{name}} está listo",
 				"description": "Esto es lo que hemos configurado. Puedes cambiar cualquier cosa más adelante.",
 				"workspace": "Espacio de trabajo",
@@ -451,9 +451,6 @@
 				"open": "Abrir {{name}}"
 			},
 			"preview": {
-				"live": "Vista previa en directo de {{name}}",
-				"liveNoName": "Vista previa en directo",
-				"ready": "{{name}} está listo",
 				"untitled": "Tu espacio de trabajo"
 			}
 		},
@@ -3868,7 +3865,11 @@
 		},
 		"board": {
 			"reorderFailed": "Could not move task. Please try again.",
-			"keyboardInstructions": "Pulsa Espacio para ver la vista previa y Enter para abrir esta tarea. Usa Alt u Opción con las flechas para moverla."
+			"keyboardInstructions": "Pulsa Espacio para ver la vista previa y Enter para abrir esta tarea. Usa Alt u Opción con las flechas para moverla.",
+			"loadErrorTitle": "Este tablero no se ha cargado",
+			"loadErrorDescription": "Algo salió mal al obtener sus tareas. Revisa tu conexión e inténtalo de nuevo.",
+			"refreshError": "No se pudo actualizar este tablero, así que puede estar desactualizado.",
+			"tryAgain": "Reintentar"
 		},
 		"toolbar": {
 			"search": "Buscar tareas",
@@ -4628,7 +4629,6 @@
 				"linkCopied": "Enlace copiado",
 				"more": "Más",
 				"editTitle": "Editar título",
-				"editDescription": "Editar descripción",
 				"addDescription": "Añade una descripción…"
 			}
 		},
@@ -4679,23 +4679,22 @@
 			"parentFailed": "Tarea creada, pero no se ha podido vincular a la tarea principal."
 		},
 		"editor": {
-			"description": "Descripción",
 			"placeholder": "Añade una descripción… Admite Markdown.",
-			"write": "Escribir",
-			"preview": "Vista previa",
-			"nothingToPreview": "Nada que mostrar",
 			"bold": "Negrita",
 			"italic": "Cursiva",
 			"heading": "Encabezado",
 			"list": "Lista",
 			"code": "Código",
 			"link": "Enlace",
-			"boldPlaceholder": "negrita",
-			"italicPlaceholder": "cursiva",
-			"codePlaceholder": "código",
-			"linkPlaceholder": "enlace",
 			"insertImage": "Insertar imagen",
-			"attachment": "Adjunto"
+			"attachment": "Adjunto",
+			"applyLink": "Apply",
+			"checklist": "Checklist",
+			"linkUrl": "URL",
+			"numberedList": "Numbered list",
+			"quote": "Quote",
+			"removeLink": "Remove link",
+			"hideKeyboard": "Hide keyboard"
 		},
 		"composer": {
 			"reply": "Responder a {{name}}…",
@@ -5114,6 +5113,21 @@
 				"confirmPlaceholder": "Escríbela otra vez",
 				"mismatch": "Las contraseñas no coinciden",
 				"signOutOthers": "Cerrar sesión en otros dispositivos"
+			},
+			"deleteAccount": {
+				"confirm": "Delete account",
+				"confirmLabel": "Type {{email}} to confirm",
+				"description": "Permanently delete your account and its data.",
+				"modalDescription": "This permanently deletes your account and cannot be undone. Workspaces only you belong to are deleted with it. Elsewhere, your tasks stay and become unassigned, and your comments are removed.",
+				"modalTitle": "Delete your account?",
+				"noPassword": "This account has no password. Leave the field empty.",
+				"password": "Password",
+				"passwordHint": "Leave empty if you sign in without a password.",
+				"sectionTitle": "Danger zone",
+				"sessionTooOld": "For your security, enter your password, or sign out and sign in again before deleting your account.",
+				"success": "Your account was deleted",
+				"title": "Delete account",
+				"wrongPassword": "That password is not correct."
 			}
 		},
 		"notificationSettings": {

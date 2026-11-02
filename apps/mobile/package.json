@@ -14,8 +14,13 @@
 	"dependencies": {
 		"@expo-google-fonts/geist": "^0.4.2",
 		"@expo-google-fonts/geist-mono": "^0.4.3",
+		"@expo/metro-runtime": "~58.0.16",
+		"@kaneo/editor": "workspace:*",
 		"@react-native-async-storage/async-storage": "2.2.0",
 		"@tanstack/react-query": "^5.105.0",
+		"@tiptap/core": "^3.32.0",
+		"@tiptap/pm": "^3.32.0",
+		"@tiptap/react": "^3.32.0",
 		"expo": "~58.0.19",
 		"expo-background-task": "~58.0.11",
 		"expo-build-properties": "~58.0.11",
@@ -40,6 +45,7 @@
 		"intl-pluralrules": "^2.0.1",
 		"lucide-react-native": "^1.62.0",
 		"react": "19.3.0",
+		"react-dom": "19.3.0",
 		"react-i18next": "^17.1.9",
 		"react-native": "0.88.0",
 		"react-native-gesture-handler": "~3.3.0",
@@ -49,6 +55,7 @@
 		"react-native-safe-area-context": "~5.10.1",
 		"react-native-screens": "~4.30.0",
 		"react-native-svg": "15.16.0",
+		"react-native-web": "^0.21.4",
 		"react-native-worklets": "0.13.0"
 	},
 	"devDependencies": {

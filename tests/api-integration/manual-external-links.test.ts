@@ -237,4 +237,93 @@ describe("manual external resource links", () => {
     expect(await db.query.externalLinkTable.findMany()).toHaveLength(0);
     expect(m.publish).not.toHaveBeenCalled();
   });
+
+  it("creates a pull request link that shows its status, then updates and removes it", async () => {
+    const own = await context();
+    mockAuthenticatedSession(own.user);
+    const created = await request(`/${own.task.id}`, "POST", {
+      url: "https://github.com/acme/app/pull/42",
+      title: "Fix payouts",
+      resourceType: "pull_request",
+      metadata: { state: "open", draft: true },
+    });
+    expect(created.status).toBe(200);
+    const entry = (await created.json()) as { id: string };
+    expect(
+      await (await request(`/${own.task.id}`, "GET")).json(),
+    ).toMatchObject([
+      {
+        id: entry.id,
+        resourceType: "pull_request",
+        externalId: "42",
+        integration: null,
+        metadata: { state: "open", merged: false, draft: true },
+      },
+    ]);
+
+    const updated = await request(`/${own.task.id}/${entry.id}`, "PATCH", {
+      metadata: { state: "closed", merged: true },
+    });
+    expect(updated.status).toBe(200);
+    expect(await updated.json()).toMatchObject({
+      title: "Fix payouts",
+      metadata: { state: "closed", merged: true, draft: false },
+    });
+
+    expect(
+      (await request(`/${own.task.id}/${entry.id}`, "DELETE")).status,
+    ).toBe(200);
+    expect(await db.query.externalLinkTable.findMany()).toHaveLength(0);
+    expect(m.publish).toHaveBeenCalledTimes(3);
+  });
+
+  it("only accepts status metadata for pull request links", async () => {
+    const own = await context();
+    mockAuthenticatedSession(own.user);
+    expect(
+      (
+        await request(`/${own.task.id}`, "POST", {
+          url: "https://example.com",
+          metadata: { state: "open" },
+        })
+      ).status,
+    ).toBe(400);
+    const entry = await link(own.task.id);
+    expect(
+      (
+        await request(`/${own.task.id}/${entry.id}`, "PATCH", {
+          metadata: { state: "open" },
+        })
+      ).status,
+    ).toBe(400);
+    expect(
+      (
+        await request(`/${own.task.id}/${entry.id}`, "PATCH", {
+          title: "Renamed",
+        })
+      ).status,
+    ).toBe(200);
+  });
+
+  it("does not let the API change integration-managed pull requests", async () => {
+    const own = await context();
+    const [integration] = await db
+      .insert(schema.integrationTable)
+      .values({ projectId: own.project.id, type: "github", config: "{}" })
+      .returning();
+    const entry = await link(own.task.id, integration.id, "pull_request");
+    mockAuthenticatedSession(own.user);
+    expect(
+      (
+        await request(`/${own.task.id}/${entry.id}`, "PATCH", {
+          metadata: { state: "closed", merged: true },
+        })
+      ).status,
+    ).toBe(404);
+    expect(
+      (await request(`/${own.task.id}/${entry.id}`, "DELETE")).status,
+    ).toBe(404);
+    expect(await db.query.externalLinkTable.findMany()).toHaveLength(1);
+    expect(m.publish).not.toHaveBeenCalled();
+  });
 });

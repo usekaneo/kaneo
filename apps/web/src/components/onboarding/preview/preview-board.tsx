@@ -30,12 +30,11 @@ export function PreviewBoard({ tasks }: PreviewBoardProps) {
         name={t("tasks:status.to-do")}
         count={tasks.length}
       >
-        {tasks.map((task, order) => (
+        {tasks.map((task) => (
           <PreviewTaskCard
             key={task.id}
             ticket={task.ticket}
             title={task.title}
-            order={order}
           />
         ))}
       </PreviewColumn>

@@ -81,8 +81,6 @@ it("keeps cached tasks readable and disables reordering when a refresh fails", (
   expect(
     screen.getByLabelText("Cached board").getAttribute("data-drag-disabled"),
   ).toBe("true");
-  fireEvent.click(
-    screen.getByRole("button", { name: "tasks:descriptionRetry" }),
-  );
+  fireEvent.click(screen.getByRole("button", { name: "tasks:board.tryAgain" }));
   expect(m.retry).toHaveBeenCalledOnce();
 });

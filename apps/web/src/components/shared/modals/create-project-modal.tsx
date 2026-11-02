@@ -26,6 +26,7 @@ import {
 } from "@/components/ui/popover";
 import icons from "@/constants/project-icons";
 import useCreateProject from "@/hooks/mutations/project/use-create-project";
+import { prefetchBoard } from "@/hooks/queries/task/prefetch-board";
 import useActiveWorkspace from "@/hooks/queries/workspace/use-active-workspace";
 import { useCanImport } from "@/hooks/use-can-import";
 import { cn } from "@/lib/cn";
@@ -44,6 +45,7 @@ function CreateProjectModal({ open, onClose }: CreateProjectModalProps) {
   const [selectedIcon, setSelectedIcon] = useState("Layout");
   const [iconPopoverOpen, setIconPopoverOpen] = useState(false);
   const [iconSearch, setIconSearch] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const queryClient = useQueryClient();
   const { data: workspace } = useActiveWorkspace();
   const { canImport } = useCanImport();
@@ -73,12 +75,15 @@ function CreateProjectModal({ open, onClose }: CreateProjectModalProps) {
     e.preventDefault();
     if (!name.trim()) return;
 
+    setIsSubmitting(true);
     try {
       const { id } = await mutateAsync();
-      toast.success("Project created successfully", { icon: SquarePlusIcon });
-      await queryClient.invalidateQueries({ queryKey: ["projects"] });
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: ["projects"] }),
+        prefetchBoard(queryClient, id),
+      ]);
 
-      navigate({
+      await navigate({
         to: "/dashboard/workspace/$workspaceId/project/$projectId/board",
         params: {
           workspaceId: workspace?.id ?? "",
@@ -86,6 +91,7 @@ function CreateProjectModal({ open, onClose }: CreateProjectModalProps) {
         },
       });
 
+      toast.success("Project created successfully", { icon: SquarePlusIcon });
       handleClose();
     } catch (error) {
       toast.error(
@@ -93,6 +99,8 @@ function CreateProjectModal({ open, onClose }: CreateProjectModalProps) {
           ? error.message
           : t("common:modals.createProject.errorToast"),
       );
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -247,6 +255,7 @@ function CreateProjectModal({ open, onClose }: CreateProjectModalProps) {
             <Button
               type="submit"
               disabled={!name.trim() || !slug.trim()}
+              loading={isSubmitting}
               size="sm"
               className="bg-primary hover:bg-primary/90  disabled:opacity-50"
             >
