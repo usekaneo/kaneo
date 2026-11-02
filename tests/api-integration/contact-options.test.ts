@@ -401,6 +401,54 @@ describe("contact options: using them on contacts", () => {
     });
   });
 
+  it("prefers the exact name, then the key, when they spell the same word", async () => {
+    const { owner, base, options } = await setup();
+    await call(owner, "POST", options, { kind: "region", label: "Male" });
+
+    // "Male" is the new option's exact name; "male" is still the default's key.
+    const exact = await call(owner, "POST", base, {
+      name: "A",
+      region: "Male",
+    });
+    expect(exact.body.regionLabel).toBe("Male");
+    const byKey = await call(owner, "POST", base, {
+      name: "B",
+      region: "male",
+    });
+    expect(byKey.body).toMatchObject({ region: "male", regionLabel: "Malé" });
+
+    // Renaming the default "Other" frees its name for a new one. The key still
+    // reaches the renamed option; the exact name reaches the new one.
+    await call(owner, "PATCH", `${options}/type/other`, { label: "Misc" });
+    await call(owner, "POST", options, { kind: "type", label: "Other" });
+    const keyed = await call(owner, "POST", base, { name: "C", type: "other" });
+    expect(keyed.body).toMatchObject({ type: "other", typeLabel: "Misc" });
+    const exactName = await call(owner, "POST", base, {
+      name: "D",
+      type: "Other",
+    });
+    expect(exactName.body.typeLabel).toBe("Other");
+  });
+
+  it("answers 409, not 500, when PostgreSQL sees a name clash JavaScript misses", async () => {
+    const { owner, options } = await setup();
+    await call(owner, "POST", options, { kind: "region", label: "izmir" });
+    await call(owner, "POST", options, { kind: "region", label: "Ankara" });
+    const list = await call(owner, "GET", options);
+    const ankara = list.body.regions.find(
+      (option: Option) => option.label === "Ankara",
+    );
+    const clash = await call(
+      owner,
+      "PATCH",
+      `${options}/region/${ankara.key}`,
+      {
+        label: "İzmir",
+      },
+    );
+    expect(clash.status).toBe(409);
+  });
+
   it("stores null when nothing is given and lets null clear a value", async () => {
     const { owner, base } = await setup();
     const none = await call(owner, "POST", base, { name: "No type" });

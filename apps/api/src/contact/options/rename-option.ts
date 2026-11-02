@@ -8,6 +8,12 @@ import { ensureDefaultOptions } from "./ensure-default-options";
 import { lockKind } from "./lock-kind";
 import { normalizeLabel } from "./normalize-labels";
 
+function isUniqueViolation(error: unknown) {
+  const code = (error as { code?: string; cause?: { code?: string } })?.code;
+  const causeCode = (error as { cause?: { code?: string } })?.cause?.code;
+  return code === "23505" || causeCode === "23505";
+}
+
 // Only the label changes; contacts store the key, so they stay linked.
 async function renameOption(
   workspaceId: string,
@@ -34,12 +40,22 @@ async function renameOption(
       });
     }
     if (target.label === label) return target;
-    const [updated] = await tx
-      .update(contactOptionTable)
-      .set({ label })
-      .where(eq(contactOptionTable.id, target.id))
-      .returning();
-    return updated ?? target;
+    try {
+      const [updated] = await tx
+        .update(contactOptionTable)
+        .set({ label })
+        .where(eq(contactOptionTable.id, target.id))
+        .returning();
+      return updated ?? target;
+    } catch (error) {
+      // PostgreSQL folds case differently from JavaScript for some letters.
+      if (isUniqueViolation(error)) {
+        throw new HTTPException(409, {
+          message: `Another ${kind} is already called "${label}"`,
+        });
+      }
+      throw error;
+    }
   });
 
   return {

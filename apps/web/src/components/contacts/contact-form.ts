@@ -32,6 +32,16 @@ export function toFields(form: ContactForm): ContactFields {
   };
 }
 
+// An option another person deleted may still be cached; the server rejects its
+// key, so treat it as not set. Unknown while options are still loading.
+export function knownOptionKey(
+  options: { key: string }[] | undefined,
+  key: string,
+) {
+  if (!options || key === "") return key;
+  return options.some((option) => option.key === key) ? key : "";
+}
+
 export function isFormValid(form: ContactForm) {
   return form.name.trim().length > 0;
 }

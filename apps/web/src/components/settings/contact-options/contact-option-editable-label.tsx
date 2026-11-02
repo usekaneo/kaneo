@@ -1,4 +1,4 @@
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Input } from "@/components/ui/input";
 
@@ -18,6 +18,8 @@ export function ContactOptionEditableLabel({
   const { t } = useTranslation();
   const [draft, setDraft] = useState(label);
   const cancelled = useRef(false);
+
+  useEffect(() => setDraft(label), [label]);
 
   const commit = async () => {
     if (cancelled.current) {
@@ -49,7 +51,7 @@ export function ContactOptionEditableLabel({
         if (event.nativeEvent.isComposing) return;
         if (event.key === "Enter") {
           event.preventDefault();
-          event.currentTarget.blur();
+          void commit();
         } else if (event.key === "Escape") {
           // Let the dialog or page keep Escape for itself only when nothing changed.
           if (draft === label) return;

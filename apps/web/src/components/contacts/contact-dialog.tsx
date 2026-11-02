@@ -17,7 +17,12 @@ import type { Contact } from "@/fetchers/contact";
 import { useContactOptions } from "@/hooks/queries/contact/use-contact-options";
 import { useSaveContact } from "@/hooks/mutations/contact/use-save-contact";
 import { toast } from "@/lib/toast";
-import { formFromContact, isFormValid, toFields } from "./contact-form";
+import {
+  formFromContact,
+  isFormValid,
+  knownOptionKey,
+  toFields,
+} from "./contact-form";
 import { ContactLocationCombobox } from "./contact-location-combobox";
 import { contactOptionItems } from "./contact-option-items";
 import { ContactOptionSelect } from "./contact-option-select";
@@ -58,7 +63,14 @@ export function ContactDialog({
     event.preventDefault();
     if (!isFormValid(form) || isPending) return;
     try {
-      await save({ id: contact?.id, fields: toFields(form) });
+      await save({
+        id: contact?.id,
+        fields: toFields({
+          ...form,
+          type: knownOptionKey(options?.types, form.type),
+          region: knownOptionKey(options?.regions, form.region),
+        }),
+      });
       toast.success(
         t(
           editing

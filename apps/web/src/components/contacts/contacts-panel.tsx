@@ -19,6 +19,7 @@ import { useContactOptions } from "@/hooks/queries/contact/use-contact-options";
 import { useContacts } from "@/hooks/queries/contact/use-contacts";
 import { ContactDeleteDialog } from "./contact-delete-dialog";
 import { ContactDialog } from "./contact-dialog";
+import { knownOptionKey } from "./contact-form";
 import { ContactTimelineSheet } from "./contact-timeline-sheet";
 import { ContactLocationCombobox } from "./contact-location-combobox";
 import { contactOptionItems } from "./contact-option-items";
@@ -43,9 +44,11 @@ export function ContactsPanel({
   const { t } = useTranslation();
   const [search, setSearch] = useState("");
   // Option keys; "" means no filter.
-  const [type, setType] = useState("");
-  const [region, setRegion] = useState("");
+  const [pickedType, setType] = useState("");
+  const [pickedRegion, setRegion] = useState("");
   const { data: options } = useContactOptions(workspaceId);
+  const type = knownOptionKey(options?.types, pickedType);
+  const region = knownOptionKey(options?.regions, pickedRegion);
   const [dialog, setDialog] = useState<DialogState>({
     open: false,
     contact: null,

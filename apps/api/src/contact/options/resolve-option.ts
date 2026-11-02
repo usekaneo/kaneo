@@ -53,8 +53,6 @@ export async function resolveContactOption(
     .from(contactOptionTable)
     .where(and(scope, eq(contactOptionTable.key, value)))
     .limit(1);
-  if (byKey) return byKey;
-
   const [byLabel] = await db
     .select(columns)
     .from(contactOptionTable)
@@ -65,7 +63,14 @@ export async function resolveContactOption(
       ),
     )
     .limit(1);
-  if (byLabel) return byLabel;
+
+  // A key and another option's name can spell the same word (a renamed
+  // default, a newly added "Male"). Keys are what the app sends, so a key wins
+  // unless the input is exactly another option's name, spelled the same way.
+  if (byKey && byLabel && byKey.key !== byLabel.key) {
+    return byLabel.label === value ? byLabel : byKey;
+  }
+  if (byKey ?? byLabel) return (byKey ?? byLabel)!;
 
   throw new HTTPException(400, {
     message: `Unknown ${KIND_NAME[kind]} "${value}". Valid choices: ${await validChoices(workspaceId, kind)}`,

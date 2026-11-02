@@ -16,6 +16,7 @@ type ContactOptionAddFormProps = {
 };
 
 const SKIPPED_SHOWN = 8;
+const MAX_LABEL_LENGTH = 120;
 
 // One name at a time, or many pasted one per line.
 export function ContactOptionAddForm({
@@ -48,7 +49,10 @@ export function ContactOptionAddForm({
   };
   const submitMany = (event: FormEvent) => {
     event.preventDefault();
-    const lines = many.split(/\r?\n/).filter((line) => line.trim());
+    const lines = many
+      .split(/\r?\n/)
+      .map((line) => line.trim().slice(0, MAX_LABEL_LENGTH))
+      .filter(Boolean);
     if (lines.length > 0 && !pending) void add(lines, () => setMany(""));
   };
 
