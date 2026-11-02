@@ -1,4 +1,5 @@
 import { AsyncLocalStorage } from "node:async_hooks";
+import { randomUUID } from "node:crypto";
 import { EventEmitter } from "node:events";
 
 const EVENTS = new EventEmitter();
@@ -6,6 +7,7 @@ EVENTS.setMaxListeners(100);
 export const eventContext = new AsyncLocalStorage<{ initiatorId: string }>();
 
 export type EventPayload<T = unknown> = {
+  id: string;
   type: string;
   data: T;
   timestamp: string;
@@ -27,6 +29,7 @@ export async function publishEvent(
   }
 
   const payload: EventPayload = {
+    id: randomUUID(),
     type: eventType,
     data: enhancedData || data,
     timestamp: new Date().toISOString(),
@@ -49,12 +52,12 @@ export async function publishEvent(
 
 export async function subscribeToEvent<T>(
   eventType: string,
-  handler: (data: T) => Promise<void>,
+  handler: (data: T, event: EventPayload<T>) => Promise<void>,
 ): Promise<void> {
   try {
     EVENTS.on(eventType, async (payload: EventPayload<T>) => {
       try {
-        await handler(payload.data);
+        await handler(payload.data, payload);
       } catch (error) {
         console.error(`Error processing event ${eventType}:`, error);
       }

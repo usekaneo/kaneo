@@ -27,6 +27,8 @@ The coding process receives an isolated home and an explicit environment contain
 
 Changesets support at most 300 paths and 10 MiB of decoded file content, including binary and executable files. New symlinks and submodules are rejected. API policy also refuses CI definitions/local actions, Git metadata, traversal, and protected branches. CI logs contain only wrapper outcomes; the Actions run URL is the log link. No model output is sent to Kaneo as progress.
 
+Before starting the coding process and again before collection, the wrapper rejects unresolved symlinks and symlinks that resolve outside the checkout, including existing tracked directory links. Resolved links within the checkout remain supported. This prevents allowed file tools from reaching runner files or collector metadata through a checkout link.
+
 Before the coding process starts, the wrapper copies the approved base tree into a separate temporary Git repository outside the checkout. Collection uses that repository's config, index, and independent object store, with the worktree fixed to the checkout. It never reads the checkout's mutable Git config after the agent runs, so agent-written filters, fsmonitor commands, includes, or worktree redirects cannot control collection. Temporary metadata is removed when the job finishes or fails.
 
 ## Development

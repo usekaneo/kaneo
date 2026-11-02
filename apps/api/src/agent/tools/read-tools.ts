@@ -109,86 +109,90 @@ export async function readTasks(
 }
 
 export async function readTask(subject: AgentSubject, taskId: string) {
-  // The ownership lookup avoids loading arbitrarily large descriptions.
-  const [task] = await db
-    .select({
-      id: schema.taskTable.id,
-      projectId: schema.taskTable.projectId,
-      title: schema.taskTable.title,
-      number: schema.taskTable.number,
-      key: taskKey,
-      status: schema.taskTable.status,
-      priority: schema.taskTable.priority,
-      userId: schema.taskTable.userId,
-      dueDate: schema.taskTable.dueDate,
-      description: sql<
-        string | null
-      >`left(${schema.taskTable.description}, 8000)`,
-      descriptionTruncated: sql<boolean>`coalesce(length(${schema.taskTable.description}), 0) > 8000`,
-    })
-    .from(schema.taskTable)
-    .innerJoin(
-      schema.projectTable,
-      eq(schema.taskTable.projectId, schema.projectTable.id),
-    )
-    .where(
-      and(
-        eq(schema.taskTable.id, taskId),
-        eq(schema.projectTable.workspaceId, subject.workspaceId),
-        projectAccessCondition(subject.userId, schema.projectTable.id),
-        subject.projectId
-          ? eq(schema.taskTable.projectId, subject.projectId)
-          : undefined,
-      ),
-    )
-    .limit(1);
-  if (!task) {
-    throw new HTTPException(404, { message: "Task not found in agent scope" });
-  }
-  const [comments, links, columns] = await Promise.all([
-    db
+  return boundedTaskRead(async (tx) => {
+    // The ownership lookup avoids loading arbitrarily large descriptions.
+    const [task] = await tx
       .select({
-        id: schema.activityTable.id,
-        userId: schema.activityTable.userId,
-        content: sql<
+        id: schema.taskTable.id,
+        projectId: schema.taskTable.projectId,
+        title: schema.taskTable.title,
+        number: schema.taskTable.number,
+        key: taskKey,
+        status: schema.taskTable.status,
+        priority: schema.taskTable.priority,
+        userId: schema.taskTable.userId,
+        dueDate: schema.taskTable.dueDate,
+        description: sql<
           string | null
-        >`left(${schema.activityTable.content}, 2000)`,
-        createdAt: schema.activityTable.createdAt,
+        >`left(${schema.taskTable.description}, 8000)`,
+        descriptionTruncated: sql<boolean>`coalesce(length(${schema.taskTable.description}), 0) > 8000`,
       })
-      .from(schema.activityTable)
+      .from(schema.taskTable)
+      .innerJoin(
+        schema.projectTable,
+        eq(schema.taskTable.projectId, schema.projectTable.id),
+      )
       .where(
         and(
-          eq(schema.activityTable.taskId, taskId),
-          eq(schema.activityTable.type, "comment"),
+          eq(schema.taskTable.id, taskId),
+          eq(schema.projectTable.workspaceId, subject.workspaceId),
+          projectAccessCondition(subject.userId, schema.projectTable.id),
+          subject.projectId
+            ? eq(schema.taskTable.projectId, subject.projectId)
+            : undefined,
         ),
       )
-      .orderBy(
-        desc(schema.activityTable.createdAt),
-        desc(schema.activityTable.id),
-      )
-      .limit(10),
-    db
-      .select({
-        url: schema.externalLinkTable.url,
-        resourceType: schema.externalLinkTable.resourceType,
-        title: schema.externalLinkTable.title,
-      })
-      .from(schema.externalLinkTable)
-      .where(eq(schema.externalLinkTable.taskId, taskId))
-      .limit(10),
-    db
-      .select({
-        id: schema.columnTable.id,
-        name: schema.columnTable.name,
-        slug: schema.columnTable.slug,
-        isFinal: schema.columnTable.isFinal,
-      })
-      .from(schema.columnTable)
-      .where(eq(schema.columnTable.projectId, task.projectId))
-      .orderBy(schema.columnTable.position)
-      .limit(50),
-  ]);
-  return { ...task, comments, links, columns };
+      .limit(1);
+    if (!task) {
+      throw new HTTPException(404, {
+        message: "Task not found in agent scope",
+      });
+    }
+    const [comments, links, columns] = await Promise.all([
+      tx
+        .select({
+          id: schema.activityTable.id,
+          userId: schema.activityTable.userId,
+          content: sql<
+            string | null
+          >`left(${schema.activityTable.content}, 2000)`,
+          createdAt: schema.activityTable.createdAt,
+        })
+        .from(schema.activityTable)
+        .where(
+          and(
+            eq(schema.activityTable.taskId, taskId),
+            eq(schema.activityTable.type, "comment"),
+          ),
+        )
+        .orderBy(
+          desc(schema.activityTable.createdAt),
+          desc(schema.activityTable.id),
+        )
+        .limit(10),
+      tx
+        .select({
+          url: schema.externalLinkTable.url,
+          resourceType: schema.externalLinkTable.resourceType,
+          title: schema.externalLinkTable.title,
+        })
+        .from(schema.externalLinkTable)
+        .where(eq(schema.externalLinkTable.taskId, taskId))
+        .limit(10),
+      tx
+        .select({
+          id: schema.columnTable.id,
+          name: schema.columnTable.name,
+          slug: schema.columnTable.slug,
+          isFinal: schema.columnTable.isFinal,
+        })
+        .from(schema.columnTable)
+        .where(eq(schema.columnTable.projectId, task.projectId))
+        .orderBy(schema.columnTable.position)
+        .limit(50),
+    ]);
+    return { ...task, comments, links, columns };
+  }, "Agent task details query timed out");
 }
 
 export async function readWorkload(

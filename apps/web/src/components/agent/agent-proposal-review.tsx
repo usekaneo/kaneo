@@ -10,6 +10,7 @@ import type { AgentProposal, AgentRun } from "@/types/agent";
 import { AgentProposalRow } from "./agent-proposal-row";
 import { AgentCodeProposalRow } from "./code/agent-code-proposal-row";
 import { getAgentErrorKey } from "./get-agent-error-key";
+import { useAgentCreationDestinations } from "./use-agent-creation-destinations";
 
 type AgentProposalReviewProps = {
   workspaceId: string;
@@ -39,6 +40,7 @@ export function AgentProposalReview({
   const codeProposals = run.codeProposals.filter(
     (proposal) => proposal.status !== "discarded",
   );
+  const destinations = useAgentCreationDestinations(workspaceId, proposals);
   // Coding proposals are applied together with task changes; applying one
   // starts its job.
   const pending = [...proposals, ...codeProposals].filter(
@@ -46,6 +48,11 @@ export function AgentProposalReview({
   );
   const selectedIds = pending
     .filter((proposal) => !deselected.has(proposal.id))
+    .filter(
+      (proposal) =>
+        proposal.action.type !== "task.create" ||
+        destinations.get(proposal.id)?.ready,
+    )
     .map((proposal) => proposal.id);
   const appliedCount = [...proposals, ...codeProposals].filter(
     (proposal) => proposal.status === "applied",
@@ -144,7 +151,14 @@ export function AgentProposalReview({
                 : getTaskKey?.(proposal.action.taskId)
             }
             selected={!deselected.has(proposal.id)}
-            disabled={busy || !canReview}
+            disabled={
+              busy ||
+              (proposal.status === "pending" &&
+                (!canReview ||
+                  (proposal.action.type === "task.create" &&
+                    !destinations.get(proposal.id)?.ready)))
+            }
+            creationDestination={destinations.get(proposal.id)}
             onSelectedChange={
               readOnly ? undefined : (selected) => toggle(proposal.id, selected)
             }

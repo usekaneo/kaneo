@@ -148,6 +148,35 @@ async function setup() {
 }
 
 describe("agent comment proposals", () => {
+  it("rejects a moved task without replacing the proposal with its private-project snapshot", async () => {
+    const ctx = await setup();
+    const proposal = await ctx.propose();
+    await ctx.ready();
+    const { project, columns } = await createProjectFixture({
+      workspaceId: ctx.workspace.id,
+    });
+    await db
+      .update(schema.taskTable)
+      .set({
+        projectId: project.id,
+        columnId: columns.todo.id,
+        title: "Private destination task",
+      })
+      .where(eq(schema.taskTable.id, ctx.task.id));
+    const result = await ctx.apply(proposal.id);
+    expect(result.results).toMatchObject([
+      { id: proposal.id, status: "failed", code: 409 },
+    ]);
+    const [stored] = await db
+      .select()
+      .from(schema.agentProposalTable)
+      .where(eq(schema.agentProposalTable.id, proposal.id));
+    expect(stored!.status).toBe("pending");
+    expect(stored!.before?.projectId).toBe(ctx.project.id);
+    expect(stored!.before?.title).toBe("Fix proxy reconnect");
+    expect(stored!.after).toBeNull();
+    expect(await ctx.comments()).toEqual([]);
+  });
   it("posts exactly one comment as the applying user, even under concurrent retries", async () => {
     const ctx = await setup();
     const proposal = await ctx.propose();

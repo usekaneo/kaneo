@@ -28,11 +28,15 @@ export function AgentHistoryMenu({
 }: AgentHistoryMenuProps) {
   const { t } = useTranslation();
   const [open, setOpen] = useState(false);
-  const { data, isPending, isError } = useAgentConversations(
-    workspaceId,
-    projectId,
-    open,
-  );
+  const {
+    data = [],
+    isPending,
+    isError,
+    isFetching,
+    hasNextPage,
+    fetchNextPage,
+    refetch,
+  } = useAgentConversations(workspaceId, projectId, open);
 
   return (
     <DropdownMenu open={open} onOpenChange={setOpen}>
@@ -57,11 +61,7 @@ export function AgentHistoryMenu({
             <DropdownMenuItem disabled className="text-sm">
               {t("common:empty.loading")}
             </DropdownMenuItem>
-          ) : isError ? (
-            <DropdownMenuItem disabled className="text-sm">
-              {t("agent:panel.historyError")}
-            </DropdownMenuItem>
-          ) : data.length === 0 ? (
+          ) : !isError && data.length === 0 ? (
             <DropdownMenuItem disabled className="text-sm">
               {t("agent:panel.historyEmpty")}
             </DropdownMenuItem>
@@ -69,6 +69,7 @@ export function AgentHistoryMenu({
             data.map((conversation) => (
               <DropdownMenuItem
                 key={conversation.id}
+                closeOnClick
                 disabled={conversation.id === activeId}
                 onClick={() => onSelect(conversation.id)}
                 className="flex items-baseline justify-between gap-3 text-sm"
@@ -79,6 +80,28 @@ export function AgentHistoryMenu({
                 </span>
               </DropdownMenuItem>
             ))
+          )}
+          {isError && (
+            <DropdownMenuItem disabled className="text-sm">
+              {t("agent:panel.historyError")}
+            </DropdownMenuItem>
+          )}
+          {(hasNextPage || isError) && (
+            <DropdownMenuItem
+              closeOnClick={false}
+              disabled={isFetching}
+              onClick={() => {
+                if (hasNextPage) void fetchNextPage();
+                else void refetch();
+              }}
+              className="text-sm"
+            >
+              {isFetching
+                ? t("common:empty.loading")
+                : isError
+                  ? t("common:error.tryAgain")
+                  : t("agent:panel.historyOlder")}
+            </DropdownMenuItem>
           )}
         </DropdownMenuGroup>
       </DropdownMenuContent>

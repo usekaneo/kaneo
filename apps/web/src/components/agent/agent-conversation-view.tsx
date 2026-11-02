@@ -39,7 +39,7 @@ export function AgentConversationView({
     Boolean(conversation) && readOnly,
   );
   const latestId = runs.data?.at(-1)?.id;
-  const { data: latestRun } = useAgentRun(workspaceId, latestId);
+  const { data: latestRun } = useAgentRun(workspaceId, latestId, readOnly);
   const running = latestRun ? isAgentRunActive(latestRun.status) : false;
   const send = useSendAgentPrompt(workspaceId);
   const cancel = useCancelAgentRun(workspaceId);
@@ -65,6 +65,9 @@ export function AgentConversationView({
         runs={runs.data ?? []}
         isLoading={runs.isPending}
         isError={runs.isError}
+        hasOlder={runs.hasNextPage}
+        isLoadingOlder={runs.isFetching}
+        onLoadOlder={() => void runs.fetchNextPage()}
         readOnly={readOnly}
       />
       {!readOnly && (
@@ -85,7 +88,12 @@ export function AgentConversationView({
               running={running}
               sending={send.isPending}
               modelPicker={<AgentModelPicker workspaceId={workspaceId} />}
-              mentionScope={{ workspaceId }}
+              mentionScope={{
+                workspaceId,
+                ...(conversation?.projectId
+                  ? { projectId: conversation.projectId }
+                  : {}),
+              }}
             />
           ) : (
             <AgentUnavailable />

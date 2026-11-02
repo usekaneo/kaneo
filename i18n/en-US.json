@@ -5267,7 +5267,8 @@
 			"newConversation": "New conversation",
 			"close": "Close agent",
 			"introTitle": "What should we look at in {{project}}?",
-			"introBody": "I can read tasks, comments and workload here, then propose changes for you to review."
+			"introBody": "I can read tasks, comments and workload here, then propose changes for you to review.",
+			"historyOlder": "Load older conversations"
 		},
 		"suggestions": {
 			"risk": "What's at risk this week?",
@@ -5284,7 +5285,8 @@
 			"loadError": "Couldn't load this run."
 		},
 		"thread": {
-			"loadError": "Couldn't load this conversation."
+			"loadError": "Couldn't load this conversation.",
+			"loadOlder": "Load older messages"
 		},
 		"review": {
 			"label": "Proposed changes",
@@ -5330,7 +5332,9 @@
 			"undo": "Undo",
 			"unassigned": "Unassigned",
 			"unknownMember": "Former member",
-			"noDueDate": "No due date"
+			"noDueDate": "No due date",
+			"destinationUnavailable": "The project or status is unavailable. Ask for a new proposal.",
+			"noDescription": "No description"
 		},
 		"overlay": {
 			"proposed": "Proposed: {{change}}",

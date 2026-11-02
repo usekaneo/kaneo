@@ -3,10 +3,12 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { collectChanges } from "./collect-changes.js";
 import { git } from "./git.js";
+import { assertContainedSymlinks } from "./assert-contained-symlinks.js";
 
 /** Prepare before the agent can edit .git; never reuse its config or objects. */
 export async function prepareChangeCollector(cwd: string, baseSha: string) {
   const worktree = await realpath(cwd);
+  await assertContainedSymlinks(worktree);
   const temp = await mkdtemp(join(tmpdir(), "kaneo-collector-"));
   const gitDir = join(temp, "repository.git");
   const dispose = () => rm(temp, { recursive: true, force: true });
@@ -38,7 +40,10 @@ export async function prepareChangeCollector(cwd: string, baseSha: string) {
       baseSha,
     ]);
     return {
-      collect: () => collectChanges(trustedGit, baseSha),
+      collect: async () => {
+        await assertContainedSymlinks(worktree);
+        return collectChanges(trustedGit, baseSha);
+      },
       dispose,
     };
   } catch (error) {

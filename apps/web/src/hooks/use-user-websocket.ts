@@ -1,4 +1,5 @@
 import { invalidateAgentJobQueries } from "@/lib/invalidate-agent-job-queries";
+import { invalidateAgentConversationRuns } from "@/lib/invalidate-agent-conversation-runs";
 import { workspaceStatusQueryKey } from "@/hooks/queries/workspace/use-workspace-archived";
 import { windowId } from "@kaneo/libs";
 import { useQueryClient } from "@tanstack/react-query";
@@ -121,6 +122,7 @@ export function useUserWebSocket() {
             workspaceIds?: string[] | null;
             reason?: string;
             runId?: string;
+            conversationId?: string;
           };
           if (message.type === "USER_ACCESS_REVOKED") {
             leaveSession();
@@ -200,6 +202,13 @@ export function useUserWebSocket() {
             message.workspaceId &&
             message.runId
           ) {
+            if (message.conversationId)
+              void invalidateAgentConversationRuns(
+                queryClient,
+                message.workspaceId,
+                message.conversationId,
+                message.runId,
+              );
             if (message.type === "AGENT_JOB_UPDATED")
               void invalidateAgentJobQueries(queryClient, message.workspaceId);
             void queryClient.invalidateQueries({

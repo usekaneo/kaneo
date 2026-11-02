@@ -7,12 +7,15 @@ import { AgentProposalChange } from "./agent-proposal-change";
 import { AgentProposalComment } from "./agent-proposal-comment";
 import { describeAgentProposal } from "./describe-agent-proposal";
 import { getProposalActionKey } from "./get-proposal-action-key";
+import { AgentTaskCreationDetails } from "./agent-task-creation-details";
+import type { AgentCreationDestination } from "./agent-creation-destination";
 
 type AgentProposalRowProps = {
   proposal: AgentProposal;
   taskKey?: string;
   selected: boolean;
   disabled: boolean;
+  creationDestination?: AgentCreationDestination;
   // Omitted for read-only viewers of a shared conversation.
   onSelectedChange?: (selected: boolean) => void;
   onUndo?: () => void;
@@ -23,6 +26,7 @@ export function AgentProposalRow({
   taskKey,
   selected,
   disabled,
+  creationDestination,
   onSelectedChange,
   onUndo,
 }: AgentProposalRowProps) {
@@ -67,6 +71,12 @@ export function AgentProposalRow({
         </div>
         {summary.kind === "comment" && (
           <AgentProposalComment body={summary.body} />
+        )}
+        {proposal.action.type === "task.create" && (
+          <AgentTaskCreationDetails
+            description={proposal.action.description}
+            destination={creationDestination}
+          />
         )}
         {summary.kind === "create"
           ? summary.changes.length > 0 && (

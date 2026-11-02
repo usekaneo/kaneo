@@ -4,9 +4,53 @@ import {
   publishEvent,
   shutdownEventBus,
   subscribeToEvent,
+  type EventPayload,
 } from "../../../apps/api/src/events/index";
 
 describe("publishEvent / subscribeToEvent", () => {
+  it("shares one publication identity between subscribers without replacing provider IDs", async () => {
+    const received: EventPayload<{ eventId: string }>[] = [];
+    const collect = async (
+      _data: { eventId: string },
+      event: EventPayload<{ eventId: string }>,
+    ) => {
+      received.push(event);
+    };
+    await subscribeToEvent("test.identity", collect);
+    await subscribeToEvent("test.identity", collect);
+    await publishEvent(
+      "test.identity",
+      { eventId: "provider-receipt" },
+      { waitForHandlers: true },
+    );
+
+    expect(received).toHaveLength(2);
+    expect(received[0]).toBe(received[1]);
+    expect(received[0]!.id).toMatch(
+      /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/,
+    );
+    expect(received[0]!.data.eventId).toBe("provider-receipt");
+  });
+
+  it("distinguishes publications with identical data and timestamps", async () => {
+    const received: EventPayload[] = [];
+    await subscribeToEvent("test.repeated", async (_data, event) => {
+      received.push(event);
+    });
+    vi.useFakeTimers();
+    try {
+      vi.setSystemTime(new Date("2026-01-01T00:00:00Z"));
+      const data = { taskId: "task", newStatus: "in-review" };
+      await publishEvent("test.repeated", data, { waitForHandlers: true });
+      await publishEvent("test.repeated", data, { waitForHandlers: true });
+      expect(received).toHaveLength(2);
+      expect(received[0]!.timestamp).toBe(received[1]!.timestamp);
+      expect(received[0]!.id).not.toBe(received[1]!.id);
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
   it("awaits subscriber completion in sequence when requested", async () => {
     let release!: () => void;
     const gate = new Promise<void>((resolve) => {

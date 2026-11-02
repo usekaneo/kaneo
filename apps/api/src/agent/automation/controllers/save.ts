@@ -1,4 +1,4 @@
-import { and, count, eq, inArray, isNull } from "drizzle-orm";
+import { and, count, eq, isNull } from "drizzle-orm";
 import { HTTPException } from "hono/http-exception";
 import { z } from "zod";
 import db, { schema } from "../../../database";
@@ -6,6 +6,7 @@ import { assertAgentAccess, assertAgentProject } from "../../access";
 import { requireEffectiveAgentConfig } from "../../effective-config";
 import type { AgentSubject } from "../../types";
 import { getOwnedAutomation } from "../access";
+import { cancelAutomationRuns } from "../cancel-runs";
 import { ensureAutomationConversation } from "../ensure-conversation";
 import { AUTOMATION_LIMIT_PER_OWNER } from "../limits";
 import { nextScheduledRun } from "../schedule";
@@ -95,28 +96,11 @@ export async function saveAutomation(
     if (existing && existing.projectId !== automation.projectId) {
       // A different scope gets its own private thread; never relabel old tool
       // results as belonging to another project's access boundary.
-      const conversations = tx
-        .select({ id: schema.agentConversationTable.id })
-        .from(schema.agentConversationTable)
-        .where(eq(schema.agentConversationTable.automationId, automation.id));
       await tx
         .update(schema.agentConversationTable)
         .set({ sharedAt: null })
         .where(eq(schema.agentConversationTable.automationId, automation.id));
-      await tx
-        .update(schema.agentRunTable)
-        .set({
-          status: "cancelled",
-          finishedAt: now,
-          leaseOwner: null,
-          leaseExpiresAt: null,
-        })
-        .where(
-          and(
-            inArray(schema.agentRunTable.conversationId, conversations),
-            inArray(schema.agentRunTable.status, ["queued", "running"]),
-          ),
-        );
+      await cancelAutomationRuns(tx, automation.id, now);
     }
     await ensureAutomationConversation(tx, automation);
     return automation.id;

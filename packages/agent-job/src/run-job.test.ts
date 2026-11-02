@@ -1,4 +1,12 @@
-import { mkdtemp, writeFile, rm, unlink, mkdir, chmod } from "node:fs/promises";
+import {
+  mkdtemp,
+  writeFile,
+  rm,
+  unlink,
+  mkdir,
+  chmod,
+  symlink,
+} from "node:fs/promises";
 import { existsSync } from "node:fs";
 import { join } from "node:path";
 import { tmpdir } from "node:os";
@@ -73,6 +81,23 @@ afterEach(async () => {
 });
 
 describe("CI job wrapper", () => {
+  it("rejects a tracked outside directory symlink before starting the coding process", async () => {
+    await symlink(tmpdir(), join(cwd, "runner-files"));
+    await git(cwd, ["add", "."]);
+    await git(cwd, ["commit", "-m", "add directory link"]);
+    baseSha = (await git(cwd, ["rev-parse", "HEAD"])).toString().trim();
+    const runAgent = vi.fn(async () => {});
+    await expect(
+      runJob(options(), { fetch: fetchMock, runAgent }),
+    ).rejects.toThrow("Kaneo coding job failed");
+    expect(runAgent).not.toHaveBeenCalled();
+    expect(requests.some((request) => request.url.endsWith("/changeset"))).toBe(
+      false,
+    );
+    expect(
+      requests.find((request) => request.url.endsWith("/fail"))?.body,
+    ).toEqual({ code: "agent_failed" });
+  });
   it("claims through OIDC, runs a mocked coding CLI, uploads file operations and masks secrets", async () => {
     const mask = vi.fn();
     const runAgent = vi.fn(async (_cwd, received) => {

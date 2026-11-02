@@ -1,4 +1,5 @@
 import { eq } from "drizzle-orm";
+import { HTTPException } from "hono/http-exception";
 import { schema } from "../../database";
 import { recordComment } from "../../activity/controllers/create-comment";
 import type { AgentDatabase } from "../access";
@@ -14,6 +15,7 @@ export async function applyComment(
   subject: AgentSubject,
   proposalId: string,
   action: Extract<AgentAction, { type: "comment.create" }>,
+  expectedProjectId: string,
 ): Promise<AgentEffect> {
   // Keeps the task from being deleted between the scope check and the insert.
   await tx
@@ -22,6 +24,10 @@ export async function applyComment(
     .where(eq(schema.taskTable.id, action.taskId))
     .for("share");
   const task = await getScopedTask(subject, action.taskId, tx);
+  if (task.projectId !== expectedProjectId)
+    throw new HTTPException(409, {
+      message: "Task moved since this proposal; refresh and ask again",
+    });
   const recorded = await recordComment(
     tx,
     task.id,

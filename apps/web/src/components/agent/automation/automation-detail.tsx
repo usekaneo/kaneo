@@ -51,7 +51,10 @@ export function AutomationDetail({
     },
     canReadRuns,
   );
-  const selected = runs.data?.find((run) => run.id === runId) ?? runs.data?.[0];
+  const selected = runId
+    ? runs.data?.find((run) => run.id === runId)
+    : runs.data?.[0];
+  const selectedId = runId ?? selected?.id;
   const monthCost = formatCost(
     automation.monthCostUsd,
     i18n.resolvedLanguage || i18n.language,
@@ -101,7 +104,7 @@ export function AutomationDetail({
                   isPending={runs.isPending}
                   isError={runs.isError}
                   onRetry={() => void runs.refetch()}
-                  selectedId={selected?.id}
+                  selectedId={selectedId}
                   onSelect={(id) =>
                     void navigate({
                       to: "/dashboard/workspace/$workspaceId/agent/automations/$automationId",
@@ -115,10 +118,13 @@ export function AutomationDetail({
                   pageSize={RUNS_PAGE_SIZE}
                   onPageChange={setPage}
                 />
-                {selected && (
+                {selectedId && (
                   <AutomationRunPanel
-                    key={selected.id}
+                    key={selectedId}
                     workspaceId={workspaceId}
+                    runId={selectedId}
+                    automationId={automation.id}
+                    conversationId={automation.conversationId}
                     summary={selected}
                     readOnly={!isOwner}
                   />

@@ -8,19 +8,43 @@ import { formatCost, formatRunDuration, formatTokens } from "./format-run-meta";
 
 type AutomationRunPanelProps = {
   workspaceId: string;
-  summary: AutomationRun;
+  runId: string;
+  automationId: string;
+  conversationId: string | null;
+  summary: AutomationRun | undefined;
   readOnly: boolean;
 };
 
 export function AutomationRunPanel({
   workspaceId,
+  runId,
+  automationId,
+  conversationId,
   summary,
   readOnly,
 }: AutomationRunPanelProps) {
   const { t, i18n } = useTranslation();
   const locale = i18n.resolvedLanguage || i18n.language;
-  const { data: run, isError } = useAgentRun(workspaceId, summary.id);
+  const { data: run, isError } = useAgentRun(workspaceId, runId, readOnly);
   const source = run ?? summary;
+  if (!source)
+    return (
+      <p
+        role={isError ? "alert" : "status"}
+        className="text-muted-foreground text-sm"
+      >
+        {t(isError ? "agent:run.loadError" : "common:empty.loading")}
+      </p>
+    );
+  if (
+    source.trigger?.automationId !== automationId ||
+    source.conversationId !== conversationId
+  )
+    return (
+      <p role="alert" className="text-destructive-foreground text-sm">
+        {t("agent:run.loadError")}
+      </p>
+    );
   const meta = [
     source.inputTokens + source.outputTokens > 0
       ? t("agent:automations.runs.tokens", {
@@ -41,7 +65,7 @@ export function AutomationRunPanel({
           id="automation-run-title"
           className="font-semibold text-[15px] text-foreground"
         >
-          {formatDateTime(summary.createdAt)}
+          {formatDateTime(source.createdAt)}
         </h2>
         {meta.length > 0 && (
           <span className="font-mono text-[11px] text-muted-foreground">
@@ -51,14 +75,14 @@ export function AutomationRunPanel({
       </div>
       <AutomationRunTrigger
         workspaceId={workspaceId}
-        trigger={summary.trigger}
+        trigger={source.trigger}
       />
       <AgentRunOutput
         workspaceId={workspaceId}
         run={run}
-        status={run?.status ?? summary.status}
+        status={source.status}
         response={run?.response ?? ""}
-        error={run?.error ?? summary.error}
+        error={source.error}
         loadFailed={isError}
         readOnly={readOnly}
       />

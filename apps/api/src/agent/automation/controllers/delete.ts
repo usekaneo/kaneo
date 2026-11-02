@@ -1,8 +1,9 @@
-import { and, eq, inArray } from "drizzle-orm";
+import { and, eq } from "drizzle-orm";
 import { HTTPException } from "hono/http-exception";
 import db, { schema } from "../../../database";
 import type { AgentSubject } from "../../types";
 import { getOwnedAutomation } from "../access";
+import { cancelAutomationRuns } from "../cancel-runs";
 
 export async function deleteAutomation(subject: AgentSubject, id: string) {
   await getOwnedAutomation(subject, id);
@@ -18,24 +19,7 @@ export async function deleteAutomation(subject: AgentSubject, id: string) {
       )
       .for("update");
     if (!row) throw new HTTPException(404, { message: "Automation not found" });
-    const conversations = tx
-      .select({ id: schema.agentConversationTable.id })
-      .from(schema.agentConversationTable)
-      .where(eq(schema.agentConversationTable.automationId, id));
-    await tx
-      .update(schema.agentRunTable)
-      .set({
-        status: "cancelled",
-        finishedAt: new Date(),
-        leaseOwner: null,
-        leaseExpiresAt: null,
-      })
-      .where(
-        and(
-          inArray(schema.agentRunTable.conversationId, conversations),
-          inArray(schema.agentRunTable.status, ["queued", "running"]),
-        ),
-      );
+    await cancelAutomationRuns(tx, id);
     await tx
       .delete(schema.agentAutomationTable)
       .where(eq(schema.agentAutomationTable.id, id));

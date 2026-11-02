@@ -17,7 +17,7 @@ export function AgentRunItem({
   getTaskKey,
   readOnly,
 }: AgentRunItemProps) {
-  const { data: run, isError } = useAgentRun(workspaceId, summary.id);
+  const { data: run, isError } = useAgentRun(workspaceId, summary.id, readOnly);
 
   return (
     <article className="flex flex-col gap-4">

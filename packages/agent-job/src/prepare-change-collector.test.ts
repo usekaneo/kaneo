@@ -86,5 +86,5 @@ it("rejects symlinks to files outside the checkout", async () => {
   const outside = join(root, "host-only.txt");
   await writeFile(outside, "host-only fixture");
   await symlink(outside, join(cwd, "leak.txt"));
-  await expect(collector!.collect()).rejects.toThrow("Unsupported file mode");
+  await expect(collector!.collect()).rejects.toThrow("outside the checkout");
 });

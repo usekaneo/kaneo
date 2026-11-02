@@ -126,10 +126,14 @@ export function AgentPanel({
 
       {conversationId ? (
         <AgentThread
+          key={conversationId}
           workspaceId={workspaceId}
           runs={runs.data ?? []}
           isLoading={runs.isPending}
           isError={runs.isError}
+          hasOlder={runs.hasNextPage}
+          isLoadingOlder={runs.isFetching}
+          onLoadOlder={() => void runs.fetchNextPage()}
           getTaskKey={getTaskKey}
         />
       ) : (

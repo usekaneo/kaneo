@@ -151,7 +151,13 @@ export async function applyProposals(
             },
           };
         } else if (action.type === "comment.create") {
-          effect = await applyComment(tx, scoped, proposalId, action);
+          effect = await applyComment(
+            tx,
+            scoped,
+            proposalId,
+            action,
+            projectId,
+          );
         } else {
           await tx
             .select({ id: schema.taskTable.id })

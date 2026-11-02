@@ -23,7 +23,7 @@ import { callbackRateLimit } from "../callback-rate-limit";
 const params = z.object({ jobId: z.string().min(1).max(128) });
 const sensitive: MiddlewareHandler = async (_c, next) =>
   withoutOutboundTelemetry(next);
-const common = [sensitive, callbackRateLimit];
+const common = [sensitive];
 const errors = {
   400: errorResponse("Invalid callback or changeset policy violation"),
   403: errorResponse("Invalid job identity or credential"),
@@ -40,12 +40,13 @@ function bearer(c: Context) {
   return value.slice(7);
 }
 const accepted = z.object({ accepted: z.literal(true) });
-const authenticateChangeset: MiddlewareHandler = async (c, next) => {
+const authenticateCallback: MiddlewareHandler = async (c, next) => {
   // Reject invalid credentials before allocating the large upload buffer.
   // uploadChangeset checks again after reading, so revocation still takes effect.
   await authenticateJob(c.req.param("jobId") ?? "", bearer(c));
   await next();
 };
+const authenticated = [...common, authenticateCallback, callbackRateLimit];
 const callbacks = apiRouter()
   .openapi(
     createRoute({
@@ -56,7 +57,7 @@ const callbacks = apiRouter()
       security: [],
       summary:
         "Exchange a GitHub Actions OIDC bearer token for a single-job callback credential",
-      middleware: [...common, boundedRequestBody(1024)],
+      middleware: [...common, callbackRateLimit, boundedRequestBody(1024)],
       request: {
         body: {
           required: true,
@@ -97,7 +98,7 @@ const callbacks = apiRouter()
       tags: ["Agent jobs"],
       security: [],
       summary: "Report a coarse job phase with a job bearer credential",
-      middleware: [...common, boundedRequestBody(1024)],
+      middleware: [...authenticated, boundedRequestBody(1024)],
       request: {
         params,
         body: {
@@ -143,8 +144,7 @@ const callbacks = apiRouter()
       summary:
         "Upload a single bounded changeset; Kaneo creates the branch, commit, and draft PR",
       middleware: [
-        ...common,
-        authenticateChangeset,
+        ...authenticated,
         boundedRequestBody(CHANGESET_REQUEST_BYTES),
       ],
       request: {
@@ -177,7 +177,7 @@ const callbacks = apiRouter()
       tags: ["Agent jobs"],
       security: [],
       summary: "Report a stable failure code with a job bearer credential",
-      middleware: [...common, boundedRequestBody(1024)],
+      middleware: [...authenticated, boundedRequestBody(1024)],
       request: {
         params,
         body: {

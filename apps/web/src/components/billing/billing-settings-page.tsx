@@ -9,6 +9,7 @@ import { SettingsPage } from "@/components/settings/settings-page";
 import { SettingsSection } from "@/components/settings/settings-section";
 import { Spinner } from "@/components/ui/spinner";
 import { useGetBilling } from "@/hooks/queries/billing/use-get-billing";
+import useGetConfig from "@/hooks/queries/config/use-get-config";
 import { useTrackSubscription } from "@/hooks/use-track-subscription";
 import { useWorkspacePermission } from "@/hooks/use-workspace-permission";
 
@@ -25,8 +26,17 @@ export function BillingSettingsPage({
   const { workspace, isAdmin, canManageSettings } = useWorkspacePermission();
   const workspaceId = workspace?.id;
   const { data: billing, isLoading } = useGetBilling(workspaceId);
+  const { data: config } = useGetConfig();
   const planPickerRef = useRef<HTMLDivElement>(null);
   useTrackSubscription(checkout, billing?.seats);
+  const aiCredit = workspaceId ? (
+    <AiCreditCard
+      key={workspaceId}
+      workspaceId={workspaceId}
+      canManage={canManageSettings()}
+      checkout={checkout}
+    />
+  ) : null;
 
   if (isLoading) {
     return (
@@ -43,7 +53,9 @@ export function BillingSettingsPage({
         <SettingsPage
           title={t("settings:billing.pageTitle")}
           description={t("settings:billing.disabled")}
-        />
+        >
+          {config?.isCloud ? aiCredit : null}
+        </SettingsPage>
       </>
     );
   }
@@ -85,14 +97,7 @@ export function BillingSettingsPage({
           />
         </SettingsSection>
 
-        {workspaceId ? (
-          <AiCreditCard
-            key={workspaceId}
-            workspaceId={workspaceId}
-            canManage={canManageSettings()}
-            checkout={checkout}
-          />
-        ) : null}
+        {aiCredit}
 
         {showPlanPicker ? (
           <div ref={planPickerRef} className="scroll-mt-6">

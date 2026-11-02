@@ -575,6 +575,13 @@
       "when": 1793534691033,
       "tag": "0081_real_scarecrow",
       "breakpoints": true
+    },
+    {
+      "idx": 82,
+      "version": "7",
+      "when": 1793651002526,
+      "tag": "0082_agent_admin_code_permission",
+      "breakpoints": true
     }
   ]
 }

@@ -84,21 +84,29 @@ export async function meteredModel(
             // These HTTP rejections occur before inference; timeouts/5xx stay held.
             if (
               APICallError.isInstance(error) &&
-              [400, 401, 403, 404, 422, 429].includes(error.statusCode ?? 0)
+              [400, 401, 402, 403, 404, 422, 429].includes(
+                error.statusCode ?? 0,
+              )
             )
               await settleCredit(reservation.id, 0n);
             throw error;
           });
+        let generationId: string | undefined;
         return {
           ...result,
           stream: result.stream.pipeThrough(
             new TransformStream({
               async transform(chunk, controller) {
-                if (chunk.type === "response-metadata" && chunk.id) {
+                if (
+                  chunk.type === "response-metadata" &&
+                  chunk.id &&
+                  chunk.id !== generationId
+                ) {
                   await db
                     .update(schema.aiReservationTable)
                     .set({ generationId: chunk.id })
                     .where(eq(schema.aiReservationTable.id, reservation.id));
+                  generationId = chunk.id;
                 }
                 if (chunk.type === "finish") {
                   const accounting = chunk.providerMetadata?.openrouter?.usage;

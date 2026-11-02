@@ -21874,6 +21874,9 @@
 						},
 						"introBody": {
 							"type": "string"
+						},
+						"historyOlder": {
+							"type": "string"
 						}
 					},
 					"required": [
@@ -21884,7 +21887,8 @@
 						"newConversation",
 						"close",
 						"introTitle",
-						"introBody"
+						"introBody",
+						"historyOlder"
 					]
 				},
 				"suggestions": {
@@ -21955,9 +21959,12 @@
 					"properties": {
 						"loadError": {
 							"type": "string"
+						},
+						"loadOlder": {
+							"type": "string"
 						}
 					},
-					"required": ["loadError"]
+					"required": ["loadError", "loadOlder"]
 				},
 				"review": {
 					"type": "object",
@@ -22179,6 +22186,12 @@
 						},
 						"noDueDate": {
 							"type": "string"
+						},
+						"destinationUnavailable": {
+							"type": "string"
+						},
+						"noDescription": {
+							"type": "string"
 						}
 					},
 					"required": [
@@ -22187,7 +22200,9 @@
 						"undo",
 						"unassigned",
 						"unknownMember",
-						"noDueDate"
+						"noDueDate",
+						"destinationUnavailable",
+						"noDescription"
 					]
 				},
 				"overlay": {

@@ -17,6 +17,11 @@ import { createProposal } from "../../apps/api/src/agent/controllers/create-prop
 import { mockAuthenticatedSession } from "./helpers/auth";
 import { resetTestDatabase } from "./helpers/database";
 import {
+  automationFixture,
+  executeQueuedAutomationRun,
+} from "./helpers/agent-automation";
+import { runAutomationNow } from "../../apps/api/src/agent/automation/controllers/run-now";
+import {
   createProjectFixture,
   createWorkspaceMember,
 } from "./helpers/fixtures";
@@ -200,6 +205,50 @@ it("delivers coding job IDs only to the owner's user socket without Redis", asyn
       workspaceId: workspace.id,
       runId: "run-id",
       jobId: "job-id",
+    }),
+  );
+});
+
+it("identifies the conversation in run updates so another owner session can refresh its history", async () => {
+  await resetTestDatabase();
+  for (const name of [
+    "REDIS_URL",
+    "REDIS_HOST",
+    "REDIS_SENTINELS",
+    "REDIS_CLUSTER_NODES",
+  ])
+    vi.stubEnv(name, "");
+  vi.stubEnv("KANEO_AGENT_ENABLED", "true");
+  vi.stubEnv("OPENROUTER_API_KEY", "fake-key");
+  vi.stubEnv("OPENROUTER_MODEL", "openai/gpt-6-luna");
+  const ctx = await automationFixture();
+  const queued = await runAutomationNow(ctx.subject, ctx.id);
+  const [run] = await db
+    .select()
+    .from(schema.agentRunTable)
+    .where(eq(schema.agentRunTable.id, queued.id));
+  mockAuthenticatedSession(ctx.user);
+  const created = createApp();
+  await initializeWebSocketAdapter();
+  server = serve({ fetch: created.app.fetch, hostname: "127.0.0.1", port: 0 });
+  created.injectWebSocket(server);
+  if (!server.listening) await once(server, "listening");
+  const address = server.address();
+  if (!address || typeof address === "string") throw new Error("No test port");
+  socket = new WebSocket(
+    `ws://127.0.0.1:${address.port}/api/ws/user?windowId=other-owner-session`,
+    { headers: { Authorization: "Bearer test-session" } },
+  );
+  await once(socket, "open");
+  const messages: Record<string, unknown>[] = [];
+  socket.on("message", (data) => messages.push(JSON.parse(data.toString())));
+  await executeQueuedAutomationRun(queued.id);
+  await vi.waitFor(() =>
+    expect(messages).toContainEqual({
+      type: "AGENT_RUN_UPDATED",
+      workspaceId: ctx.workspace.id,
+      runId: queued.id,
+      conversationId: run!.conversationId,
     }),
   );
 });

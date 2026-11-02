@@ -1,7 +1,25 @@
 import { cleanup, render, screen } from "@testing-library/react";
-import { afterEach, describe, expect, it, vi } from "vite-plus/test";
+import {
+  afterEach,
+  beforeEach,
+  describe,
+  expect,
+  it,
+  vi,
+} from "vite-plus/test";
 import type { AgentCodeProposal, AgentProposal, AgentRun } from "@/types/agent";
 import { AgentProposalReview } from "./agent-proposal-review";
+
+const destination = vi.hoisted(() => ({
+  projectName: "Project Bravo",
+  statusName: "Done",
+  pending: false,
+  ready: true,
+}));
+
+vi.mock("./use-agent-creation-destinations", () => ({
+  useAgentCreationDestinations: () => new Map([["create", destination]]),
+}));
 
 vi.mock("react-i18next", () => ({
   useTranslation: () => ({ t: (key: string) => key }),
@@ -33,6 +51,10 @@ vi.mock("./use-agent-value-formatter", () => ({
 }));
 
 afterEach(cleanup);
+beforeEach(() => {
+  destination.pending = false;
+  destination.ready = true;
+});
 
 const before = {
   id: "task-1",
@@ -85,6 +107,53 @@ const codeRun = {
 } as unknown as AgentRun;
 
 describe("AgentProposalReview", () => {
+  it("keeps Undo enabled after applying the last proposal", () => {
+    render(
+      <AgentProposalReview
+        workspaceId="ws"
+        run={{
+          ...run,
+          status: "completed",
+          proposals: [proposal("applied", "applied")],
+        }}
+      />,
+    );
+    expect(
+      screen.getByRole("button", { name: "agent:proposal.undo" }),
+    ).toBeEnabled();
+  });
+
+  it("shows the destination, initial status, and full creation description", () => {
+    render(<AgentProposalReview workspaceId="ws" run={creationRun} />);
+    expect(screen.getByText("Project Bravo")).toBeInTheDocument();
+    expect(screen.getByText("Done")).toBeInTheDocument();
+    expect(screen.getByTestId("markdown")).toHaveTextContent(
+      "Include **all** migration details.",
+    );
+    expect(
+      screen.getByRole("button", { name: "agent:review.apply" }),
+    ).toBeEnabled();
+  });
+
+  it.each([true, false])(
+    "blocks creation while its destination is unresolved (pending=%s)",
+    (pending) => {
+      destination.pending = pending;
+      destination.ready = false;
+      render(<AgentProposalReview workspaceId="ws" run={creationRun} />);
+      expect(screen.getByRole("checkbox")).toHaveAttribute(
+        "aria-disabled",
+        "true",
+      );
+      expect(
+        screen.getByRole("button", { name: "agent:review.apply" }),
+      ).toBeDisabled();
+      if (!pending)
+        expect(screen.getByRole("alert")).toHaveTextContent(
+          "agent:proposal.destinationUnavailable",
+        );
+    },
+  );
   it("lets the owner select, apply, discard, and undo", () => {
     render(<AgentProposalReview workspaceId="ws" run={run} />);
     expect(screen.getByRole("checkbox")).toBeInTheDocument();
@@ -132,3 +201,23 @@ describe("AgentProposalReview", () => {
     expect(screen.queryByRole("button")).not.toBeInTheDocument();
   });
 });
+
+const creationRun = {
+  ...run,
+  proposals: [
+    {
+      ...proposal("create", "pending"),
+      action: {
+        type: "task.create",
+        projectId: "bravo",
+        title: "Write the migration guide",
+        description: "Include **all** migration details.",
+        status: "done",
+        priority: "low",
+        userId: null,
+        dueDate: null,
+      },
+      before: null,
+    },
+  ],
+} as AgentRun;

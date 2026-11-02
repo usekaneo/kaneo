@@ -5549,7 +5549,8 @@
 			"introBody": "I can read tasks, comments and workload here, then propose changes for you to review.",
 			"introTitle": "What should we look at in {{project}}?",
 			"label": "Agent panel",
-			"newConversation": "New conversation"
+			"newConversation": "New conversation",
+			"historyOlder": "Load older conversations"
 		},
 		"proposal": {
 			"action": {
@@ -5575,7 +5576,9 @@
 			},
 			"unassigned": "Unassigned",
 			"undo": "Undo",
-			"unknownMember": "Former member"
+			"unknownMember": "Former member",
+			"destinationUnavailable": "The project or status is unavailable. Ask for a new proposal.",
+			"noDescription": "No description"
 		},
 		"recent": {
 			"applied_few": "Applied {{count}} changes",
@@ -5645,7 +5648,8 @@
 			"workload": "Is anyone overloaded?"
 		},
 		"thread": {
-			"loadError": "Couldn't load this conversation."
+			"loadError": "Couldn't load this conversation.",
+			"loadOlder": "Load older messages"
 		},
 		"title": "Agent",
 		"unavailable": {

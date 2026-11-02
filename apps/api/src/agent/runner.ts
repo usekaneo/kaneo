@@ -64,6 +64,7 @@ export async function executeAgentRun(
       type: "AGENT_RUN_UPDATED",
       workspaceId: subject.workspaceId,
       runId: run.id,
+      conversationId: conversation.id,
     });
   let response = "",
     lastSaved = 0;

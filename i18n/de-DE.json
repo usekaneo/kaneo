@@ -5311,7 +5311,8 @@
 			"introBody": "I can read tasks, comments and workload here, then propose changes for you to review.",
 			"introTitle": "What should we look at in {{project}}?",
 			"label": "Agent panel",
-			"newConversation": "New conversation"
+			"newConversation": "New conversation",
+			"historyOlder": "Ältere Unterhaltungen laden"
 		},
 		"proposal": {
 			"action": {
@@ -5337,7 +5338,9 @@
 			},
 			"unassigned": "Unassigned",
 			"undo": "Undo",
-			"unknownMember": "Former member"
+			"unknownMember": "Former member",
+			"destinationUnavailable": "Projekt oder Status ist nicht mehr verfügbar. Bitte einen neuen Vorschlag anfordern.",
+			"noDescription": "Keine Beschreibung"
 		},
 		"recent": {
 			"applied_one": "Applied {{count}} change",
@@ -5391,7 +5394,8 @@
 			"workload": "Is anyone overloaded?"
 		},
 		"thread": {
-			"loadError": "Couldn't load this conversation."
+			"loadError": "Couldn't load this conversation.",
+			"loadOlder": "Ältere Nachrichten laden"
 		},
 		"title": "Agent",
 		"unavailable": {

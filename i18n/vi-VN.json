@@ -351,7 +351,8 @@
 					"invalidEmail": "Enter a valid email address",
 					"remove": "Remove email {{index}}",
 					"sent_other": "{{count}} invitations sent",
-					"skip": "Skip for now"
+					"skip": "Skip for now",
+					"sent_one": "Invitation sent"
 				},
 				"plan": {
 					"continueTrial": "Start free trial",
@@ -412,7 +413,8 @@
 				"description": "Họ sẽ nhận được email để tham gia {{name}}. Bỏ qua bước này nếu bạn muốn xem qua trước.",
 				"label": "Email của đồng đội",
 				"send_other": "Gửi {{count}} lời mời",
-				"sendNone": "Gửi lời mời"
+				"sendNone": "Gửi lời mời",
+				"send_one": "Send {{count}} invite"
 			},
 			"plan": {
 				"title": "Bạn muốn bắt đầu thế nào?",
@@ -427,7 +429,8 @@
 				"subscribe": "Đăng ký gói {{plan}}",
 				"checkout": "Tiếp tục thanh toán",
 				"trialNote": "Không cần thẻ để dùng thử. Thanh toán được xử lý bởi Creem.",
-				"paymentNote": "Thanh toán được xử lý bởi Creem."
+				"paymentNote": "Thanh toán được xử lý bởi Creem.",
+				"descriptionTrial_one": "Every plan includes unlimited projects and tasks. Try {{name}} free for {{count}} day, or subscribe now."
 			},
 			"ready": {
 				"eyebrow": "Đã sẵn sàng",
@@ -438,7 +441,9 @@
 				"projectValue_other": "{{name}}, với {{count}} công việc mẫu",
 				"invitations": "Lời mời",
 				"invitationsValue_other": "Đã gửi cho {{count}} người",
-				"open": "Mở {{name}}"
+				"open": "Mở {{name}}",
+				"invitationsValue_one": "Sent to {{count}} person",
+				"projectValue_one": "{{name}}, with {{count}} starter task"
 			},
 			"preview": {
 				"live": "Xem trước trực tiếp {{name}}",
@@ -722,7 +727,10 @@
 			"stopSendingDescription": "Thông báo từ không gian làm việc này sẽ chỉ hiển thị trong Kaneo.",
 			"stopSendingTitle": "Ngừng gửi từ {{workspaceName}}?",
 			"workspacesDescription": "Chọn không gian làm việc và dự án nào có thể dùng các kênh của bạn.",
-			"workspacesTitle": "Không gian làm việc"
+			"workspacesTitle": "Không gian làm việc",
+			"projectCount_one": "{{count}} project",
+			"reminderLeadTimeUnitDaysBefore_one": "day before",
+			"reminderLeadTimeUnitHoursBefore_one": "hour before"
 		},
 		"preferencesPage": {
 			"title": "Tùy chọn",
@@ -1070,7 +1078,8 @@
 			"deleteDialog": {
 				"title": "Xóa vai trò",
 				"description": "Thao tác này sẽ xóa vĩnh viễn vai trò \"{{role}}\". Các thành viên được gán vai trò này sẽ mất các quyền của nó."
-			}
+			},
+			"permissionCount_one": "{{count}} permission"
 		},
 		"workspaceLabels": {
 			"pageTitle": "Nhãn",
@@ -1746,7 +1755,8 @@
 				"toastKeyRevoked": "API key revoked.",
 				"toastKeyRevokeError": "Couldn't revoke the API key.",
 				"toastRevokedAll": "Sessions signed out."
-			}
+			},
+			"searchCount_one": "{{count}} matching user"
 		},
 		"security": "Security",
 		"securityPage": {
@@ -1948,7 +1958,8 @@
 				"expiredDescription": "Subscribe to a plan below to keep creating and editing. Your data stays safe and exportable in the meantime.",
 				"expiredTitle": "Your trial has ended",
 				"noDate": "Choose a plan below to continue after your trial.",
-				"badgeDaysLeft_other": "Còn {{count}} ngày"
+				"badgeDaysLeft_other": "Còn {{count}} ngày",
+				"badgeDaysLeft_one": "{{count}} day left"
 			},
 			"trialCard": {
 				"activeDescription": "Upgrade anytime to keep your workspace after the trial.",
@@ -1958,7 +1969,8 @@
 				"ended": "Trial ended",
 				"endingDescription": "Pick a plan now so your team isn't interrupted.",
 				"expiredDescription": "Subscribe to keep creating and editing.",
-				"viewPlans": "View plans"
+				"viewPlans": "View plans",
+				"daysLeft_one": "{{count}} day left in trial"
 			},
 			"openFailed": "Couldn't open billing for this workspace",
 			"checkoutSuccess": {
@@ -1997,7 +2009,8 @@
 				"amountMinimum": "The minimum is {{amount}}.",
 				"amountMaximum": "The maximum is {{amount}}.",
 				"checkout": "Continue to checkout"
-			}
+			},
+			"seats_one": "{{count}} seat"
 		},
 		"syncRules": {
 			"addLabel": "Add label",
@@ -2062,7 +2075,8 @@
 			"pausedSummary_other": "{{count}} công việc đã ngừng đồng bộ vì không còn khớp với quy tắc đồng bộ.",
 			"providerToKaneo": "{{provider}} sang Kaneo",
 			"reviewPaused": "Xem lại",
-			"tasksLabelled": "Công việc có nhãn"
+			"tasksLabelled": "Công việc có nhãn",
+			"pausedSummary_one": "{{count}} task stopped syncing because it no longer matched the sync rules."
 		},
 		"advancedSettingsDescription": "Hiển thị thêm các tùy chọn điều khiển, như quy tắc đồng bộ tích hợp. Chỉ áp dụng trên trình duyệt này.",
 		"adminWorkspaces": {
@@ -2133,7 +2147,8 @@
 				"makeOwner": "Make owner",
 				"remove": "Remove from workspace",
 				"roleLabel": "Role for {{name}}",
-				"title": "Members of {{name}}"
+				"title": "Members of {{name}}",
+				"count_one": "{{count}} member"
 			},
 			"next": "Next",
 			"noOwner": "No owner",
@@ -2167,7 +2182,8 @@
 				"open": "Actions for {{name}}",
 				"restore": "Restore workspace"
 			},
-			"archived": "Archived"
+			"archived": "Archived",
+			"searchCount_one": "{{count}} matching workspace"
 		},
 		"workspaceImport": {
 			"back": {
@@ -2189,7 +2205,11 @@
 				"columns_other": "{{count, number}} columns",
 				"comments_other": "{{count, number}} comments",
 				"labels_other": "{{count, number}} labels",
-				"tasks_other": "{{count, number}} tasks"
+				"tasks_other": "{{count, number}} tasks",
+				"columns_one": "{{count, number}} column",
+				"comments_one": "{{count, number}} comment",
+				"labels_one": "{{count, number}} label",
+				"tasks_one": "{{count, number}} task"
 			},
 			"entry": {
 				"createProjectLink": "Import your projects",
@@ -2274,7 +2294,10 @@
 				"tookUnderMinute": "Took less than a minute",
 				"totals": "{{parts, list}} imported",
 				"waiting": "Waiting",
-				"warnings_other": "{{count}} warnings"
+				"warnings_other": "{{count}} warnings",
+				"failedNames_one": "{{names, list}} failed, so nothing was created for it.",
+				"took_one": "Took {{count}} minute",
+				"warnings_one": "{{count}} warning"
 			},
 			"select": {
 				"back": "Back",
@@ -2323,7 +2346,8 @@
 				"imported": "Imported",
 				"importing": "Importing {{current}} of {{total}}",
 				"partial": "{{done}} of {{total}} imported",
-				"warnings_other": "Done with {{count}} warnings"
+				"warnings_other": "Done with {{count}} warnings",
+				"warnings_one": "Done with {{count}} warning"
 			},
 			"steps": {
 				"connect": "Connect",
@@ -2362,7 +2386,13 @@
 					"runTitle_other": "{{source}}, {{count}} boards",
 					"section": "Boards",
 					"someImported_other": "{{done}} of {{count}} boards imported.",
-					"step": "Choose boards"
+					"step": "Choose boards",
+					"allImported_one": "{{count}} board imported.",
+					"found_one": "{{count}} board found. If you pick it, it becomes a new project in {{workspace}}.",
+					"importButton_one": "Import {{count}} board",
+					"progress_one": "{{done}} of {{count}} board imported",
+					"runTitle_one": "{{source}}, {{count}} board",
+					"someImported_one": "{{done}} of {{count}} board imported."
 				},
 				"project": {
 					"allImported_other": "All {{count}} projects imported.",
@@ -2375,7 +2405,13 @@
 					"runTitle_other": "{{source}}, {{count}} projects",
 					"section": "Projects",
 					"someImported_other": "{{done}} of {{count}} projects imported.",
-					"step": "Choose projects"
+					"step": "Choose projects",
+					"allImported_one": "{{count}} project imported.",
+					"found_one": "{{count}} project found. If you pick it, it becomes a new project in {{workspace}}.",
+					"importButton_one": "Import {{count}} project",
+					"progress_one": "{{done}} of {{count}} project imported",
+					"runTitle_one": "{{source}}, {{count}} project",
+					"someImported_one": "{{done}} of {{count}} project imported."
 				},
 				"team": {
 					"allImported_other": "All {{count}} teams imported.",
@@ -2388,7 +2424,13 @@
 					"runTitle_other": "{{source}}, {{count}} teams",
 					"section": "Teams",
 					"someImported_other": "{{done}} of {{count}} teams imported.",
-					"step": "Choose teams"
+					"step": "Choose teams",
+					"allImported_one": "{{count}} team imported.",
+					"found_one": "{{count}} team found. If you pick it, it becomes a new project in {{workspace}}.",
+					"importButton_one": "Import {{count}} team",
+					"progress_one": "{{done}} of {{count}} team imported",
+					"runTitle_one": "{{source}}, {{count}} team",
+					"someImported_one": "{{done}} of {{count}} team imported."
 				}
 			},
 			"jira": {
@@ -2550,7 +2592,8 @@
 				"createdWithRole": "Role: {{role}}",
 				"sessionCount_other": "{{count}} sessions",
 				"workspaceContents": "{{members}} members, {{projects}} projects",
-				"permissionsChanged": "{{added}} permissions added, {{removed}} removed"
+				"permissionsChanged": "{{added}} permissions added, {{removed}} removed",
+				"sessionCount_one": "{{count}} session"
 			},
 			"directoryTitle": "Recorded actions",
 			"emptyTitle": "No actions recorded",
@@ -2635,7 +2678,9 @@
 				"storageWarning": "Can't check the bucket with these credentials ({{code}}).",
 				"title": "Instance",
 				"version": "Kaneo version",
-				"versionUnknown": "Unknown"
+				"versionUnknown": "Unknown",
+				"migrations_one": "{{count}} migration applied",
+				"realtimeConnections_one": "{{count}} open connection on this instance"
 			},
 			"integrations": {
 				"available": "Available",
@@ -2647,7 +2692,8 @@
 					"ok": "GitHub App set up",
 					"warning": "Some GitHub App settings are missing"
 				},
-				"title": "Integrations"
+				"title": "Integrations",
+				"connectedProjects_one": "Connected in {{count}} project"
 			},
 			"loadError": "System status could not be loaded.",
 			"refresh": "Refresh",
@@ -2759,7 +2805,9 @@
 				"updated": "Role updated"
 			},
 			"userCount_other": "{{count}} users",
-			"viewUsers": "View users"
+			"viewUsers": "View users",
+			"permissionCount_one": "{{count}} permission",
+			"userCount_one": "{{count}} user"
 		},
 		"adminSettings": {
 			"defaultRole": "Default role for new users",
@@ -2823,7 +2871,8 @@
 			"testQueued": "Test event queued.",
 			"title": "Webhooks",
 			"url": "URL",
-			"save": "Save"
+			"save": "Save",
+			"attempts_one": "{{count}} attempt"
 		},
 		"adminAgent": {
 			"title": "Agent models",
@@ -3057,7 +3106,8 @@
 			"noResults": "Không có phím tắt phù hợp",
 			"then": "rồi",
 			"or": "hoặc",
-			"thenEllipsis": "rồi…"
+			"thenEllipsis": "rồi…",
+			"results_one": "{{count}} result"
 		}
 	},
 	"notifications": {
@@ -3070,7 +3120,10 @@
 		"reminderLeadTime": {
 			"minutes_other": "{{count}} phút",
 			"hours_other": "{{count}} giờ",
-			"days_other": "{{count}} ngày"
+			"days_other": "{{count}} ngày",
+			"days_one": "{{count}} day",
+			"hours_one": "{{count}} hour",
+			"minutes_one": "{{count}} minute"
 		},
 		"events": {
 			"task_created": {
@@ -3132,7 +3185,8 @@
 			"taskLoadError": "This task couldn’t be loaded.",
 			"actionError": "Không thể cập nhật hộp thư đến. Hãy thử lại.",
 			"readCleared": "Đã xóa các thông báo đã đọc"
-		}
+		},
+		"newCount_one": "{{count}} new"
 	},
 	"activity": {
 		"assignedToSelf": "đã tự giao công việc này cho mình",
@@ -3527,7 +3581,11 @@
 					"label": "Đơn vị",
 					"months_other": "tháng",
 					"weeks_other": "tuần",
-					"years_other": "năm"
+					"years_other": "năm",
+					"days_one": "day",
+					"months_one": "month",
+					"weeks_one": "week",
+					"years_one": "year"
 				}
 			}
 		},
@@ -3621,7 +3679,8 @@
 		"archive": {
 			"success": "Đã lưu trữ {{count}} công việc",
 			"confirmTitle_other": "Lưu trữ {{count}} công việc đã hoàn thành?",
-			"confirmDescription": "Chúng sẽ rời khỏi bảng và chuyển sang mục \"Đã lưu trữ\" trong Backlog."
+			"confirmDescription": "Chúng sẽ rời khỏi bảng và chuyển sang mục \"Đã lưu trữ\" trong Backlog.",
+			"confirmTitle_one": "Archive {{count}} completed task?"
 		},
 		"listView": {
 			"addTask": "Thêm công việc",
@@ -3642,7 +3701,8 @@
 			"open": "Đang mở",
 			"label": "Pull Request",
 			"count_other": "{{count}} PR",
-			"closed": "Đã đóng"
+			"closed": "Đã đóng",
+			"count_one": "{{count}} PR"
 		},
 		"assignee": {
 			"label": "Người được giao",
@@ -3708,7 +3768,8 @@
 			"priorityPlaceholder": "Đặt mức ưu tiên…",
 			"assigneePlaceholder": "Giao cho…",
 			"labelPlaceholder": "Thêm nhãn…",
-			"columnPlaceholder": "Chuyển sang cột…"
+			"columnPlaceholder": "Chuyển sang cột…",
+			"deleteConfirmTitle_one": "Delete {{count}} task?"
 		},
 		"editor": {
 			"table": {
@@ -3753,7 +3814,9 @@
 			"missingRequired_other": "{{count}} trường bắt buộc còn trống",
 			"saveError": "Không thể lưu {{field}}",
 			"moreFields_other": "Thêm {{count}} trường",
-			"manage": "Quản lý trường"
+			"manage": "Quản lý trường",
+			"missingRequired_one": "{{count}} required field is empty",
+			"moreFields_one": "{{count}} more field"
 		},
 		"board": {
 			"reorderFailed": "Could not move task. Please try again.",
@@ -3764,13 +3827,19 @@
 			"monthly_other": "Mỗi {{count}} tháng",
 			"weekly_other": "Mỗi {{count}} tuần",
 			"yearly_other": "Mỗi {{count}} năm",
-			"onDays": "{{rule}} vào {{days}}"
+			"onDays": "{{rule}} vào {{days}}",
+			"daily_one": "Every day",
+			"monthly_one": "Every month",
+			"weekly_one": "Every week",
+			"yearly_one": "Every year"
 		},
 		"toolbar": {
 			"search": "Tìm công việc",
 			"clearSearch": "Xóa tìm kiếm",
 			"taskCount_other": "{{count}} công việc",
-			"shownCount_other": "{{shown}} trên {{count}} công việc"
+			"shownCount_other": "{{shown}} trên {{count}} công việc",
+			"shownCount_one": "{{shown}} of {{count}} task",
+			"taskCount_one": "{{count}} task"
 		},
 		"display": {
 			"title": "Hiển thị",
@@ -3808,7 +3877,10 @@
 			"today": "Hôm nay",
 			"tomorrow": "Ngày mai",
 			"inDays_other": "Còn {{count}} ngày",
-			"fullDate": "Hạn {{date}}"
+			"fullDate": "Hạn {{date}}",
+			"inDays_one": "In {{count}} day",
+			"overdueDays_one": "{{count}}d overdue",
+			"overdueWeeks_one": "{{count}}w overdue"
 		},
 		"datePicker": {
 			"dueDatePlaceholder": "Đặt hạn chót…",
@@ -3903,7 +3975,8 @@
 			"suggestionBug": "Lỗi",
 			"suggestionFeature": "Tính năng",
 			"suggestionInProgress": "Đang thực hiện",
-			"suggestionCompleted": "Đã hoàn thành"
+			"suggestionCompleted": "Đã hoàn thành",
+			"resultsFound_one": "{{count}} result found"
 		},
 		"create": {
 			"pageTitle": "Tạo không gian làm việc",
@@ -3938,16 +4011,19 @@
 				"all": "All projects",
 				"tasks_other": "{{count}} tasks",
 				"title": "Your projects",
-				"loadError": "Projects couldn't be loaded."
+				"loadError": "Projects couldn't be loaded.",
+				"tasks_one": "{{count}} task"
 			},
 			"upNext": {
 				"assigned_other": "{{count}} assigned to you",
 				"title": "Up next",
-				"viewAll": "View all"
+				"viewAll": "View all",
+				"assigned_one": "{{count}} assigned to you"
 			},
 			"week": {
 				"more_other": "+{{count}} more",
-				"truncated": "The week preview includes only the first {{shown}} of {{total}} assigned tasks."
+				"truncated": "The week preview includes only the first {{shown}} of {{total}} assigned tasks.",
+				"more_one": "+{{count}} more"
 			}
 		},
 		"myTasks": {
@@ -4055,7 +4131,8 @@
 			"updateError": "Failed to update project access",
 			"updateSuccess": "Project access updated",
 			"archived": "Archived",
-			"allProjectsUnavailable": "Your own access is limited, so you can only give access to selected projects."
+			"allProjectsUnavailable": "Your own access is limited, so you can only give access to selected projects.",
+			"projectCount_one": "{{count}} project"
 		}
 	},
 	"publicProject": {
@@ -4539,7 +4616,8 @@
 			"searchOrCreate": "Tìm hoặc tạo",
 			"createLabel": "Tạo nhãn “{{name}}”",
 			"labelColor": "Màu cho nhãn mới",
-			"noLabels": "Chưa có nhãn nào. Nhập tên để tạo nhãn."
+			"noLabels": "Chưa có nhãn nào. Nhập tên để tạo nhãn.",
+			"overdue_one": "{{date}}, {{count}} day overdue"
 		},
 		"taskNew": {
 			"newSubtask": "Công việc con mới",
@@ -4621,7 +4699,9 @@
 			"sendToTopOfColumn": "Đưa lên đầu cột",
 			"sendToBottomOfColumn": "Đưa xuống cuối cột",
 			"openTask": "Mở công việc",
-			"searchPeople": "Tìm người"
+			"searchPeople": "Tìm người",
+			"dueDateOverdue_one": "{{date}}, {{count}}d overdue",
+			"showTasks_one": "Show {{count}} task"
 		},
 		"projectSettings": {
 			"deleteNamedTitle": "Xóa “{{name}}”?",
@@ -4708,7 +4788,8 @@
 				"create": "Tạo không gian làm việc",
 				"viewInvitations_other": "Xem {{count}} lời mời",
 				"joinWithLink": "Tham gia bằng liên kết mời",
-				"signedInAs": "Đã đăng nhập với {{email}}"
+				"signedInAs": "Đã đăng nhập với {{email}}",
+				"viewInvitations_one": "View {{count}} invitation"
 			},
 			"switchWorkspace": "Chuyển không gian làm việc",
 			"search": "Tìm kiếm",
@@ -4773,7 +4854,8 @@
 				"message": "Công việc được giao cho bạn trong không gian làm việc này sẽ hiện ở đây."
 			},
 			"showing": "Đang hiện {{shown}}/{{total}} công việc",
-			"assigned_other": "{{count}} được giao"
+			"assigned_other": "{{count}} được giao",
+			"assigned_one": "{{count}} assigned"
 		},
 		"nav": {
 			"home": "Trang chủ",
@@ -4843,7 +4925,8 @@
 		"background": {
 			"summary_other": "Thêm {{count}} thông báo mới",
 			"channelName": "Hoạt động Kaneo",
-			"channelDescription": "Việc được giao, bình luận và lượt nhắc đến từ các không gian làm việc của bạn"
+			"channelDescription": "Việc được giao, bình luận và lượt nhắc đến từ các không gian làm việc của bạn",
+			"summary_one": "{{count}} more new notification"
 		},
 		"ui": {
 			"back": "Quay lại",
@@ -4873,7 +4956,14 @@
 			"tomorrow": "Ngày mai",
 			"yesterday": "Hôm qua",
 			"minutes_other": "{{count}} phút",
-			"hours_other": "{{count}} giờ"
+			"hours_other": "{{count}} giờ",
+			"hours_one": "{{count}} hr",
+			"hoursAgo_one": "{{count}} hr ago",
+			"hoursShort_one": "{{count}}h",
+			"minutes_one": "{{count}} min",
+			"minutesAgo_one": "{{count}} min ago",
+			"minutesShort_one": "{{count}}m",
+			"secondsShort_one": "{{count}}s"
 		},
 		"meta": {
 			"priority": {
@@ -5015,7 +5105,8 @@
 				"day1": "1 ngày",
 				"days2": "2 ngày",
 				"week1": "1 tuần",
-				"minutes_other": "{{count}} phút"
+				"minutes_other": "{{count}} phút",
+				"minutes_one": "{{count}} minute"
 			},
 			"channel": {
 				"enabled": "Gửi thông báo tới đây",
@@ -5112,7 +5203,8 @@
 				"resent": "Đã gửi lại lời mời",
 				"canceled": "Đã hủy lời mời",
 				"sent": "Đã gửi lời mời tới {{email}}"
-			}
+			},
+			"description_one": "{{count}} person in {{name}}"
 		},
 		"labels": {
 			"title": "Nhãn",
@@ -5159,7 +5251,8 @@
 				"tooManyPending": "Too many attachments are waiting to be sent. Send or remove some first.",
 				"unreadable": "{{name}} couldn't be read as that file type.",
 				"unsupported": "Attach images, PDFs, or text files like .md, .txt, .csv or .json.",
-				"uploadFailed": "{{name}} couldn't be uploaded. Try again."
+				"uploadFailed": "{{name}} couldn't be uploaded. Try again.",
+				"tooMany_one": "You can attach up to {{count}} file."
 			},
 			"removeAttachment": "Remove {{name}}",
 			"previewAttachment": "Preview {{name}}",
@@ -5218,7 +5311,8 @@
 			"introBody": "I can read tasks, comments and workload here, then propose changes for you to review.",
 			"introTitle": "What should we look at in {{project}}?",
 			"label": "Agent panel",
-			"newConversation": "New conversation"
+			"newConversation": "New conversation",
+			"historyOlder": "Load older conversations"
 		},
 		"proposal": {
 			"action": {
@@ -5244,7 +5338,9 @@
 			},
 			"unassigned": "Unassigned",
 			"undo": "Undo",
-			"unknownMember": "Former member"
+			"unknownMember": "Former member",
+			"destinationUnavailable": "The project or status is unavailable. Ask for a new proposal.",
+			"noDescription": "No description"
 		},
 		"recent": {
 			"applied_other": "Applied {{count}} changes",
@@ -5259,7 +5355,9 @@
 				"running": "Working…"
 			},
 			"title": "Recent runs",
-			"toReview_other": "{{count}} changes to review"
+			"toReview_other": "{{count}} changes to review",
+			"applied_one": "Applied {{count}} change",
+			"toReview_one": "{{count}} change to review"
 		},
 		"review": {
 			"appliedCount_other": "{{count}} applied",
@@ -5274,7 +5372,12 @@
 			"undoConflict": "Someone edited this task since, so it can't be undone automatically.",
 			"undoHint": "Undo anytime",
 			"undoneToast": "Change undone",
-			"undoCommentConflict": "This comment was edited or deleted, so it can't be undone automatically."
+			"undoCommentConflict": "This comment was edited or deleted, so it can't be undone automatically.",
+			"appliedCount_one": "{{count}} applied",
+			"appliedToast_one": "Applied {{count}} change",
+			"apply_one": "Apply {{count}} change",
+			"failedToast_one": "{{count}} change couldn't be applied",
+			"title_one": "{{count}} proposed change"
 		},
 		"run": {
 			"cancelled": "Stopped before finishing.",
@@ -5282,7 +5385,8 @@
 			"stepDone": "Done",
 			"stepRunning": "Running…",
 			"steps_other": "Worked through {{count}} steps",
-			"working": "Working…"
+			"working": "Working…",
+			"steps_one": "Worked through {{count}} step"
 		},
 		"suggestions": {
 			"risk": "What's at risk this week?",
@@ -5290,7 +5394,8 @@
 			"workload": "Is anyone overloaded?"
 		},
 		"thread": {
-			"loadError": "Couldn't load this conversation."
+			"loadError": "Couldn't load this conversation.",
+			"loadOlder": "Load older messages"
 		},
 		"title": "Agent",
 		"unavailable": {
@@ -5453,7 +5558,9 @@
 				"scheduledFor": "Scheduled for {{time}}",
 				"startedManually": "Started with Run now",
 				"title": "Runs",
-				"tokens": "{{value}} tokens"
+				"tokens": "{{value}} tokens",
+				"andMore_one": "{{label}} and {{count}} more",
+				"moreEvents_one": "{{count}} more event"
 			},
 			"runsAsName": "Runs as {{name}}",
 			"savedToast": "Automation saved",
@@ -5481,11 +5588,13 @@
 			"trigger": {
 				"dailyAt": "Daily at {{time}}",
 				"everyHours_other": "Every {{count}} hours",
-				"weeklyAt": "{{days}} at {{time}}"
+				"weeklyAt": "{{days}} at {{time}}",
+				"everyHours_one": "Every hour"
 			},
 			"viewAll": "View all",
 			"you": "You",
-			"openRun": "Open run"
+			"openRun": "Open run",
+			"toReview_one": "{{count}} to review"
 		},
 		"code": {
 			"actionsRun": "Actions run",

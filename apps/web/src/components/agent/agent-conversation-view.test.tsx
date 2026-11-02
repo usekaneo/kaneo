@@ -15,6 +15,7 @@ vi.mock("@/hooks/queries/agent/use-agent-conversation", () => ({
   default: () => ({
     data: {
       id: "conversation",
+      projectId: "project-scope",
       userId: "owner",
       sharedAt: "2026-10-28T10:00:00.000Z",
       owner: { id: "owner", name: "Mira Kowalski", image: null },
@@ -42,7 +43,13 @@ vi.mock("./agent-thread", () => ({
   ),
 }));
 vi.mock("./agent-composer", () => ({
-  AgentComposer: () => <div data-testid="composer" />,
+  AgentComposer: ({
+    mentionScope,
+  }: {
+    mentionScope: { projectId?: string };
+  }) => (
+    <div data-testid="composer" data-project-scope={mentionScope.projectId} />
+  ),
 }));
 vi.mock("./agent-model-picker", () => ({ AgentModelPicker: () => null }));
 
@@ -75,6 +82,9 @@ describe("AgentConversationView", () => {
       "data-read-only",
       "false",
     );
-    expect(screen.getByTestId("composer")).toBeInTheDocument();
+    expect(screen.getByTestId("composer")).toHaveAttribute(
+      "data-project-scope",
+      "project-scope",
+    );
   });
 });
