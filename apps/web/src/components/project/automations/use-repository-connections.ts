@@ -10,6 +10,7 @@ import {
 import useGetGiteaIntegration from "@/hooks/queries/gitea-integration/use-get-gitea-integration";
 import useGetGithubIntegration from "@/hooks/queries/github-integration/use-get-github-integration";
 import useGetGitlabIntegration from "@/hooks/queries/gitlab-integration/use-get-gitlab-integration";
+import { useTangledIntegration } from "@/hooks/queries/tangled-integration/use-tangled-integration";
 
 export type RepositoryConnection = RepositoryProvider & {
   status: IntegrationStatus;
@@ -21,8 +22,16 @@ export function useRepositoryConnections(
   const github = useGetGithubIntegration(projectId);
   const gitea = useGetGiteaIntegration(projectId);
   const gitlab = useGetGitlabIntegration(projectId);
+  const tangled = useTangledIntegration(projectId);
 
   const statuses = {
+    tangled: getIntegrationStatus({
+      queryStatus: tangled.status,
+      hasData: tangled.data !== undefined,
+      configured: Boolean(tangled.data),
+      isActive: tangled.data?.isActive,
+      detail: tangled.data?.repositoryUrl,
+    }),
     github: getIntegrationStatus({
       queryStatus: github.status,
       hasData: github.data !== undefined,

@@ -1,9 +1,10 @@
 import type { ComponentType, SVGProps } from "react";
+import { GitBranch } from "lucide-react";
 import { GiteaIcon } from "@/components/icons/gitea-icon";
 import { GithubIcon } from "@/components/icons/github-icon";
 import { GitlabIcon } from "@/components/icons/gitlab-icon";
 
-export type RepositoryProviderId = "github" | "gitea" | "gitlab";
+export type RepositoryProviderId = "github" | "gitea" | "gitlab" | "tangled";
 
 export type RepositoryProvider = {
   id: RepositoryProviderId;
@@ -13,6 +14,12 @@ export type RepositoryProvider = {
 };
 
 export const REPOSITORY_PROVIDERS: RepositoryProvider[] = [
+  {
+    id: "tangled",
+    name: "Tangled",
+    icon: GitBranch,
+    iconClassName: "text-foreground",
+  },
   {
     id: "github",
     name: "GitHub",

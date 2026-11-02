@@ -834,7 +834,8 @@
 			"connect": "Verbinden",
 			"configure": "Configureren",
 			"done": "Klaar",
-			"turnedOffByAdmin": "Turned off by an administrator"
+			"turnedOffByAdmin": "Turned off by an administrator",
+			"tangledSectionSubtitle": "Link Tangled branches to tasks and automate task status."
 		},
 		"projectVisibility": {
 			"pageTitle": "Projectzichtbaarheid",
@@ -2840,6 +2841,42 @@
 			"title": "Webhooks",
 			"url": "URL",
 			"save": "Save"
+		},
+		"tangledIntegration": {
+			"active": "Enable this connection",
+			"baseUrl": "Tangled read API origin",
+			"branchPattern": "Branch naming pattern",
+			"connect": "Connect Tangled",
+			"disconnectDescription": "This removes the connection and its managed links. Manual links and tasks remain.",
+			"disconnectTitle": "Disconnect Tangled?",
+			"instructions": "Choose a spindle in Tangled, then create a signed webhook using the URL below. The Kaneo API must be publicly reachable without redirects. Pull request events are not linked automatically.",
+			"loadError": "Could not load the Tangled connection.",
+			"outcomeEmpty": "No Tangled deliveries have been processed yet.",
+			"outcomeError": "Could not load the latest delivery result.",
+			"outcomeLoading": "Loading the latest delivery result…",
+			"outcomes": {
+				"branchConflict": "The branch is linked to a different task. Review the existing link.",
+				"branchLinked": "A branch was linked to a task.",
+				"branchUnchanged": "The branch link is up to date.",
+				"branchUnmatched": "The branch name does not match this project's pattern.",
+				"prUnsupported": "Pull request events cannot be linked automatically yet.",
+				"repositoryChanged": "The repository identity changed. Verify and update the connection.",
+				"tagIgnored": "Tag updates are not linked to tasks.",
+				"taskNotFound": "No task matches the branch name.",
+				"upstreamFailed": "Could not read the current branch from Tangled. Check the read API and retry.",
+				"branchMissing": "The branch no longer exists. Scheduled reconciliation removes its link."
+			},
+			"removed": "Tangled connection removed",
+			"removeError": "Could not disconnect Tangled. Try again.",
+			"repositoryDid": "Repository DID",
+			"repositoryId": "Webhook repository identity (owner DID/name)",
+			"repositoryUrl": "Repository URL",
+			"retry": "Retry",
+			"saved": "Tangled connection saved",
+			"saveError": "Could not save the Tangled connection. Check the repository identity and read API, then retry.",
+			"secret": "Webhook secret",
+			"secretHint": "Leave the secret blank to keep the current secret. Use the same secret in Tangled.",
+			"webhookUrl": "Webhook URL"
 		}
 	},
 	"navigation": {

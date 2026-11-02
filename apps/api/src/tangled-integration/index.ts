@@ -10,11 +10,13 @@ import { requireWorkspacePermission } from "../utils/require-workspace-permissio
 import { workspaceAccess } from "../utils/workspace-access-middleware";
 import createTangledIntegration from "./controllers/create-tangled-integration";
 import deleteTangledIntegration from "./controllers/delete-tangled-integration";
+import { getTangledOutcome } from "./controllers/get-tangled-outcome";
 import { getTangledIntegration } from "./controllers/project-connection";
 import updateTangledIntegration from "./controllers/update-tangled-integration";
 import {
   tangledDeleteResultSchema,
   tangledProjectConnectionSchema,
+  tangledOutcomeSchema,
 } from "./response";
 import {
   tangledProjectConnectionBody,
@@ -116,7 +118,28 @@ const deleteRoute = createRoute({
   },
 });
 
+const outcomeRoute = createRoute({
+  method: "get",
+  path: "/project/{projectId}/outcome",
+  operationId: "getTangledOutcome",
+  tags: ["Tangled"],
+  summary: "Get the latest sanitized Tangled processing outcome",
+  middleware: manage,
+  request: { params: projectIdParam },
+  responses: {
+    200: jsonResponse(
+      "Latest outcome, or null before a delivery",
+      tangledOutcomeSchema.nullable(),
+    ),
+    403: errorResponse("Workspace manage_settings permission required"),
+    404: errorResponse("Project or Tangled connection not found"),
+  },
+});
+
 const tangledIntegration = apiRouter<BaseVariables & { workspaceId: string }>()
+  .openapi(outcomeRoute, async (c) =>
+    c.json(await getTangledOutcome(c.req.valid("param").projectId), 200),
+  )
   .openapi(getRoute, async (c) => {
     const { projectId } = c.req.valid("param");
     return c.json(await getTangledIntegration(projectId), 200);

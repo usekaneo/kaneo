@@ -50,6 +50,7 @@ import externalLink from "./external-link";
 import genericWebhookIntegration from "./generic-webhook-integration";
 import giteaIntegration, { handleGiteaWebhookRoute } from "./gitea-integration";
 import tangledIntegration from "./tangled-integration";
+import { tangledWebhook } from "./tangled-integration/webhook";
 import githubIntegration, {
   handleGithubWebhookRoute,
 } from "./github-integration";
@@ -442,6 +443,8 @@ export function createApp() {
     );
 
   api.route("/calendar-feed", publicCalendarFeed);
+
+  const tangledWebhookApi = api.route("/tangled-integration", tangledWebhook);
 
   api.post("/github-integration/webhook", handleGithubWebhookRoute);
 
@@ -996,6 +999,7 @@ export function createApp() {
     externalLinkApi,
     genericWebhookIntegrationApi,
     integrationSyncApi,
+    tangledWebhookApi,
     githubIntegrationApi,
     giteaIntegrationApi,
     tangledIntegrationApi,
@@ -1132,6 +1136,7 @@ const {
   externalLinkApi,
   genericWebhookIntegrationApi,
   integrationSyncApi,
+  tangledWebhookApi,
   githubIntegrationApi,
   giteaIntegrationApi,
   tangledIntegrationApi,
@@ -1185,6 +1190,7 @@ export type AppType =
   | typeof notificationPreferencesApi
   | typeof searchApi
   | typeof integrationSyncApi
+  | typeof tangledWebhookApi
   | typeof githubIntegrationApi
   | typeof giteaIntegrationApi
   | typeof tangledIntegrationApi

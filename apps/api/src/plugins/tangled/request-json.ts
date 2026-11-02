@@ -3,6 +3,13 @@ import { withoutOutboundTelemetry } from "../../utils/sensitive-outbound";
 import { parseTangledApiOrigin } from "./api-url";
 import { createTangledLookup } from "./public-lookup";
 
+export class TangledRefNotFoundError extends Error {
+  readonly code = "ref_not_found";
+  constructor() {
+    super("Tangled branch reference was not found");
+  }
+}
+
 const MAX_RESPONSE_BYTES = 1_048_576;
 const agent = new Agent({
   connect: { lookup: createTangledLookup(), timeout: 5_000 },
@@ -41,7 +48,7 @@ export async function requestTangledJson(url: URL): Promise<unknown> {
         signal: controller.signal,
       }),
     );
-    if (!response.ok) {
+    if (!response.ok && response.status !== 404) {
       throw new Error(`Tangled read API returned HTTP ${response.status}`);
     }
     if (
@@ -49,6 +56,8 @@ export async function requestTangledJson(url: URL): Promise<unknown> {
         response.headers.get("content-type") ?? "",
       )
     ) {
+      if (!response.ok)
+        throw new Error(`Tangled read API returned HTTP ${response.status}`);
       throw new Error("Tangled read API did not return JSON");
     }
     const declaredSize = Number(response.headers.get("content-length"));
@@ -70,11 +79,27 @@ export async function requestTangledJson(url: URL): Promise<unknown> {
         throw new Error("Tangled API response is too large");
       chunks.push(value);
     }
+    let result: unknown;
     try {
-      return JSON.parse(Buffer.concat(chunks).toString("utf8")) as unknown;
+      result = JSON.parse(Buffer.concat(chunks).toString("utf8")) as unknown;
     } catch {
+      if (!response.ok)
+        throw new Error(`Tangled read API returned HTTP ${response.status}`);
       throw new Error("Tangled read API returned invalid JSON");
     }
+    if (!response.ok) {
+      if (
+        response.status === 404 &&
+        typeof result === "object" &&
+        result !== null &&
+        "error" in result &&
+        result.error === "RefNotFound"
+      ) {
+        throw new TangledRefNotFoundError();
+      }
+      throw new Error(`Tangled read API returned HTTP ${response.status}`);
+    }
+    return result;
   } catch (error) {
     controller.signal.throwIfAborted();
     throw error;

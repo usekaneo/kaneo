@@ -12,6 +12,7 @@ import useGetGitlabIntegration from "@/hooks/queries/gitlab-integration/use-get-
 import useGetMattermostIntegration from "@/hooks/queries/mattermost-integration/use-get-mattermost-integration";
 import useGetSlackIntegration from "@/hooks/queries/slack-integration/use-get-slack-integration";
 import useGetTelegramIntegration from "@/hooks/queries/telegram-integration/use-get-telegram-integration";
+import { useTangledIntegration } from "@/hooks/queries/tangled-integration/use-tangled-integration";
 
 // Shares query keys with the per-integration settings panels, so opening a
 // panel reuses what the list already loaded.
@@ -24,8 +25,16 @@ export function useIntegrationStatuses(projectId: string) {
   const mattermost = useGetMattermostIntegration(projectId);
   const telegram = useGetTelegramIntegration(projectId);
   const webhook = useGetGenericWebhookIntegration(projectId);
+  const tangled = useTangledIntegration(projectId);
 
   const statuses = {
+    tangled: getIntegrationStatus({
+      queryStatus: tangled.status,
+      hasData: tangled.data !== undefined,
+      configured: Boolean(tangled.data),
+      isActive: tangled.data?.isActive,
+      detail: tangled.data?.repositoryUrl,
+    }),
     github: getIntegrationStatus({
       queryStatus: github.status,
       hasData: github.data !== undefined,
@@ -89,6 +98,7 @@ export function useIntegrationStatuses(projectId: string) {
     }),
   };
   const queries = {
+    tangled,
     github,
     gitea,
     gitlab,

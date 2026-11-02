@@ -157,7 +157,8 @@
 							"core/integrations/github/configuration",
 							"core/integrations/github/troubleshooting",
 							"core/integrations/gitea/setup",
-							"core/integrations/gitlab/setup"
+							"core/integrations/gitlab/setup",
+							"core/integrations/tangled/setup"
 						]
 					},
 					{

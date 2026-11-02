@@ -11,7 +11,9 @@ const branchNameSchema = z
   .refine((name) =>
     [...name].every(
       (character) =>
-        character.charCodeAt(0) > 32 && character.charCodeAt(0) !== 127,
+        character.charCodeAt(0) > 32 &&
+        character.charCodeAt(0) !== 127 &&
+        character !== "\\",
     ),
   );
 

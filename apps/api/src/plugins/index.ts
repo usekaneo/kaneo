@@ -7,6 +7,7 @@ import { mattermostPlugin } from "./mattermost";
 import { initializeEventSubscriptions, registerPlugin } from "./registry";
 import { slackPlugin } from "./slack";
 import { telegramPlugin } from "./telegram";
+import { tangledPlugin } from "./tangled";
 
 export const integrationPlugins = [
   githubPlugin,
@@ -17,6 +18,7 @@ export const integrationPlugins = [
   discordPlugin,
   genericWebhookPlugin,
   telegramPlugin,
+  tangledPlugin,
 ];
 
 export function initializePlugins() {

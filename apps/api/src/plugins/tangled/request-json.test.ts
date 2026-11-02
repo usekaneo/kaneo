@@ -59,6 +59,29 @@ describe("requestTangledJson", () => {
     },
   );
 
+  it("distinguishes a missing Git ref from a missing repository without leaking the upstream message", async () => {
+    respond(
+      Response.json(
+        { error: "RefNotFound", message: "private-upstream-detail" },
+        { status: 404 },
+      ),
+    );
+    const error = await requestTangledJson(url).catch(
+      (error: unknown) => error,
+    );
+    expect(error).toMatchObject({ code: "ref_not_found" });
+    expect((error as Error).message).not.toContain("private-upstream-detail");
+  });
+
+  it("does not misclassify a missing repository as a missing ref", async () => {
+    respond(Response.json({ error: "RepoNotFound" }, { status: 404 }));
+    const error = await requestTangledJson(url).catch(
+      (error: unknown) => error,
+    );
+    expect(error).not.toMatchObject({ code: "ref_not_found" });
+    expect((error as Error).message).toMatch(/HTTP 404/);
+  });
+
   it("does not expose upstream error bodies", async () => {
     respond(new Response("upstream-secret", { status: 503 }));
     const error = await requestTangledJson(url).catch(

@@ -168,6 +168,30 @@ describe("Tangled project connection", () => {
     expect(updateCondition).toContain('"is_active"');
   });
 
+  it("returns the server-configured public webhook URL", async () => {
+    vi.stubEnv("KANEO_API_URL", "https://api.example.test/api/");
+    try {
+      const config = {
+        ...body,
+        origin: body.baseUrl,
+        repositoryFullName: body.repositoryId,
+        active: true,
+      };
+      m.integration.mockResolvedValue({
+        id: "integration",
+        projectId: "project",
+        config: JSON.stringify(config),
+        isActive: true,
+      });
+      await expect(getTangledIntegration("project")).resolves.toMatchObject({
+        webhookUrl:
+          "https://api.example.test/api/tangled-integration/webhook/integration",
+      });
+    } finally {
+      vi.unstubAllEnvs();
+    }
+  });
+
   it("returns a secret-free, project-scoped read model", async () => {
     const config = {
       ...body,
