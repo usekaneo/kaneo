@@ -55,6 +55,14 @@ vi.mock("@/components/ui/context-menu", () => ({
   }): React.JSX.Element => <div>{children}</div>,
 }));
 
+vi.mock("@/hooks/queries/contact/use-contacts", () => ({
+  useContacts: () => ({ data: [] }),
+}));
+
+vi.mock("@/hooks/mutations/contact/use-set-task-contact", () => ({
+  useSetTaskContact: () => ({ mutateAsync: vi.fn() }),
+}));
+
 vi.mock("@/hooks/queries/column/use-get-columns", () => ({
   useGetColumns: () => ({
     data: [],

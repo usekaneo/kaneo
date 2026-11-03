@@ -41,6 +41,7 @@ import { toast } from "@/lib/toast";
 import useProjectStore from "@/store/project";
 import type Task from "@/types/task";
 import { PriorityGlyph } from "@/components/task-chips/priority-glyph";
+import { ContactSubmenu } from "./contact-submenu";
 import { DueDateSubmenu } from "./due-date-submenu";
 
 type TaskCardContext = {
@@ -284,6 +285,14 @@ export default function TaskCardContextMenuContent({
             ))}
           </ContextMenuSubContent>
         </ContextMenuSub>
+      )}
+
+      {canEdit && (
+        <ContactSubmenu
+          taskId={task.id}
+          workspaceId={taskCardContext.worskpaceId}
+          contactId={task.contactId}
+        />
       )}
 
       {(canCreate || canEdit || canDelete) && (

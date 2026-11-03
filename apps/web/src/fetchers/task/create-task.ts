@@ -20,6 +20,7 @@ async function createTask(
   draftAssetIds?: string[],
   recurrence?: CreateTaskRequest["recurrence"],
   assigneeIds?: string[],
+  contactId?: string | null,
 ) {
   if (!projectId) {
     throw new Error("No project selected for task creation");
@@ -31,6 +32,7 @@ async function createTask(
       description,
       ...(userId ? { userId } : {}),
       ...(assigneeIds?.length ? { assigneeIds } : {}),
+      ...(contactId ? { contactId } : {}),
       status,
       startDate: startDate?.toISOString() || undefined,
       dueDate: dueDate?.toISOString() || undefined,
