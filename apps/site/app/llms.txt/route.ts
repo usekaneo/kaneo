@@ -36,6 +36,7 @@ ${productMarkdown()}
 Key facts:
 
 - Cloud: $4 / month for one user, $5 / user / month for teams, 14-day trial, no credit card, hosted in the EU. Hosting, backups, and updates are handled, and every feature is included on every plan.
+- Managed instance: a dedicated Kaneo instance run by the maintainers in the EU, from $299 / month flat for the whole instance, not per seat. Includes your own domain and single sign-on, daily backups, and upgrades.
 - Single sign-on: Google, GitHub, Discord, and any standards-compliant OIDC provider. Your own identity provider is available on managed instances and self-hosted installs.
 - License: MIT, with no paid edition and no source-available carve-outs.
 - Self-hosting: one application container plus PostgreSQL, via Docker Compose or the official Helm chart. Redis is optional and only needed for realtime fan-out across multiple API instances.
@@ -45,7 +46,7 @@ Key facts:
 ## Product
 
 - [Kaneo](${SITE}): product overview.
-- [Pricing](${SITE}/pricing): Kaneo Cloud plans and self-hosting.
+- [Pricing](${SITE}/pricing): Kaneo Cloud plans and managed instances.
 - [Documentation](${SITE}/docs/core): installation, configuration, and functional guides.
 - [Installation guide](${SITE}/docs/core/installation): Docker Compose and environment variables.
 - [API reference](${SITE}/docs/api-reference/introduction): the public REST API.

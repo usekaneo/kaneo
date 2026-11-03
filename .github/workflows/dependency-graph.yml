@@ -1,0 +1,40 @@
+name: Dependency graph
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: dependency-graph-main
+  cancel-in-progress: false
+
+jobs:
+  submit:
+    if: github.ref == 'refs/heads/main' && (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
+    runs-on: blacksmith-4vcpu-ubuntu-2404
+    timeout-minutes: 15
+    permissions:
+      contents: write
+    steps:
+      - uses: useblacksmith/checkout@25227e61ff9dafe400e22fa487b673eac4e4409a # v1
+        with:
+          persist-credentials: false
+      - uses: pnpm/action-setup@ea17c68df8912ef543352723c149a84f56e3d413 # v6.1.0
+        with:
+          version: 12.15.0
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7
+        with:
+          node-version: 24.22.2
+          package-manager-cache: false
+      - name: Install submission dependencies without lifecycle scripts
+        run: pnpm install --filter . --frozen-lockfile --ignore-scripts
+      - name: Check dependency snapshot construction
+        run: node --test scripts/ci/dependency-graph*.test.mjs
+      - name: Submit both dependency graphs for this commit
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: node scripts/ci/dependency-graph.mjs --submit

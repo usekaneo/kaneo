@@ -1,7 +1,7 @@
 {
 	"$schema": "https://docs.renovatebot.com/renovate-schema.json",
 	"extends": ["config:recommended", "helpers:pinGitHubActionDigests"],
-	"enabledManagers": ["npm", "github-actions"],
+	"enabledManagers": ["npm", "github-actions", "dockerfile"],
 	"ignorePaths": [
 		"**/node_modules/**",
 		"**/bower_components/**",
@@ -25,6 +25,20 @@
 		"commitMessagePrefix": "ci(deps):"
 	},
 	"packageRules": [
+		{
+			"matchManagers": ["dockerfile"],
+			"matchDatasources": ["docker"],
+			"commitMessagePrefix": "fix(deps):",
+			"matchPackageNames": ["node"],
+			"allowedVersions": "/^24\\./"
+		},
+		{
+			"matchManagers": ["dockerfile"],
+			"matchDatasources": ["docker"],
+			"commitMessagePrefix": "fix(deps):",
+			"matchPackageNames": ["nginx"],
+			"allowedVersions": "/^1\\.30\\./"
+		},
 		{
 			"matchManagers": ["npm"],
 			"matchPackageNames": ["@aws-sdk/*"],
