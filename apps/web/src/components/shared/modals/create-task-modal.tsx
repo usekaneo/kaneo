@@ -21,6 +21,7 @@ import {
   isCustomFieldValueEmpty,
 } from "@/components/custom-fields/missing-required-fields";
 import type { CustomFieldDefinition } from "@/components/project/custom-fields/types";
+import { NewTaskContactPicker } from "@/components/contacts/new-task-contact-picker";
 import TaskDescriptionEditor from "@/components/task/task-description-editor";
 import TaskDueDatePicker from "@/components/task/task-due-date-picker";
 import { TaskRecurrenceBadge } from "@/components/task/task-recurrence-badge";
@@ -244,6 +245,7 @@ function CreateTaskModalContent({
   const [description, setDescription] = useState("");
   const [priority, setPriority] = useState<Priority>("no-priority");
   const [assigneeIds, setAssigneeIds] = useState<string[]>([]);
+  const [contactId, setContactId] = useState<string | null>(null);
   const [startDate, setStartDate] = useState<Date | undefined>(undefined);
   const [dueDate, setDueDate] = useState<Date | undefined>(undefined);
   const [recurrence, setRecurrence] = useState<TaskRecurrence | null>(null);
@@ -432,6 +434,7 @@ function CreateTaskModalContent({
     description.trim() ||
     priority !== "no-priority" ||
     assigneeIds.length > 0 ||
+    contactId ||
     startDate ||
     dueDate ||
     recurrence ||
@@ -600,6 +603,7 @@ function CreateTaskModalContent({
           description: description.trim() || "",
           userId: selectedUser?.id ?? "",
           assigneeIds: selectedUsers.map((user) => user.id),
+          contactId: contactId ?? undefined,
           priority,
           projectId: resolvedProjectId,
           startDate: startDate ? startDate.toISOString() : undefined,
@@ -649,6 +653,7 @@ function CreateTaskModalContent({
         setDescription("");
         setPriority("no-priority");
         setAssigneeIds([]);
+        setContactId(null);
         setStartDate(undefined);
         setDueDate(undefined);
         setRecurrence(null);
@@ -1127,6 +1132,14 @@ function CreateTaskModalContent({
                   </div>
                 </PopoverContent>
               </Popover>
+
+              {workspace?.id ? (
+                <NewTaskContactPicker
+                  workspaceId={workspace.id}
+                  value={contactId}
+                  onChange={setContactId}
+                />
+              ) : null}
 
               <Popover open={dueDateOpen} onOpenChange={setDueDateOpen}>
                 <PopoverTrigger asChild>
