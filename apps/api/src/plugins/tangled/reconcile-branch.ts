@@ -113,16 +113,16 @@ export async function reconcileTangledBranch(
         return finish("skipped", "branch_conflict");
       }
       const previousHead = storedBranchHead(existing?.metadata ?? null);
-      if (eventType === "reconciliation" && previousHead === null) {
-        await tx
-          .insert(tangledTaskOwnershipTable)
-          .values({
-            taskId: task.id,
-            integrationId: connection.id,
-            statusRevision: task.statusRevision,
-          })
-          .onConflictDoNothing();
-      }
+      // Record the status the task had when Tangled first saw it, so later
+      // manual changes stay protected even if automation is enabled afterwards.
+      await tx
+        .insert(tangledTaskOwnershipTable)
+        .values({
+          taskId: task.id,
+          integrationId: connection.id,
+          statusRevision: task.statusRevision,
+        })
+        .onConflictDoNothing();
       if (
         eventType === "push" ||
         (previousHead !== null && previousHead !== head.oid)

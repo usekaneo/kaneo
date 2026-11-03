@@ -8,6 +8,7 @@ import { integrationPlugins } from "../../apps/api/src/plugins";
 import * as outcomes from "../../apps/api/src/plugins/tangled/record-outcome";
 import { loadTangledConnection } from "../../apps/api/src/plugins/tangled/connection";
 import { reconcileTangledBranch } from "../../apps/api/src/plugins/tangled/reconcile-branch";
+import moveTask from "../../apps/api/src/task/controllers/move-task";
 import { mockAnonymousSession, mockAuthenticatedSession } from "./helpers/auth";
 import { resetTestDatabase } from "./helpers/database";
 import {
@@ -159,6 +160,115 @@ describe("Tangled webhook delivery", () => {
     expect(published).toContain("task.updated");
     expect(published).toContain("task-relation.refresh");
     expect(published).not.toContain("task.status_changed");
+  });
+
+  it("preserves a manual status after a push linked the branch before automation existed", async () => {
+    const context = await fixture();
+    const { app } = createApp();
+    expect(
+      (await deliver(app, context.integration.id, JSON.stringify(payload())))
+        .status,
+    ).toBe(200);
+    await db
+      .update(schema.taskTable)
+      .set({ status: "to-do", columnId: null })
+      .where(eq(schema.taskTable.id, context.task.id));
+    const target = await db.query.columnTable.findFirst({
+      where: and(
+        eq(schema.columnTable.projectId, context.project.id),
+        eq(schema.columnTable.slug, "in-progress"),
+      ),
+    });
+    await db.insert(schema.workflowRuleTable).values({
+      projectId: context.project.id,
+      integrationType: "tangled",
+      eventType: "branch_push",
+      columnId: target!.id,
+    });
+    upstream.head = "c".repeat(40);
+
+    expect(
+      (await deliver(app, context.integration.id, JSON.stringify(payload())))
+        .status,
+    ).toBe(200);
+
+    expect(
+      await db.query.taskTable.findFirst({
+        where: eq(schema.taskTable.id, context.task.id),
+      }),
+    ).toMatchObject({ status: "to-do" });
+  });
+
+  it("applies the destination workflow after a task moves to another project", async () => {
+    const context = await fixture();
+    const sourceTarget = await db.query.columnTable.findFirst({
+      where: and(
+        eq(schema.columnTable.projectId, context.project.id),
+        eq(schema.columnTable.slug, "in-progress"),
+      ),
+    });
+    await db.insert(schema.workflowRuleTable).values({
+      projectId: context.project.id,
+      integrationType: "tangled",
+      eventType: "branch_push",
+      columnId: sourceTarget!.id,
+    });
+    const { app } = createApp();
+    expect(
+      (await deliver(app, context.integration.id, JSON.stringify(payload())))
+        .status,
+    ).toBe(200);
+    const destination = await createProjectFixture({
+      workspaceId: context.workspace.id,
+      slug: "DST",
+    });
+    const [destinationIntegration] = await db
+      .insert(schema.integrationTable)
+      .values({
+        projectId: destination.project.id,
+        type: "tangled",
+        isActive: true,
+        config: JSON.stringify(config),
+      })
+      .returning();
+    const destinationTarget = await db.query.columnTable.findFirst({
+      where: and(
+        eq(schema.columnTable.projectId, destination.project.id),
+        eq(schema.columnTable.slug, "in-progress"),
+      ),
+    });
+    await db.insert(schema.workflowRuleTable).values({
+      projectId: destination.project.id,
+      integrationType: "tangled",
+      eventType: "branch_push",
+      columnId: destinationTarget!.id,
+    });
+    const { task: moved } = await moveTask({
+      taskId: context.task.id,
+      destinationProjectId: destination.project.id,
+      destinationStatus: "to-do",
+      currentUserId: context.user.id,
+    });
+
+    expect(
+      (
+        await deliver(
+          app,
+          destinationIntegration!.id,
+          JSON.stringify(payload(`refs/heads/DST-${moved.number}`)),
+        )
+      ).status,
+    ).toBe(200);
+
+    expect(
+      await db.query.taskTable.findFirst({
+        where: eq(schema.taskTable.id, context.task.id),
+      }),
+    ).toMatchObject({
+      projectId: destination.project.id,
+      status: "in-progress",
+      columnId: destinationTarget!.id,
+    });
   });
 
   it("preserves a manual status change on later pushes even after moving away and back", async () => {
