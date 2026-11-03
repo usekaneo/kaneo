@@ -11,8 +11,8 @@ function useDeleteTaskRelation(taskId: string) {
     onSuccess: (deleted) => {
       void invalidateRelationTaskProject(queryClient, deleted.sourceTaskId);
       // Both ends go stale, and only one of them is the task this hook was
-      // opened for. Queries default to refetchOnMount: false, so opening the
-      // other task would otherwise still list the relation.
+      // opened for. Queries default to refetchOnMount: false, so a closed but
+      // cached end must refetch now or reopening it still lists the relation.
       const endpoints = new Set([
         taskId,
         deleted.sourceTaskId,
@@ -21,6 +21,7 @@ function useDeleteTaskRelation(taskId: string) {
       for (const endpoint of endpoints) {
         queryClient.invalidateQueries({
           queryKey: ["task-relations", endpoint],
+          refetchType: "all",
         });
       }
       // The project-scoped query the list view reads is keyed by neither, and
