@@ -52,12 +52,19 @@ const refetchColumns = vi.fn();
 let projectColumns:
   | { id: string; slug: string; name: string; isFinal: boolean }[]
   | undefined;
-let storedProject: { id: string; columns: unknown[] } | null = null;
+let storedProject: {
+  id: string;
+  columns: unknown[];
+  plannedTasks?: unknown[];
+} | null = null;
 let uploadAsset: ((file: File) => Promise<unknown>) | undefined;
 const stageUpload = vi.fn();
 let customFieldDefs: unknown[] | undefined;
 let workspaceLabelsData: Record<string, unknown>[] = [];
 let workspaceLabelsPending = false;
+let workspaceLabelsError = false;
+let customFieldsError = false;
+const refetchCustomFields = vi.fn();
 let canCreateLabels = true;
 const createLabel = vi.fn(async (input: Record<string, unknown>) => input);
 vi.mock("@/lib/upload-draft-asset", () => ({
@@ -74,6 +81,8 @@ beforeEach(() => {
   customFieldDefs = undefined;
   workspaceLabelsData = [];
   workspaceLabelsPending = false;
+  workspaceLabelsError = false;
+  customFieldsError = false;
   canCreateLabels = true;
   window.localStorage.clear();
   columnsError = false;
@@ -150,6 +159,7 @@ vi.mock("@/hooks/queries/label/use-get-labels-by-workspace", () => ({
   default: () => ({
     data: workspaceLabelsData,
     isPending: workspaceLabelsPending,
+    isError: workspaceLabelsError,
   }),
 }));
 
@@ -187,7 +197,11 @@ vi.mock("@/hooks/queries/column/use-get-columns", () => ({
 vi.mock(
   "@/hooks/queries/custom-field/use-get-custom-fields-by-project",
   () => ({
-    default: () => ({ data: customFieldDefs }),
+    default: () => ({
+      data: customFieldDefs,
+      isError: customFieldsError,
+      refetch: refetchCustomFields,
+    }),
   }),
 );
 
@@ -958,6 +972,95 @@ describe("CreateTaskModal board filter defaults", () => {
     expect(
       screen.getByText("common:modals.createTask.createButton"),
     ).toBeDisabled();
+  });
+
+  it("keeps creation blocked, with an alert and a retry, when the custom fields fail to load", () => {
+    customFieldDefs = undefined;
+    customFieldsError = true;
+    storeFilters({ customFields: { billable: ["true"] } });
+    openOnProject();
+    enterTitle();
+
+    expect(screen.getByRole("alert")).toHaveTextContent(
+      "common:modals.createTask.customFieldsLoadError",
+    );
+    expect(
+      screen.getByText("common:modals.createTask.createButton"),
+    ).toBeDisabled();
+    submit();
+    expect(createTask).not.toHaveBeenCalled();
+
+    fireEvent.click(screen.getByText("common:error.tryAgain"));
+    expect(refetchCustomFields).toHaveBeenCalledTimes(1);
+  });
+
+  it("names the filtered labels from the board's tasks when the label lookup fails", async () => {
+    workspaceLabelsError = true;
+    storedProject = {
+      id: "project-1",
+      columns: [
+        {
+          tasks: [{ labels: [{ id: "l1", name: "Client A" }] }],
+        },
+      ],
+      plannedTasks: [{ labels: [{ id: "l2", name: "Client B" }] }],
+    };
+    storeFilters({ labels: ["l1", "l2"] });
+    openOnProject();
+    enterTitle();
+    submit();
+
+    await vi.waitFor(() =>
+      expect(toast.warning).toHaveBeenCalledWith(
+        "common:modals.createTask.labelsNotAttached",
+      ),
+    );
+    expect(toast.success).not.toHaveBeenCalled();
+  });
+
+  it("falls back to a count when the filtered labels cannot be named", async () => {
+    workspaceLabelsError = true;
+    storeFilters({ labels: ["l1", "l2"] });
+    openOnProject();
+    enterTitle();
+    submit();
+
+    await vi.waitFor(() =>
+      expect(toast.warning).toHaveBeenCalledWith(
+        "common:modals.createTask.labelsNotResolved",
+      ),
+    );
+    expect(toast.success).not.toHaveBeenCalled();
+  });
+
+  it("reports success when the label lookup failed but the user attached a label themselves", async () => {
+    workspaceLabelsError = true;
+    storeFilters({ labels: ["l1"] });
+    openOnProject();
+    fireEvent.click(screen.getByText("common:modals.createTask.labels"));
+    fireEvent.change(
+      await screen.findByPlaceholderText(
+        "common:modals.createTask.searchLabels",
+      ),
+      { target: { value: "Mine" } },
+    );
+    fireEvent.click(
+      await screen.findByText("common:modals.createTask.createLabel"),
+    );
+    fireEvent.click(
+      await screen.findByText("common:modals.createTask.labelColors.stone"),
+    );
+    await screen.findByText("Mine");
+    enterTitle();
+    submit();
+
+    await vi.waitFor(() =>
+      expect(toast.success).toHaveBeenCalledWith(
+        "common:modals.createTask.successCreated",
+        expect.anything(),
+      ),
+    );
+    expect(toast.warning).not.toHaveBeenCalled();
   });
 
   it("waits for the workspace labels before it can create the task", async () => {

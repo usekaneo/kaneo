@@ -117,6 +117,8 @@
 				"prepareTaskError": "Failed to prepare task",
 				"successCreated": "Task created successfully",
 				"labelsNotAttached": "Task created, but these labels could not be attached: {{labels}}",
+				"labelsNotResolved": "Task created, but {{count}} labels from your filter could not be loaded and were not attached.",
+				"customFieldsLoadError": "Custom fields could not be loaded, so the custom-field filter cannot be applied to the new task.",
 				"successUpdated": "Task updated successfully",
 				"createError": "Failed to create task",
 				"priority": "Priority",

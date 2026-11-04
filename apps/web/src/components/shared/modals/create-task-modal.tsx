@@ -368,22 +368,33 @@ function CreateTaskModalContent({
 
   const { mutateAsync: createTask } = useCreateTask();
 
-  const { data: rawCustomFields, isError: customFieldsError } =
-    useGetCustomFieldsByProject(resolvedProjectId) as {
-      data: CustomFieldDefinition[] | undefined;
-      isError?: boolean;
-    };
+  const {
+    data: rawCustomFields,
+    isError: customFieldsError,
+    refetch: refetchCustomFields,
+  } = useGetCustomFieldsByProject(resolvedProjectId) as {
+    data: CustomFieldDefinition[] | undefined;
+    isError?: boolean;
+    refetch?: () => unknown;
+  };
 
   // Filter-derived labels and custom-field values can only be resolved once
   // their queries finish. Submitting earlier would save a task that does not
-  // match the filtered view, so wait (a failed query stops the wait; labels
-  // that then cannot be applied are reported after creation).
+  // match the filtered view, so wait.
+  // - Custom fields travel in the create-task request itself and cannot be
+  //   added afterwards, so creation stays blocked while their definitions are
+  //   missing, including after a failed load (the alert below offers a retry).
+  // - Labels are attached by separate requests after the task is saved; a
+  //   failed label load does not block, the user gets a warning afterwards.
+  const customFieldFilterNeedsDefinitions =
+    Object.keys(filterDefaults.customFields).length > 0 &&
+    Boolean(resolvedProjectId) &&
+    rawCustomFields === undefined;
+  const customFieldFilterFailed =
+    customFieldFilterNeedsDefinitions && Boolean(customFieldsError);
   const awaitingFilterDefaults =
     (wantsDefaultLabels && Boolean(labelsPending)) ||
-    (Object.keys(filterDefaults.customFields).length > 0 &&
-      Boolean(resolvedProjectId) &&
-      rawCustomFields === undefined &&
-      !customFieldsError);
+    customFieldFilterNeedsDefinitions;
   const customFields = useMemo(() => rawCustomFields ?? [], [rawCustomFields]);
 
   const [customFieldValues, setCustomFieldValues] = useState<
@@ -674,19 +685,52 @@ function CreateTaskModalContent({
           failedLabels.push(label.name);
         }
       }
-      // Labels the filters asked for that could not even be looked up.
-      const labelsUnavailable = wantsDefaultLabels && Boolean(labelsError);
+      // Filter labels that could not even be looked up. Only relevant while
+      // the user still relies on the unresolved defaults: once they picked
+      // their own labels (labelSelection), only real attach failures count.
+      const unresolvedFilterLabelIds =
+        labelSelection === null &&
+        wantsDefaultLabels &&
+        Boolean(labelsError) &&
+        defaultLabels.length === 0
+          ? filterDefaults.labelIds
+          : [];
+      // Best available names for them: labels already on the board's tasks.
+      const knownLabelNames = new Map<string, string>();
+      if (project?.id === resolvedProjectId) {
+        for (const task of [
+          ...(project?.columns.flatMap((column) => column.tasks) ?? []),
+          ...(project?.plannedTasks ?? []),
+        ]) {
+          for (const known of task.labels ?? [])
+            knownLabelNames.set(known.id, known.name);
+        }
+      }
+      const unresolvedNames = unresolvedFilterLabelIds.map((id) =>
+        knownLabelNames.get(id),
+      );
 
       stagedAssetsRef.current = [];
       if (!activeRef.current) return;
       syncTaskIntoProject(savedTask);
       // The task exists, but if labels were requested and not attached it will
       // not show up under the label filter; do not report a plain success.
-      if (failedLabels.length > 0 || labelsUnavailable) {
+      if (failedLabels.length > 0) {
         toast.warning(
           t("common:modals.createTask.labelsNotAttached", {
             labels: failedLabels.join(", "),
           }),
+        );
+      } else if (unresolvedFilterLabelIds.length > 0) {
+        const names = [...new Set(unresolvedNames)];
+        toast.warning(
+          unresolvedNames.every((name) => name !== undefined)
+            ? t("common:modals.createTask.labelsNotAttached", {
+                labels: names.join(", "),
+              })
+            : t("common:modals.createTask.labelsNotResolved", {
+                count: unresolvedFilterLabelIds.length,
+              }),
         );
       } else {
         toast.success(t("common:modals.createTask.successCreated"), {
@@ -1372,6 +1416,22 @@ function CreateTaskModalContent({
                 variant="ghost"
                 size="sm"
                 onClick={() => void refetchColumns()}
+              >
+                {t("common:error.tryAgain")}
+              </Button>
+            </div>
+          )}
+          {customFieldFilterFailed && (
+            <div
+              role="alert"
+              className="flex items-center gap-2 px-6 py-2 text-sm text-muted-foreground"
+            >
+              {t("common:modals.createTask.customFieldsLoadError")}
+              <Button
+                type="button"
+                variant="ghost"
+                size="sm"
+                onClick={() => void refetchCustomFields?.()}
               >
                 {t("common:error.tryAgain")}
               </Button>
