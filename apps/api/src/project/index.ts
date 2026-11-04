@@ -19,7 +19,9 @@ import {
   deleteS3Object,
   getPrivateObject,
   isImageContentType,
+  InvalidUploadedAssetError,
   validateProjectBackgroundUploadInput,
+  verifyTaskAssetUpload,
 } from "../storage/s3";
 import { normalizeApiServerUrl } from "../utils/openapi-spec";
 import {
@@ -656,6 +658,20 @@ const project = apiRouter<BaseVariables & { workspaceId: string }>()
       throw new HTTPException(400, {
         message: "Image upload key does not match the project context.",
       });
+    }
+
+    try {
+      await verifyTaskAssetUpload(normalizedKey, { contentType, size });
+    } catch (error) {
+      throw new HTTPException(
+        error instanceof InvalidUploadedAssetError ? 400 : 503,
+        {
+          message:
+            error instanceof InvalidUploadedAssetError
+              ? error.message
+              : "Unable to verify uploaded object.",
+        },
+      );
     }
 
     const [currentProject] = await db
