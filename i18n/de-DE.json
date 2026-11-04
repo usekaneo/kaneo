@@ -153,7 +153,8 @@
 					"orchid": "Orchidee",
 					"sky": "Himmel"
 				},
-				"statusLoadError": "Die Projektstatus konnten nicht geladen werden."
+				"statusLoadError": "Die Projektstatus konnten nicht geladen werden.",
+				"labelsNotAttached": "Task created, but these labels could not be attached: {{labels}}"
 			}
 		},
 		"editor": {

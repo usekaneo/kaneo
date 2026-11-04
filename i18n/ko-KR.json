@@ -153,7 +153,8 @@
 					"orchid": "오키드",
 					"sky": "스카이"
 				},
-				"statusLoadError": "Project statuses couldn’t be loaded."
+				"statusLoadError": "Project statuses couldn’t be loaded.",
+				"labelsNotAttached": "Task created, but these labels could not be attached: {{labels}}"
 			}
 		},
 		"editor": {

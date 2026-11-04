@@ -233,9 +233,11 @@ function CreateTaskModalContent({
     workspace?.id || "",
   );
   const { mutateAsync: createLabel } = useCreateLabel();
-  const { data: workspaceLabels = [] } = useGetLabelsByWorkspace(
-    workspace?.id || "",
-  );
+  const {
+    data: workspaceLabels = [],
+    isPending: labelsPending,
+    isError: labelsError,
+  } = useGetLabelsByWorkspace(workspace?.id || "");
   const { canCreateTasks, canCreateLabels } = useWorkspacePermission();
   const canCreateTaskCapability = canCreateTasks();
   const canCreateLabelCapability = canCreateLabels();
@@ -263,22 +265,28 @@ function CreateTaskModalContent({
   const [startDateOpen, setStartDateOpen] = useState(false);
   const [dueDateOpen, setDueDateOpen] = useState(false);
   const [createMore, setCreateMore] = useState(false);
+  // Attaching a label to the new task goes through the label-create API
+  // (label:create), a different permission from creating the task. Without it
+  // the labels would be dropped after the task was saved, so do not offer them.
+  const wantsDefaultLabels =
+    canCreateLabelCapability && filterDefaults.labelIds.length > 0;
   // null = the user has not touched the labels, so the filter-derived default
   // applies (it can only be resolved once the workspace labels have loaded).
   const [labelSelection, setLabels] = useState<Label[] | null>(null);
   const defaultLabels = useMemo(
     () =>
-      resolveDefaultLabels(workspaceLabels, filterDefaults.labelIds).map(
-        (label): Label => ({
-          id: label.id,
-          name: label.name,
-          color: label.color,
-          taskId: label.taskId,
-          workspaceId: label.workspaceId || "",
-          createdAt: label.createdAt,
-        }),
-      ),
-    [workspaceLabels, filterDefaults.labelIds],
+      resolveDefaultLabels(
+        workspaceLabels,
+        wantsDefaultLabels ? filterDefaults.labelIds : [],
+      ).map((label): Label => ({
+        id: label.id,
+        name: label.name,
+        color: label.color,
+        taskId: label.taskId,
+        workspaceId: label.workspaceId || "",
+        createdAt: label.createdAt,
+      })),
+    [workspaceLabels, filterDefaults.labelIds, wantsDefaultLabels],
   );
   const labels = labelSelection ?? defaultLabels;
   const [discardConfirmationOpen, setDiscardConfirmationOpen] = useState(false);
@@ -360,10 +368,22 @@ function CreateTaskModalContent({
 
   const { mutateAsync: createTask } = useCreateTask();
 
-  const { data: rawCustomFields } = useGetCustomFieldsByProject(
-    resolvedProjectId,
-  ) as { data: CustomFieldDefinition[] | undefined };
+  const { data: rawCustomFields, isError: customFieldsError } =
+    useGetCustomFieldsByProject(resolvedProjectId) as {
+      data: CustomFieldDefinition[] | undefined;
+      isError?: boolean;
+    };
 
+  // Filter-derived labels and custom-field values can only be resolved once
+  // their queries finish. Submitting earlier would save a task that does not
+  // match the filtered view, so wait (a failed query stops the wait; labels
+  // that then cannot be applied are reported after creation).
+  const awaitingFilterDefaults =
+    (wantsDefaultLabels && Boolean(labelsPending)) ||
+    (Object.keys(filterDefaults.customFields).length > 0 &&
+      Boolean(resolvedProjectId) &&
+      rawCustomFields === undefined &&
+      !customFieldsError);
   const customFields = useMemo(() => rawCustomFields ?? [], [rawCustomFields]);
 
   const [customFieldValues, setCustomFieldValues] = useState<
@@ -581,6 +601,7 @@ function CreateTaskModalContent({
       pendingUploadsRef.current > 0 ||
       !canCreateTaskCapability ||
       awaitingColumns ||
+      awaitingFilterDefaults ||
       !title.trim() ||
       !resolvedProjectId ||
       assigneeUnconfirmed ||
@@ -639,6 +660,7 @@ function CreateTaskModalContent({
         }),
       );
 
+      const failedLabels: string[] = [];
       for (const label of labels) {
         try {
           await createLabel({
@@ -649,15 +671,28 @@ function CreateTaskModalContent({
           });
         } catch (error) {
           console.error("Failed to create label:", error);
+          failedLabels.push(label.name);
         }
       }
+      // Labels the filters asked for that could not even be looked up.
+      const labelsUnavailable = wantsDefaultLabels && Boolean(labelsError);
 
       stagedAssetsRef.current = [];
       if (!activeRef.current) return;
       syncTaskIntoProject(savedTask);
-      toast.success(t("common:modals.createTask.successCreated"), {
-        icon: SquarePlusIcon,
-      });
+      // The task exists, but if labels were requested and not attached it will
+      // not show up under the label filter; do not report a plain success.
+      if (failedLabels.length > 0 || labelsUnavailable) {
+        toast.warning(
+          t("common:modals.createTask.labelsNotAttached", {
+            labels: failedLabels.join(", "),
+          }),
+        );
+      } else {
+        toast.success(t("common:modals.createTask.successCreated"), {
+          icon: SquarePlusIcon,
+        });
+      }
 
       if (createMore) {
         setTitle("");
@@ -1383,6 +1418,7 @@ function CreateTaskModalContent({
                 assigneeUnconfirmed ||
                 isSubmitting ||
                 awaitingColumns ||
+                awaitingFilterDefaults ||
                 isPreparingDraft
               }
               aria-busy={isPreparingDraft || isSubmitting}

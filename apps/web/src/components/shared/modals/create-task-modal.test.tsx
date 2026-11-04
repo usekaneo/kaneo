@@ -17,6 +17,7 @@ import {
   vi,
 } from "vite-plus/test";
 
+import { toast } from "@/lib/toast";
 import CreateTaskModal from "./create-task-modal";
 
 function createTestQueryClient() {
@@ -56,6 +57,8 @@ let uploadAsset: ((file: File) => Promise<unknown>) | undefined;
 const stageUpload = vi.fn();
 let customFieldDefs: unknown[] | undefined;
 let workspaceLabelsData: Record<string, unknown>[] = [];
+let workspaceLabelsPending = false;
+let canCreateLabels = true;
 const createLabel = vi.fn(async (input: Record<string, unknown>) => input);
 vi.mock("@/lib/upload-draft-asset", () => ({
   uploadDraftAsset: (...args: unknown[]) => stageUpload(...args),
@@ -70,6 +73,8 @@ beforeEach(() => {
   storedProject = null;
   customFieldDefs = undefined;
   workspaceLabelsData = [];
+  workspaceLabelsPending = false;
+  canCreateLabels = true;
   window.localStorage.clear();
   columnsError = false;
   columnsFetching = false;
@@ -142,7 +147,10 @@ vi.mock("@/hooks/mutations/task/use-update-task", () => ({
 }));
 
 vi.mock("@/hooks/queries/label/use-get-labels-by-workspace", () => ({
-  default: () => ({ data: workspaceLabelsData }),
+  default: () => ({
+    data: workspaceLabelsData,
+    isPending: workspaceLabelsPending,
+  }),
 }));
 
 vi.mock("@/hooks/queries/workspace/use-active-workspace", () => ({
@@ -163,7 +171,7 @@ vi.mock("@/hooks/queries/workspace-users/use-get-project-members", () => ({
 vi.mock("@/hooks/use-workspace-permission", () => ({
   useWorkspacePermission: () => ({
     canCreateTasks: () => true,
-    canCreateLabels: () => true,
+    canCreateLabels: () => canCreateLabels,
   }),
 }));
 
@@ -192,7 +200,7 @@ vi.mock("@/store/project", () => ({
 }));
 
 vi.mock("@/lib/toast", () => ({
-  toast: { error: vi.fn(), success: vi.fn() },
+  toast: { error: vi.fn(), success: vi.fn(), warning: vi.fn() },
 }));
 
 vi.mock("react-i18next", () => ({
@@ -894,6 +902,75 @@ describe("CreateTaskModal board filter defaults", () => {
     expect(createLabel).toHaveBeenCalledWith(
       expect.objectContaining({ name: "Client B", taskId: "task-1" }),
     );
+    await vi.waitFor(() =>
+      expect(toast.success).toHaveBeenCalledWith(
+        "common:modals.createTask.successCreated",
+        expect.anything(),
+      ),
+    );
+    expect(toast.warning).not.toHaveBeenCalled();
+  });
+
+  it("does not prefill labels for a user who cannot create labels", async () => {
+    canCreateLabels = false;
+    workspaceLabelsData = [label("l1", "Client A")];
+    storeFilters({ priority: ["high"], labels: ["l1"] });
+    openOnProject();
+    expect(screen.queryByText("Client A")).not.toBeInTheDocument();
+    enterTitle();
+    submit();
+
+    await vi.waitFor(() =>
+      expect(createTask).toHaveBeenCalledWith(
+        expect.objectContaining({ priority: "high" }),
+      ),
+    );
+    expect(createLabel).not.toHaveBeenCalled();
+    expect(toast.warning).not.toHaveBeenCalled();
+  });
+
+  it("warns instead of reporting plain success when a label cannot be attached", async () => {
+    workspaceLabelsData = [label("l1", "Client A"), label("l2", "Client B")];
+    storeFilters({ labels: ["l1", "l2"] });
+    createLabel.mockImplementationOnce(async () => {
+      throw new Error("forbidden");
+    });
+    vi.spyOn(console, "error").mockImplementation(() => {});
+    openOnProject();
+    enterTitle();
+    submit();
+
+    await vi.waitFor(() =>
+      expect(toast.warning).toHaveBeenCalledWith(
+        "common:modals.createTask.labelsNotAttached",
+      ),
+    );
+    expect(toast.success).not.toHaveBeenCalled();
+    expect(createLabel).toHaveBeenCalledTimes(2);
+  });
+
+  it("waits for the project's custom fields before it can create the task", () => {
+    customFieldDefs = undefined;
+    storeFilters({ customFields: { billable: ["true"] } });
+    openOnProject();
+    enterTitle();
+
+    expect(
+      screen.getByText("common:modals.createTask.createButton"),
+    ).toBeDisabled();
+  });
+
+  it("waits for the workspace labels before it can create the task", async () => {
+    workspaceLabelsPending = true;
+    storeFilters({ labels: ["l1"] });
+    openOnProject();
+    enterTitle();
+
+    expect(
+      screen.getByText("common:modals.createTask.createButton"),
+    ).toBeDisabled();
+    submit();
+    expect(createTask).not.toHaveBeenCalled();
   });
 
   it("attaches the catalog label when the filter holds a per-task copy id", async () => {

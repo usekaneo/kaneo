@@ -153,7 +153,8 @@
 					"orchid": "蘭花紫",
 					"sky": "天空藍"
 				},
-				"statusLoadError": "無法載入專案狀態。"
+				"statusLoadError": "無法載入專案狀態。",
+				"labelsNotAttached": "Task created, but these labels could not be attached: {{labels}}"
 			}
 		},
 		"editor": {

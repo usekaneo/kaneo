@@ -116,6 +116,7 @@
 				"chooseProjectForImages": "Choose a project before uploading images.",
 				"prepareTaskError": "Failed to prepare task",
 				"successCreated": "Task created successfully",
+				"labelsNotAttached": "Task created, but these labels could not be attached: {{labels}}",
 				"successUpdated": "Task updated successfully",
 				"createError": "Failed to create task",
 				"priority": "Priority",
