@@ -12,6 +12,12 @@ import {
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 import { createId } from "@paralleldrive/cuid2";
 import { config } from "dotenv-mono";
+import { z } from "zod";
+import {
+  type AzureStorageConfig,
+  azureStorage,
+  readAzureStorageConfig,
+} from "./azure";
 import { describeStorageError } from "./describe-storage-error";
 import {
   headUploadedObject,
@@ -41,18 +47,27 @@ export function isImageContentType(contentType: string) {
 
 type UploadSurface = "description" | "comment";
 
-type StorageConfig = {
+type UploadSettings = {
+  keyPrefix: string;
+  maxImageUploadBytes: number;
+  presignTtlSeconds: number;
+};
+
+type S3StorageConfig = UploadSettings & {
+  backend: "s3";
   endpoint: string;
   region: string;
   bucket: string;
   accessKeyId: string;
   secretAccessKey: string;
   publicBaseUrl?: string;
-  keyPrefix: string;
   forcePathStyle: boolean;
-  maxImageUploadBytes: number;
-  presignTtlSeconds: number;
 };
+
+type StorageConfig =
+  | S3StorageConfig
+  | (UploadSettings & AzureStorageConfig & { backend: "azure" });
+const storageBackendSchema = z.enum(["s3", "azure"]);
 
 type TaskImageUploadContext = {
   workspaceId: string;
@@ -146,6 +161,19 @@ export function resolveS3Credentials(
 }
 
 function getStorageConfig(): StorageConfig {
+  const backend = storageBackendSchema.parse(env("STORAGE_BACKEND") || "s3");
+  if (backend === "azure") {
+    return {
+      backend,
+      ...readAzureStorageConfig(),
+      keyPrefix: env("AZURE_STORAGE_KEY_PREFIX"),
+      maxImageUploadBytes: getMaxImageUploadBytes(),
+      presignTtlSeconds: parsePositiveInt(
+        process.env.S3_PRESIGN_TTL_SECONDS,
+        DEFAULT_PRESIGN_TTL_SECONDS,
+      ),
+    };
+  }
   const endpoint = env("S3_ENDPOINT");
   const bucket = env("S3_BUCKET");
   const accessKeyId = env("S3_ACCESS_KEY_ID");
@@ -162,6 +190,7 @@ function getStorageConfig(): StorageConfig {
   resolveS3Credentials(accessKeyId, secretAccessKey);
 
   return {
+    backend,
     endpoint,
     region: env("S3_REGION") || "us-east-1",
     bucket,
@@ -188,7 +217,7 @@ function getMaxImageUploadBytes() {
   );
 }
 
-function getClient(config: StorageConfig) {
+function getClient(config: S3StorageConfig) {
   const cacheKey = JSON.stringify({
     endpoint: config.endpoint,
     region: config.region,
@@ -366,9 +395,19 @@ export async function createTaskImageUploadUrl(
 ): Promise<TaskImageUploadUrl> {
   validateTaskAssetUploadInput(context.contentType, context.size);
   const config = getStorageConfig();
-  const client = getClient(config);
   const rawKey = buildObjectKey(context);
   const key = applyKeyPrefix(config.keyPrefix, rawKey);
+  if (config.backend === "azure") {
+    return {
+      key,
+      ...(await azureStorage(config).uploadUrl(
+        key,
+        context.contentType,
+        config.presignTtlSeconds,
+      )),
+    };
+  }
+  const client = getClient(config);
 
   const command = new PutObjectCommand({
     Bucket: config.bucket,
@@ -398,9 +437,20 @@ export async function createProjectBackgroundUploadUrl(
 ): Promise<ProjectBackgroundUploadUrl> {
   validateProjectBackgroundUploadInput(context.contentType, context.size);
   const config = getStorageConfig();
-  const client = getClient(config);
   const { rawKey, version } = buildProjectBackgroundObjectKey(context);
   const key = applyKeyPrefix(config.keyPrefix, rawKey);
+  if (config.backend === "azure") {
+    return {
+      key,
+      version,
+      ...(await azureStorage(config).uploadUrl(
+        key,
+        context.contentType,
+        config.presignTtlSeconds,
+      )),
+    };
+  }
+  const client = getClient(config);
 
   const command = new PutObjectCommand({
     Bucket: config.bucket,
@@ -432,11 +482,18 @@ export async function verifyTaskAssetUpload(
   expected: { size: number; contentType: string },
 ) {
   const config = getStorageConfig();
-  const client = getClient(config);
   const abortSignal = AbortSignal.timeout(10_000);
-  let object: HeadObjectCommandOutput;
+  let object: Pick<HeadObjectCommandOutput, "ContentLength" | "ContentType">;
   try {
-    object = await headUploadedObject(client, config.bucket, key, abortSignal);
+    object =
+      config.backend === "azure"
+        ? await azureStorage(config).head(key, abortSignal)
+        : await headUploadedObject(
+            getClient(config),
+            config.bucket,
+            key,
+            abortSignal,
+          );
   } catch (error) {
     if (isMissingObjectError(error)) {
       throw new InvalidUploadedAssetError("Uploaded object was not found.");
@@ -454,10 +511,7 @@ export async function verifyTaskAssetUpload(
     // Also remove oversized objects made with a still-valid older upload URL.
     // Invalid client size claims never cause deletion of an in-limit object.
     try {
-      await client.send(
-        new DeleteObjectCommand({ Bucket: config.bucket, Key: key }),
-        { abortSignal },
-      );
+      await deleteS3Object(key, abortSignal);
     } catch (error) {
       console.error(
         "Unable to remove oversized uploaded object:",
@@ -499,6 +553,8 @@ export function isStorageConfigured() {
 /** Check that the bucket answers with the configured credentials. */
 export async function headStorageBucket(abortSignal: AbortSignal) {
   const config = getStorageConfig();
+  if (config.backend === "azure")
+    return azureStorage(config).probe(abortSignal);
   await getClient(config).send(
     new HeadBucketCommand({ Bucket: config.bucket }),
     {
@@ -550,6 +606,7 @@ export function assertProjectBackgroundKeyMatchesContext(
 
 export async function getPrivateObject(key: string): Promise<AssetObject> {
   const config = getStorageConfig();
+  if (config.backend === "azure") return azureStorage(config).download(key);
   const client = getClient(config);
   const response = await client.send(
     new GetObjectCommand({
@@ -584,8 +641,12 @@ export async function copyTaskAssetObject({
   destination: TaskImageUploadContext;
 }): Promise<string> {
   const config = getStorageConfig();
-  const client = getClient(config);
   const key = applyKeyPrefix(config.keyPrefix, buildObjectKey(destination));
+  if (config.backend === "azure") {
+    await azureStorage(config).copy(sourceKey, key, config.presignTtlSeconds);
+    return key;
+  }
+  const client = getClient(config);
 
   await client.send(
     new CopyObjectCommand({
@@ -600,13 +661,19 @@ export async function copyTaskAssetObject({
   return key;
 }
 
-export async function deleteS3Object(key: string): Promise<void> {
+export async function deleteS3Object(
+  key: string,
+  abortSignal?: AbortSignal,
+): Promise<void> {
   const config = getStorageConfig();
+  if (config.backend === "azure")
+    return azureStorage(config).delete(key, abortSignal);
   const client = getClient(config);
   await client.send(
     new DeleteObjectCommand({
       Bucket: config.bucket,
       Key: key,
     }),
+    { abortSignal },
   );
 }
