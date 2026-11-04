@@ -6,6 +6,12 @@ export function startGateway(port, host, targetPort) {
     const upstream = connect(targetPort, host);
     client.on("error", () => upstream.destroy());
     upstream.on("error", () => client.destroy());
+    client.on("close", () => {
+      if (!client.readableEnded) upstream.destroy();
+    });
+    upstream.on("close", () => {
+      if (!upstream.readableEnded) client.destroy();
+    });
     client.pipe(upstream).pipe(client);
   });
   return server.listen(port, "0.0.0.0");
