@@ -1,12 +1,24 @@
 # Disposable CI data only. Use a unique --project-name; never load the root .env.
 services:
+  gateway:
+    image: ${KANEO_CI_IMAGE:-kaneo:ci}
+    entrypoint: ["node", "/ci/gateway.mjs"]
+    command: []
+    volumes:
+      - ./gateway.mjs:/ci/gateway.mjs:ro
+    ports:
+      - "127.0.0.1::15173"
+      - "127.0.0.1::15174"
+      - "127.0.0.1::15175"
+      - "127.0.0.1::19040"
+    healthcheck:
+      disable: true
   postgres:
     image: postgres:18
     environment:
       POSTGRES_DB: kaneo_ci_test
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: ci-only-password
-    ports: ["127.0.0.1:59432:5432"]
     volumes:
       - ./init-databases.sql:/docker-entrypoint-initdb.d/ci.sql:ro
     healthcheck:
@@ -16,7 +28,6 @@ services:
       retries: 30
   redis:
     image: redis:7-alpine
-    ports: ["127.0.0.1:59379:6379"]
     healthcheck:
       test: ["CMD", "redis-cli", "ping"]
       interval: 2s
@@ -31,7 +42,6 @@ services:
       MINIO_ROOT_PASSWORD: local-test-secret-only
       MINIO_BROWSER: "off"
       MINIO_UPDATE: "off"
-    ports: ["127.0.0.1:59040:9000"]
     healthcheck:
       test: ["CMD", "curl", "--fail", "--silent", "http://127.0.0.1:9000/minio/health/ready"]
       interval: 2s
@@ -50,7 +60,7 @@ services:
       NODE_ENV: production
       DATABASE_URL: postgresql://postgres:ci-only-password@postgres:5432/kaneo_ci_test
       AUTH_SECRET: ci-only-secret-with-at-least-32-characters
-      KANEO_CLIENT_URL: http://127.0.0.1:55173
+      KANEO_CLIENT_URL: ${KANEO_CI_APP_ORIGIN:-http://127.0.0.1:55173}
       DISABLE_REGISTRATION: "false"
       DISABLE_GUEST_ACCESS: "true"
       DISABLE_PASSWORD_REGISTRATION: "false"
@@ -61,7 +71,6 @@ services:
       S3_SECRET_ACCESS_KEY: local-test-secret-only
       S3_REGION: us-east-1
       S3_FORCE_PATH_STYLE: "true"
-    ports: ["127.0.0.1:55173:5173"]
     depends_on:
       postgres: {condition: service_healthy}
       minio: {condition: service_healthy}
@@ -75,9 +84,8 @@ services:
     profiles: [realtime]
     environment:
       <<: *app-env
-      KANEO_CLIENT_URL: http://127.0.0.1:55174
+      KANEO_CLIENT_URL: ${KANEO_CI_SECOND_ORIGIN:-http://127.0.0.1:55174}
       REDIS_URL: redis://redis:6379
-    ports: ["127.0.0.1:55174:5173"]
     depends_on:
       app: {condition: service_healthy}
       redis: {condition: service_healthy}
@@ -92,9 +100,8 @@ services:
     environment:
       <<: *app-env
       DATABASE_URL: postgresql://postgres:ci-only-password@postgres:5432/kaneo_upgrade_test
-      KANEO_CLIENT_URL: http://127.0.0.1:55175
+      KANEO_CLIENT_URL: ${KANEO_CI_UPGRADE_ORIGIN:-http://127.0.0.1:55175}
       REDIS_URL: ""
-    ports: ["127.0.0.1:55175:5173"]
     depends_on:
       postgres: {condition: service_healthy}
       minio: {condition: service_healthy}

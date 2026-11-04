@@ -32,8 +32,8 @@ mkdir -p .cache/ci-results
 printf 'Upgrade baseline: %s\n' "$KANEO_UPGRADE_IMAGE" | tee .cache/ci-results/upgrade-baseline.txt
 compose=(docker compose --env-file /dev/null -p kaneo-ci -f scripts/ci/compose.yml --profile upgrade)
 "${compose[@]}" up -d --wait --wait-timeout 120 upgrade
-node scripts/ci/upgrade.mjs seed http://127.0.0.1:55175 .cache/ci-results/upgrade-state.json
+node scripts/ci/upgrade.mjs seed "$KANEO_CI_UPGRADE_ORIGIN" .cache/ci-results/upgrade-state.json
 "${compose[@]}" stop upgrade
 export KANEO_UPGRADE_IMAGE=kaneo:ci
 "${compose[@]}" up -d --no-deps --wait --wait-timeout 120 --force-recreate upgrade
-node scripts/ci/upgrade.mjs verify http://127.0.0.1:55175 .cache/ci-results/upgrade-state.json
+node scripts/ci/upgrade.mjs verify "$KANEO_CI_UPGRADE_ORIGIN" .cache/ci-results/upgrade-state.json
