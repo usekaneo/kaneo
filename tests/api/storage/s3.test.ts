@@ -508,9 +508,12 @@ describe("S3 helpers", () => {
     delete process.env.S3_SECRET_ACCESS_KEY;
 
     const config = assertStorageConfigured();
-    expect(config.bucket).toBe("kaneo");
-    expect(config.accessKeyId).toBe("");
-    expect(config.secretAccessKey).toBe("");
+    expect(config).toMatchObject({
+      backend: "s3",
+      bucket: "kaneo",
+      accessKeyId: "",
+      secretAccessKey: "",
+    });
   });
 
   it("assertStorageConfigured throws when only one credential key is set", () => {
