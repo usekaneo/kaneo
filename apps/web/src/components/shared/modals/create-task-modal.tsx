@@ -80,6 +80,10 @@ import { stripLineBreaks } from "@/lib/strip-line-breaks";
 import useProjectStore from "@/store/project";
 import type Task from "@/types/task";
 import type { TaskRecurrence } from "@/types/task/recurrence";
+import {
+  readStoredNewTaskDefaults,
+  resolveDefaultLabels,
+} from "@/lib/task-filters/new-task-defaults";
 import { getInitialTaskColumn } from "./initial-task-column";
 
 type CreateTaskModalProps = {
@@ -236,18 +240,47 @@ function CreateTaskModalContent({
   const canCreateTaskCapability = canCreateTasks();
   const canCreateLabelCapability = canCreateLabels();
 
+  const routeProjectId =
+    location.pathname.match(/\/project\/([^/]+)/)?.[1] ?? null;
+  const explicitProjectId = projectId || routeProjectId || "";
+  // Active board filters at the moment the modal opens. Read once per session
+  // (the modal remounts on every open) so the new task matches the view it was
+  // created from; every value stays editable below.
+  const [filterDefaults] = useState(() =>
+    readStoredNewTaskDefaults(explicitProjectId),
+  );
+  const initialPriority: Priority = filterDefaults.priority ?? "no-priority";
+  const initialAssigneeId = filterDefaults.assigneeId ?? "";
+
   const [title, setTitle] = useState("");
   const titleRef = useAutoGrowTextarea(title);
   const [description, setDescription] = useState("");
-  const [priority, setPriority] = useState<Priority>("no-priority");
-  const [assigneeId, setAssigneeId] = useState("");
+  const [priority, setPriority] = useState<Priority>(initialPriority);
+  const [assigneeId, setAssigneeId] = useState(initialAssigneeId);
   const [startDate, setStartDate] = useState<Date | undefined>(undefined);
   const [dueDate, setDueDate] = useState<Date | undefined>(undefined);
   const [recurrence, setRecurrence] = useState<TaskRecurrence | null>(null);
   const [startDateOpen, setStartDateOpen] = useState(false);
   const [dueDateOpen, setDueDateOpen] = useState(false);
   const [createMore, setCreateMore] = useState(false);
-  const [labels, setLabels] = useState<Label[]>([]);
+  // null = the user has not touched the labels, so the filter-derived default
+  // applies (it can only be resolved once the workspace labels have loaded).
+  const [labelSelection, setLabels] = useState<Label[] | null>(null);
+  const defaultLabels = useMemo(
+    () =>
+      resolveDefaultLabels(workspaceLabels, filterDefaults.labelIds).map(
+        (label): Label => ({
+          id: label.id,
+          name: label.name,
+          color: label.color,
+          taskId: label.taskId,
+          workspaceId: label.workspaceId || "",
+          createdAt: label.createdAt,
+        }),
+      ),
+    [workspaceLabels, filterDefaults.labelIds],
+  );
+  const labels = labelSelection ?? defaultLabels;
   const [discardConfirmationOpen, setDiscardConfirmationOpen] = useState(false);
 
   const [labelsOpen, setLabelsOpen] = useState(false);
@@ -256,9 +289,6 @@ function CreateTaskModalContent({
   const [selectedColor, setSelectedColor] = useState<LabelColor>("gray");
   const [newLabelName, setNewLabelName] = useState("");
 
-  const routeProjectId =
-    location.pathname.match(/\/project\/([^/]+)/)?.[1] ?? null;
-  const explicitProjectId = projectId || routeProjectId || "";
   const [selectedProjectId, setSelectedProjectId] = useState("");
   const { data: workspaceProjects } = useGetProjects({
     workspaceId: workspace?.id || "",
@@ -353,16 +383,32 @@ function CreateTaskModalContent({
     }));
   };
 
+  // A custom-field filter pre-fills only fields where one value is
+  // unambiguous: a boolean, or a dropdown whose option still exists.
+  const initialCustomFieldValue = useCallback(
+    (field: CustomFieldDefinition) => {
+      const filtered = filterDefaults.customFields[field.id];
+      const usable =
+        filtered !== undefined &&
+        (field.type === "boolean"
+          ? filtered === "true" || filtered === "false"
+          : field.type === "dropdown" &&
+            Boolean(field.options?.includes(filtered)));
+      return usable ? filtered : (field.defaultValue ?? "");
+    },
+    [filterDefaults],
+  );
+
   useEffect(() => {
     setCustomFieldValues((previousValues) =>
       Object.fromEntries(
         customFields.map((field) => [
           field.id,
-          previousValues[field.id] ?? field.defaultValue ?? "",
+          previousValues[field.id] ?? initialCustomFieldValue(field),
         ]),
       ),
     );
-  }, [customFields]);
+  }, [customFields, initialCustomFieldValue]);
 
   const filteredLabels = (() => {
     const searchFiltered = workspaceLabels.filter((label) =>
@@ -388,29 +434,35 @@ function CreateTaskModalContent({
 
   const buildDefaultCustomFieldValues = useCallback(() => {
     return customFields.reduce<Record<string, string>>((acc, field) => {
-      acc[field.id] = field.defaultValue ?? "";
+      acc[field.id] = initialCustomFieldValue(field);
       return acc;
     }, {});
-  }, [customFields]);
+  }, [customFields, initialCustomFieldValue]);
 
   const hasCustomFieldChanges = Object.entries(customFieldValues).some(
     ([fieldId, value]) => {
       const field = customFields.find((f) => f.id === fieldId);
-      const defaultValue = field?.defaultValue ?? "";
-      return value !== defaultValue;
+      return value !== (field ? initialCustomFieldValue(field) : "");
     },
   );
+
+  const labelsChanged =
+    labelSelection !== null &&
+    (labelSelection.length !== defaultLabels.length ||
+      labelSelection.some(
+        (label) => !defaultLabels.some((d) => d.name === label.name),
+      ));
 
   const hasUnsavedChanges = Boolean(
     title.trim() ||
     description.trim() ||
-    priority !== "no-priority" ||
-    assigneeId ||
+    priority !== initialPriority ||
+    assigneeId !== initialAssigneeId ||
     startDate ||
     dueDate ||
     recurrence ||
     selectedProjectId ||
-    labels.length > 0 ||
+    labelsChanged ||
     stagedAssetsRef.current.length > 0 ||
     hasCustomFieldChanges,
   );
@@ -610,12 +662,14 @@ function CreateTaskModalContent({
       if (createMore) {
         setTitle("");
         setDescription("");
-        setPriority("no-priority");
-        setAssigneeId("");
+        // Back to the filter-derived defaults, so the next task from the same
+        // filtered view is again visible in it.
+        setPriority(initialPriority);
+        setAssigneeId(initialAssigneeId);
         setStartDate(undefined);
         setDueDate(undefined);
         setRecurrence(null);
-        setLabels([]);
+        setLabels(null);
         setLabelsStep("select");
         setSearchValue("");
         setSelectedColor("gray");

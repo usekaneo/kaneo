@@ -55,6 +55,8 @@ let storedProject: { id: string; columns: unknown[] } | null = null;
 let uploadAsset: ((file: File) => Promise<unknown>) | undefined;
 const stageUpload = vi.fn();
 let customFieldDefs: unknown[] | undefined;
+let workspaceLabelsData: Record<string, unknown>[] = [];
+const createLabel = vi.fn(async (input: Record<string, unknown>) => input);
 vi.mock("@/lib/upload-draft-asset", () => ({
   uploadDraftAsset: (...args: unknown[]) => stageUpload(...args),
 }));
@@ -67,6 +69,8 @@ beforeEach(() => {
   ];
   storedProject = null;
   customFieldDefs = undefined;
+  workspaceLabelsData = [];
+  window.localStorage.clear();
   columnsError = false;
   columnsFetching = false;
   refetchColumns.mockImplementation(async () => ({
@@ -122,7 +126,7 @@ vi.mock("@/components/task/task-description-editor", () => ({
 }));
 
 vi.mock("@/hooks/mutations/label/use-create-label", () => ({
-  default: () => ({ mutateAsync: vi.fn() }),
+  default: () => ({ mutateAsync: createLabel }),
 }));
 
 vi.mock("@/hooks/mutations/task/use-create-task", () => ({
@@ -138,7 +142,7 @@ vi.mock("@/hooks/mutations/task/use-update-task", () => ({
 }));
 
 vi.mock("@/hooks/queries/label/use-get-labels-by-workspace", () => ({
-  default: () => ({ data: [] }),
+  default: () => ({ data: workspaceLabelsData }),
 }));
 
 vi.mock("@/hooks/queries/workspace/use-active-workspace", () => ({
@@ -828,5 +832,153 @@ describe("CreateTaskModal custom fields", () => {
         }),
       ),
     );
+  });
+});
+
+describe("CreateTaskModal board filter defaults", () => {
+  const storeFilters = (filters: Record<string, unknown>) =>
+    window.localStorage.setItem(
+      "kaneo:board-filters:project-1",
+      JSON.stringify({
+        status: null,
+        priority: null,
+        assignee: null,
+        dueDate: null,
+        labels: null,
+        customFields: null,
+        negated: null,
+        ...filters,
+      }),
+    );
+  const label = (id: string, name: string, taskId: string | null = null) => ({
+    id,
+    name,
+    color: "blue",
+    taskId,
+    workspaceId: "workspace-1",
+    createdAt: "2026-08-05T00:00:00.000Z",
+  });
+  const openOnProject = (onClose = vi.fn()) =>
+    render(
+      <CreateTaskModal
+        open
+        onClose={onClose}
+        projectId="project-1"
+        status="to-do"
+      />,
+      { wrapper: createWrapper() },
+    );
+  const clickBackdrop = () => {
+    const backdrop = document.querySelector('[data-slot="dialog-backdrop"]');
+    fireEvent.pointerDown(backdrop as Element);
+    fireEvent.pointerUp(backdrop as Element);
+    fireEvent.click(backdrop as Element);
+  };
+
+  it("creates the task with the filtered priority and attaches every filtered label", async () => {
+    workspaceLabelsData = [label("l1", "Client A"), label("l2", "Client B")];
+    storeFilters({ priority: ["high"], labels: ["l1", "l2"] });
+    openOnProject();
+    enterTitle();
+    submit();
+
+    await vi.waitFor(() =>
+      expect(createTask).toHaveBeenCalledWith(
+        expect.objectContaining({ priority: "high", status: "to-do" }),
+      ),
+    );
+    await vi.waitFor(() => expect(createLabel).toHaveBeenCalledTimes(2));
+    expect(createLabel).toHaveBeenCalledWith(
+      expect.objectContaining({ name: "Client A", taskId: "task-1" }),
+    );
+    expect(createLabel).toHaveBeenCalledWith(
+      expect.objectContaining({ name: "Client B", taskId: "task-1" }),
+    );
+  });
+
+  it("attaches the catalog label when the filter holds a per-task copy id", async () => {
+    workspaceLabelsData = [
+      label("c1", "Client A"),
+      label("t1", "Client A", "x"),
+    ];
+    storeFilters({ labels: ["t1"] });
+    openOnProject();
+    enterTitle();
+    submit();
+
+    await vi.waitFor(() => expect(createLabel).toHaveBeenCalledTimes(1));
+  });
+
+  it("does not prefill from multiple priorities or from negated filters", async () => {
+    workspaceLabelsData = [label("l1", "Client A")];
+    storeFilters({
+      priority: ["high", "low"],
+      labels: ["l1"],
+      negated: ["labels"],
+    });
+    openOnProject();
+    enterTitle();
+    submit();
+
+    await vi.waitFor(() =>
+      expect(createTask).toHaveBeenCalledWith(
+        expect.objectContaining({ priority: "no-priority" }),
+      ),
+    );
+    expect(createLabel).not.toHaveBeenCalled();
+  });
+
+  it("lets the user remove a prefilled label before creating", async () => {
+    workspaceLabelsData = [label("l1", "Client A")];
+    storeFilters({ labels: ["l1"] });
+    openOnProject();
+    fireEvent.click(screen.getByText("Client A"));
+    enterTitle();
+    submit();
+
+    await vi.waitFor(() => expect(createTask).toHaveBeenCalled());
+    expect(createLabel).not.toHaveBeenCalled();
+  });
+
+  it("prefills a boolean custom field filtered to a single value", async () => {
+    customFieldDefs = [customField("billable", "boolean", false, "false")];
+    storeFilters({ customFields: { billable: ["true"] } });
+    openOnProject();
+    enterTitle();
+    submit();
+
+    await vi.waitFor(() =>
+      expect(createTask).toHaveBeenCalledWith(
+        expect.objectContaining({
+          customFields: [{ fieldId: "billable", value: "true" }],
+        }),
+      ),
+    );
+  });
+
+  it("closes without a discard prompt when only the prefilled values are present", () => {
+    workspaceLabelsData = [label("l1", "Client A")];
+    storeFilters({ priority: ["high"], labels: ["l1"] });
+    const onClose = vi.fn();
+    openOnProject(onClose);
+    clickBackdrop();
+
+    expect(onClose).toHaveBeenCalledTimes(1);
+    expect(
+      screen.queryByText("common:modals.createTask.discardTitle"),
+    ).not.toBeInTheDocument();
+  });
+
+  it("starts empty when the project has no stored filters", async () => {
+    openOnProject();
+    enterTitle();
+    submit();
+
+    await vi.waitFor(() =>
+      expect(createTask).toHaveBeenCalledWith(
+        expect.objectContaining({ priority: "no-priority" }),
+      ),
+    );
+    expect(createLabel).not.toHaveBeenCalled();
   });
 });
