@@ -6,6 +6,7 @@ function useExternalLinks(taskId: string) {
     queryKey: ["external-links", taskId],
     queryFn: () => getExternalLinks(taskId),
     enabled: !!taskId,
+    refetchOnMount: true,
   });
 }
 
