@@ -11,6 +11,10 @@ import {
 import db, { schema } from "../../apps/api/src/database";
 import { createApp } from "../../apps/api/src/index";
 import {
+  InvalidUploadedAssetError,
+  verifyTaskAssetUpload,
+} from "../../apps/api/src/storage/s3";
+import {
   addConnection,
   initializeWebSocketAdapter,
   removeConnection,
@@ -26,6 +30,7 @@ import {
 vi.mock("../../apps/api/src/storage/s3", async (importOriginal) => ({
   ...(await importOriginal<typeof import("../../apps/api/src/storage/s3")>()),
   deleteS3Object: vi.fn().mockResolvedValue(undefined),
+  verifyTaskAssetUpload: vi.fn(),
 }));
 
 function jsonRequest(method: string, body: unknown) {
@@ -38,6 +43,10 @@ function jsonRequest(method: string, body: unknown) {
 
 describe("API integration: project backgrounds", () => {
   beforeEach(async () => {
+    vi.mocked(verifyTaskAssetUpload).mockResolvedValue({
+      size: 12,
+      contentType: "image/png",
+    });
     await resetTestDatabase();
     await initializeWebSocketAdapter();
     vi.stubEnv("S3_ENDPOINT", "https://storage.example.test");
@@ -132,6 +141,32 @@ describe("API integration: project backgrounds", () => {
     } finally {
       removeConnection(project.id, connection);
     }
+  });
+
+  it("does not publish a background whose stored content fails validation", async () => {
+    const owner = await createWorkspaceMember({ role: "owner" });
+    const { project } = await createProjectFixture({
+      workspaceId: owner.workspace.id,
+    });
+    mockAuthenticatedSession(owner.user);
+    const { app } = createApp();
+    vi.mocked(verifyTaskAssetUpload).mockRejectedValueOnce(
+      new InvalidUploadedAssetError("Invalid stored content"),
+    );
+    const response = await app.request(
+      `/api/project/${project.id}/background-upload/finalize`,
+      jsonRequest("POST", {
+        key: `workspace/${owner.workspace.id}/project/${project.id}/backgrounds/background-v1`,
+        version: "v1",
+        contentType: "image/png",
+        size: 12,
+      }),
+    );
+    expect(response.status).toBe(400);
+    const row = await db.query.projectTable.findFirst({
+      where: eq(schema.projectTable.id, project.id),
+    });
+    expect(row?.backgroundObjectKey).toBeNull();
   });
 
   it("rejects background mutations without project update permission", async () => {
