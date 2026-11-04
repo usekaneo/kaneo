@@ -151,12 +151,15 @@ runner's dependencies (`npm ci --ignore-scripts --prefix scripts/ui-review-bot`)
 
 After building a candidate image tagged `kaneo:ci`:
 
-```sh
+```bash
+set -a
+source <(bash scripts/ci/gateway-env.sh)
+set +a
 docker compose --env-file /dev/null -p kaneo-ci -f scripts/ci/compose.yml up -d --wait postgres minio app
-node scripts/ci/browser.mjs http://127.0.0.1:55173
-node scripts/ci/realtime.mjs http://127.0.0.1:55173
+node scripts/ci/browser.mjs "$KANEO_CI_APP_ORIGIN"
+node scripts/ci/realtime.mjs "$KANEO_CI_APP_ORIGIN"
 KANEO_CI_REDIS_URL=redis://redis:6379 docker compose --env-file /dev/null -p kaneo-ci -f scripts/ci/compose.yml --profile realtime up -d --wait app second redis
-node scripts/ci/realtime.mjs http://127.0.0.1:55173 http://127.0.0.1:55174
+node scripts/ci/realtime.mjs "$KANEO_CI_APP_ORIGIN" "$KANEO_CI_SECOND_ORIGIN"
 GITHUB_REPOSITORY=usekaneo/kaneo GITHUB_REPOSITORY_OWNER=usekaneo bash scripts/ci/upgrade.sh
 ```
 
@@ -168,8 +171,8 @@ Stop only this stack and remove its disposable data afterwards:
 docker compose --env-file /dev/null -p kaneo-ci -f scripts/ci/compose.yml --profile realtime --profile upgrade down -v
 ```
 
-The stack reserves loopback ports 55173–55175, 59040, 59379 and 59432. It uses
-fixed synthetic credentials and test databases; do not expose it to the network.
+Docker assigns loopback ports to the gateway before the API instances start.
+The stack uses fixed synthetic credentials and test databases; do not expose it to the network.
 
 For a local worktree on a copy-on-write filesystem, reuse the pnpm store without
 copying dependency data:
