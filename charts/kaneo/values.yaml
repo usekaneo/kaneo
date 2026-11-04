@@ -11,6 +11,8 @@ autoscaling:
   # targetMemoryUtilizationPercentage: 80
 # Pod configuration
 podAnnotations: {}
+podLabels: {}
+extraVolumes: []
 podSecurityContext: {}
 nodeSelector: {}
 tolerations: []
@@ -137,6 +139,7 @@ kaneo:
   #         name: oauth-secret
   #         key: client-id
   extraEnvFrom: []
+  extraVolumeMounts: []
   # extraEnvFrom:
   #   - secretRef:
   #       name: oauth-secret
