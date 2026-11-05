@@ -61,7 +61,7 @@ export function FilterMenu({ subjects, activeCount }: FilterMenuProps) {
         </TooltipContent>
       </Tooltip>
       <PopoverContent align="end" className="w-60">
-        <FilterRootPanel subjects={subjects} />
+        <FilterRootPanel subjects={subjects} onApplied={() => setOpen(false)} />
       </PopoverContent>
     </Popover>
   );

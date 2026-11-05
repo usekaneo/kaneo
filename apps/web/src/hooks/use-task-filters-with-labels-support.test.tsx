@@ -258,3 +258,36 @@ describe("useTaskFiltersWithLabelsSupport", () => {
     );
   });
 });
+
+it("restores, updates, and clears date conditions with other saved filters", async () => {
+  const key = "kaneo:board-filters:date-test";
+  window.localStorage.setItem(
+    key,
+    JSON.stringify({
+      startDate: ["range:2026-10-01:2026-10-15"],
+      dueDate: ["dueThisWeek"],
+      priority: ["high"],
+    }),
+  );
+  const { result, unmount } = renderHook(
+    () => useTaskFiltersWithLabelsSupport(null, "date-test"),
+    { wrapper: createWrapper() },
+  );
+  await waitFor(() =>
+    expect(result.current.filters.startDate).toEqual([
+      "range:2026-10-01:2026-10-15",
+    ]),
+  );
+  expect(result.current.activeFilterCount).toBe(3);
+  act(() => result.current.updateFilter("dueDate", ["exact:2026-10-15"]));
+  await waitFor(() =>
+    expect(JSON.parse(window.localStorage.getItem(key)!).dueDate).toEqual([
+      "exact:2026-10-15",
+    ]),
+  );
+  act(() => result.current.clearFilters());
+  expect(result.current.activeFilterCount).toBe(0);
+  expect(result.current.filters.startDate).toBeNull();
+  unmount();
+  window.localStorage.removeItem(key);
+});

@@ -1,9 +1,16 @@
-import { cleanup, fireEvent, render, screen } from "@testing-library/react";
+import {
+  cleanup,
+  fireEvent,
+  render,
+  screen,
+  waitFor,
+} from "@testing-library/react";
 import { afterEach, expect, it, vi } from "vite-plus/test";
 import { ActiveFiltersBar } from "./active-filters-bar";
 import type { FilterSubject } from "./filter-subject";
 
-vi.mock("react-i18next", () => ({
+vi.mock("react-i18next", async (importOriginal) => ({
+  ...(await importOriginal<typeof import("react-i18next")>()),
   useTranslation: () => ({
     t: (key: string, options?: Record<string, unknown>) =>
       options?.name ? `${key}:${options.name}` : key,
@@ -74,6 +81,33 @@ it("shows the negative operator for an excluded subject", () => {
     />,
   );
   expect(screen.getByRole("button", { name: "is none of" })).toBeVisible();
+});
+
+it("closes the date filter popup after applying from an active chip", async () => {
+  const onDateApply = vi.fn();
+  render(
+    <ActiveFiltersBar
+      subjects={[
+        subject({
+          id: "startDate",
+          label: "Start date",
+          selected: ["exact:2026-10-15"],
+          options: [{ value: "exact:2026-10-15", label: "On Oct 15, 2026" }],
+          onDateApply,
+        }),
+      ]}
+      onClear={vi.fn()}
+    />,
+  );
+  fireEvent.click(screen.getByRole("button", { name: "On Oct 15, 2026" }));
+  expect(await screen.findByRole("grid")).toBeVisible();
+  fireEvent.click(
+    screen.getByRole("button", { name: "tasks:dateFilter.apply" }),
+  );
+  expect(onDateApply).toHaveBeenCalledWith("exact:2026-10-15");
+  await waitFor(() =>
+    expect(screen.queryByRole("grid")).not.toBeInTheDocument(),
+  );
 });
 
 it("announces pending custom-field values without losing the selected filter", () => {
