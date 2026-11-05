@@ -18,6 +18,7 @@ import type { AuditWebhookPayload } from "../admin/webhooks/audit-webhook-payloa
 import type { GitHubImportState } from "../github-integration/import-state";
 import type { ImportRunProject } from "../import/import-run-project";
 import type { TaskRecurrence } from "../task/recurrence/schema";
+import type { TangledOutcome } from "../plugins/tangled/outcome-types";
 
 // Timestamp columns without a time zone hold UTC (Drizzle reads and writes
 // them as UTC). A bare now() default would be cast through the session time
@@ -703,6 +704,7 @@ export const taskTable = pgTable(
     title: text("title").notNull(),
     description: text("description"),
     status: text("status").notNull().default("to-do"),
+    statusRevision: integer("status_revision").notNull().default(0),
     columnId: text("column_id").references(() => columnTable.id, {
       onDelete: "set null",
       onUpdate: "cascade",
@@ -1214,6 +1216,41 @@ export const integrationTable = pgTable(
     index("integration_type_idx").on(table.type),
     unique("integration_project_type_unique").on(table.projectId, table.type),
   ],
+);
+
+export const tangledTaskOwnershipTable = pgTable("tangled_task_ownership", {
+  taskId: text("task_id")
+    .primaryKey()
+    .references(() => taskTable.id, {
+      onDelete: "cascade",
+      onUpdate: "cascade",
+    }),
+  integrationId: text("integration_id")
+    .notNull()
+    .references(() => integrationTable.id, {
+      onDelete: "cascade",
+      onUpdate: "cascade",
+    }),
+  statusRevision: integer("status_revision").notNull(),
+});
+
+export const tangledIntegrationStateTable = pgTable(
+  "tangled_integration_state",
+  {
+    integrationId: text("integration_id")
+      .primaryKey()
+      .references(() => integrationTable.id, {
+        onDelete: "cascade",
+        onUpdate: "cascade",
+      }),
+    eventType: text("event_type").$type<TangledOutcome["eventType"]>(),
+    outcome: text("outcome").$type<TangledOutcome["outcome"]>(),
+    code: text("code").$type<TangledOutcome["code"]>(),
+    ref: text("ref"),
+    checkedAt: timestamp("checked_at", { mode: "date" }),
+    lastScanAt: timestamp("last_scan_at", { mode: "date" }),
+    scanOffset: integer("scan_offset").default(0).notNull(),
+  },
 );
 
 export const githubImportTable = pgTable("github_import", {

@@ -8,8 +8,10 @@ import deleteGitlabIntegration from "@/fetchers/gitlab-integration/delete-gitlab
 import deleteMattermostIntegration from "@/fetchers/mattermost-integration/delete-mattermost-integration";
 import deleteSlackIntegration from "@/fetchers/slack-integration/delete-slack-integration";
 import deleteTelegramIntegration from "@/fetchers/telegram-integration/delete-telegram-integration";
+import { deleteTangledConnection } from "@/fetchers/tangled-integration/connection";
 
 const disconnect = {
+  tangled: deleteTangledConnection,
   github: deleteGithubIntegration,
   gitea: deleteGiteaIntegration,
   gitlab: deleteGitlabIntegration,

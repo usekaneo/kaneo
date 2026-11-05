@@ -49,6 +49,8 @@ import { eventContext } from "./events";
 import externalLink from "./external-link";
 import genericWebhookIntegration from "./generic-webhook-integration";
 import giteaIntegration, { handleGiteaWebhookRoute } from "./gitea-integration";
+import tangledIntegration from "./tangled-integration";
+import { tangledWebhook } from "./tangled-integration/webhook";
 import githubIntegration, {
   handleGithubWebhookRoute,
 } from "./github-integration";
@@ -441,6 +443,8 @@ export function createApp() {
     );
 
   api.route("/calendar-feed", publicCalendarFeed);
+
+  const tangledWebhookApi = api.route("/tangled-integration", tangledWebhook);
 
   api.post("/github-integration/webhook", handleGithubWebhookRoute);
 
@@ -845,6 +849,10 @@ export function createApp() {
     githubIntegration,
   );
   const giteaIntegrationApi = api.route("/gitea-integration", giteaIntegration);
+  const tangledIntegrationApi = api.route(
+    "/tangled-integration",
+    tangledIntegration,
+  );
   const gitlabIntegrationApi = api.route(
     "/gitlab-integration",
     gitlabIntegration,
@@ -991,8 +999,10 @@ export function createApp() {
     externalLinkApi,
     genericWebhookIntegrationApi,
     integrationSyncApi,
+    tangledWebhookApi,
     githubIntegrationApi,
     giteaIntegrationApi,
+    tangledIntegrationApi,
     gitlabIntegrationApi,
     invitationApi,
     invitationPublicApi,
@@ -1126,8 +1136,10 @@ const {
   externalLinkApi,
   genericWebhookIntegrationApi,
   integrationSyncApi,
+  tangledWebhookApi,
   githubIntegrationApi,
   giteaIntegrationApi,
+  tangledIntegrationApi,
   gitlabIntegrationApi,
   invitationApi,
   invitationPublicApi,
@@ -1178,8 +1190,10 @@ export type AppType =
   | typeof notificationPreferencesApi
   | typeof searchApi
   | typeof integrationSyncApi
+  | typeof tangledWebhookApi
   | typeof githubIntegrationApi
   | typeof giteaIntegrationApi
+  | typeof tangledIntegrationApi
   | typeof gitlabIntegrationApi
   | typeof genericWebhookIntegrationApi
   | typeof discordIntegrationApi
