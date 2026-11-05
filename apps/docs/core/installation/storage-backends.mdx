@@ -85,7 +85,7 @@ Notes:
 
 ## Other S3-compatible services
 
-Use the provider's S3 API endpoint, region, and bucket-scoped credentials. Check whether it requires path-style URLs. Leave `S3_PUBLIC_BASE_URL` unset for Kaneo's private attachment flow.
+Use the provider's S3 API endpoint, region, and bucket-scoped credentials. Check whether it requires path-style URLs. Most setups can leave `S3_PUBLIC_BASE_URL` unset. If storage is only reachable from the server's network, set `S3_PUBLIC_BASE_URL` to a public hostname so presigned upload URLs stay browser-reachable while the API connects to `S3_ENDPOINT` privately.
 
 The service must support presigned PUT requests with signed `Content-Length` and `Content-Type`, object metadata checks, reads, and deletes. An S3-compatible label alone does not prove this upload path works; test a browser upload, reload, and download before using it for team files.
 
