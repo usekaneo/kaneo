@@ -39,7 +39,10 @@ const FILTER_KEYS: Array<keyof BoardFilters> = [
   "negated",
 ];
 
-function normalizeFilters(raw: unknown): BoardFilters {
+export const boardFiltersStorageKey = (projectId: string) =>
+  `kaneo:board-filters:${projectId}`;
+
+export function normalizeFilters(raw: unknown): BoardFilters {
   if (!raw || typeof raw !== "object") {
     return DEFAULT_FILTERS;
   }
@@ -85,7 +88,7 @@ export function useTaskFiltersWithLabelsSupport(
 ) {
   const weekStartsOn = useUserPreferencesStore((state) => state.weekStartsOn);
   const [filters, setFilters] = useStoredState(
-    projectId ? `kaneo:board-filters:${projectId}` : null,
+    projectId ? boardFiltersStorageKey(projectId) : null,
     normalizeFilters,
     DEFAULT_FILTERS,
   );

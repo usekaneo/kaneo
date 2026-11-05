@@ -153,7 +153,10 @@
 					"orchid": "Orchidea",
 					"sky": "Niebo"
 				},
-				"statusLoadError": "Project statuses couldn’t be loaded."
+				"statusLoadError": "Project statuses couldn’t be loaded.",
+				"labelsNotAttached": "Task created, but these labels could not be attached: {{labels}}",
+				"customFieldsLoadError": "Custom fields could not be loaded, so the custom-field filter cannot be applied to the new task.",
+				"labelsNotResolved": "Task created, but {{count}} labels from your filter could not be loaded and were not attached."
 			}
 		},
 		"editor": {

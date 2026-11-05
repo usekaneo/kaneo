@@ -153,7 +153,10 @@
 					"orchid": "蘭花紫",
 					"sky": "天空藍"
 				},
-				"statusLoadError": "無法載入專案狀態。"
+				"statusLoadError": "無法載入專案狀態。",
+				"labelsNotAttached": "Task created, but these labels could not be attached: {{labels}}",
+				"customFieldsLoadError": "Custom fields could not be loaded, so the custom-field filter cannot be applied to the new task.",
+				"labelsNotResolved": "Task created, but {{count}} labels from your filter could not be loaded and were not attached."
 			}
 		},
 		"editor": {

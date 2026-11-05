@@ -80,6 +80,10 @@ import { stripLineBreaks } from "@/lib/strip-line-breaks";
 import useProjectStore from "@/store/project";
 import type Task from "@/types/task";
 import type { TaskRecurrence } from "@/types/task/recurrence";
+import {
+  readStoredNewTaskDefaults,
+  resolveDefaultLabels,
+} from "@/lib/task-filters/new-task-defaults";
 import { getInitialTaskColumn } from "./initial-task-column";
 
 type CreateTaskModalProps = {
@@ -229,25 +233,62 @@ function CreateTaskModalContent({
     workspace?.id || "",
   );
   const { mutateAsync: createLabel } = useCreateLabel();
-  const { data: workspaceLabels = [] } = useGetLabelsByWorkspace(
-    workspace?.id || "",
-  );
+  const {
+    data: workspaceLabels = [],
+    isPending: labelsPending,
+    isError: labelsError,
+  } = useGetLabelsByWorkspace(workspace?.id || "");
   const { canCreateTasks, canCreateLabels } = useWorkspacePermission();
   const canCreateTaskCapability = canCreateTasks();
   const canCreateLabelCapability = canCreateLabels();
 
+  const routeProjectId =
+    location.pathname.match(/\/project\/([^/]+)/)?.[1] ?? null;
+  const explicitProjectId = projectId || routeProjectId || "";
+  // Active board filters at the moment the modal opens. Read once per session
+  // (the modal remounts on every open) so the new task matches the view it was
+  // created from; every value stays editable below.
+  const [filterDefaults] = useState(() =>
+    readStoredNewTaskDefaults(explicitProjectId),
+  );
+  const initialPriority: Priority = filterDefaults.priority ?? "no-priority";
+  const initialAssigneeId = filterDefaults.assigneeId ?? "";
+
   const [title, setTitle] = useState("");
   const titleRef = useAutoGrowTextarea(title);
   const [description, setDescription] = useState("");
-  const [priority, setPriority] = useState<Priority>("no-priority");
-  const [assigneeId, setAssigneeId] = useState("");
+  const [priority, setPriority] = useState<Priority>(initialPriority);
+  const [assigneeId, setAssigneeId] = useState(initialAssigneeId);
   const [startDate, setStartDate] = useState<Date | undefined>(undefined);
   const [dueDate, setDueDate] = useState<Date | undefined>(undefined);
   const [recurrence, setRecurrence] = useState<TaskRecurrence | null>(null);
   const [startDateOpen, setStartDateOpen] = useState(false);
   const [dueDateOpen, setDueDateOpen] = useState(false);
   const [createMore, setCreateMore] = useState(false);
-  const [labels, setLabels] = useState<Label[]>([]);
+  // Attaching a label to the new task goes through the label-create API
+  // (label:create), a different permission from creating the task. Without it
+  // the labels would be dropped after the task was saved, so do not offer them.
+  const wantsDefaultLabels =
+    canCreateLabelCapability && filterDefaults.labelIds.length > 0;
+  // null = the user has not touched the labels, so the filter-derived default
+  // applies (it can only be resolved once the workspace labels have loaded).
+  const [labelSelection, setLabels] = useState<Label[] | null>(null);
+  const defaultLabels = useMemo(
+    () =>
+      resolveDefaultLabels(
+        workspaceLabels,
+        wantsDefaultLabels ? filterDefaults.labelIds : [],
+      ).map((label): Label => ({
+        id: label.id,
+        name: label.name,
+        color: label.color,
+        taskId: label.taskId,
+        workspaceId: label.workspaceId || "",
+        createdAt: label.createdAt,
+      })),
+    [workspaceLabels, filterDefaults.labelIds, wantsDefaultLabels],
+  );
+  const labels = labelSelection ?? defaultLabels;
   const [discardConfirmationOpen, setDiscardConfirmationOpen] = useState(false);
 
   const [labelsOpen, setLabelsOpen] = useState(false);
@@ -256,9 +297,6 @@ function CreateTaskModalContent({
   const [selectedColor, setSelectedColor] = useState<LabelColor>("gray");
   const [newLabelName, setNewLabelName] = useState("");
 
-  const routeProjectId =
-    location.pathname.match(/\/project\/([^/]+)/)?.[1] ?? null;
-  const explicitProjectId = projectId || routeProjectId || "";
   const [selectedProjectId, setSelectedProjectId] = useState("");
   const { data: workspaceProjects } = useGetProjects({
     workspaceId: workspace?.id || "",
@@ -330,10 +368,33 @@ function CreateTaskModalContent({
 
   const { mutateAsync: createTask } = useCreateTask();
 
-  const { data: rawCustomFields } = useGetCustomFieldsByProject(
-    resolvedProjectId,
-  ) as { data: CustomFieldDefinition[] | undefined };
+  const {
+    data: rawCustomFields,
+    isError: customFieldsError,
+    refetch: refetchCustomFields,
+  } = useGetCustomFieldsByProject(resolvedProjectId) as {
+    data: CustomFieldDefinition[] | undefined;
+    isError?: boolean;
+    refetch?: () => unknown;
+  };
 
+  // Filter-derived labels and custom-field values can only be resolved once
+  // their queries finish. Submitting earlier would save a task that does not
+  // match the filtered view, so wait.
+  // - Custom fields travel in the create-task request itself and cannot be
+  //   added afterwards, so creation stays blocked while their definitions are
+  //   missing, including after a failed load (the alert below offers a retry).
+  // - Labels are attached by separate requests after the task is saved; a
+  //   failed label load does not block, the user gets a warning afterwards.
+  const customFieldFilterNeedsDefinitions =
+    Object.keys(filterDefaults.customFields).length > 0 &&
+    Boolean(resolvedProjectId) &&
+    rawCustomFields === undefined;
+  const customFieldFilterFailed =
+    customFieldFilterNeedsDefinitions && Boolean(customFieldsError);
+  const awaitingFilterDefaults =
+    (wantsDefaultLabels && Boolean(labelsPending)) ||
+    customFieldFilterNeedsDefinitions;
   const customFields = useMemo(() => rawCustomFields ?? [], [rawCustomFields]);
 
   const [customFieldValues, setCustomFieldValues] = useState<
@@ -353,16 +414,32 @@ function CreateTaskModalContent({
     }));
   };
 
+  // A custom-field filter pre-fills only fields where one value is
+  // unambiguous: a boolean, or a dropdown whose option still exists.
+  const initialCustomFieldValue = useCallback(
+    (field: CustomFieldDefinition) => {
+      const filtered = filterDefaults.customFields[field.id];
+      const usable =
+        filtered !== undefined &&
+        (field.type === "boolean"
+          ? filtered === "true" || filtered === "false"
+          : field.type === "dropdown" &&
+            Boolean(field.options?.includes(filtered)));
+      return usable ? filtered : (field.defaultValue ?? "");
+    },
+    [filterDefaults],
+  );
+
   useEffect(() => {
     setCustomFieldValues((previousValues) =>
       Object.fromEntries(
         customFields.map((field) => [
           field.id,
-          previousValues[field.id] ?? field.defaultValue ?? "",
+          previousValues[field.id] ?? initialCustomFieldValue(field),
         ]),
       ),
     );
-  }, [customFields]);
+  }, [customFields, initialCustomFieldValue]);
 
   const filteredLabels = (() => {
     const searchFiltered = workspaceLabels.filter((label) =>
@@ -388,29 +465,35 @@ function CreateTaskModalContent({
 
   const buildDefaultCustomFieldValues = useCallback(() => {
     return customFields.reduce<Record<string, string>>((acc, field) => {
-      acc[field.id] = field.defaultValue ?? "";
+      acc[field.id] = initialCustomFieldValue(field);
       return acc;
     }, {});
-  }, [customFields]);
+  }, [customFields, initialCustomFieldValue]);
 
   const hasCustomFieldChanges = Object.entries(customFieldValues).some(
     ([fieldId, value]) => {
       const field = customFields.find((f) => f.id === fieldId);
-      const defaultValue = field?.defaultValue ?? "";
-      return value !== defaultValue;
+      return value !== (field ? initialCustomFieldValue(field) : "");
     },
   );
+
+  const labelsChanged =
+    labelSelection !== null &&
+    (labelSelection.length !== defaultLabels.length ||
+      labelSelection.some(
+        (label) => !defaultLabels.some((d) => d.name === label.name),
+      ));
 
   const hasUnsavedChanges = Boolean(
     title.trim() ||
     description.trim() ||
-    priority !== "no-priority" ||
-    assigneeId ||
+    priority !== initialPriority ||
+    assigneeId !== initialAssigneeId ||
     startDate ||
     dueDate ||
     recurrence ||
     selectedProjectId ||
-    labels.length > 0 ||
+    labelsChanged ||
     stagedAssetsRef.current.length > 0 ||
     hasCustomFieldChanges,
   );
@@ -529,6 +612,7 @@ function CreateTaskModalContent({
       pendingUploadsRef.current > 0 ||
       !canCreateTaskCapability ||
       awaitingColumns ||
+      awaitingFilterDefaults ||
       !title.trim() ||
       !resolvedProjectId ||
       assigneeUnconfirmed ||
@@ -587,6 +671,7 @@ function CreateTaskModalContent({
         }),
       );
 
+      const failedLabels: string[] = [];
       for (const label of labels) {
         try {
           await createLabel({
@@ -597,25 +682,73 @@ function CreateTaskModalContent({
           });
         } catch (error) {
           console.error("Failed to create label:", error);
+          failedLabels.push(label.name);
         }
       }
+      // Filter labels that could not even be looked up. Only relevant while
+      // the user still relies on the unresolved defaults: once they picked
+      // their own labels (labelSelection), only real attach failures count.
+      const unresolvedFilterLabelIds =
+        labelSelection === null &&
+        wantsDefaultLabels &&
+        Boolean(labelsError) &&
+        defaultLabels.length === 0
+          ? filterDefaults.labelIds
+          : [];
+      // Best available names for them: labels already on the board's tasks.
+      const knownLabelNames = new Map<string, string>();
+      if (project?.id === resolvedProjectId) {
+        for (const task of [
+          ...(project?.columns.flatMap((column) => column.tasks) ?? []),
+          ...(project?.plannedTasks ?? []),
+        ]) {
+          for (const known of task.labels ?? [])
+            knownLabelNames.set(known.id, known.name);
+        }
+      }
+      const unresolvedNames = unresolvedFilterLabelIds.map((id) =>
+        knownLabelNames.get(id),
+      );
 
       stagedAssetsRef.current = [];
       if (!activeRef.current) return;
       syncTaskIntoProject(savedTask);
-      toast.success(t("common:modals.createTask.successCreated"), {
-        icon: SquarePlusIcon,
-      });
+      // The task exists, but if labels were requested and not attached it will
+      // not show up under the label filter; do not report a plain success.
+      if (failedLabels.length > 0) {
+        toast.warning(
+          t("common:modals.createTask.labelsNotAttached", {
+            labels: failedLabels.join(", "),
+          }),
+        );
+      } else if (unresolvedFilterLabelIds.length > 0) {
+        const names = [...new Set(unresolvedNames)];
+        toast.warning(
+          unresolvedNames.every((name) => name !== undefined)
+            ? t("common:modals.createTask.labelsNotAttached", {
+                labels: names.join(", "),
+              })
+            : t("common:modals.createTask.labelsNotResolved", {
+                count: unresolvedFilterLabelIds.length,
+              }),
+        );
+      } else {
+        toast.success(t("common:modals.createTask.successCreated"), {
+          icon: SquarePlusIcon,
+        });
+      }
 
       if (createMore) {
         setTitle("");
         setDescription("");
-        setPriority("no-priority");
-        setAssigneeId("");
+        // Back to the filter-derived defaults, so the next task from the same
+        // filtered view is again visible in it.
+        setPriority(initialPriority);
+        setAssigneeId(initialAssigneeId);
         setStartDate(undefined);
         setDueDate(undefined);
         setRecurrence(null);
-        setLabels([]);
+        setLabels(null);
         setLabelsStep("select");
         setSearchValue("");
         setSelectedColor("gray");
@@ -1288,6 +1421,22 @@ function CreateTaskModalContent({
               </Button>
             </div>
           )}
+          {customFieldFilterFailed && (
+            <div
+              role="alert"
+              className="flex items-center gap-2 px-6 py-2 text-sm text-muted-foreground"
+            >
+              {t("common:modals.createTask.customFieldsLoadError")}
+              <Button
+                type="button"
+                variant="ghost"
+                size="sm"
+                onClick={() => void refetchCustomFields?.()}
+              >
+                {t("common:error.tryAgain")}
+              </Button>
+            </div>
+          )}
           <DialogFooter className="flex-shrink-0 border-t border-border bg-background px-6 py-4">
             <div className="flex items-center gap-3 mr-auto">
               <label className="flex items-center gap-2 text-sm text-muted-foreground cursor-pointer hover:text-foreground transition-colors">
@@ -1329,6 +1478,7 @@ function CreateTaskModalContent({
                 assigneeUnconfirmed ||
                 isSubmitting ||
                 awaitingColumns ||
+                awaitingFilterDefaults ||
                 isPreparingDraft
               }
               aria-busy={isPreparingDraft || isSubmitting}

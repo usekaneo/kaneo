@@ -153,7 +153,10 @@
 					"orchid": "Orchidée",
 					"sky": "Ciel"
 				},
-				"statusLoadError": "Impossible de charger les statuts du projet."
+				"statusLoadError": "Impossible de charger les statuts du projet.",
+				"labelsNotAttached": "Task created, but these labels could not be attached: {{labels}}",
+				"customFieldsLoadError": "Custom fields could not be loaded, so the custom-field filter cannot be applied to the new task.",
+				"labelsNotResolved": "Task created, but {{count}} labels from your filter could not be loaded and were not attached."
 			}
 		},
 		"editor": {
