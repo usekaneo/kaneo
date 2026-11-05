@@ -8,6 +8,7 @@ import { SettingsFormRow } from "@/components/settings/settings-form-row";
 import { SettingsRow } from "@/components/settings/settings-row";
 import { SettingsSection } from "@/components/settings/settings-section";
 import { Form, FormField } from "@/components/ui/form";
+import { Switch } from "@/components/ui/switch";
 import { Input } from "@/components/ui/input";
 import type { ProjectWithTasks } from "@/types/project";
 
@@ -31,6 +32,19 @@ export function ProjectDetailsSection({
       <Form {...form}>
         <form onSubmit={(event) => event.preventDefault()}>
           <SettingsCard>
+            <FormField
+              control={form.control}
+              name="includeSubtasks"
+              render={({ field }) => (
+                <SettingsFormRow label={t("tasks:display.includeSubtasks")}>
+                  <Switch
+                    checked={field.value ?? true}
+                    onCheckedChange={field.onChange}
+                    disabled={!canEdit}
+                  />
+                </SettingsFormRow>
+              )}
+            />
             <FormField
               control={form.control}
               name="name"
