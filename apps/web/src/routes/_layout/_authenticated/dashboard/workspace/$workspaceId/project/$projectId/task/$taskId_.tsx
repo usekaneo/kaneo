@@ -94,6 +94,7 @@ function RouteComponent() {
           <TaskPropertiesRailSkeleton />
         ) : isTaskError || !task ? null : (
           <PropertiesRail
+            key={taskId}
             taskId={taskId}
             projectId={projectId}
             workspaceId={workspaceId}
@@ -156,6 +157,7 @@ function RouteComponent() {
         </div>
       ) : (
         <TaskDetailsContent
+          key={taskId}
           taskId={taskId}
           projectId={projectId}
           workspaceId={workspaceId}

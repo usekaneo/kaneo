@@ -6,6 +6,7 @@ function useGetCustomFieldValuesByTask(taskId: string) {
     queryKey: ["custom-field-values", taskId],
     queryFn: () => getCustomFieldValuesByTask({ taskId }),
     enabled: !!taskId,
+    refetchOnMount: true,
   });
 }
 
