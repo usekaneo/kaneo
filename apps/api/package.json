@@ -28,6 +28,8 @@
   "dependencies": {
     "@aws-sdk/client-s3": "^3.1157.0",
     "@aws-sdk/s3-request-presigner": "^3.1157.0",
+    "@azure/identity": "4.14.1",
+    "@azure/storage-blob": "12.34.0",
     "@better-auth/api-key": "1.7.14",
     "@better-auth/drizzle-adapter": "1.7.14",
     "@date-fns/tz": "^1.5.0",
