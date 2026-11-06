@@ -1,5 +1,43 @@
 ### Features
 
+- **web:** steady boot, navigation and loading: [6a9f671](https://github.com/usekaneo/kaneo/commit/6a9f6715cac94f92b8e0e7e93319af74a4b7a77a)
+- **api:** create pull request links via the api: [d4df89a](https://github.com/usekaneo/kaneo/commit/d4df89a0dbc34adf3926943d9ba4aadd81338b77)
+- **mobile:** edit task descriptions inline with autosave: [9030b0e](https://github.com/usekaneo/kaneo/commit/9030b0e8caddb2c8d44cc427e21d6f8139758151)
+- **editor:** share the rich text schema between web and mobile: [41a9dbc](https://github.com/usekaneo/kaneo/commit/41a9dbcd3ba869fc3f9a9c74287e49854ae46cd6)
+- **mobile:** align the app with the web design system: [603c1da](https://github.com/usekaneo/kaneo/commit/603c1da1240d80042bf2eabf84b3ee9899f23214)
+- **mobile:** unlock self-hosted servers with a one-time purchase: [cf006d4](https://github.com/usekaneo/kaneo/commit/cf006d408c9ac7c446ef2392afbc81fad1376170)
+- **ci:** adding mellon observation: #2153
+- **web:** make the current page stand out in the sidebar: #2150
+- **admin:** record administrative actions in an audit log: #2123
+- lead marketing with Kaneo Cloud and fix app page titles: [b5b3e72](https://github.com/usekaneo/kaneo/commit/b5b3e7270901bcb0550af544a8858278f66bccff)
+- **tasks:** expand subtasks in the project list: #2115
+
+### Bug Fixes
+
+- **security:** protect workspace ownership and update vulnerable dependencies: #2176
+- **web:** task sheet focus and swipe back: [d71736c](https://github.com/usekaneo/kaneo/commit/d71736cf06adbac5c1044479025520ac3ff819d4)
+- **web:** declutter onboarding and fade on finish: [8cca207](https://github.com/usekaneo/kaneo/commit/8cca20778f08513b18e6bde9d0a920c9dee79820)
+- **mobile:** cap board lane width so tablets show several columns: [7de7cf7](https://github.com/usekaneo/kaneo/commit/7de7cf74a5200e93d22fe468253e033e0621d8ff)
+- **web:** avoid crypto.randomUUID on plain-HTTP origins: #2157
+- **email:** keep the sign-in code in one piece: [b1fe0c5](https://github.com/usekaneo/kaneo/commit/b1fe0c54145cb28b01fba014f6f59cd471916308)
+- **ci:** use the base policy pnpm version for title checks: #2137
+- **web:** keep task dates inside the properties sidebar: #2132
+
+### Performance Improvements
+
+- **web:** keep board drags fast on big boards: [e7f991c](https://github.com/usekaneo/kaneo/commit/e7f991c1fb1f958407d4f57d71661f2ae20e9d27)
+
+### Documentation
+
+- refresh product screenshots from the current app: [7146953](https://github.com/usekaneo/kaneo/commit/714695319d8ec1c78c63e72c8b32f2e964a8b8a7)
+- update sponsors: [cee8450](https://github.com/usekaneo/kaneo/commit/cee8450e8e334e4c9a8840bb472f9c018d90d94f)
+
+### Credits
+
+Huge thanks to @tinsever, @man-singh-dev, and @randoneering for helping!
+
+### Features
+
 - repeat tasks after completion: #2116
 - **web:** let people switch back to the classic priority icons: [cdc097e](https://github.com/usekaneo/kaneo/commit/cdc097e41233f8356e8e595ea465c6dfa8dbca0e)
 - **custom-fields:** hide retired selection options: #1803

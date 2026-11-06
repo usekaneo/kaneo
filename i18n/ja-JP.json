@@ -238,7 +238,10 @@
 			"passwordRequired": "パスワードを入力してください。",
 			"passwordTooShort": "8文字以上で入力してください。",
 			"disposableEmail": "恒久的なメールアドレスを使用してください。使い捨てのメールアドレスではアカウントを作成できません。",
-			"continueWithEmail": "メールアドレスで続ける"
+			"continueWithEmail": "メールアドレスで続ける",
+			"captchaChecking": "続行する前に簡単なセキュリティチェックを行っています。",
+			"captchaFailed": "セキュリティチェックを読み込めなかったため、サインインを一時停止しています。接続またはコンテンツブロッカーを確認してください。",
+			"captchaRetry": "再試行"
 		},
 		"checkEmail": {
 			"pageTitle": "メールを確認してください",
@@ -394,8 +397,6 @@
 				}
 			},
 			"progress": "ステップ {{current}}/{{total}}",
-			"welcome": "ようこそ、{{name}} さん",
-			"settingUp": "{{name}} をセットアップ中",
 			"continue": "続ける",
 			"signedInAs": "{{email}} でサインイン中",
 			"signOut": "サインアウト",
@@ -411,7 +412,7 @@
 				"title": "最初のプロジェクトを作成しましょう",
 				"description": "使い方がわかるように、いくつかのサンプルタスクを追加します。名前の変更や削除はいつでもできます。",
 				"label": "プロジェクト名",
-				"numbered": "タスク番号の例"
+				"ticketStart": "タスクIDは {{ticket}} から始まります。"
 			},
 			"invite": {
 				"title": "チームを招待しましょう",
@@ -436,7 +437,6 @@
 				"paymentNote": "お支払いは Creem によって処理されます。"
 			},
 			"ready": {
-				"eyebrow": "準備完了",
 				"title": "{{name}} の準備ができました",
 				"description": "以下の内容を設定しました。すべて後から変更できます。",
 				"workspace": "ワークスペース",
@@ -447,9 +447,6 @@
 				"open": "{{name}} を開く"
 			},
 			"preview": {
-				"live": "{{name}} のライブプレビュー",
-				"liveNoName": "ライブプレビュー",
-				"ready": "{{name}} の準備ができました",
 				"untitled": "あなたのワークスペース"
 			}
 		},
@@ -3790,7 +3787,11 @@
 		},
 		"board": {
 			"reorderFailed": "Could not move task. Please try again.",
-			"keyboardInstructions": "Space でプレビュー、Enter でこのタスクを開きます。Alt または Option と矢印キーで移動できます。"
+			"keyboardInstructions": "Space でプレビュー、Enter でこのタスクを開きます。Alt または Option と矢印キーで移動できます。",
+			"loadErrorTitle": "このボードを読み込めませんでした",
+			"loadErrorDescription": "タスクの取得中に問題が発生しました。接続を確認して、もう一度お試しください。",
+			"refreshError": "ボードを更新できなかったため、内容が古い可能性があります。",
+			"tryAgain": "再試行"
 		},
 		"recurrence": {
 			"daily_other": "{{count}}日ごと",
@@ -4245,7 +4246,8 @@
 			"title": "Project management",
 			"titleAccent": "that doesn't become the project.",
 			"description": "Open-source project management with boards, Gantt charts, and GitHub integration. Self-host for free with SSO included, or let Kaneo Cloud handle the hosting.",
-			"pricingCta": "See pricing"
+			"pricingCta": "See pricing",
+			"appStore": "App Store"
 		},
 		"navigation": {
 			"product": "Product",
@@ -4375,6 +4377,11 @@
 				"question": "Can AI clients work with Kaneo?",
 				"answer": "Yes. Kaneo provides an MCP server through the @kaneo/mcp package and an HTTP endpoint. Compatible AI clients can read and update tasks using an API key tied to a user, subject to workspace permissions.",
 				"link": "Read the MCP guide"
+			},
+			"mobile": {
+				"answer": "Yes. Kaneo is on the App Store for iPhone and iPad, and Android is coming soon. The app is free for Kaneo Cloud accounts. Connecting it to a self-hosted server is a one-time $9.99 unlock per person, and like the rest of Kaneo, the app is open source.",
+				"link": "Download on the App Store",
+				"question": "Is there a mobile app?"
 			}
 		},
 		"comparison": {
@@ -4448,6 +4455,21 @@
 				"passwordChanged": "パスワードを変更しました",
 				"photoRemoved": "写真を削除しました",
 				"photoUpdated": "写真を更新しました"
+			},
+			"deleteAccount": {
+				"confirm": "Delete account",
+				"confirmLabel": "Type {{email}} to confirm",
+				"description": "Permanently delete your account and its data.",
+				"modalDescription": "This permanently deletes your account and cannot be undone. Workspaces only you belong to are deleted with it. Elsewhere, your tasks stay and become unassigned, and your comments are removed.",
+				"modalTitle": "Delete your account?",
+				"noPassword": "This account has no password. Leave the field empty.",
+				"password": "Password",
+				"passwordHint": "Leave empty if you sign in without a password.",
+				"sectionTitle": "Danger zone",
+				"sessionTooOld": "For your security, enter your password, or sign out and sign in again before deleting your account.",
+				"success": "Your account was deleted",
+				"title": "Delete account",
+				"wrongPassword": "That password is not correct."
 			}
 		},
 		"activity": {
@@ -4527,21 +4549,20 @@
 		"editor": {
 			"attachment": "添付ファイル",
 			"bold": "太字",
-			"boldPlaceholder": "太字",
 			"code": "コード",
-			"codePlaceholder": "コード",
-			"description": "説明",
 			"heading": "見出し",
 			"insertImage": "画像を挿入",
 			"italic": "斜体",
-			"italicPlaceholder": "斜体",
 			"link": "リンク",
-			"linkPlaceholder": "リンク",
 			"list": "リスト",
-			"nothingToPreview": "プレビューする内容がありません",
 			"placeholder": "説明を追加… Markdown を使えます。",
-			"preview": "プレビュー",
-			"write": "入力"
+			"applyLink": "Apply",
+			"checklist": "Checklist",
+			"linkUrl": "URL",
+			"numberedList": "Numbered list",
+			"quote": "Quote",
+			"removeLink": "Remove link",
+			"hideKeyboard": "Hide keyboard"
 		},
 		"errors": {
 			"apiKeyRejected": "この API キーは拒否されました。",
@@ -5062,7 +5083,6 @@
 			"screen": {
 				"addDescription": "説明を追加…",
 				"copyLink": "リンクをコピー",
-				"editDescription": "説明を編集",
 				"editTitle": "タイトルを編集",
 				"linkCopied": "リンクをコピーしました",
 				"more": "その他"

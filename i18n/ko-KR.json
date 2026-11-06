@@ -238,7 +238,10 @@
 			"passwordRequired": "비밀번호를 입력하세요.",
 			"passwordTooShort": "8자 이상 입력하세요.",
 			"disposableEmail": "영구적인 이메일 주소를 사용하세요. 일회용 주소로는 계정을 만들 수 없습니다.",
-			"continueWithEmail": "이메일로 계속하기"
+			"continueWithEmail": "이메일로 계속하기",
+			"captchaChecking": "계속하기 전에 간단한 보안 확인을 진행하고 있습니다.",
+			"captchaFailed": "보안 확인을 불러오지 못해 로그인이 일시 중지되었습니다. 연결 상태나 콘텐츠 차단기를 확인하세요.",
+			"captchaRetry": "다시 시도"
 		},
 		"checkEmail": {
 			"pageTitle": "이메일을 확인하세요",
@@ -394,8 +397,6 @@
 				}
 			},
 			"progress": "{{total}}단계 중 {{current}}단계",
-			"welcome": "{{name}}님, 환영합니다",
-			"settingUp": "{{name}} 설정 중",
 			"continue": "계속",
 			"signedInAs": "{{email}} 계정으로 로그인됨",
 			"signOut": "로그아웃",
@@ -411,7 +412,7 @@
 				"title": "첫 프로젝트 시작하기",
 				"description": "사용법을 익힐 수 있도록 시작 작업 몇 개를 추가합니다. 언제든 이름을 바꾸거나 삭제할 수 있습니다.",
 				"label": "프로젝트 이름",
-				"numbered": "작업 번호 예시"
+				"ticketStart": "작업 ID는 {{ticket}}부터 시작합니다."
 			},
 			"invite": {
 				"title": "팀원 초대하기",
@@ -436,7 +437,6 @@
 				"paymentNote": "결제는 Creem에서 처리합니다."
 			},
 			"ready": {
-				"eyebrow": "준비 완료",
 				"title": "{{name}} 준비 완료",
 				"description": "설정한 내용은 다음과 같습니다. 언제든 변경할 수 있습니다.",
 				"workspace": "워크스페이스",
@@ -447,9 +447,6 @@
 				"open": "{{name}} 열기"
 			},
 			"preview": {
-				"live": "{{name}} 실시간 미리보기",
-				"liveNoName": "실시간 미리보기",
-				"ready": "{{name}} 준비 완료",
 				"untitled": "내 워크스페이스"
 			}
 		},
@@ -3790,7 +3787,11 @@
 		},
 		"board": {
 			"reorderFailed": "Could not move task. Please try again.",
-			"keyboardInstructions": "Space를 눌러 미리 보고 Enter를 눌러 이 작업을 엽니다. Alt 또는 Option과 화살표 키로 이동할 수 있습니다."
+			"keyboardInstructions": "Space를 눌러 미리 보고 Enter를 눌러 이 작업을 엽니다. Alt 또는 Option과 화살표 키로 이동할 수 있습니다.",
+			"loadErrorTitle": "이 보드를 불러오지 못했습니다",
+			"loadErrorDescription": "작업을 가져오는 중 문제가 발생했습니다. 연결을 확인하고 다시 시도하세요.",
+			"refreshError": "보드를 새로 고치지 못해 최신 상태가 아닐 수 있습니다.",
+			"tryAgain": "다시 시도"
 		},
 		"recurrence": {
 			"daily_other": "{{count}}일마다",
@@ -4245,7 +4246,8 @@
 			"title": "Project management",
 			"titleAccent": "that doesn't become the project.",
 			"description": "Open-source project management with boards, Gantt charts, and GitHub integration. Self-host for free with SSO included, or let Kaneo Cloud handle the hosting.",
-			"pricingCta": "See pricing"
+			"pricingCta": "See pricing",
+			"appStore": "App Store"
 		},
 		"navigation": {
 			"product": "Product",
@@ -4375,6 +4377,11 @@
 				"question": "Can AI clients work with Kaneo?",
 				"answer": "Yes. Kaneo provides an MCP server through the @kaneo/mcp package and an HTTP endpoint. Compatible AI clients can read and update tasks using an API key tied to a user, subject to workspace permissions.",
 				"link": "Read the MCP guide"
+			},
+			"mobile": {
+				"answer": "Yes. Kaneo is on the App Store for iPhone and iPad, and Android is coming soon. The app is free for Kaneo Cloud accounts. Connecting it to a self-hosted server is a one-time $9.99 unlock per person, and like the rest of Kaneo, the app is open source.",
+				"link": "Download on the App Store",
+				"question": "Is there a mobile app?"
 			}
 		},
 		"comparison": {
@@ -4448,6 +4455,21 @@
 				"passwordChanged": "비밀번호가 변경되었습니다",
 				"photoRemoved": "사진이 제거되었습니다",
 				"photoUpdated": "사진이 업데이트되었습니다"
+			},
+			"deleteAccount": {
+				"confirm": "Delete account",
+				"confirmLabel": "Type {{email}} to confirm",
+				"description": "Permanently delete your account and its data.",
+				"modalDescription": "This permanently deletes your account and cannot be undone. Workspaces only you belong to are deleted with it. Elsewhere, your tasks stay and become unassigned, and your comments are removed.",
+				"modalTitle": "Delete your account?",
+				"noPassword": "This account has no password. Leave the field empty.",
+				"password": "Password",
+				"passwordHint": "Leave empty if you sign in without a password.",
+				"sectionTitle": "Danger zone",
+				"sessionTooOld": "For your security, enter your password, or sign out and sign in again before deleting your account.",
+				"success": "Your account was deleted",
+				"title": "Delete account",
+				"wrongPassword": "That password is not correct."
 			}
 		},
 		"activity": {
@@ -4527,21 +4549,20 @@
 		"editor": {
 			"attachment": "첨부 파일",
 			"bold": "굵게",
-			"boldPlaceholder": "굵게",
 			"code": "코드",
-			"codePlaceholder": "코드",
-			"description": "설명",
 			"heading": "제목",
 			"insertImage": "이미지 삽입",
 			"italic": "기울임꼴",
-			"italicPlaceholder": "기울임꼴",
 			"link": "링크",
-			"linkPlaceholder": "링크",
 			"list": "목록",
-			"nothingToPreview": "미리 볼 내용이 없습니다",
 			"placeholder": "설명 추가… Markdown을 사용할 수 있습니다.",
-			"preview": "미리보기",
-			"write": "작성"
+			"applyLink": "Apply",
+			"checklist": "Checklist",
+			"linkUrl": "URL",
+			"numberedList": "Numbered list",
+			"quote": "Quote",
+			"removeLink": "Remove link",
+			"hideKeyboard": "Hide keyboard"
 		},
 		"errors": {
 			"apiKeyRejected": "API 키가 거부되었습니다.",
@@ -5062,7 +5083,6 @@
 			"screen": {
 				"addDescription": "설명 추가…",
 				"copyLink": "링크 복사",
-				"editDescription": "설명 편집",
 				"editTitle": "제목 편집",
 				"linkCopied": "링크가 복사되었습니다",
 				"more": "더 보기"

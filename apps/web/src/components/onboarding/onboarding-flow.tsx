@@ -1,5 +1,5 @@
 import { useQueryClient } from "@tanstack/react-query";
-import { useNavigate } from "@tanstack/react-router";
+import { useNavigate, useRouter } from "@tanstack/react-router";
 import { useCallback, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import useAuth from "@/components/providers/auth-provider/hooks/use-auth";
@@ -12,6 +12,7 @@ import { getBilling } from "@/fetchers/billing/get-billing";
 import { useCreateCheckout } from "@/hooks/mutations/billing/use-billing-actions";
 import useSignOut from "@/hooks/mutations/use-sign-out";
 import useGetConfig from "@/hooks/queries/config/use-get-config";
+import { prefetchBoard } from "@/hooks/queries/task/prefetch-board";
 import useCreateWorkspace from "@/hooks/queries/workspace/use-create-workspace";
 import useWorkspaceCreationAccess from "@/hooks/use-workspace-creation-access";
 import { track } from "@/lib/analytics/track";
@@ -33,14 +34,12 @@ import { InviteStep } from "./invite-step";
 import { OnboardingRestricted } from "./onboarding-restricted";
 import { OnboardingShell } from "./onboarding-shell";
 import {
-  getInitials,
   getNextStep,
   getOnboardingSteps,
   getStepProgress,
   type OnboardingStepId,
 } from "./onboarding-steps";
 import { PlanStep } from "./plan-step";
-import type { PreviewFocus } from "./preview/preview-focus";
 import { WorkspacePreview } from "./preview/workspace-preview";
 import { ProjectStep } from "./project-step";
 import { ReadyStep } from "./ready-step";
@@ -49,17 +48,10 @@ import { WorkspaceStep } from "./workspace-step";
 
 type CreatedWorkspace = { workspaceId: string; projectId: string | null };
 
-const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-
-const focusByStep: Partial<Record<OnboardingStepId, PreviewFocus>> = {
-  workspace: "workspace",
-  project: "project",
-  invite: "members",
-};
-
 export function OnboardingFlow() {
   const { t } = useTranslation();
   const navigate = useNavigate();
+  const router = useRouter();
   const queryClient = useQueryClient();
   const { user } = useAuth();
   const { mutateAsync: createWorkspace } = useCreateWorkspace();
@@ -76,7 +68,6 @@ export function OnboardingFlow() {
   const [projectName, setProjectName] = useState(() =>
     t("auth:onboarding.projectNameDefault"),
   );
-  const [inviteEmails, setInviteEmails] = useState<string[]>([]);
   const [invitedCount, setInvitedCount] = useState(0);
   const [created, setCreated] = useState<CreatedWorkspace | null>(null);
   const [trial, setTrial] = useState<TrialState | null>(null);
@@ -91,10 +82,8 @@ export function OnboardingFlow() {
     : isCloud && config?.billingEnabled === true;
   const steps = getOnboardingSteps({ usage, canInvite, offersPlan });
   const name = workspaceName.trim();
-  const ownerInitial = getInitials(user?.name || user?.email || "");
   const projectKey = generateProjectSlug(projectName) || FALLBACK_PROJECT_SLUG;
   const stepIndex = steps.indexOf(step);
-  const reachedUsage = stepIndex >= steps.indexOf("usage");
   const reachedProject = stepIndex >= steps.indexOf("project");
   const tasks = useMemo(
     () =>
@@ -105,9 +94,6 @@ export function OnboardingFlow() {
       })),
     [t, usage, projectKey],
   );
-  const invitedInitials = inviteEmails
-    .filter((email) => EMAIL_PATTERN.test(email.trim()))
-    .map(getInitials);
 
   const goToWorkspace = useCallback(() => {
     if (!created) return;
@@ -138,13 +124,21 @@ export function OnboardingFlow() {
         userId: user?.id,
       });
       track("Workspace Created", { props: { usage } });
-      await queryClient.invalidateQueries({ queryKey: ["workspaces"] });
       await authClient.organization.setActive({ organizationId: workspace.id });
       const projectId = await createStarterProject({
         workspaceId: workspace.id,
         name: projectName.trim(),
         tasks: starterTasks(t, usage),
       }).catch(() => null);
+      if (projectId) {
+        void router
+          .preloadRoute({
+            to: "/dashboard/workspace/$workspaceId/project/$projectId/board",
+            params: { workspaceId: workspace.id, projectId },
+          })
+          .catch(() => undefined);
+        void prefetchBoard(queryClient, projectId);
+      }
       await queryClient.invalidateQueries({ queryKey: ["projects"] });
 
       let trialState: TrialState = { kind: "none" };
@@ -224,7 +218,6 @@ export function OnboardingFlow() {
         return (
           <UsageStep
             value={usage}
-            ownerInitial={ownerInitial}
             onChange={setUsage}
             onContinue={() => setStep("project")}
           />
@@ -243,7 +236,6 @@ export function OnboardingFlow() {
         return created ? (
           <InviteStep
             workspaceId={created.workspaceId}
-            onEmailsChange={setInviteEmails}
             onDone={(sent) => {
               setInvitedCount(sent);
               setStep(getNextStep(steps, "invite"));
@@ -280,32 +272,25 @@ export function OnboardingFlow() {
 
   const headings: Record<
     OnboardingStepId,
-    { eyebrow?: string; title: string; description?: string }
+    { title: string; description?: string }
   > = {
     workspace: {
-      eyebrow: user?.name
-        ? t("auth:onboarding.welcome", { name: user.name.split(" ")[0] })
-        : undefined,
       title: t("auth:onboarding.workspace.title"),
       description: t("auth:onboarding.workspace.description"),
     },
     usage: {
-      eyebrow: t("auth:onboarding.settingUp", { name }),
       title: t("auth:onboarding.usage.title"),
       description: t("auth:onboarding.usage.description", { name }),
     },
     project: {
-      eyebrow: t("auth:onboarding.settingUp", { name }),
       title: t("auth:onboarding.project.title"),
       description: t("auth:onboarding.project.description"),
     },
     invite: {
-      eyebrow: t("auth:onboarding.settingUp", { name }),
       title: t("auth:onboarding.invite.title"),
       description: t("auth:onboarding.invite.description", { name }),
     },
     plan: {
-      eyebrow: t("auth:onboarding.settingUp", { name }),
       title: t("auth:onboarding.plan.title"),
       description:
         trial?.kind === "active"
@@ -316,7 +301,6 @@ export function OnboardingFlow() {
           : t("auth:onboarding.cloud.plan.trialUsed"),
     },
     ready: {
-      eyebrow: t("auth:onboarding.ready.eyebrow"),
       title: t("auth:onboarding.ready.title", { name }),
       description: t("auth:onboarding.ready.description"),
     },
@@ -328,37 +312,17 @@ export function OnboardingFlow() {
     <OnboardingShell
       stepKey={step}
       progress={progress}
-      eyebrow={heading.eyebrow}
       title={heading.title}
       description={heading.description}
       email={user?.email}
       opening={opening}
+      onOpened={goToWorkspace}
       onSignOut={handleSignOut}
       preview={
         <WorkspacePreview
-          label={
-            step === "ready"
-              ? t("auth:onboarding.preview.ready", { name })
-              : name
-                ? t("auth:onboarding.preview.live", { name })
-                : t("auth:onboarding.preview.liveNoName")
-          }
           workspaceName={name || t("auth:onboarding.preview.untitled")}
           projectName={reachedProject ? projectName.trim() || null : null}
           tasks={reachedProject ? tasks : null}
-          focus={
-            step === "usage"
-              ? usage === "team"
-                ? "members"
-                : null
-              : (focusByStep[step] ?? null)
-          }
-          ownerInitial={ownerInitial}
-          invitedInitials={invitedInitials}
-          emptySeats={invitedInitials.length === 0 ? 2 : 0}
-          showMembers={reachedUsage && usage === "team"}
-          opening={opening}
-          onOpened={goToWorkspace}
         />
       }
     >

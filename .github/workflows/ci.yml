@@ -29,7 +29,7 @@ jobs:
           persist-credentials: false
       - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7
         with:
-          node-version: 24.22.1
+          node-version: 24.22.2
           package-manager-cache: false
       - id: classify
         name: Classify complete pull request diff
@@ -54,7 +54,7 @@ jobs:
           version: 12.15.0
       - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7
         with:
-          node-version: 24.22.1
+          node-version: 24.22.2
           package-manager-cache: false
       - run: pnpm --dir tests/e2e install --frozen-lockfile --ignore-scripts
 
@@ -107,7 +107,7 @@ jobs:
           persist-credentials: false
       - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7
         with:
-          node-version: 24.22.1
+          node-version: 24.22.2
           package-manager-cache: false
       - run: npm ci --ignore-scripts
         working-directory: scripts/ui-review-bot
@@ -123,7 +123,7 @@ jobs:
           persist-credentials: false
       - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7
         with:
-          node-version: 24.22.1
+          node-version: 24.22.2
           package-manager-cache: false
       - run: npm ci --ignore-scripts --no-audit --no-fund
         working-directory: scripts/slop-labeler
@@ -147,7 +147,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7
         with:
-          node-version: 24.22.1
+          node-version: 24.22.2
           cache: pnpm
 
       - id: install
@@ -190,7 +190,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7
         with:
-          node-version: 24.22.1
+          node-version: 24.22.2
           cache: pnpm
 
       - name: Install dependencies
@@ -222,7 +222,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7
         with:
-          node-version: 24.22.1
+          node-version: 24.22.2
           cache: pnpm
 
       - name: Install dependencies
@@ -276,7 +276,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7
         with:
-          node-version: 24.22.1
+          node-version: 24.22.2
           cache: pnpm
 
       - name: Install dependencies
@@ -315,24 +315,26 @@ jobs:
           version: 12.15.0
       - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7
         with:
-          node-version: 24.22.1
+          node-version: 24.22.2
           cache: pnpm
       - run: pnpm install --frozen-lockfile --ignore-scripts --filter @kaneo/api...
       - run: npm ci --ignore-scripts
         working-directory: scripts/ui-review-bot
       - run: scripts/ui-review-bot/node_modules/.bin/playwright install --with-deps chromium
+      - name: Allocate runtime test ports
+        run: bash scripts/ci/gateway-env.sh >> "$GITHUB_ENV"
       - name: Start bundled image without Redis
         run: docker compose --env-file /dev/null -p kaneo-ci -f scripts/ci/compose.yml up -d --wait --wait-timeout 120 postgres minio app
       - name: Browser regression and workspace isolation
-        run: node scripts/ci/browser.mjs http://127.0.0.1:55173
+        run: node scripts/ci/browser.mjs "$KANEO_CI_APP_ORIGIN"
       - name: Verify realtime without Redis
-        run: node scripts/ci/realtime.mjs http://127.0.0.1:55173
+        run: node scripts/ci/realtime.mjs "$KANEO_CI_APP_ORIGIN"
       - name: Start two API instances with Redis
         env:
           KANEO_CI_REDIS_URL: redis://redis:6379
         run: docker compose --env-file /dev/null -p kaneo-ci -f scripts/ci/compose.yml --profile realtime up -d --wait --wait-timeout 120 app second redis
       - name: Verify Redis fan-out
-        run: node scripts/ci/realtime.mjs http://127.0.0.1:55173 http://127.0.0.1:55174
+        run: node scripts/ci/realtime.mjs "$KANEO_CI_APP_ORIGIN" "$KANEO_CI_SECOND_ORIGIN"
       - name: Upgrade from the latest stable release
         env:
           GH_TOKEN: ${{ github.token }}
@@ -408,7 +410,7 @@ jobs:
           version: 12.15.0
       - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7
         with:
-          node-version: 24.22.1
+          node-version: 24.22.2
           cache: pnpm
       - run: pnpm install --frozen-lockfile
       - name: Start disposable S3 storage
@@ -560,7 +562,7 @@ jobs:
           persist-credentials: false
       - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7
         with:
-          node-version: 24.22.1
+          node-version: 24.22.2
           package-manager-cache: false
       - name: Reject failed, cancelled, and unexpected skipped checks
         env:

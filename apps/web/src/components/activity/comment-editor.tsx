@@ -32,7 +32,7 @@ import {
 import type { MouseEvent as ReactMouseEvent } from "react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { KaneoMention } from "@/components/task/extensions/kaneo-mention";
+import { KaneoMention } from "@kaneo/editor";
 import type { MentionMember } from "@/components/task/extensions/mention-list";
 import { MentionSuggestion } from "@/components/task/extensions/mention-suggestion";
 import { SHIKI_CODEBLOCK_REFRESH_META } from "@/components/task/extensions/shiki-code-block";
@@ -1819,12 +1819,12 @@ export default function CommentEditor({
         }}
       >
         <DialogPopup
-          className="max-w-6xl border-0 bg-transparent p-0 shadow-none before:hidden"
+          className="w-auto max-w-6xl border-0 bg-transparent p-0 shadow-none before:hidden"
           showCloseButton={false}
           bottomStickOnMobile={false}
         >
           {previewImage && (
-            <div className="flex max-h-[90vh] items-center justify-center p-4">
+            <div className="flex max-h-[90vh] items-center justify-center">
               <img
                 src={previewImage.src}
                 alt={previewImage.alt}

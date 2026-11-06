@@ -238,7 +238,10 @@
 			"passwordRequired": "Inserisci la tua password.",
 			"passwordTooShort": "Usa almeno 8 caratteri.",
 			"disposableEmail": "Usa un indirizzo email permanente. Con gli indirizzi usa e getta non è possibile creare account.",
-			"continueWithEmail": "Continua con l'email"
+			"continueWithEmail": "Continua con l'email",
+			"captchaChecking": "Breve controllo di sicurezza prima di continuare.",
+			"captchaFailed": "Il controllo di sicurezza non è stato caricato, quindi l'accesso è in pausa. Controlla la connessione o il blocco contenuti.",
+			"captchaRetry": "Riprova"
 		},
 		"checkEmail": {
 			"pageTitle": "Controlla la tua Email",
@@ -396,8 +399,6 @@
 				}
 			},
 			"progress": "Passaggio {{current}} di {{total}}",
-			"welcome": "Ti diamo il benvenuto, {{name}}",
-			"settingUp": "Configurazione di {{name}}",
 			"continue": "Continua",
 			"signedInAs": "Accesso effettuato come {{email}}",
 			"signOut": "Esci",
@@ -413,7 +414,7 @@
 				"title": "Avvia il tuo primo progetto",
 				"description": "Aggiungeremo alcune attività iniziali per aiutarti a orientarti. Rinominale o eliminale quando vuoi.",
 				"label": "Nome del progetto",
-				"numbered": "Le attività saranno numerate"
+				"ticketStart": "Gli ID delle attività partiranno da {{ticket}}."
 			},
 			"invite": {
 				"title": "Porta il tuo team",
@@ -442,7 +443,6 @@
 				"paymentNote": "I pagamenti sono gestiti da Creem."
 			},
 			"ready": {
-				"eyebrow": "Tutto pronto",
 				"title": "{{name}} è pronto",
 				"description": "Ecco cosa abbiamo configurato. Puoi modificare tutto in seguito.",
 				"workspace": "Workspace",
@@ -457,9 +457,6 @@
 				"open": "Apri {{name}}"
 			},
 			"preview": {
-				"live": "Anteprima dal vivo di {{name}}",
-				"liveNoName": "Anteprima dal vivo",
-				"ready": "{{name}} è pronto",
 				"untitled": "Il tuo workspace"
 			}
 		},
@@ -3920,7 +3917,11 @@
 		},
 		"board": {
 			"reorderFailed": "Could not move task. Please try again.",
-			"keyboardInstructions": "Premi Spazio per l'anteprima e Invio per aprire questa attività. Usa Alt o Opzione con le frecce per spostarla."
+			"keyboardInstructions": "Premi Spazio per l'anteprima e Invio per aprire questa attività. Usa Alt o Opzione con le frecce per spostarla.",
+			"loadErrorTitle": "Questa bacheca non è stata caricata",
+			"loadErrorDescription": "Si è verificato un problema durante il recupero delle attività. Controlla la connessione e riprova.",
+			"refreshError": "Impossibile aggiornare la bacheca, potrebbe non essere aggiornata.",
+			"tryAgain": "Riprova"
 		},
 		"recurrence": {
 			"daily_many": "Ogni {{count}} giorni",
@@ -4405,7 +4406,8 @@
 			"title": "Project management",
 			"titleAccent": "that doesn't become the project.",
 			"description": "Open-source project management with boards, Gantt charts, and GitHub integration. Self-host for free with SSO included, or let Kaneo Cloud handle the hosting.",
-			"pricingCta": "See pricing"
+			"pricingCta": "See pricing",
+			"appStore": "App Store"
 		},
 		"navigation": {
 			"product": "Product",
@@ -4535,6 +4537,11 @@
 				"question": "Can AI clients work with Kaneo?",
 				"answer": "Yes. Kaneo provides an MCP server through the @kaneo/mcp package and an HTTP endpoint. Compatible AI clients can read and update tasks using an API key tied to a user, subject to workspace permissions.",
 				"link": "Read the MCP guide"
+			},
+			"mobile": {
+				"answer": "Yes. Kaneo is on the App Store for iPhone and iPad, and Android is coming soon. The app is free for Kaneo Cloud accounts. Connecting it to a self-hosted server is a one-time $9.99 unlock per person, and like the rest of Kaneo, the app is open source.",
+				"link": "Download on the App Store",
+				"question": "Is there a mobile app?"
 			}
 		},
 		"comparison": {
@@ -4754,7 +4761,6 @@
 				"linkCopied": "Link copiato",
 				"more": "Altro",
 				"editTitle": "Modifica titolo",
-				"editDescription": "Modifica descrizione",
 				"addDescription": "Aggiungi una descrizione…"
 			}
 		},
@@ -4805,23 +4811,22 @@
 			"parentFailed": "Attività creata, ma non è stato possibile collegarla all'attività principale."
 		},
 		"editor": {
-			"description": "Descrizione",
 			"placeholder": "Aggiungi una descrizione… Supporta Markdown.",
-			"write": "Scrivi",
-			"preview": "Anteprima",
-			"nothingToPreview": "Niente da mostrare",
 			"bold": "Grassetto",
 			"italic": "Corsivo",
 			"heading": "Titolo",
 			"list": "Elenco",
 			"code": "Codice",
 			"link": "Link",
-			"boldPlaceholder": "grassetto",
-			"italicPlaceholder": "corsivo",
-			"codePlaceholder": "codice",
-			"linkPlaceholder": "link",
 			"insertImage": "Inserisci immagine",
-			"attachment": "Allegato"
+			"attachment": "Allegato",
+			"applyLink": "Apply",
+			"checklist": "Checklist",
+			"linkUrl": "URL",
+			"numberedList": "Numbered list",
+			"quote": "Quote",
+			"removeLink": "Remove link",
+			"hideKeyboard": "Hide keyboard"
 		},
 		"composer": {
 			"reply": "Rispondi a {{name}}…",
@@ -5240,6 +5245,21 @@
 				"confirmPlaceholder": "Scrivila di nuovo",
 				"mismatch": "Le password non corrispondono",
 				"signOutOthers": "Esci dagli altri dispositivi"
+			},
+			"deleteAccount": {
+				"confirm": "Delete account",
+				"confirmLabel": "Type {{email}} to confirm",
+				"description": "Permanently delete your account and its data.",
+				"modalDescription": "This permanently deletes your account and cannot be undone. Workspaces only you belong to are deleted with it. Elsewhere, your tasks stay and become unassigned, and your comments are removed.",
+				"modalTitle": "Delete your account?",
+				"noPassword": "This account has no password. Leave the field empty.",
+				"password": "Password",
+				"passwordHint": "Leave empty if you sign in without a password.",
+				"sectionTitle": "Danger zone",
+				"sessionTooOld": "For your security, enter your password, or sign out and sign in again before deleting your account.",
+				"success": "Your account was deleted",
+				"title": "Delete account",
+				"wrongPassword": "That password is not correct."
 			}
 		},
 		"notificationSettings": {

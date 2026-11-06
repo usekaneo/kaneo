@@ -238,7 +238,10 @@
 			"passwordRequired": "Nhập mật khẩu của bạn.",
 			"passwordTooShort": "Dùng ít nhất 8 ký tự.",
 			"disposableEmail": "Hãy dùng địa chỉ email cố định. Không thể tạo tài khoản bằng địa chỉ email dùng một lần.",
-			"continueWithEmail": "Tiếp tục với email"
+			"continueWithEmail": "Tiếp tục với email",
+			"captchaChecking": "Đang kiểm tra bảo mật nhanh trước khi bạn tiếp tục.",
+			"captchaFailed": "Không tải được bước kiểm tra bảo mật nên việc đăng nhập đang tạm dừng. Hãy kiểm tra kết nối hoặc trình chặn nội dung.",
+			"captchaRetry": "Thử lại"
 		},
 		"checkEmail": {
 			"pageTitle": "Kiểm tra email",
@@ -394,8 +397,6 @@
 				}
 			},
 			"progress": "Bước {{current}}/{{total}}",
-			"welcome": "Chào mừng, {{name}}",
-			"settingUp": "Đang thiết lập {{name}}",
 			"continue": "Tiếp tục",
 			"signedInAs": "Đăng nhập với tư cách {{email}}",
 			"signOut": "Đăng xuất",
@@ -411,7 +412,7 @@
 				"title": "Bắt đầu dự án đầu tiên",
 				"description": "Chúng tôi sẽ thêm vài công việc mẫu để hướng dẫn bạn. Bạn có thể đổi tên hoặc xóa chúng bất cứ lúc nào.",
 				"label": "Tên dự án",
-				"numbered": "Công việc sẽ được đánh số"
+				"ticketStart": "ID công việc sẽ bắt đầu từ {{ticket}}."
 			},
 			"invite": {
 				"title": "Mời nhóm của bạn",
@@ -436,7 +437,6 @@
 				"paymentNote": "Thanh toán được xử lý bởi Creem."
 			},
 			"ready": {
-				"eyebrow": "Đã sẵn sàng",
 				"title": "{{name}} đã sẵn sàng",
 				"description": "Đây là những gì chúng tôi đã thiết lập. Bạn có thể thay đổi bất cứ lúc nào.",
 				"workspace": "Không gian làm việc",
@@ -447,9 +447,6 @@
 				"open": "Mở {{name}}"
 			},
 			"preview": {
-				"live": "Xem trước trực tiếp {{name}}",
-				"liveNoName": "Xem trước trực tiếp",
-				"ready": "{{name}} đã sẵn sàng",
 				"untitled": "Không gian làm việc của bạn"
 			}
 		},
@@ -3790,7 +3787,11 @@
 		},
 		"board": {
 			"reorderFailed": "Could not move task. Please try again.",
-			"keyboardInstructions": "Nhấn Space để xem trước và Enter để mở công việc này. Dùng Alt hoặc Option với phím mũi tên để di chuyển."
+			"keyboardInstructions": "Nhấn Space để xem trước và Enter để mở công việc này. Dùng Alt hoặc Option với phím mũi tên để di chuyển.",
+			"loadErrorTitle": "Không tải được bảng này",
+			"loadErrorDescription": "Đã xảy ra lỗi khi lấy công việc. Hãy kiểm tra kết nối và thử lại.",
+			"refreshError": "Không thể làm mới bảng này nên có thể chưa được cập nhật.",
+			"tryAgain": "Thử lại"
 		},
 		"recurrence": {
 			"daily_other": "Mỗi {{count}} ngày",
@@ -4245,7 +4246,8 @@
 			"title": "Project management",
 			"titleAccent": "that doesn't become the project.",
 			"description": "Open-source project management with boards, Gantt charts, and GitHub integration. Self-host for free with SSO included, or let Kaneo Cloud handle the hosting.",
-			"pricingCta": "See pricing"
+			"pricingCta": "See pricing",
+			"appStore": "App Store"
 		},
 		"navigation": {
 			"product": "Product",
@@ -4375,6 +4377,11 @@
 				"question": "Can AI clients work with Kaneo?",
 				"answer": "Yes. Kaneo provides an MCP server through the @kaneo/mcp package and an HTTP endpoint. Compatible AI clients can read and update tasks using an API key tied to a user, subject to workspace permissions.",
 				"link": "Read the MCP guide"
+			},
+			"mobile": {
+				"answer": "Yes. Kaneo is on the App Store for iPhone and iPad, and Android is coming soon. The app is free for Kaneo Cloud accounts. Connecting it to a self-hosted server is a one-time $9.99 unlock per person, and like the rest of Kaneo, the app is open source.",
+				"link": "Download on the App Store",
+				"question": "Is there a mobile app?"
 			}
 		},
 		"comparison": {
@@ -4594,7 +4601,6 @@
 				"linkCopied": "Đã sao chép liên kết",
 				"more": "Thêm",
 				"editTitle": "Sửa tiêu đề",
-				"editDescription": "Sửa mô tả",
 				"addDescription": "Thêm mô tả…"
 			}
 		},
@@ -4643,23 +4649,22 @@
 			"parentFailed": "Đã tạo công việc, nhưng không thể liên kết với công việc cha."
 		},
 		"editor": {
-			"description": "Mô tả",
 			"placeholder": "Thêm mô tả… Hỗ trợ Markdown.",
-			"write": "Viết",
-			"preview": "Xem trước",
-			"nothingToPreview": "Không có gì để xem trước",
 			"bold": "In đậm",
 			"italic": "In nghiêng",
 			"heading": "Tiêu đề",
 			"list": "Danh sách",
 			"code": "Mã",
 			"link": "Liên kết",
-			"boldPlaceholder": "in đậm",
-			"italicPlaceholder": "in nghiêng",
-			"codePlaceholder": "mã",
-			"linkPlaceholder": "liên kết",
 			"insertImage": "Chèn hình ảnh",
-			"attachment": "Tệp đính kèm"
+			"attachment": "Tệp đính kèm",
+			"applyLink": "Apply",
+			"checklist": "Checklist",
+			"linkUrl": "URL",
+			"numberedList": "Numbered list",
+			"quote": "Quote",
+			"removeLink": "Remove link",
+			"hideKeyboard": "Hide keyboard"
 		},
 		"composer": {
 			"reply": "Trả lời {{name}}…",
@@ -5054,6 +5059,21 @@
 				"confirmPlaceholder": "Nhập lại",
 				"mismatch": "Mật khẩu không khớp",
 				"signOutOthers": "Đăng xuất khỏi các thiết bị khác"
+			},
+			"deleteAccount": {
+				"confirm": "Delete account",
+				"confirmLabel": "Type {{email}} to confirm",
+				"description": "Permanently delete your account and its data.",
+				"modalDescription": "This permanently deletes your account and cannot be undone. Workspaces only you belong to are deleted with it. Elsewhere, your tasks stay and become unassigned, and your comments are removed.",
+				"modalTitle": "Delete your account?",
+				"noPassword": "This account has no password. Leave the field empty.",
+				"password": "Password",
+				"passwordHint": "Leave empty if you sign in without a password.",
+				"sectionTitle": "Danger zone",
+				"sessionTooOld": "For your security, enter your password, or sign out and sign in again before deleting your account.",
+				"success": "Your account was deleted",
+				"title": "Delete account",
+				"wrongPassword": "That password is not correct."
 			}
 		},
 		"notificationSettings": {

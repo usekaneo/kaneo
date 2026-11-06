@@ -116,9 +116,11 @@ describe("password recovery", () => {
       siteKey: undefined,
       key: 0,
       pending: false,
+      failed: false,
       headers: undefined,
       onVerify: vi.fn(),
       onExpire: vi.fn(),
+      onError: vi.fn(),
       reset: vi.fn(),
     } satisfies AuthCaptcha;
     const { rerender } = render(

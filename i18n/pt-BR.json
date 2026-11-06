@@ -238,7 +238,10 @@
 			"passwordRequired": "Digite sua senha.",
 			"passwordTooShort": "Use pelo menos 8 caracteres.",
 			"disposableEmail": "Use um endereço de e-mail permanente. Endereços temporários não podem criar contas.",
-			"continueWithEmail": "Continuar com e-mail"
+			"continueWithEmail": "Continuar com e-mail",
+			"captchaChecking": "Fazendo uma verificação de segurança rápida antes de continuar.",
+			"captchaFailed": "A verificação de segurança não carregou, então o login está pausado. Verifique sua conexão ou bloqueador de conteúdo.",
+			"captchaRetry": "Tentar novamente"
 		},
 		"checkEmail": {
 			"pageTitle": "Verifique seu e-mail",
@@ -396,8 +399,6 @@
 				}
 			},
 			"progress": "Etapa {{current}} de {{total}}",
-			"welcome": "Boas-vindas, {{name}}",
-			"settingUp": "Configurando {{name}}",
 			"continue": "Continuar",
 			"signedInAs": "Conectado como {{email}}",
 			"signOut": "Sair",
@@ -413,7 +414,7 @@
 				"title": "Comece seu primeiro projeto",
 				"description": "Vamos adicionar algumas tarefas iniciais para você se orientar. Renomeie ou exclua quando quiser.",
 				"label": "Nome do projeto",
-				"numbered": "As tarefas serão numeradas"
+				"ticketStart": "Os IDs das tarefas começarão em {{ticket}}."
 			},
 			"invite": {
 				"title": "Traga sua equipe",
@@ -442,7 +443,6 @@
 				"paymentNote": "Os pagamentos são processados pela Creem."
 			},
 			"ready": {
-				"eyebrow": "Tudo pronto",
 				"title": "{{name}} está pronto",
 				"description": "Veja o que configuramos. Você pode alterar tudo depois.",
 				"workspace": "Espaço de trabalho",
@@ -457,9 +457,6 @@
 				"open": "Abrir {{name}}"
 			},
 			"preview": {
-				"live": "Prévia ao vivo de {{name}}",
-				"liveNoName": "Prévia ao vivo",
-				"ready": "{{name}} está pronto",
 				"untitled": "Seu espaço de trabalho"
 			}
 		},
@@ -3920,7 +3917,11 @@
 		},
 		"board": {
 			"reorderFailed": "Could not move task. Please try again.",
-			"keyboardInstructions": "Pressione Espaço para pré-visualizar e Enter para abrir esta tarefa. Use Alt ou Option com as setas para movê-la."
+			"keyboardInstructions": "Pressione Espaço para pré-visualizar e Enter para abrir esta tarefa. Use Alt ou Option com as setas para movê-la.",
+			"loadErrorTitle": "Este quadro não carregou",
+			"loadErrorDescription": "Algo deu errado ao buscar as tarefas. Verifique sua conexão e tente novamente.",
+			"refreshError": "Não foi possível atualizar este quadro, então ele pode estar desatualizado.",
+			"tryAgain": "Tentar novamente"
 		},
 		"recurrence": {
 			"daily_many": "A cada {{count}} dias",
@@ -4405,7 +4406,8 @@
 			"title": "Project management",
 			"titleAccent": "that doesn't become the project.",
 			"description": "Open-source project management with boards, Gantt charts, and GitHub integration. Self-host for free with SSO included, or let Kaneo Cloud handle the hosting.",
-			"pricingCta": "See pricing"
+			"pricingCta": "See pricing",
+			"appStore": "App Store"
 		},
 		"navigation": {
 			"product": "Product",
@@ -4535,6 +4537,11 @@
 				"question": "Can AI clients work with Kaneo?",
 				"answer": "Yes. Kaneo provides an MCP server through the @kaneo/mcp package and an HTTP endpoint. Compatible AI clients can read and update tasks using an API key tied to a user, subject to workspace permissions.",
 				"link": "Read the MCP guide"
+			},
+			"mobile": {
+				"answer": "Yes. Kaneo is on the App Store for iPhone and iPad, and Android is coming soon. The app is free for Kaneo Cloud accounts. Connecting it to a self-hosted server is a one-time $9.99 unlock per person, and like the rest of Kaneo, the app is open source.",
+				"link": "Download on the App Store",
+				"question": "Is there a mobile app?"
 			}
 		},
 		"comparison": {
@@ -4608,6 +4615,21 @@
 				"passwordChanged": "Senha alterada",
 				"photoRemoved": "Foto removida",
 				"photoUpdated": "Foto atualizada"
+			},
+			"deleteAccount": {
+				"confirm": "Delete account",
+				"confirmLabel": "Type {{email}} to confirm",
+				"description": "Permanently delete your account and its data.",
+				"modalDescription": "This permanently deletes your account and cannot be undone. Workspaces only you belong to are deleted with it. Elsewhere, your tasks stay and become unassigned, and your comments are removed.",
+				"modalTitle": "Delete your account?",
+				"noPassword": "This account has no password. Leave the field empty.",
+				"password": "Password",
+				"passwordHint": "Leave empty if you sign in without a password.",
+				"sectionTitle": "Danger zone",
+				"sessionTooOld": "For your security, enter your password, or sign out and sign in again before deleting your account.",
+				"success": "Your account was deleted",
+				"title": "Delete account",
+				"wrongPassword": "That password is not correct."
 			}
 		},
 		"activity": {
@@ -4693,21 +4715,20 @@
 		"editor": {
 			"attachment": "Anexo",
 			"bold": "Negrito",
-			"boldPlaceholder": "negrito",
 			"code": "Código",
-			"codePlaceholder": "código",
-			"description": "Descrição",
 			"heading": "Título",
 			"insertImage": "Inserir imagem",
 			"italic": "Itálico",
-			"italicPlaceholder": "itálico",
 			"link": "Link",
-			"linkPlaceholder": "link",
 			"list": "Lista",
-			"nothingToPreview": "Nada para visualizar",
 			"placeholder": "Adicione uma descrição… Você pode usar Markdown.",
-			"preview": "Prévia",
-			"write": "Escrever"
+			"applyLink": "Apply",
+			"checklist": "Checklist",
+			"linkUrl": "URL",
+			"numberedList": "Numbered list",
+			"quote": "Quote",
+			"removeLink": "Remove link",
+			"hideKeyboard": "Hide keyboard"
 		},
 		"errors": {
 			"apiKeyRejected": "Essa chave de API foi rejeitada.",
@@ -5236,7 +5257,6 @@
 			"screen": {
 				"addDescription": "Adicionar uma descrição…",
 				"copyLink": "Copiar link",
-				"editDescription": "Editar descrição",
 				"editTitle": "Editar título",
 				"linkCopied": "Link copiado",
 				"more": "Mais"

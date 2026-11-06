@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import icons from "@/constants/project-icons";
 import useGetProjects from "@/hooks/queries/project/use-get-projects";
+import { useBoardHoverPrefetch } from "@/hooks/use-board-hover-prefetch";
 import { SectionHeader } from "./section-header";
 
 type HomeProjectsProps = {
@@ -24,6 +25,7 @@ export function HomeProjects({
     isPending,
     isError,
   } = useGetProjects({ workspaceId }, true);
+  const boardHoverPrefetch = useBoardHoverPrefetch(workspaceId);
 
   return (
     <section className="flex flex-col gap-3">
@@ -40,10 +42,12 @@ export function HomeProjects({
         }
       />
       {isPending ? (
-        <Skeleton
-          aria-label={t("common:empty.loading")}
-          className="h-28 w-full"
-        />
+        <div className="delayed-reveal">
+          <Skeleton
+            aria-label={t("common:empty.loading")}
+            className="h-28 w-full"
+          />
+        </div>
       ) : isError && !projects ? (
         <p role="alert" className="text-muted-foreground text-sm">
           {t("workspace:home.projects.loadError")}
@@ -79,6 +83,7 @@ export function HomeProjects({
                 key={project.id}
                 to="/dashboard/workspace/$workspaceId/project/$projectId/board"
                 params={{ workspaceId, projectId: project.id }}
+                {...boardHoverPrefetch(project.id)}
                 className="flex flex-col gap-3.5 rounded-lg border border-border p-3.5 outline-none transition-colors hover:bg-accent/40 focus-visible:ring-2 focus-visible:ring-ring"
               >
                 <div className="flex items-center gap-2">

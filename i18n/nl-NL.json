@@ -238,7 +238,10 @@
 			"passwordRequired": "Vul je wachtwoord in.",
 			"passwordTooShort": "Gebruik minimaal 8 tekens.",
 			"disposableEmail": "Gebruik een permanent e-mailadres. Met wegwerpadressen kun je geen account aanmaken.",
-			"continueWithEmail": "Doorgaan met e-mail"
+			"continueWithEmail": "Doorgaan met e-mail",
+			"captchaChecking": "Even een korte beveiligingscontrole voordat je verdergaat.",
+			"captchaFailed": "De beveiligingscontrole is niet geladen, dus inloggen is gepauzeerd. Controleer je verbinding of contentblocker.",
+			"captchaRetry": "Opnieuw proberen"
 		},
 		"checkEmail": {
 			"pageTitle": "Controleer je e-mail",
@@ -395,8 +398,6 @@
 				}
 			},
 			"progress": "Stap {{current}} van {{total}}",
-			"welcome": "Welkom, {{name}}",
-			"settingUp": "{{name}} instellen",
 			"continue": "Doorgaan",
 			"signedInAs": "Ingelogd als {{email}}",
 			"signOut": "Uitloggen",
@@ -412,7 +413,7 @@
 				"title": "Start je eerste project",
 				"description": "We voegen een paar starttaken toe om je wegwijs te maken. Je kunt ze altijd hernoemen of verwijderen.",
 				"label": "Projectnaam",
-				"numbered": "Taken worden genummerd als"
+				"ticketStart": "Taak-ID's beginnen bij {{ticket}}."
 			},
 			"invite": {
 				"title": "Haal je team erbij",
@@ -439,7 +440,6 @@
 				"paymentNote": "Betalingen worden verwerkt door Creem."
 			},
 			"ready": {
-				"eyebrow": "Klaar",
 				"title": "{{name}} is klaar",
 				"description": "Dit hebben we ingesteld. Je kunt alles later nog wijzigen.",
 				"workspace": "Werkruimte",
@@ -452,9 +452,6 @@
 				"open": "{{name}} openen"
 			},
 			"preview": {
-				"live": "Livevoorbeeld van {{name}}",
-				"liveNoName": "Livevoorbeeld",
-				"ready": "{{name}} is klaar",
 				"untitled": "Je werkruimte"
 			}
 		},
@@ -3854,7 +3851,11 @@
 		},
 		"board": {
 			"reorderFailed": "Could not move task. Please try again.",
-			"keyboardInstructions": "Druk op Spatie voor een voorbeeld en op Enter om deze taak te openen. Gebruik Alt of Option met de pijltjestoetsen om haar te verplaatsen."
+			"keyboardInstructions": "Druk op Spatie voor een voorbeeld en op Enter om deze taak te openen. Gebruik Alt of Option met de pijltjestoetsen om haar te verplaatsen.",
+			"loadErrorTitle": "Dit bord is niet geladen",
+			"loadErrorDescription": "Er ging iets mis bij het ophalen van de taken. Controleer je verbinding en probeer het opnieuw.",
+			"refreshError": "Dit bord kon niet worden vernieuwd en is mogelijk niet actueel.",
+			"tryAgain": "Opnieuw proberen"
 		},
 		"recurrence": {
 			"daily_one": "Elke dag",
@@ -4324,7 +4325,8 @@
 			"title": "Project management",
 			"titleAccent": "that doesn't become the project.",
 			"description": "Open-source project management with boards, Gantt charts, and GitHub integration. Self-host for free with SSO included, or let Kaneo Cloud handle the hosting.",
-			"pricingCta": "See pricing"
+			"pricingCta": "See pricing",
+			"appStore": "App Store"
 		},
 		"navigation": {
 			"product": "Product",
@@ -4454,6 +4456,11 @@
 				"question": "Can AI clients work with Kaneo?",
 				"answer": "Yes. Kaneo provides an MCP server through the @kaneo/mcp package and an HTTP endpoint. Compatible AI clients can read and update tasks using an API key tied to a user, subject to workspace permissions.",
 				"link": "Read the MCP guide"
+			},
+			"mobile": {
+				"answer": "Yes. Kaneo is on the App Store for iPhone and iPad, and Android is coming soon. The app is free for Kaneo Cloud accounts. Connecting it to a self-hosted server is a one-time $9.99 unlock per person, and like the rest of Kaneo, the app is open source.",
+				"link": "Download on the App Store",
+				"question": "Is there a mobile app?"
 			}
 		},
 		"comparison": {
@@ -4527,6 +4534,21 @@
 				"passwordChanged": "Wachtwoord gewijzigd",
 				"photoRemoved": "Foto verwijderd",
 				"photoUpdated": "Foto bijgewerkt"
+			},
+			"deleteAccount": {
+				"confirm": "Delete account",
+				"confirmLabel": "Type {{email}} to confirm",
+				"description": "Permanently delete your account and its data.",
+				"modalDescription": "This permanently deletes your account and cannot be undone. Workspaces only you belong to are deleted with it. Elsewhere, your tasks stay and become unassigned, and your comments are removed.",
+				"modalTitle": "Delete your account?",
+				"noPassword": "This account has no password. Leave the field empty.",
+				"password": "Password",
+				"passwordHint": "Leave empty if you sign in without a password.",
+				"sectionTitle": "Danger zone",
+				"sessionTooOld": "For your security, enter your password, or sign out and sign in again before deleting your account.",
+				"success": "Your account was deleted",
+				"title": "Delete account",
+				"wrongPassword": "That password is not correct."
 			}
 		},
 		"activity": {
@@ -4609,21 +4631,20 @@
 		"editor": {
 			"attachment": "Bijlage",
 			"bold": "Vet",
-			"boldPlaceholder": "vet",
 			"code": "Code",
-			"codePlaceholder": "code",
-			"description": "Beschrijving",
 			"heading": "Koptekst",
 			"insertImage": "Afbeelding invoegen",
 			"italic": "Cursief",
-			"italicPlaceholder": "cursief",
 			"link": "Link",
-			"linkPlaceholder": "link",
 			"list": "Lijst",
-			"nothingToPreview": "Niets om te bekijken",
 			"placeholder": "Beschrijving toevoegen… Markdown wordt ondersteund.",
-			"preview": "Voorbeeld",
-			"write": "Schrijven"
+			"applyLink": "Apply",
+			"checklist": "Checklist",
+			"linkUrl": "URL",
+			"numberedList": "Numbered list",
+			"quote": "Quote",
+			"removeLink": "Remove link",
+			"hideKeyboard": "Hide keyboard"
 		},
 		"errors": {
 			"apiKeyRejected": "Die API-sleutel is geweigerd.",
@@ -5148,7 +5169,6 @@
 			"screen": {
 				"addDescription": "Beschrijving toevoegen…",
 				"copyLink": "Link kopiëren",
-				"editDescription": "Beschrijving bewerken",
 				"editTitle": "Titel bewerken",
 				"linkCopied": "Link gekopieerd",
 				"more": "Meer"

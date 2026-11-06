@@ -259,7 +259,7 @@ function RouteComponent() {
                 </TableHead>
               </TableRow>
             </TableHeader>
-            <TableBody>
+            <TableBody className="delayed-reveal">
               {[1, 2, 3].map((i) => (
                 <TableRow key={i}>
                   <TableCell className="py-3">

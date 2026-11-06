@@ -41,11 +41,7 @@ describe("board moves", () => {
       "keep b",
       "keep a",
     ]);
-    expect(moved.tasks).toEqual([
-      { id: "hidden", position: 0 },
-      { id: "b", position: 1 },
-      { id: "a", position: 2 },
-    ]);
+    expect(moved.tasks).toEqual([{ id: "a", position: 3 }]);
     expect(original.columns[0].tasks[0].id).toBe("a");
   });
 

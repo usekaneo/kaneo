@@ -238,7 +238,10 @@
 			"passwordRequired": "Gib dein Passwort ein.",
 			"passwordTooShort": "Verwende mindestens 8 Zeichen.",
 			"disposableEmail": "Verwende eine dauerhafte E-Mail-Adresse. Mit Wegwerfadressen können keine Konten erstellt werden.",
-			"continueWithEmail": "Weiter mit E-Mail"
+			"continueWithEmail": "Weiter mit E-Mail",
+			"captchaChecking": "Kurze Sicherheitsprüfung, bevor es weitergeht.",
+			"captchaFailed": "Die Sicherheitsprüfung wurde nicht geladen, daher ist die Anmeldung pausiert. Prüfe deine Verbindung oder deinen Inhaltsblocker.",
+			"captchaRetry": "Erneut versuchen"
 		},
 		"checkEmail": {
 			"pageTitle": "Prüfe deine E-Mails",
@@ -395,8 +398,6 @@
 				}
 			},
 			"progress": "Schritt {{current}} von {{total}}",
-			"welcome": "Willkommen, {{name}}",
-			"settingUp": "{{name}} wird eingerichtet",
 			"continue": "Weiter",
 			"signedInAs": "Angemeldet als {{email}}",
 			"signOut": "Abmelden",
@@ -412,7 +413,7 @@
 				"title": "Starte dein erstes Projekt",
 				"description": "Wir fügen ein paar Startaufgaben hinzu, damit du dich zurechtfindest. Du kannst sie jederzeit umbenennen oder löschen.",
 				"label": "Projektname",
-				"numbered": "Aufgaben werden nummeriert als"
+				"ticketStart": "Aufgaben-IDs beginnen bei {{ticket}}."
 			},
 			"invite": {
 				"title": "Hol dein Team dazu",
@@ -439,7 +440,6 @@
 				"paymentNote": "Zahlungen werden von Creem abgewickelt."
 			},
 			"ready": {
-				"eyebrow": "Alles bereit",
 				"title": "{{name}} ist bereit",
 				"description": "Das haben wir eingerichtet. Du kannst alles später ändern.",
 				"workspace": "Workspace",
@@ -452,9 +452,6 @@
 				"open": "{{name}} öffnen"
 			},
 			"preview": {
-				"live": "Live-Vorschau von {{name}}",
-				"liveNoName": "Live-Vorschau",
-				"ready": "{{name}} ist bereit",
 				"untitled": "Dein Workspace"
 			}
 		},
@@ -3854,7 +3851,11 @@
 		},
 		"board": {
 			"reorderFailed": "Die Reihenfolge konnte nicht gespeichert werden.",
-			"keyboardInstructions": "Drücke die Leertaste für die Vorschau und Enter, um diese Aufgabe zu öffnen. Mit Alt oder Option und den Pfeiltasten verschiebst du sie."
+			"keyboardInstructions": "Drücke die Leertaste für die Vorschau und Enter, um diese Aufgabe zu öffnen. Mit Alt oder Option und den Pfeiltasten verschiebst du sie.",
+			"loadErrorTitle": "Dieses Board wurde nicht geladen",
+			"loadErrorDescription": "Beim Abrufen der Aufgaben ist etwas schiefgelaufen. Prüfe deine Verbindung und versuche es erneut.",
+			"refreshError": "Das Board konnte nicht aktualisiert werden und ist eventuell nicht aktuell.",
+			"tryAgain": "Erneut versuchen"
 		},
 		"recurrence": {
 			"daily_one": "Jeden Tag",
@@ -4324,7 +4325,8 @@
 			"title": "Projektmanagement,",
 			"titleAccent": "das nicht selbst zum Projekt wird.",
 			"description": "Open-Source-Projektmanagement mit Boards, Gantt-Diagrammen und GitHub-Integration. Hoste Kaneo kostenlos selbst, inklusive SSO, oder überlasse das Hosting Kaneo Cloud.",
-			"pricingCta": "See pricing"
+			"pricingCta": "See pricing",
+			"appStore": "App Store"
 		},
 		"navigation": {
 			"product": "Produkt",
@@ -4454,6 +4456,11 @@
 				"question": "Können KI-Clients mit Kaneo arbeiten?",
 				"answer": "Ja. Kaneo stellt einen MCP-Server über das Paket @kaneo/mcp und einen HTTP-Endpunkt bereit. Kompatible KI-Clients können Aufgaben mit einem benutzergebundenen API-Schlüssel lesen und aktualisieren. Dabei gelten die Workspace-Berechtigungen.",
 				"link": "MCP-Anleitung lesen"
+			},
+			"mobile": {
+				"answer": "Yes. Kaneo is on the App Store for iPhone and iPad, and Android is coming soon. The app is free for Kaneo Cloud accounts. Connecting it to a self-hosted server is a one-time $9.99 unlock per person, and like the rest of Kaneo, the app is open source.",
+				"link": "Download on the App Store",
+				"question": "Is there a mobile app?"
 			}
 		},
 		"comparison": {
@@ -4673,7 +4680,6 @@
 				"linkCopied": "Link kopiert",
 				"more": "Mehr",
 				"editTitle": "Titel bearbeiten",
-				"editDescription": "Beschreibung bearbeiten",
 				"addDescription": "Beschreibung hinzufügen…"
 			}
 		},
@@ -4723,23 +4729,22 @@
 			"parentFailed": "Aufgabe erstellt, aber sie konnte nicht mit der übergeordneten Aufgabe verknüpft werden."
 		},
 		"editor": {
-			"description": "Beschreibung",
 			"placeholder": "Beschreibung hinzufügen… Markdown wird unterstützt.",
-			"write": "Schreiben",
-			"preview": "Vorschau",
-			"nothingToPreview": "Nichts für die Vorschau",
 			"bold": "Fett",
 			"italic": "Kursiv",
 			"heading": "Überschrift",
 			"list": "Liste",
 			"code": "Code",
 			"link": "Link",
-			"boldPlaceholder": "fett",
-			"italicPlaceholder": "kursiv",
-			"codePlaceholder": "Code",
-			"linkPlaceholder": "Link",
 			"insertImage": "Bild einfügen",
-			"attachment": "Anhang"
+			"attachment": "Anhang",
+			"applyLink": "Apply",
+			"checklist": "Checklist",
+			"linkUrl": "URL",
+			"numberedList": "Numbered list",
+			"quote": "Quote",
+			"removeLink": "Remove link",
+			"hideKeyboard": "Hide keyboard"
 		},
 		"composer": {
 			"reply": "{{name}} antworten…",
@@ -5146,6 +5151,21 @@
 				"confirmPlaceholder": "Erneut eingeben",
 				"mismatch": "Die Passwörter stimmen nicht überein",
 				"signOutOthers": "Andere Geräte abmelden"
+			},
+			"deleteAccount": {
+				"confirm": "Delete account",
+				"confirmLabel": "Type {{email}} to confirm",
+				"description": "Permanently delete your account and its data.",
+				"modalDescription": "This permanently deletes your account and cannot be undone. Workspaces only you belong to are deleted with it. Elsewhere, your tasks stay and become unassigned, and your comments are removed.",
+				"modalTitle": "Delete your account?",
+				"noPassword": "This account has no password. Leave the field empty.",
+				"password": "Password",
+				"passwordHint": "Leave empty if you sign in without a password.",
+				"sectionTitle": "Danger zone",
+				"sessionTooOld": "For your security, enter your password, or sign out and sign in again before deleting your account.",
+				"success": "Your account was deleted",
+				"title": "Delete account",
+				"wrongPassword": "That password is not correct."
 			}
 		},
 		"notificationSettings": {

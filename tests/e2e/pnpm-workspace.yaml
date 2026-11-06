@@ -5,8 +5,13 @@ packages:
 # get-uri still requests basic-ftp 5.x; 6.2.3 fixes its listing parser DoS.
 minimumReleaseAgeExclude:
   - browserstack-node-sdk@1.75.1
+  - minimatch@11.0.4
+  - glob@14.0.3
 overrides:
   "get-uri>basic-ftp": 6.2.3
+  minimatch: 11.0.4
+  glob: 14.0.3
+  follow-redirects: 1.16.2
 allowBuilds:
   protobufjs: false
 patchedDependencies:

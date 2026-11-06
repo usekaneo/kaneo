@@ -238,7 +238,10 @@
 			"passwordRequired": "Parolunuzu daxil edin.",
 			"passwordTooShort": "Ən azı 8 simvoldan istifadə edin.",
 			"disposableEmail": "Daimi e-poçt ünvanından istifadə edin. Birdəfəlik ünvanlarla hesab yaratmaq olmur.",
-			"continueWithEmail": "E-poçtla davam et"
+			"continueWithEmail": "E-poçtla davam et",
+			"captchaChecking": "Davam etməzdən əvvəl qısa təhlükəsizlik yoxlaması aparılır.",
+			"captchaFailed": "Təhlükəsizlik yoxlaması yüklənmədi, buna görə giriş dayandırılıb. Bağlantınızı və ya məzmun bloklayıcınızı yoxlayın.",
+			"captchaRetry": "Yenidən cəhd et"
 		},
 		"checkEmail": {
 			"pageTitle": "E-poçtunuzu yoxlayın",
@@ -395,8 +398,6 @@
 				}
 			},
 			"progress": "Addım {{current}} / {{total}}",
-			"welcome": "Xoş gəlmisiniz, {{name}}",
-			"settingUp": "{{name}} hazırlanır",
 			"continue": "Davam et",
 			"signedInAs": "{{email}} kimi daxil olmusunuz",
 			"signOut": "Çıxış",
@@ -412,7 +413,7 @@
 				"title": "İlk layihənizi başladın",
 				"description": "Sizə yol göstərmək üçün bir neçə başlanğıc tapşırığı əlavə edəcəyik. Onların adını istənilən vaxt dəyişə və ya silə bilərsiniz.",
 				"label": "Layihənin adı",
-				"numbered": "Tapşırıqlar belə nömrələnəcək:"
+				"ticketStart": "Tapşırıq ID-ləri {{ticket}} ilə başlayacaq."
 			},
 			"invite": {
 				"title": "Komandanızı gətirin",
@@ -439,7 +440,6 @@
 				"paymentNote": "Ödənişləri Creem emal edir."
 			},
 			"ready": {
-				"eyebrow": "Hər şey hazırdır",
 				"title": "{{name}} hazırdır",
 				"description": "Qurduqlarımız bunlardır. İstənilən vaxt dəyişə bilərsiniz.",
 				"workspace": "İş sahəsi",
@@ -452,9 +452,6 @@
 				"open": "{{name}} iş sahəsini aç"
 			},
 			"preview": {
-				"live": "Canlı önizləmə: {{name}}",
-				"liveNoName": "Canlı önizləmə",
-				"ready": "{{name}} hazırdır",
 				"untitled": "İş sahəniz"
 			}
 		},
@@ -3854,7 +3851,11 @@
 		},
 		"board": {
 			"reorderFailed": "Could not move task. Please try again.",
-			"keyboardInstructions": "Önbaxış üçün Boşluq, bu tapşırığı açmaq üçün Enter düyməsini basın. Köçürmək üçün Alt və ya Option ilə ox düymələrindən istifadə edin."
+			"keyboardInstructions": "Önbaxış üçün Boşluq, bu tapşırığı açmaq üçün Enter düyməsini basın. Köçürmək üçün Alt və ya Option ilə ox düymələrindən istifadə edin.",
+			"loadErrorTitle": "Bu lövhə yüklənmədi",
+			"loadErrorDescription": "Tapşırıqlar alınarkən xəta baş verdi. Bağlantınızı yoxlayın və yenidən cəhd edin.",
+			"refreshError": "Lövhəni yeniləmək mümkün olmadı, ona görə köhnə ola bilər.",
+			"tryAgain": "Yenidən cəhd et"
 		},
 		"recurrence": {
 			"daily_one": "Hər gün",
@@ -4324,7 +4325,8 @@
 			"title": "Project management",
 			"titleAccent": "that doesn't become the project.",
 			"description": "Open-source project management with boards, Gantt charts, and GitHub integration. Self-host for free with SSO included, or let Kaneo Cloud handle the hosting.",
-			"pricingCta": "See pricing"
+			"pricingCta": "See pricing",
+			"appStore": "App Store"
 		},
 		"navigation": {
 			"product": "Product",
@@ -4454,6 +4456,11 @@
 				"question": "Can AI clients work with Kaneo?",
 				"answer": "Yes. Kaneo provides an MCP server through the @kaneo/mcp package and an HTTP endpoint. Compatible AI clients can read and update tasks using an API key tied to a user, subject to workspace permissions.",
 				"link": "Read the MCP guide"
+			},
+			"mobile": {
+				"answer": "Yes. Kaneo is on the App Store for iPhone and iPad, and Android is coming soon. The app is free for Kaneo Cloud accounts. Connecting it to a self-hosted server is a one-time $9.99 unlock per person, and like the rest of Kaneo, the app is open source.",
+				"link": "Download on the App Store",
+				"question": "Is there a mobile app?"
 			}
 		},
 		"comparison": {
@@ -4527,6 +4534,21 @@
 				"passwordChanged": "Parol dəyişdirildi",
 				"photoRemoved": "Şəkil silindi",
 				"photoUpdated": "Şəkil yeniləndi"
+			},
+			"deleteAccount": {
+				"confirm": "Delete account",
+				"confirmLabel": "Type {{email}} to confirm",
+				"description": "Permanently delete your account and its data.",
+				"modalDescription": "This permanently deletes your account and cannot be undone. Workspaces only you belong to are deleted with it. Elsewhere, your tasks stay and become unassigned, and your comments are removed.",
+				"modalTitle": "Delete your account?",
+				"noPassword": "This account has no password. Leave the field empty.",
+				"password": "Password",
+				"passwordHint": "Leave empty if you sign in without a password.",
+				"sectionTitle": "Danger zone",
+				"sessionTooOld": "For your security, enter your password, or sign out and sign in again before deleting your account.",
+				"success": "Your account was deleted",
+				"title": "Delete account",
+				"wrongPassword": "That password is not correct."
 			}
 		},
 		"activity": {
@@ -4609,21 +4631,20 @@
 		"editor": {
 			"attachment": "Qoşma",
 			"bold": "Qalın",
-			"boldPlaceholder": "qalın",
 			"code": "Kod",
-			"codePlaceholder": "kod",
-			"description": "Təsvir",
 			"heading": "Başlıq",
 			"insertImage": "Şəkil daxil et",
 			"italic": "Kursiv",
-			"italicPlaceholder": "kursiv",
 			"link": "Keçid",
-			"linkPlaceholder": "keçid",
 			"list": "Siyahı",
-			"nothingToPreview": "Önizləmə üçün heç nə yoxdur",
 			"placeholder": "Təsvir əlavə edin… Markdown dəstəklənir.",
-			"preview": "Önizləmə",
-			"write": "Yaz"
+			"applyLink": "Apply",
+			"checklist": "Checklist",
+			"linkUrl": "URL",
+			"numberedList": "Numbered list",
+			"quote": "Quote",
+			"removeLink": "Remove link",
+			"hideKeyboard": "Hide keyboard"
 		},
 		"errors": {
 			"apiKeyRejected": "Bu API açarı rədd edildi.",
@@ -5148,7 +5169,6 @@
 			"screen": {
 				"addDescription": "Təsvir əlavə et…",
 				"copyLink": "Keçidi kopyala",
-				"editDescription": "Təsviri redaktə et",
 				"editTitle": "Başlığı redaktə et",
 				"linkCopied": "Keçid kopyalandı",
 				"more": "Daha çox"

@@ -927,6 +927,15 @@
 						},
 						"continueWithEmail": {
 							"type": "string"
+						},
+						"captchaChecking": {
+							"type": "string"
+						},
+						"captchaFailed": {
+							"type": "string"
+						},
+						"captchaRetry": {
+							"type": "string"
 						}
 					},
 					"required": [
@@ -944,7 +953,10 @@
 						"passwordRequired",
 						"passwordTooShort",
 						"disposableEmail",
-						"continueWithEmail"
+						"continueWithEmail",
+						"captchaChecking",
+						"captchaFailed",
+						"captchaRetry"
 					]
 				},
 				"checkEmail": {
@@ -16679,9 +16691,30 @@
 						},
 						"task": {
 							"type": "string"
+						},
+						"loadErrorTitle": {
+							"type": "string"
+						},
+						"loadErrorDescription": {
+							"type": "string"
+						},
+						"refreshError": {
+							"type": "string"
+						},
+						"tryAgain": {
+							"type": "string"
 						}
 					},
-					"required": ["bug", "label", "task"]
+					"required": [
+						"reorderFailed",
+						"loadErrorTitle",
+						"loadErrorDescription",
+						"refreshError",
+						"tryAgain",
+            "bug", 
+            "label", 
+            "task"
+					]
 				}
 			},
 			"required": [

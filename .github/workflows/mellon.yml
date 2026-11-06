@@ -1,6 +1,8 @@
 name: mellon
 
 on:
+  issues:
+    types: [opened]
   # zizmor: ignore[dangerous-triggers] Reviews PR metadata only; never checks out
   # or runs code from the PR.
   pull_request_target:
@@ -11,18 +13,28 @@ permissions:
   pull-requests: write
 
 concurrency:
-  group: mellon-${{ github.event.pull_request.number }}
+  group: mellon-${{ github.event.issue.number || github.event.pull_request.number }}
   cancel-in-progress: false
 
 jobs:
-  observe:
+  moderate:
     runs-on: blacksmith-4vcpu-ubuntu-2404
     timeout-minutes: 5
     steps:
-      - name: Flag descriptions for review
-        uses: randoneering/mellon@9052b46ab67f5eb53ceb561122cb03937c4e08b1 # v0.1.1
+      - name: Review descriptions
+        uses: randoneering/mellon@b3ead3de8e2bf0bce7ca99562b6542d3a90c5372 # v0.1.4
         with:
           token: ${{ github.token }}
-          mode: observe
+          mode: enforce
+          review-label: 'true'
+          auto-close: 'false'
+          response: |-
+            Thanks for contributing to Kaneo!
+
+            We welcome AI tools for exploring ideas and writing code. Our [contributing guide](https://github.com/usekaneo/kaneo/blob/main/CONTRIBUTING.md#using-ai) asks that issue, feature request, and pull request descriptions be written in your own words, so maintainers can understand your thinking.
+
+            This submission was flagged by an automated check, which can make mistakes. If you wrote the description yourself, no changes are needed. Otherwise, please update it to explain the issue or contribution in your own voice.
+
+            Questions? A maintainer can help.
           # Keep these logins aligned with .github/contribution-policy.json.
           allowlist: '["andrejsshell","randoneering","tinsever","MonsPropre","tiran133","renovate[bot]","dependabot[bot]"]'

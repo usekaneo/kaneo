@@ -238,7 +238,10 @@
 			"passwordRequired": "Внеси ја твојата лозинка.",
 			"passwordTooShort": "Користи најмалку 8 знаци.",
 			"disposableEmail": "Користи трајна адреса за е-пошта. Со привремени адреси не може да се креираат сметки.",
-			"continueWithEmail": "Продолжи со е-пошта"
+			"continueWithEmail": "Продолжи со е-пошта",
+			"captchaChecking": "Се извршува кратка безбедносна проверка пред да продолжите.",
+			"captchaFailed": "Безбедносната проверка не се вчита, па најавувањето е паузирано. Проверете ја врската или блокаторот на содржина.",
+			"captchaRetry": "Обиди се повторно"
 		},
 		"checkEmail": {
 			"pageTitle": "Провери ја е-поштата",
@@ -395,8 +398,6 @@
 				}
 			},
 			"progress": "Чекор {{current}} од {{total}}",
-			"welcome": "Добредојде, {{name}}",
-			"settingUp": "Го поставуваме {{name}}",
 			"continue": "Продолжи",
 			"signedInAs": "Најавена сметка: {{email}}",
 			"signOut": "Одјави се",
@@ -412,7 +413,7 @@
 				"title": "Започни го првиот проект",
 				"description": "Ќе додадеме неколку почетни задачи за да се снајдеш. Преименувај ги или избриши ги кога сакаш.",
 				"label": "Име на проектот",
-				"numbered": "Задачите ќе бидат нумерирани"
+				"ticketStart": "ID-ата на задачите ќе почнуваат од {{ticket}}."
 			},
 			"invite": {
 				"title": "Доведи го твојот тим",
@@ -439,7 +440,6 @@
 				"paymentNote": "Плаќањата ги обработува Creem."
 			},
 			"ready": {
-				"eyebrow": "Сè е подготвено",
 				"title": "{{name}} е подготвен",
 				"description": "Ова е она што го поставивме. Сè можеш да смениш подоцна.",
 				"workspace": "Работен простор",
@@ -452,9 +452,6 @@
 				"open": "Отвори го {{name}}"
 			},
 			"preview": {
-				"live": "Преглед во живо на {{name}}",
-				"liveNoName": "Преглед во живо",
-				"ready": "{{name}} е подготвен",
 				"untitled": "Твојот работен простор"
 			}
 		},
@@ -3854,7 +3851,11 @@
 		},
 		"board": {
 			"reorderFailed": "Could not move task. Please try again.",
-			"keyboardInstructions": "Притиснете Space за преглед и Enter за да ја отворите оваа задача. Користете Alt или Option со стрелките за да ја преместите."
+			"keyboardInstructions": "Притиснете Space за преглед и Enter за да ја отворите оваа задача. Користете Alt или Option со стрелките за да ја преместите.",
+			"loadErrorTitle": "Оваа табла не се вчита",
+			"loadErrorDescription": "Нешто тргна наопаку при преземањето на задачите. Проверете ја врската и обидете се повторно.",
+			"refreshError": "Таблата не може да се освежи, па можеби не е ажурна.",
+			"tryAgain": "Обиди се повторно"
 		},
 		"recurrence": {
 			"daily_one": "На секој {{count}} ден",
@@ -4324,7 +4325,8 @@
 			"title": "Project management",
 			"titleAccent": "that doesn't become the project.",
 			"description": "Open-source project management with boards, Gantt charts, and GitHub integration. Self-host for free with SSO included, or let Kaneo Cloud handle the hosting.",
-			"pricingCta": "See pricing"
+			"pricingCta": "See pricing",
+			"appStore": "App Store"
 		},
 		"navigation": {
 			"product": "Product",
@@ -4454,6 +4456,11 @@
 				"question": "Can AI clients work with Kaneo?",
 				"answer": "Yes. Kaneo provides an MCP server through the @kaneo/mcp package and an HTTP endpoint. Compatible AI clients can read and update tasks using an API key tied to a user, subject to workspace permissions.",
 				"link": "Read the MCP guide"
+			},
+			"mobile": {
+				"answer": "Yes. Kaneo is on the App Store for iPhone and iPad, and Android is coming soon. The app is free for Kaneo Cloud accounts. Connecting it to a self-hosted server is a one-time $9.99 unlock per person, and like the rest of Kaneo, the app is open source.",
+				"link": "Download on the App Store",
+				"question": "Is there a mobile app?"
 			}
 		},
 		"comparison": {
@@ -4673,7 +4680,6 @@
 				"linkCopied": "Врската е копирана",
 				"more": "Повеќе",
 				"editTitle": "Уреди наслов",
-				"editDescription": "Уреди опис",
 				"addDescription": "Додај опис…"
 			}
 		},
@@ -4723,23 +4729,22 @@
 			"parentFailed": "Задачата е создадена, но не можеше да се поврзе со надредената задача."
 		},
 		"editor": {
-			"description": "Опис",
 			"placeholder": "Додај опис… Работи Markdown.",
-			"write": "Пишувај",
-			"preview": "Преглед",
-			"nothingToPreview": "Нема што да се прегледа",
 			"bold": "Задебелено",
 			"italic": "Курзив",
 			"heading": "Наслов",
 			"list": "Листа",
 			"code": "Код",
 			"link": "Врска",
-			"boldPlaceholder": "задебелено",
-			"italicPlaceholder": "курзив",
-			"codePlaceholder": "код",
-			"linkPlaceholder": "врска",
 			"insertImage": "Вметни слика",
-			"attachment": "Прилог"
+			"attachment": "Прилог",
+			"checklist": "Листа за проверка",
+			"numberedList": "Нумерирана листа",
+			"quote": "Цитат",
+			"linkUrl": "URL",
+			"applyLink": "Примени",
+			"removeLink": "Отстрани линк",
+			"hideKeyboard": "Сокриј тастатура"
 		},
 		"composer": {
 			"reply": "Одговори на {{name}}…",
@@ -5127,6 +5132,21 @@
 				"button": "Одјави се",
 				"title": "Да се одјавиш?",
 				"message": "Можеш повторно да се најавиш во секое време."
+			},
+			"deleteAccount": {
+				"sectionTitle": "Опасна зона",
+				"title": "Избриши сметка",
+				"description": "Трајно избриши ја сметката и нејзините податоци.",
+				"modalTitle": "Да се избрише сметката?",
+				"modalDescription": "Ова трајно ја брише сметката и не може да се врати. Работните простори во кои си единствен член се бришат заедно со неа. На други места, твоите задачи остануваат без доделен корисник, а коментарите се отстрануваат.",
+				"confirmLabel": "Внеси {{email}} за потврда",
+				"password": "Лозинка",
+				"passwordHint": "Остави празно ако се најавуваш без лозинка.",
+				"confirm": "Избриши сметка",
+				"success": "Сметката е избришана",
+				"sessionTooOld": "За твоја безбедност, внеси ја лозинката или одјави се и најави се повторно пред да ја избришеш сметката.",
+				"wrongPassword": "Лозинката не е точна.",
+				"noPassword": "Оваа сметка нема лозинка. Остави го полето празно."
 			},
 			"photoMenu": {
 				"choose": "Избери слика",

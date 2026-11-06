@@ -11,9 +11,11 @@ overrides:
   hono: ">=4.13.14 <5"
   lodash: 4.18.1
   markdown-it: 15.0.3
-  minimatch: 10.2.6
+  minimatch: 11.0.4
+  glob: 14.0.3
+  node-forge: 1.4.2
   rollup: 4.65.1
-  seroval: ">=1.5.3"
+  seroval: 1.6.11
   "effect@<4.0.0-0": ">=3.20.0"
   fast-xml-parser: ">=5.5.7"
   socket.io-parser: ">=4.2.7"
@@ -21,7 +23,7 @@ overrides:
   path-to-regexp: ">=8.4.0"
   brace-expansion: ">=5.0.12 <6"
   yaml: ">=2.8.3"
-  qs: ">=6.16.0"
+  qs: 6.16.2
   ws: ">=8.20.1"
   ip-address: 10.7.5
   postcss: ">=8.5.32 <9"
@@ -47,8 +49,8 @@ overrides:
   vite@*: "catalog:"
   vitest@*: "catalog:"
 patchedDependencies:
-  # No upstream release yet; preserve the existing Forge and Zod 3 consumer APIs.
-  node-forge@1.4.0: patches/node-forge@1.4.0.patch
+  # Preserve compatibility while upstream fixes remain unavailable.
+  deepmerge@4.3.1: patches/deepmerge@4.3.1.patch
   zod@3.25.76: patches/zod@3.25.76.patch
 allowBuilds:
   "@prisma/engines": false
@@ -106,3 +108,10 @@ minimumReleaseAgeExclude:
   - lucide-react@1.62.0
   - marked@18.1.2
   - postcss@8.5.32
+  - "@expo/log-box@58.0.14"
+  - "@expo/metro-runtime@58.0.16"
+  - node-forge@1.4.2
+  - glob@14.0.3
+  - minimatch@11.0.4
+  - qs@6.16.2
+  - seroval@1.6.11

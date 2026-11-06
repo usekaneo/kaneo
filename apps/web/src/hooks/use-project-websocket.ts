@@ -104,6 +104,7 @@ export function useProjectWebSocket(projectId: string) {
           });
           queryClient.invalidateQueries({
             queryKey: ["task-relations", message.sourceTaskId],
+            refetchType: "all",
           });
         }
         if (message.targetTaskId) {
@@ -112,6 +113,7 @@ export function useProjectWebSocket(projectId: string) {
           });
           queryClient.invalidateQueries({
             queryKey: ["task-relations", message.targetTaskId],
+            refetchType: "all",
           });
         }
         if (!message.sourceTaskId && !message.targetTaskId) {

@@ -14,6 +14,14 @@ type SessionAtom = {
 
 let lastRevalidatedAt = Date.now();
 
+export function getSettledSession(): SessionData | null | undefined {
+  const current = authClient.$store.atoms.session?.get() as
+    | SessionAtom
+    | undefined;
+  if (!current || current.isPending) return undefined;
+  return current.data;
+}
+
 export function getCachedSession(): SessionData | null {
   const current = authClient.$store.atoms.session?.get() as
     | SessionAtom

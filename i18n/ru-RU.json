@@ -238,7 +238,10 @@
 			"passwordRequired": "Введите пароль.",
 			"passwordTooShort": "Используйте не менее 8 символов.",
 			"disposableEmail": "Используйте постоянный адрес электронной почты. С одноразовыми адресами создать аккаунт нельзя.",
-			"continueWithEmail": "Продолжить по электронной почте"
+			"continueWithEmail": "Продолжить по электронной почте",
+			"captchaChecking": "Выполняется быстрая проверка безопасности, прежде чем вы сможете продолжить.",
+			"captchaFailed": "Проверка безопасности не загрузилась, поэтому вход приостановлен. Проверьте подключение или блокировщик контента.",
+			"captchaRetry": "Повторить"
 		},
 		"checkEmail": {
 			"pageTitle": "Проверьте почту",
@@ -397,8 +400,6 @@
 				}
 			},
 			"progress": "Шаг {{current}} из {{total}}",
-			"welcome": "Добро пожаловать, {{name}}",
-			"settingUp": "Настройка: {{name}}",
 			"continue": "Продолжить",
 			"signedInAs": "Вы вошли как {{email}}",
 			"signOut": "Выйти",
@@ -414,7 +415,7 @@
 				"title": "Создайте первый проект",
 				"description": "Мы добавим несколько стартовых задач, чтобы помочь вам освоиться. Их можно переименовать или удалить в любой момент.",
 				"label": "Название проекта",
-				"numbered": "Задачи будут нумероваться так:"
+				"ticketStart": "Номера задач начнутся с {{ticket}}."
 			},
 			"invite": {
 				"title": "Пригласите команду",
@@ -445,7 +446,6 @@
 				"paymentNote": "Платежи обрабатывает Creem."
 			},
 			"ready": {
-				"eyebrow": "Всё готово",
 				"title": "Рабочая область {{name}} готова",
 				"description": "Вот что мы настроили. Всё это можно изменить позже.",
 				"workspace": "Рабочая область",
@@ -462,9 +462,6 @@
 				"open": "Открыть {{name}}"
 			},
 			"preview": {
-				"live": "Предпросмотр: {{name}}",
-				"liveNoName": "Предпросмотр",
-				"ready": "Рабочая область {{name}} готова",
 				"untitled": "Ваша рабочая область"
 			}
 		},
@@ -4038,7 +4035,11 @@
 		},
 		"board": {
 			"reorderFailed": "Could not move task. Please try again.",
-			"keyboardInstructions": "Нажмите Пробел для предпросмотра и Enter, чтобы открыть эту задачу. Используйте Alt или Option со стрелками, чтобы переместить её."
+			"keyboardInstructions": "Нажмите Пробел для предпросмотра и Enter, чтобы открыть эту задачу. Используйте Alt или Option со стрелками, чтобы переместить её.",
+			"loadErrorTitle": "Эта доска не загрузилась",
+			"loadErrorDescription": "Не удалось получить задачи. Проверьте подключение и попробуйте ещё раз.",
+			"refreshError": "Не удалось обновить доску, поэтому данные могут быть устаревшими.",
+			"tryAgain": "Повторить"
 		},
 		"recurrence": {
 			"daily_few": "Каждые {{count}} дня",
@@ -4538,7 +4539,8 @@
 			"title": "Project management",
 			"titleAccent": "that doesn't become the project.",
 			"description": "Open-source project management with boards, Gantt charts, and GitHub integration. Self-host for free with SSO included, or let Kaneo Cloud handle the hosting.",
-			"pricingCta": "See pricing"
+			"pricingCta": "See pricing",
+			"appStore": "App Store"
 		},
 		"navigation": {
 			"product": "Product",
@@ -4668,6 +4670,11 @@
 				"question": "Can AI clients work with Kaneo?",
 				"answer": "Yes. Kaneo provides an MCP server through the @kaneo/mcp package and an HTTP endpoint. Compatible AI clients can read and update tasks using an API key tied to a user, subject to workspace permissions.",
 				"link": "Read the MCP guide"
+			},
+			"mobile": {
+				"answer": "Yes. Kaneo is on the App Store for iPhone and iPad, and Android is coming soon. The app is free for Kaneo Cloud accounts. Connecting it to a self-hosted server is a one-time $9.99 unlock per person, and like the rest of Kaneo, the app is open source.",
+				"link": "Download on the App Store",
+				"question": "Is there a mobile app?"
 			}
 		},
 		"comparison": {
@@ -4887,7 +4894,6 @@
 				"linkCopied": "Ссылка скопирована",
 				"more": "Ещё",
 				"editTitle": "Изменить название",
-				"editDescription": "Изменить описание",
 				"addDescription": "Добавьте описание…"
 			}
 		},
@@ -4939,23 +4945,22 @@
 			"parentFailed": "Задача создана, но её не удалось связать с родительской задачей."
 		},
 		"editor": {
-			"description": "Описание",
 			"placeholder": "Добавьте описание… Поддерживается Markdown.",
-			"write": "Текст",
-			"preview": "Просмотр",
-			"nothingToPreview": "Нечего показать",
 			"bold": "Жирный",
 			"italic": "Курсив",
 			"heading": "Заголовок",
 			"list": "Список",
 			"code": "Код",
 			"link": "Ссылка",
-			"boldPlaceholder": "жирный",
-			"italicPlaceholder": "курсив",
-			"codePlaceholder": "код",
-			"linkPlaceholder": "ссылка",
 			"insertImage": "Вставить изображение",
-			"attachment": "Вложение"
+			"attachment": "Вложение",
+			"applyLink": "Apply",
+			"checklist": "Checklist",
+			"linkUrl": "URL",
+			"numberedList": "Numbered list",
+			"quote": "Quote",
+			"removeLink": "Remove link",
+			"hideKeyboard": "Hide keyboard"
 		},
 		"composer": {
 			"reply": "Ответить {{name}}…",
@@ -5386,6 +5391,21 @@
 				"confirmPlaceholder": "Введите ещё раз",
 				"mismatch": "Пароли не совпадают",
 				"signOutOthers": "Выйти на других устройствах"
+			},
+			"deleteAccount": {
+				"confirm": "Delete account",
+				"confirmLabel": "Type {{email}} to confirm",
+				"description": "Permanently delete your account and its data.",
+				"modalDescription": "This permanently deletes your account and cannot be undone. Workspaces only you belong to are deleted with it. Elsewhere, your tasks stay and become unassigned, and your comments are removed.",
+				"modalTitle": "Delete your account?",
+				"noPassword": "This account has no password. Leave the field empty.",
+				"password": "Password",
+				"passwordHint": "Leave empty if you sign in without a password.",
+				"sectionTitle": "Danger zone",
+				"sessionTooOld": "For your security, enter your password, or sign out and sign in again before deleting your account.",
+				"success": "Your account was deleted",
+				"title": "Delete account",
+				"wrongPassword": "That password is not correct."
 			}
 		},
 		"notificationSettings": {

@@ -47,7 +47,7 @@ export function UpNext({
       />
 
       {isLoading ? (
-        <div className="flex flex-col">
+        <div className="delayed-reveal flex flex-col">
           {[1, 2, 3].map((row) => (
             <div
               key={row}

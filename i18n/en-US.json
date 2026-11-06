@@ -238,7 +238,10 @@
 			"passwordRequired": "Enter your password.",
 			"passwordTooShort": "Use at least 8 characters.",
 			"disposableEmail": "Use a permanent email address. Disposable addresses cannot create accounts.",
-			"continueWithEmail": "Continue with email"
+			"continueWithEmail": "Continue with email",
+			"captchaChecking": "Running a quick security check before you can continue.",
+			"captchaFailed": "The security check didn't load, so signing in is paused. Check your connection or content blocker.",
+			"captchaRetry": "Try again"
 		},
 		"checkEmail": {
 			"pageTitle": "Check Your Email",
@@ -395,14 +398,12 @@
 				}
 			},
 			"progress": "Step {{current}} of {{total}}",
-			"welcome": "Welcome, {{name}}",
-			"settingUp": "Setting up {{name}}",
 			"continue": "Continue",
 			"signedInAs": "Signed in as {{email}}",
 			"signOut": "Sign out",
 			"workspace": {
 				"title": "Name your workspace",
-				"description": "This is where your projects live. Use your team or company name, you can change it later."
+				"description": "This is where your projects live. Use your team or company name. You can change it later."
 			},
 			"usage": {
 				"title": "Who's it for?",
@@ -412,7 +413,7 @@
 				"title": "Start your first project",
 				"description": "We'll add a few starter tasks to show you around. Rename or delete them anytime.",
 				"label": "Project name",
-				"numbered": "Tasks will be numbered"
+				"ticketStart": "Task IDs will start at {{ticket}}."
 			},
 			"invite": {
 				"title": "Bring your team",
@@ -439,7 +440,6 @@
 				"paymentNote": "Payments are processed by Creem."
 			},
 			"ready": {
-				"eyebrow": "All set",
 				"title": "{{name}} is ready",
 				"description": "Here's what we set up. You can change any of it later.",
 				"workspace": "Workspace",
@@ -452,9 +452,6 @@
 				"open": "Open {{name}}"
 			},
 			"preview": {
-				"live": "Live preview of {{name}}",
-				"liveNoName": "Live preview",
-				"ready": "{{name}} is ready",
 				"untitled": "Your workspace"
 			}
 		},
@@ -3865,7 +3862,11 @@
 		"descriptionLoadError": "The description could not be loaded. Retry to load the current version.",
 		"board": {
 			"reorderFailed": "Could not move task. Please try again.",
-			"keyboardInstructions": "Press Space to preview and Enter to open this task. Use Alt or Option with the arrow keys to move it."
+			"keyboardInstructions": "Press Space to preview and Enter to open this task. Use Alt or Option with the arrow keys to move it.",
+			"loadErrorTitle": "This board didn't load",
+			"loadErrorDescription": "Something went wrong while fetching its tasks. Check your connection and try again.",
+			"refreshError": "Couldn't refresh this board, so it may be out of date.",
+			"tryAgain": "Try again"
 		},
 		"toolbar": {
 			"search": "Search tasks",
@@ -4321,6 +4322,7 @@
 			"pricingCta": "See pricing",
 			"trialNote": "14-day cloud trial. No credit card required.",
 			"github": "GitHub",
+			"appStore": "App Store",
 			"productHunt": "Product Hunt",
 			"title": "Project management",
 			"titleAccent": "that doesn't become the project.",
@@ -4454,6 +4456,11 @@
 				"question": "Can AI clients work with Kaneo?",
 				"answer": "Yes. Kaneo provides an MCP server through the @kaneo/mcp package and an HTTP endpoint. Compatible AI clients can read and update tasks using an API key tied to a user, subject to workspace permissions.",
 				"link": "Read the MCP guide"
+			},
+			"mobile": {
+				"question": "Is there a mobile app?",
+				"answer": "Yes. Kaneo is on the App Store for iPhone and iPad, and Android is coming soon. The app is free for Kaneo Cloud accounts. Connecting it to a self-hosted server is a one-time $9.99 unlock per person, and like the rest of Kaneo, the app is open source.",
+				"link": "Download on the App Store"
 			}
 		},
 		"comparison": {
@@ -4673,7 +4680,6 @@
 				"linkCopied": "Link copied",
 				"more": "More",
 				"editTitle": "Edit title",
-				"editDescription": "Edit description",
 				"addDescription": "Add a description…"
 			}
 		},
@@ -4723,23 +4729,22 @@
 			"labelsAndParentFailed": "Task created, but some labels and the parent link couldn't be saved."
 		},
 		"editor": {
-			"description": "Description",
 			"placeholder": "Add a description… Markdown works.",
-			"write": "Write",
-			"preview": "Preview",
-			"nothingToPreview": "Nothing to preview",
 			"bold": "Bold",
 			"italic": "Italic",
 			"heading": "Heading",
 			"list": "List",
 			"code": "Code",
 			"link": "Link",
-			"boldPlaceholder": "bold",
-			"italicPlaceholder": "italic",
-			"codePlaceholder": "code",
-			"linkPlaceholder": "link",
 			"insertImage": "Insert image",
-			"attachment": "Attachment"
+			"attachment": "Attachment",
+			"checklist": "Checklist",
+			"numberedList": "Numbered list",
+			"quote": "Quote",
+			"linkUrl": "URL",
+			"applyLink": "Apply",
+			"removeLink": "Remove link",
+			"hideKeyboard": "Hide keyboard"
 		},
 		"composer": {
 			"reply": "Reply to {{name}}…",
@@ -5127,6 +5132,21 @@
 				"button": "Sign out",
 				"title": "Sign out?",
 				"message": "You can sign in again at any time."
+			},
+			"deleteAccount": {
+				"sectionTitle": "Danger zone",
+				"title": "Delete account",
+				"description": "Permanently delete your account and its data.",
+				"modalTitle": "Delete your account?",
+				"modalDescription": "This permanently deletes your account and cannot be undone. Workspaces only you belong to are deleted with it. Elsewhere, your tasks stay and become unassigned, and your comments are removed.",
+				"confirmLabel": "Type {{email}} to confirm",
+				"password": "Password",
+				"passwordHint": "Leave empty if you sign in without a password.",
+				"confirm": "Delete account",
+				"success": "Your account was deleted",
+				"sessionTooOld": "For your security, enter your password, or sign out and sign in again before deleting your account.",
+				"wrongPassword": "That password is not correct.",
+				"noPassword": "This account has no password. Leave the field empty."
 			},
 			"photoMenu": {
 				"choose": "Choose photo",

@@ -15,6 +15,10 @@ Kaneo runs as one application container plus PostgreSQL. You can add file storag
 | [Railway](/core/deployments/railway) | You want a hosted deployment without managing a server. |
 | [Helm](https://github.com/usekaneo/kaneo/tree/main/charts/kaneo) | You already operate a Kubernetes cluster. |
 
+<Tip>
+  Rather not run it yourself? We host [managed instances](https://kaneo.app/pricing#managed-instance) in the EU with your own domain, single sign-on, daily backups, and upgrades handled for you, from $299 a month for the whole instance. For a small team, [Kaneo Cloud](https://kaneo.app/pricing) starts at $4 a month.
+</Tip>
+
 For a small installation, plan for at least 2 GB of memory and 10 GB of free disk as a starting point. Leave additional space for database growth, uploaded files, and backups. Compose deployments need Docker and Docker Compose V2.
 
 ## What runs where
@@ -38,4 +42,4 @@ PostgreSQL stores accounts, projects, tasks, comments, and upload records. File 
 4. Add [Silo file storage](/core/installation/silo) if your team needs attachments.
 5. Make a [backup and test a restore](/core/operations/backups).
 
-Then follow [Your first project](/core/index).
+Then follow [Your first project](/core/index). Your team can also connect the [mobile app](/core/functional/mobile-app) to this instance.
