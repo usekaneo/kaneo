@@ -24,6 +24,7 @@ export default defineConfig({
             ".env*",
             { pattern: ".env*", base: "workspace" },
             { pattern: "pnpm-lock.yaml", base: "workspace" },
+            { pattern: "i18n/*.json", base: "workspace" },
           ],
           output: ["dist/**"],
         },
