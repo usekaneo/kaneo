@@ -227,6 +227,13 @@ export async function syncLatestTaskValue(
         ]);
       return;
     }
+    // Re-closing an already closed GitHub issue resets "not planned" to "completed".
+    if (
+      field === "state" &&
+      readCurrent &&
+      (await readCurrent().catch(() => undefined)) === current
+    )
+      return true;
     value = current;
   }
 }
