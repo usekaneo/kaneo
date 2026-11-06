@@ -24,7 +24,7 @@ jobs:
       security-events: write
     steps:
       - name: Checkout repository
-        uses: useblacksmith/checkout@25227e61ff9dafe400e22fa487b673eac4e4409a # v1
+        uses: useblacksmith/checkout@2b9fe87d796feea153b455ec2f3125b471a7b0e7 # v1
         with:
           persist-credentials: false
           # The entire-branch scan needs the full commit history.
@@ -55,7 +55,7 @@ jobs:
             --sarif > trufflehog-results.sarif
       - name: Upload results to GitHub Code Scanning
         if: always()
-        uses: github/codeql-action/upload-sarif@9b3254085494b55a0f7c4c2b3d2d52cc712ce370 # v4.39.1
+        uses: github/codeql-action/upload-sarif@33d7b85da1a04171e211befe2c739303b9a4c066 # v4.39.3
         with:
           sarif_file: trufflehog-results.sarif
       - name: Notify Discord on findings
@@ -109,7 +109,7 @@ jobs:
       security-events: write
     steps:
       - name: Checkout repository
-        uses: useblacksmith/checkout@25227e61ff9dafe400e22fa487b673eac4e4409a # v1
+        uses: useblacksmith/checkout@2b9fe87d796feea153b455ec2f3125b471a7b0e7 # v1
         with:
           persist-credentials: false
       - name: Install zizmor
@@ -130,7 +130,7 @@ jobs:
             > zizmor-results.json || true
       - name: Upload results to GitHub Code Scanning
         if: always()
-        uses: github/codeql-action/upload-sarif@9b3254085494b55a0f7c4c2b3d2d52cc712ce370 # v4.39.1
+        uses: github/codeql-action/upload-sarif@33d7b85da1a04171e211befe2c739303b9a4c066 # v4.39.3
         with:
           sarif_file: zizmor-results.sarif
       - name: Enforce high-severity findings
