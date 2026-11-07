@@ -22,10 +22,11 @@ jobs:
     timeout-minutes: 5
     steps:
       - name: Review descriptions
-        uses: randoneering/mellon@ce64aca406fc99813619ddb14a43635b52c9cf88 # v0.1.3
+        uses: randoneering/mellon@56602b97480d91b9afcb4630230573284a86ef56 # v0.1.5
         with:
           token: ${{ github.token }}
           mode: enforce
+          review-label: 'true'
           auto-close: 'false'
           response: |-
             Thanks for contributing to Kaneo!
