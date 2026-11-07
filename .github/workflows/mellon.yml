@@ -22,7 +22,7 @@ jobs:
     timeout-minutes: 5
     steps:
       - name: Review descriptions
-        uses: randoneering/mellon@b3ead3de8e2bf0bce7ca99562b6542d3a90c5372 # v0.1.4
+        uses: randoneering/mellon@56602b97480d91b9afcb4630230573284a86ef56 # v0.1.5
         with:
           token: ${{ github.token }}
           mode: enforce
