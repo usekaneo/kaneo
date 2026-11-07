@@ -75,7 +75,8 @@
 							"core/functional/collaborate-with-team",
 							"core/functional/account-notifications",
 							"core/functional/personalize-your-workspace",
-							"core/functional/manage-your-account"
+							"core/functional/manage-your-account",
+							"core/functional/mobile-app"
 						]
 					},
 					{

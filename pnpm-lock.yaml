@@ -187,9 +187,11 @@ overrides:
   hono: '>=4.13.14 <5'
   lodash: 4.18.1
   markdown-it: 15.0.3
-  minimatch: 10.2.6
+  minimatch: 11.0.4
+  glob: 14.0.3
+  node-forge: 1.4.2
   rollup: 4.65.1
-  seroval: '>=1.5.3'
+  seroval: 1.6.11
   effect@<4.0.0-0: '>=3.20.0'
   fast-xml-parser: '>=5.5.7'
   socket.io-parser: '>=4.2.7'
@@ -197,7 +199,7 @@ overrides:
   path-to-regexp: '>=8.4.0'
   brace-expansion: '>=5.0.12 <6'
   yaml: '>=2.8.3'
-  qs: '>=6.16.0'
+  qs: 6.16.2
   ws: '>=8.20.1'
   ip-address: 10.7.5
   postcss: '>=8.5.32 <9'
@@ -223,7 +225,7 @@ overrides:
   vitest@*: 5.0.5
 
 patchedDependencies:
-  node-forge@1.4.0: 7af5fa910c9692d7af8fa33df2f5a3d74505f4e7c46a012d0e0137903d01215c
+  deepmerge@4.3.1: 9dc8a7fbaa157ccfc5e00257048c4758e857071050fe7fddba831a0c65358a29
   zod@3.25.76: 961e904f64170e793e7ee7ea99c70d9df6319e1807c59dfc2817051a075cacdd
 
 importers:
@@ -276,6 +278,9 @@ importers:
       vite-plus:
         specifier: 'catalog:'
         version: 1.4.0(@opentelemetry/api@1.9.1)(@types/node@26.6.5)(@vitest/coverage-v8@5.0.5)(@vitest/ui@5.0.5)(esbuild@0.28.2)(jiti@2.7.0)(jsdom@30.1.3(@noble/hashes@2.2.0))(msw@2.12.10(@types/node@26.6.5)(typescript@7.0.2))(terser@5.51.2)(tsx@4.23.15)(typescript@7.0.2)(yaml@2.9.0)
+      yaml:
+        specifier: '>=2.8.3'
+        version: 2.9.0
 
   apps/api:
     dependencies:
@@ -2969,6 +2974,9 @@ packages:
   '@ioredis/commands@2.0.0':
     resolution: {integrity: sha512-vrx0AE/T0h7cRZwfo1M39Cr+ZhZrkf0V8mQN75wucKCxCLD9l/VX6no3gFvrLqD1IlG/1LtzWovqEw3t0Vr9zg==}
 
+  '@isaacs/nonrecursive-glob-match@1.0.3':
+    resolution: {integrity: sha512-SI7kyKHq4XXDRozw+r9GlRZkia1ZkFrpLW98r2IC2Bpr8YkFGE3fvjzmxCG0x78A++69HmDNrDvSMYBZmHGpKA==}
+
   '@isaacs/ttlcache@1.4.1':
     resolution: {integrity: sha512-RQgQ4uQ+pLbqXfOmieB91ejmLwvSgv9nLx6sT6sD83s7umBypgg+OIBOBbEUiJXrfpnp9j0mRhYYdzp9uqq3lA==}
     engines: {node: '>=12'}
@@ -5068,10 +5076,12 @@ packages:
   '@smithy/core@3.35.0':
     resolution: {integrity: sha512-zRMhfkByhT2snNdr1si24vJitU6Cr9ix2MikUfWmkAgp4jrNP0GcKSP5YvwQ+TlI8AZXER5QOGJn3JsVtSD9/A==}
     engines: {node: '>=18.0.0'}
+    deprecated: Deprecated due to a bug in custom logger data redaction. See https://github.com/aws/aws-sdk-js-v3/issues/8393.
 
   '@smithy/core@3.37.0':
     resolution: {integrity: sha512-97imTcCyiPd8k0e9+ts/Sp0W65Dn9Ti357J7M09Ov4tI8Q1JDJVFSoAJtjEVKqfHEr3Pdo2jfolqKCaaiszH0g==}
     engines: {node: '>=18.0.0'}
+    deprecated: Deprecated due to a bug in custom logger data redaction. See https://github.com/aws/aws-sdk-js-v3/issues/8393.
 
   '@smithy/credential-provider-imds@4.5.2':
     resolution: {integrity: sha512-A9uSdn72ozbRUSit0eib0TW7nXuNPlaeM0zcGkJ+nE6tFcSDbnmtwoxbTCFBukVQcszDAyvsd7+rTduPTXpygg==}
@@ -8178,8 +8188,8 @@ packages:
     resolution: {integrity: sha512-AOIgSQCepiJYwP3ARnGx+5VnTu2HBYdzbGP45eLw1vr3zB3vZLeyed1sC9hnbcOc9/SrMyM5RPQrkGz4aS9Zow==}
     engines: {node: '>= 6'}
 
-  glob@13.0.6:
-    resolution: {integrity: sha512-Wjlyrolmm8uDpm/ogGyXZXb1Z+Ca2B8NbJwqBVg0axK9GbBeoS7yGV6vjXnYdGm6X53iehEuxxbyiKp8QmN4Vw==}
+  glob@14.0.3:
+    resolution: {integrity: sha512-A1vjIwC3qpdCso45Iw127gnp7sPhqgY8lUQhDrArIs+GbmfaaVPFuoyy7WyLT9EPZCRZ7j7aLdwUhQmHWesEow==}
     engines: {node: 18 || 20 || >=22}
 
   global-directory@5.0.0:
@@ -9257,9 +9267,9 @@ packages:
     resolution: {integrity: sha512-I9jwMn07Sy/IwOj3zVkVik2JTvgpaykDZEigL6Rx6N9LbMywwUSMtxET+7lVoDLLd3O3IXwJwvuuns8UB/HeAg==}
     engines: {node: '>=4'}
 
-  minimatch@10.2.6:
-    resolution: {integrity: sha512-vpLQEs+VLCr1nU0BXS07maYoFwlDAH0gngQuuttxIwutDFEMHq2blX+8vpgxDdK3J1PwjCJiep77OitTZ4Ll1A==}
-    engines: {node: 18 || 20 || >=22}
+  minimatch@11.0.4:
+    resolution: {integrity: sha512-/UJ1dEoVQTjPNDh6SGlUo+ueLMmoHTas4q+8yaAR/5t6nLAIiBDJtoYUh20IYleix7ehiQkgczb84PE3uzHkxg==}
+    engines: {node: 20 || >=22}
 
   minimist@1.2.8:
     resolution: {integrity: sha512-2yyAR8qBkN3YuheJanUpWC5U3bb5osDywNB8RzDVlDwDHbocAJveqqj1u8+SVD7jkWT4yvsHCpWqqWqAxb0zCA==}
@@ -9445,8 +9455,8 @@ packages:
       encoding:
         optional: true
 
-  node-forge@1.4.0:
-    resolution: {integrity: sha512-LarFH0+6VfriEhqMMcLX2F7SwSXeWwnEAJEsYm5QKWchiVYVvJyV9v7UDvUv+w5HO23ZpQTXDv/GxdDdMyOuoQ==}
+  node-forge@1.4.2:
+    resolution: {integrity: sha512-rRtAR5XLJ8gCKd9du4qrKAsgCG1ObGP4gLeNJMa4vYSeq4bmBMOJk5IHkrviBV0q7uoAJlVd8HEQYQSVUb4FGQ==}
     engines: {node: '>= 6.13.0'}
 
   node-int64@0.4.0:
@@ -9818,8 +9828,8 @@ packages:
   path-parse@1.0.7:
     resolution: {integrity: sha512-LDJzPVEEEPR+y48z93A0Ed0yXb8pAByGWo/k5YYdYgpY2/2EsOsksJrq7lOHxryrVOn1ejG6oAp8ahvOIQD8sw==}
 
-  path-scurry@2.0.2:
-    resolution: {integrity: sha512-3O/iVVsJAPsOnpwWIeD+d6z/7PmqApyQePUtCndjatj/9I5LylHvt5qluFaBT3I5h3r1ejfR056c+FCv+NnNXg==}
+  path-scurry@3.0.0:
+    resolution: {integrity: sha512-1pTbQqH1wIwMi/eleQ5leFTTCkzFsPcgXNjwOA8YGGW/W4/kHT3dssE7Z6NH+zuqNLOzOB0uaD61yl7cAcVhgg==}
     engines: {node: 18 || 20 || >=22}
 
   path-to-regexp@9.0.0:
@@ -10095,8 +10105,8 @@ packages:
     resolution: {integrity: sha512-vYt7UD1U9Wg6138shLtLOvdAu+8DsC/ilFtEVHcH+wydcSpNE20AfSOduf6MkRFahL5FY7X1oU7nKVZFtfq8Fg==}
     engines: {node: '>=6'}
 
-  qs@6.16.0:
-    resolution: {integrity: sha512-h6fhOIaRrID2CbEY2fqs+7t+UXZo+MLAnU5gRIq85uFtdiUPCdsApMlHhXogKVM4HM2DVbIjGNTTYH2OcmP1vA==}
+  qs@6.16.2:
+    resolution: {integrity: sha512-VYdnB5S7/0IeXzBacUtwNAaM6d7Y/PgYnNC7bJCI6meqA/OgnsQbZMtVW8Dt2D1PHgbHGtYmhSoEIgvt7xZ2ZA==}
     engines: {node: '>=0.6'}
 
   queue-microtask@1.2.3:
@@ -10591,16 +10601,16 @@ packages:
     resolution: {integrity: sha512-HXuLAX2pu/UByPpaeo/TaMfvMIi+1QqIoPJYCcAtU8QkVNwgR6MPlGuCQTErV1JwraaMbYaWVIBX7mppzGLATQ==}
     engines: {node: '>=10'}
     peerDependencies:
-      seroval: '>=1.5.3'
+      seroval: 1.6.11
 
   seroval-plugins@1.6.8:
     resolution: {integrity: sha512-N7mWAMydj89EnYTHtRpS3LBrAz3J9O6oVrqpuXuvlAHfAUG8WEKqtbAd7SBiJNY5NfCAFhSdyAh7wI4Shjqy4g==}
     engines: {node: '>=10'}
     peerDependencies:
-      seroval: '>=1.5.3'
+      seroval: 1.6.11
 
-  seroval@1.6.7:
-    resolution: {integrity: sha512-AeDcLh0yO2SFm9W71essgnSzLV9DI8ZH0x0knXn2DMnUZj728mpLbxjlbB6IqKCmqh8JA3cEqRyGoNkt584JcQ==}
+  seroval@1.6.11:
+    resolution: {integrity: sha512-hpb6XnMCGN/A+79Uf8V7/iTGkyyyazNn5X0CoCAp7Uy9vT3RT8jZ9GLcnxGoVjg3P8AArbe4ZVHq6C8oT2a0kA==}
     engines: {node: '>=10'}
 
   serve-static@1.16.3:
@@ -13436,10 +13446,10 @@ snapshots:
       expo-server: 58.0.6
       fetch-nodeshim: 0.4.10
       getenv: 2.0.0
-      glob: 13.0.6
+      glob: 14.0.3
       lan-network: 0.2.1
       multitars: 1.0.2
-      node-forge: 1.4.0(patch_hash=7af5fa910c9692d7af8fa33df2f5a3d74505f4e7c46a012d0e0137903d01215c)
+      node-forge: 1.4.2
       npm-package-arg: 11.0.3
       ora: 3.4.0
       picomatch: 4.0.7
@@ -13476,7 +13486,7 @@ snapshots:
 
   '@expo/code-signing-certificates@0.0.7':
     dependencies:
-      node-forge: 1.4.0(patch_hash=7af5fa910c9692d7af8fa33df2f5a3d74505f4e7c46a012d0e0137903d01215c)
+      node-forge: 1.4.2
 
   '@expo/config-plugins@58.0.10(supports-color@8.1.1)(typescript@7.0.2)':
     dependencies:
@@ -13488,7 +13498,7 @@ snapshots:
       chalk: 4.1.2
       debug: 4.4.3(supports-color@8.1.1)
       getenv: 2.0.0
-      glob: 13.0.6
+      glob: 14.0.3
       semver: 7.8.5
       slugify: 1.6.9
       xcode: 4.0.0
@@ -13506,9 +13516,9 @@ snapshots:
       '@expo/json-file': 11.2.1
       '@expo/platforms': 58.0.1
       '@expo/require-utils': 58.0.4(supports-color@8.1.1)(typescript@7.0.2)
-      deepmerge: 4.3.1
+      deepmerge: 4.3.1(patch_hash=9dc8a7fbaa157ccfc5e00257048c4758e857071050fe7fddba831a0c65358a29)
       getenv: 2.0.0
-      glob: 13.0.6
+      glob: 14.0.3
       resolve-workspace-root: 2.0.1
       semver: 7.8.5
       slugify: 1.6.9
@@ -13553,9 +13563,9 @@ snapshots:
       chalk: 4.1.2
       debug: 4.4.3(supports-color@8.1.1)
       getenv: 2.0.0
-      glob: 13.0.6
+      glob: 14.0.3
       ignore: 5.3.2
-      minimatch: 10.2.6
+      minimatch: 11.0.4
       resolve-from: 5.0.0
       semver: 7.8.5
     transitivePeerDependencies:
@@ -13640,7 +13650,7 @@ snapshots:
       chalk: 4.1.2
       debug: 4.4.3(supports-color@8.1.1)
       getenv: 2.0.0
-      glob: 13.0.6
+      glob: 14.0.3
       hermes-parser: 0.36.1
       jsc-safe-url: 0.2.4
       lightningcss: 1.33.0
@@ -14012,6 +14022,8 @@ snapshots:
       '@swc/helpers': 0.5.23
 
   '@ioredis/commands@2.0.0': {}
+
+  '@isaacs/nonrecursive-glob-match@1.0.3': {}
 
   '@isaacs/ttlcache@1.4.1': {}
 
@@ -16163,7 +16175,7 @@ snapshots:
     dependencies:
       '@sentry/core': 11.9.0
       dotenv: 17.4.2
-      glob: 13.0.6
+      glob: 14.0.3
       magic-string: 1.4.3
       oxc-parser: 0.152.0
       sentry: 0.45.0
@@ -16256,7 +16268,7 @@ snapshots:
       '@dotenvx/dotenvx': 1.52.0
       cn: 0.2.6
       code-block-writer: 13.0.3
-      deepmerge: 4.3.1
+      deepmerge: 4.3.1(patch_hash=9dc8a7fbaa157ccfc5e00257048c4758e857071050fe7fddba831a0c65358a29)
       execa: 9.6.1
       fast-glob: 3.3.3
       fs-extra: 11.3.3
@@ -16606,8 +16618,8 @@ snapshots:
     dependencies:
       '@tanstack/history': 1.162.5
       cookie-es: 3.1.1
-      seroval: 1.6.7
-      seroval-plugins: 1.6.8(seroval@1.6.7)
+      seroval: 1.6.11
+      seroval-plugins: 1.6.8(seroval@1.6.11)
 
   '@tanstack/router-devtools-core@1.168.2(@tanstack/router-core@1.171.39)(csstype@3.2.3)':
     dependencies:
@@ -16967,7 +16979,7 @@ snapshots:
   '@ts-morph/common@0.27.0':
     dependencies:
       fast-glob: 3.3.3
-      minimatch: 10.2.6
+      minimatch: 11.0.4
       path-browserify: 1.0.1
 
   '@types/aria-query@5.0.4': {}
@@ -17881,7 +17893,7 @@ snapshots:
       http-errors: 2.0.1
       iconv-lite: 0.7.3
       on-finished: 2.4.1
-      qs: 6.16.0
+      qs: 6.16.2
       raw-body: 3.0.2
       type-is: 2.1.0
     transitivePeerDependencies:
@@ -18588,7 +18600,7 @@ snapshots:
   deepmerge-ts@8.0.2:
     optional: true
 
-  deepmerge@4.3.1: {}
+  deepmerge@4.3.1(patch_hash=9dc8a7fbaa157ccfc5e00257048c4758e857071050fe7fddba831a0c65358a29): {}
 
   default-browser-id@5.0.1: {}
 
@@ -19261,7 +19273,7 @@ snapshots:
       once: 1.4.0
       parseurl: 1.3.3
       proxy-addr: 2.0.8
-      qs: 6.16.0
+      qs: 6.16.2
       range-parser: 1.3.0
       router: 2.2.0(supports-color@8.1.1)
       send: 1.2.1(supports-color@8.1.1)
@@ -19503,11 +19515,11 @@ snapshots:
     dependencies:
       is-glob: 4.0.3
 
-  glob@13.0.6:
+  glob@14.0.3:
     dependencies:
-      minimatch: 10.2.6
+      minimatch: 11.0.4
       minipass: 7.1.3
-      path-scurry: 2.0.2
+      path-scurry: 3.0.0
 
   global-directory@5.0.0:
     dependencies:
@@ -19633,7 +19645,7 @@ snapshots:
   html-to-text@9.0.5:
     dependencies:
       '@selderee/plugin-htmlparser2': 0.11.0
-      deepmerge: 4.3.1
+      deepmerge: 4.3.1(patch_hash=9dc8a7fbaa157ccfc5e00257048c4758e857071050fe7fddba831a0c65358a29)
       dom-serializer: 2.0.0
       htmlparser2: 8.0.2
       selderee: 0.11.0
@@ -20714,8 +20726,9 @@ snapshots:
 
   min-indent@1.0.1: {}
 
-  minimatch@10.2.6:
+  minimatch@11.0.4:
     dependencies:
+      '@isaacs/nonrecursive-glob-match': 1.0.3
       brace-expansion: 5.0.12
 
   minimist@1.2.8: {}
@@ -20953,7 +20966,7 @@ snapshots:
     dependencies:
       whatwg-url: 5.0.0
 
-  node-forge@1.4.0(patch_hash=7af5fa910c9692d7af8fa33df2f5a3d74505f4e7c46a012d0e0137903d01215c): {}
+  node-forge@1.4.2: {}
 
   node-int64@0.4.0: {}
 
@@ -21327,7 +21340,7 @@ snapshots:
 
   path-parse@1.0.7: {}
 
-  path-scurry@2.0.2:
+  path-scurry@3.0.0:
     dependencies:
       lru-cache: 11.5.3
       minipass: 7.1.3
@@ -21635,7 +21648,7 @@ snapshots:
 
   punycode@2.3.1: {}
 
-  qs@6.16.0:
+  qs@6.16.2:
     dependencies:
       es-define-property: 1.0.1
       side-channel: 1.1.1
@@ -21772,7 +21785,7 @@ snapshots:
       css-tree: 3.2.1
       debounce: 2.2.0
       esbuild: 0.28.2
-      glob: 13.0.6
+      glob: 14.0.3
       jiti: 2.6.1
       log-symbols: 7.0.1
       marked: 15.0.12
@@ -22405,15 +22418,15 @@ snapshots:
 
   serialize-error@2.1.0: {}
 
-  seroval-plugins@1.5.6(seroval@1.6.7):
+  seroval-plugins@1.5.6(seroval@1.6.11):
     dependencies:
-      seroval: 1.6.7
+      seroval: 1.6.11
 
-  seroval-plugins@1.6.8(seroval@1.6.7):
+  seroval-plugins@1.6.8(seroval@1.6.11):
     dependencies:
-      seroval: 1.6.7
+      seroval: 1.6.11
 
-  seroval@1.6.7: {}
+  seroval@1.6.11: {}
 
   serve-static@1.16.3(supports-color@8.1.1):
     dependencies:
@@ -22457,7 +22470,7 @@ snapshots:
       cn: 0.2.6
       commander: 14.0.3
       dedent: 1.7.1
-      deepmerge: 4.3.1
+      deepmerge: 4.3.1(patch_hash=9dc8a7fbaa157ccfc5e00257048c4758e857071050fe7fddba831a0c65358a29)
       diff: 9.0.0
       execa: 9.6.1
       fast-glob: 3.3.3
@@ -22637,8 +22650,8 @@ snapshots:
   solid-js@1.9.15:
     dependencies:
       csstype: 3.2.3
-      seroval: 1.6.7
-      seroval-plugins: 1.5.6(seroval@1.6.7)
+      seroval: 1.6.11
+      seroval-plugins: 1.5.6(seroval@1.6.11)
 
   solid-presence@0.2.0(solid-js@1.9.15):
     dependencies:

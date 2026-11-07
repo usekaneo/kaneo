@@ -1,8 +1,9 @@
 import { and, eq } from "drizzle-orm";
 import db, { schema } from "../database";
+import { isOwnerRole } from "../project-access/is-owner-role";
+import { normalizeInvitationRole } from "../workspace-members/normalize-invitation-role";
 import { hasInstanceAdminRole } from "./instance-admin-role";
 import { roleHasWorkspacePermission } from "./require-workspace-permission";
-import { splitRoles } from "./split-roles";
 
 export async function hideInvitationsFromNonInviters(
   viewer: { id: string; role?: string | null },
@@ -33,7 +34,7 @@ export async function hideInvitationsFromNonInviters(
             invitation: ["create"],
           })
         : false,
-      owner: splitRoles(member?.role).includes("owner"),
+      owner: isOwnerRole(member?.role),
     });
   }
 
@@ -45,7 +46,7 @@ export async function hideInvitationsFromNonInviters(
     return (
       access?.canInvite &&
       typeof invitation?.role === "string" &&
-      (access.owner || !splitRoles(invitation.role).includes("owner"))
+      (access.owner || !isOwnerRole(normalizeInvitationRole(invitation.role)))
     );
   });
   invitations.splice(0, invitations.length, ...visible);

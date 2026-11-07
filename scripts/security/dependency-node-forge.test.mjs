@@ -61,11 +61,18 @@ test("Expo's node-forge accepts valid SHA-256 DigestInfo with optional NULL", ()
 });
 
 test("Expo's node-forge rejects unconsumed nested DigestAlgorithm elements", () => {
-  // Backport of https://github.com/digitalbazaar/forge/pull/1152.
+  // Keep this case when replacing the earlier local backport with an upstream release.
   for (const withNull of [false, true]) {
     assert.throws(
       () => publicKey.verify(digest, signedDigestInfo(withNull, true)),
       /DigestInfo/,
     );
   }
+});
+
+test("Expo certificate tooling accepts PEM buffers after the Forge security upgrade", () => {
+  const pem = forge.pki.publicKeyToPem(publicKey);
+  const decoded = forge.pem.decode(Buffer.from(pem));
+  assert.equal(decoded.length, 1);
+  assert.equal(decoded[0].type, "PUBLIC KEY");
 });

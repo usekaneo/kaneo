@@ -144,6 +144,24 @@ describe("useProjectWebSocket relation invalidation", () => {
     expect(invalidatedKeys()).toContain(projectRelationsKey);
   });
 
+  // A linked task that is closed but cached would otherwise reopen on its old
+  // relations, since queries default to refetchOnMount: false.
+  it("refetches both ends' relations even when they are not open", () => {
+    receive({
+      type: "TASK_RELATION_UPDATED",
+      projectId: "project-1",
+      sourceTaskId: "task-1",
+      targetTaskId: "task-2",
+    });
+
+    for (const taskId of ["task-1", "task-2"]) {
+      expect(invalidate).toHaveBeenCalledWith({
+        queryKey: ["task-relations", taskId],
+        refetchType: "all",
+      });
+    }
+  });
+
   it.each(["TASK_DELETED", "TASK_MOVED"])(
     "refreshes the project relations on %s",
     (type) => {

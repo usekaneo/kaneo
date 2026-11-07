@@ -4089,7 +4089,8 @@
 			"title": "專案管理，",
 			"titleAccent": "別讓它變成另一個專案。",
 			"description": "開源專案管理工具，提供看板、甘特圖與 GitHub 整合。可免費自行架設且內建 SSO，或交給 Kaneo Cloud 代管。",
-			"pricingCta": "See pricing"
+			"pricingCta": "See pricing",
+			"appStore": "App Store"
 		},
 		"navigation": {
 			"product": "產品",
@@ -4219,6 +4220,11 @@
 				"question": "AI 用戶端可以搭配 Kaneo 使用嗎？",
 				"answer": "可以。Kaneo 透過 @kaneo/mcp 套件與 HTTP 端點提供 MCP 伺服器。相容的 AI 用戶端可以使用綁定使用者的 API 金鑰讀取與更新任務，並受工作區權限限制。",
 				"link": "閱讀 MCP 指南"
+			},
+			"mobile": {
+				"answer": "Yes. Kaneo is on the App Store for iPhone and iPad, and Android is coming soon. The app is free for Kaneo Cloud accounts. Connecting it to a self-hosted server is a one-time $9.99 unlock per person, and like the rest of Kaneo, the app is open source.",
+				"link": "Download on the App Store",
+				"question": "Is there a mobile app?"
 			}
 		},
 		"comparison": {
