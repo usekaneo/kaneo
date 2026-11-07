@@ -1,17 +1,19 @@
 import { and, eq } from "drizzle-orm";
 import { beforeEach, describe, expect, it, vi } from "vite-plus/test";
-import db, { getDatabasePool, schema } from "../../apps/api/src/database";
+import db, { schema } from "../../apps/api/src/database";
 import { subscribeToEvent } from "../../apps/api/src/events";
 import { createApp } from "../../apps/api/src/index";
 import deleteLabel, {
   LABEL_DELETE_BATCH_SIZE,
 } from "../../apps/api/src/label/controllers/delete-label";
 import {
+  LABEL_DELETION_LEASE,
   MAX_LABEL_DELETIONS_IN_FLIGHT,
   withLabelDeletionLock,
 } from "../../apps/api/src/label/deletion-lock";
 import { mockAuthenticatedSession } from "./helpers/auth";
 import { resetTestDatabase } from "./helpers/database";
+import { holdLeaseSlots, releaseLeaseSlots } from "./helpers/leases";
 import {
   createProjectFixture,
   createWorkspaceMember,
@@ -269,16 +271,15 @@ describe("bounded, resumable label deletion", () => {
         throw new Error("test failure");
       }),
     ).rejects.toThrow("test failure");
+    expect(await db.query.jobLeaseTable.findMany()).toEqual([]);
     await expect(
       withLabelDeletionLock("failure", async () => "ok"),
     ).resolves.toBe("ok");
   });
-  it("honors the four-slot cap held by a separate database session", async () => {
+  it("honors the four-slot cap held by another API instance", async () => {
     const { app, member, root } = await fixture(0);
-    const other = await getDatabasePool().connect();
+    await holdLeaseSlots(LABEL_DELETION_LEASE, MAX_LABEL_DELETIONS_IN_FLIGHT);
     try {
-      for (let i = 0; i < MAX_LABEL_DELETIONS_IN_FLIGHT; i++)
-        await other.query("SELECT pg_advisory_lock(773622, $1::int)", [i]);
       await expect(
         withLabelDeletionLock("blocked", async () => "must not run"),
       ).rejects.toMatchObject({ status: 429 });
@@ -291,8 +292,7 @@ describe("bounded, resumable label deletion", () => {
         (await labelsFor(member.workspace.id))[0].deletionStartedAt,
       ).toBeNull();
     } finally {
-      await other.query("SELECT pg_advisory_unlock_all()");
-      other.release();
+      await releaseLeaseSlots(LABEL_DELETION_LEASE);
     }
     await expect(
       withLabelDeletionLock("available", async () => "ok"),

@@ -1,14 +1,19 @@
 import { and, eq, sql } from "drizzle-orm";
 import { beforeEach, describe, expect, it, vi } from "vite-plus/test";
-import db, { getDatabasePool, schema } from "../../apps/api/src/database";
+import db, { schema } from "../../apps/api/src/database";
 import { importIssues } from "../../apps/api/src/github-integration/controllers/import-issues";
-import { withGithubImportLock } from "../../apps/api/src/github-integration/import-lock";
+import {
+  GITHUB_IMPORT_LEASE,
+  MAX_GITHUB_IMPORTS_IN_FLIGHT,
+  withGithubImportLock,
+} from "../../apps/api/src/github-integration/import-lock";
 import { IMPORT_PAGES_PER_REQUEST } from "../../apps/api/src/github-integration/import-pages";
 import { createApp } from "../../apps/api/src/index";
 import moveTask from "../../apps/api/src/task/controllers/move-task";
 import { handleIssueOpened } from "../../apps/api/src/plugins/github/webhooks/issue-opened";
 import { mockAuthenticatedSession } from "./helpers/auth";
 import { resetTestDatabase } from "./helpers/database";
+import { holdLeaseSlots, releaseLeaseSlots } from "./helpers/leases";
 import {
   createProjectFixture,
   createWorkspaceMember,
@@ -885,10 +890,7 @@ describe("bounded resumable GitHub import", () => {
   });
 
   it("limits simultaneous imports across processes and releases slots after failure", async () => {
-    const client = await getDatabasePool().connect();
-    await client.query(
-      "SELECT pg_advisory_lock(773623, 0), pg_advisory_lock(773623, 1)",
-    );
+    await holdLeaseSlots(GITHUB_IMPORT_LEASE, MAX_GITHUB_IMPORTS_IN_FLIGHT);
     try {
       await expect(
         withGithubImportLock("any", async () => {}),
@@ -896,8 +898,7 @@ describe("bounded resumable GitHub import", () => {
         status: 429,
       });
     } finally {
-      await client.query("SELECT pg_advisory_unlock_all()");
-      client.release();
+      await releaseLeaseSlots(GITHUB_IMPORT_LEASE);
     }
     await expect(
       withGithubImportLock("any", async () => {
