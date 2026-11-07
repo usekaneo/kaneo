@@ -21,6 +21,11 @@ export function useUpdateTaskTitle() {
     },
     onSuccess: (updated, variables, context) => {
       invalidateMyWork(queryClient);
+      // Show the saved title right away. Until the refetch below returns, the
+      // cached task would otherwise still hold the title from before the save.
+      queryClient.setQueryData<Task>(["task", variables.id], (current) =>
+        current ? { ...current, title: updated.title } : current,
+      );
       queryClient.invalidateQueries({
         queryKey: ["task", variables.id],
       });
