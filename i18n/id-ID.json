@@ -579,7 +579,7 @@
 			"validation": {
 				"nameRequired": "Nama wajib diisi",
 				"nameShort": "Nama harus minimal 2 karakter",
-				"telegramInvalid": "Enter a valid Telegram username or user ID"
+				"telegramInvalid": "Masukkan nama pengguna atau ID pengguna Telegram yang valid"
 			},
 			"avatar": {
 				"hint": "Gambar persegi terlihat paling bagus.",
@@ -603,9 +603,9 @@
 				"sessionTooOld": "For security, sign out and sign back in before deleting your account."
 			},
 			"emailHint": "Anda masuk dengan alamat ini.",
-			"telegramHint": "Your @username or numeric Telegram user ID. Kaneo mentions you when you are the assignee. You must be a member of the Telegram group that receives the notifications.",
+			"telegramHint": "@nama pengguna atau ID pengguna Telegram numerik Anda. Kaneo menyebut Anda saat Anda menjadi penerima tugas. Anda harus menjadi anggota grup Telegram yang menerima notifikasi.",
 			"telegramLabel": "Telegram",
-			"telegramPlaceholder": "@username or 123456789"
+			"telegramPlaceholder": "@nama pengguna atau 123456789"
 		},
 		"notificationsPage": {
 			"pageTitle": "Notifikasi",
@@ -1185,7 +1185,7 @@
 			"botTokenSavedPlaceholder": "Tersimpan. Tempel token baru untuk menggantinya.",
 			"loadError": "Tidak dapat memuat pengaturan Telegram.",
 			"events": {
-				"taskAssigneeChanged": "Assignee changed"
+				"taskAssigneeChanged": "Penanggung jawab diubah"
 			}
 		},
 		"repositoryBrowser": {

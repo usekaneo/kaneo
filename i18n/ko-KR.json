@@ -579,7 +579,7 @@
 			"validation": {
 				"nameRequired": "이름은 필수입니다",
 				"nameShort": "이름은 2자 이상이어야 합니다",
-				"telegramInvalid": "Enter a valid Telegram username or user ID"
+				"telegramInvalid": "유효한 Telegram 사용자 이름 또는 사용자 ID를 입력하세요"
 			},
 			"avatar": {
 				"hint": "정사각형 이미지가 가장 잘 보입니다.",
@@ -603,9 +603,9 @@
 				"sessionTooOld": "For security, sign out and sign back in before deleting your account."
 			},
 			"emailHint": "이 주소로 로그인합니다.",
-			"telegramHint": "Your @username or numeric Telegram user ID. Kaneo mentions you when you are the assignee. You must be a member of the Telegram group that receives the notifications.",
+			"telegramHint": "@사용자 이름 또는 숫자 Telegram 사용자 ID입니다. 담당자로 지정되면 Kaneo가 회원님을 멘션합니다. 알림을 받는 Telegram 그룹의 구성원이어야 합니다.",
 			"telegramLabel": "Telegram",
-			"telegramPlaceholder": "@username or 123456789"
+			"telegramPlaceholder": "@사용자 이름 또는 123456789"
 		},
 		"notificationsPage": {
 			"pageTitle": "알림",
@@ -1185,7 +1185,7 @@
 			"botTokenSavedPlaceholder": "저장되었습니다. 교체하려면 새 토큰을 붙여넣으세요.",
 			"loadError": "Telegram 설정을 불러오지 못했습니다.",
 			"events": {
-				"taskAssigneeChanged": "Assignee changed"
+				"taskAssigneeChanged": "담당자 변경"
 			}
 		},
 		"repositoryBrowser": {

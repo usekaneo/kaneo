@@ -579,7 +579,7 @@
 			"validation": {
 				"nameRequired": "Cần có tên",
 				"nameShort": "Tên phải có ít nhất 2 ký tự",
-				"telegramInvalid": "Enter a valid Telegram username or user ID"
+				"telegramInvalid": "Nhập tên người dùng hoặc ID người dùng Telegram hợp lệ"
 			},
 			"avatar": {
 				"hint": "Ảnh vuông hiển thị đẹp nhất.",
@@ -603,9 +603,9 @@
 				"sessionTooOld": "For security, sign out and sign back in before deleting your account."
 			},
 			"emailHint": "Bạn đăng nhập bằng địa chỉ này.",
-			"telegramHint": "Your @username or numeric Telegram user ID. Kaneo mentions you when you are the assignee. You must be a member of the Telegram group that receives the notifications.",
+			"telegramHint": "@tên người dùng hoặc ID người dùng Telegram dạng số của bạn. Kaneo sẽ nhắc đến bạn khi bạn là người được giao việc. Bạn phải là thành viên của nhóm Telegram nhận thông báo.",
 			"telegramLabel": "Telegram",
-			"telegramPlaceholder": "@username or 123456789"
+			"telegramPlaceholder": "@tên người dùng hoặc 123456789"
 		},
 		"notificationsPage": {
 			"pageTitle": "Thông báo",
@@ -1429,7 +1429,7 @@
 			"botTokenSavedPlaceholder": "Đã lưu. Dán token mới để thay thế.",
 			"loadError": "Không thể tải cài đặt Telegram.",
 			"events": {
-				"taskAssigneeChanged": "Assignee changed"
+				"taskAssigneeChanged": "Thay đổi người được giao"
 			}
 		},
 		"repositoryBrowser": {

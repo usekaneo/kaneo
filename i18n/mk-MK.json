@@ -584,7 +584,7 @@
 			"validation": {
 				"nameRequired": "Името е задолжително",
 				"nameShort": "Името мора да има најмалку 2 знаци",
-				"telegramInvalid": "Enter a valid Telegram username or user ID"
+				"telegramInvalid": "Внеси валидно Telegram корисничко име или кориснички ID"
 			},
 			"avatar": {
 				"hint": "Квадратните слики изгледаат најдобро.",
@@ -608,9 +608,9 @@
 				"sessionTooOld": "For security, sign out and sign back in before deleting your account."
 			},
 			"emailHint": "Со оваа адреса се најавуваш.",
-			"telegramHint": "Your @username or numeric Telegram user ID. Kaneo mentions you when you are the assignee. You must be a member of the Telegram group that receives the notifications.",
+			"telegramHint": "Твоето @корисничко име или нумерички Telegram кориснички ID. Kaneo те споменува кога си задолжен за задачата. Мора да бидеш член на Telegram групата што ги прима известувањата.",
 			"telegramLabel": "Telegram",
-			"telegramPlaceholder": "@username or 123456789"
+			"telegramPlaceholder": "@корисничко име или 123456789"
 		},
 		"notificationsPage": {
 			"pageTitle": "Известувања",
@@ -1193,7 +1193,7 @@
 			"botTokenSavedPlaceholder": "Зачувано. Залепи нов токен за да го замениш.",
 			"loadError": "Не може да се вчитаат поставките за Telegram.",
 			"events": {
-				"taskAssigneeChanged": "Assignee changed"
+				"taskAssigneeChanged": "Променето доделување"
 			}
 		},
 		"repositoryBrowser": {

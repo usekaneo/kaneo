@@ -579,7 +579,7 @@
 			"validation": {
 				"nameRequired": "名称不能为空",
 				"nameShort": "姓名至少需要 2 个字符",
-				"telegramInvalid": "Enter a valid Telegram username or user ID"
+				"telegramInvalid": "请输入有效的 Telegram 用户名或用户 ID"
 			},
 			"avatar": {
 				"hint": "方形图片效果最佳。",
@@ -603,9 +603,9 @@
 				"sessionTooOld": "为安全起见，请先退出并重新登录，之后才能删除账户。"
 			},
 			"emailHint": "你使用此地址登录。",
-			"telegramHint": "Your @username or numeric Telegram user ID. Kaneo mentions you when you are the assignee. You must be a member of the Telegram group that receives the notifications.",
+			"telegramHint": "你的 @用户名或数字 Telegram 用户 ID。当你被指派为负责人时，Kaneo 会提及你。你必须是接收通知的 Telegram 群组成员。",
 			"telegramLabel": "Telegram",
-			"telegramPlaceholder": "@username or 123456789"
+			"telegramPlaceholder": "@用户名 或 123456789"
 		},
 		"notificationsPage": {
 			"pageTitle": "通知",
@@ -1447,7 +1447,7 @@
 			"botTokenSavedPlaceholder": "已保存。粘贴新的令牌即可替换。",
 			"loadError": "无法加载 Telegram 设置。",
 			"events": {
-				"taskAssigneeChanged": "Assignee changed"
+				"taskAssigneeChanged": "负责人已变更"
 			}
 		},
 		"repositoryBrowser": {

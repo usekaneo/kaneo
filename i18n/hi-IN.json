@@ -584,7 +584,7 @@
 			"validation": {
 				"nameRequired": "नाम आवश्यक है",
 				"nameShort": "नाम कम से कम 2 अक्षरों का होना चाहिए",
-				"telegramInvalid": "Enter a valid Telegram username or user ID"
+				"telegramInvalid": "मान्य Telegram उपयोगकर्ता नाम या उपयोगकर्ता ID दर्ज करें"
 			},
 			"avatar": {
 				"hint": "चौकोर छवियाँ सबसे अच्छी दिखती हैं।",
@@ -608,9 +608,9 @@
 				"sessionTooOld": "For security, sign out and sign back in before deleting your account."
 			},
 			"emailHint": "आप इसी पते से साइन इन करते हैं।",
-			"telegramHint": "Your @username or numeric Telegram user ID. Kaneo mentions you when you are the assignee. You must be a member of the Telegram group that receives the notifications.",
+			"telegramHint": "आपका @उपयोगकर्ता नाम या संख्यात्मक Telegram उपयोगकर्ता ID। जब आप कार्य के लिए असाइन किए गए व्यक्ति होते हैं, तो Kaneo आपका उल्लेख करता है। आपको उस Telegram समूह का सदस्य होना चाहिए जो सूचनाएँ प्राप्त करता है।",
 			"telegramLabel": "Telegram",
-			"telegramPlaceholder": "@username or 123456789"
+			"telegramPlaceholder": "@उपयोगकर्ता नाम या 123456789"
 		},
 		"notificationsPage": {
 			"pageTitle": "सूचनाएँ",
@@ -1438,7 +1438,7 @@
 			"botTokenSavedPlaceholder": "सहेजा गया। बदलने के लिए नया टोकन चिपकाएँ।",
 			"loadError": "Telegram सेटिंग लोड नहीं हो सकीं।",
 			"events": {
-				"taskAssigneeChanged": "Assignee changed"
+				"taskAssigneeChanged": "सौंपा गया बदला"
 			}
 		},
 		"repositoryBrowser": {

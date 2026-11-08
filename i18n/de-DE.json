@@ -747,7 +747,7 @@
 			"validation": {
 				"nameRequired": "Name ist erforderlich",
 				"nameShort": "Der Name muss mindestens 2 Zeichen lang sein",
-				"telegramInvalid": "Enter a valid Telegram username or user ID"
+				"telegramInvalid": "Gib einen gültigen Telegram-Benutzernamen oder eine gültige Benutzer-ID ein"
 			},
 			"avatar": {
 				"hint": "Quadratische Bilder sehen am besten aus.",
@@ -771,9 +771,9 @@
 				"sessionTooOld": "Melde dich aus Sicherheitsgründen ab und wieder an, bevor du dein Konto löschst."
 			},
 			"emailHint": "Mit dieser Adresse meldest du dich an.",
-			"telegramHint": "Your @username or numeric Telegram user ID. Kaneo mentions you when you are the assignee. You must be a member of the Telegram group that receives the notifications.",
+			"telegramHint": "Dein @Benutzername oder deine numerische Telegram-Benutzer-ID. Kaneo erwähnt dich, wenn dir die Aufgabe zugewiesen ist. Du musst Mitglied der Telegram-Gruppe sein, die die Benachrichtigungen erhält.",
 			"telegramLabel": "Telegram",
-			"telegramPlaceholder": "@username or 123456789"
+			"telegramPlaceholder": "@Benutzername oder 123456789"
 		},
 		"notificationsPage": {
 			"pageTitle": "Benachrichtigungen",
@@ -1356,7 +1356,7 @@
 			"botTokenSavedPlaceholder": "Gespeichert. Füge einen neuen Token ein, um ihn zu ersetzen.",
 			"loadError": "Die Telegram-Einstellungen konnten nicht geladen werden.",
 			"events": {
-				"taskAssigneeChanged": "Assignee changed"
+				"taskAssigneeChanged": "Zuweisung geändert"
 			}
 		},
 		"repositoryBrowser": {

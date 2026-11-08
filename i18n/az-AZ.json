@@ -584,7 +584,7 @@
 			"validation": {
 				"nameRequired": "Ad tələb olunur",
 				"nameShort": "Ad ən azı 2 simvoldan ibarət olmalıdır",
-				"telegramInvalid": "Enter a valid Telegram username or user ID"
+				"telegramInvalid": "Etibarlı Telegram istifadəçi adı və ya istifadəçi ID-si daxil edin"
 			},
 			"avatar": {
 				"hint": "Kvadrat şəkillər daha yaxşı görünür.",
@@ -608,9 +608,9 @@
 				"sessionTooOld": "Təhlükəsizlik üçün hesabınızı silməzdən əvvəl çıxış edib yenidən daxil olun."
 			},
 			"emailHint": "Bu ünvanla daxil olursunuz.",
-			"telegramHint": "Your @username or numeric Telegram user ID. Kaneo mentions you when you are the assignee. You must be a member of the Telegram group that receives the notifications.",
+			"telegramHint": "@istifadəçi adınız və ya rəqəmsal Telegram istifadəçi ID-niz. Siz icraçı olduqda Kaneo sizi qeyd edir. Bildirişləri qəbul edən Telegram qrupunun üzvü olmalısınız.",
 			"telegramLabel": "Telegram",
-			"telegramPlaceholder": "@username or 123456789"
+			"telegramPlaceholder": "@istifadəçi adı və ya 123456789"
 		},
 		"notificationsPage": {
 			"pageTitle": "Bildirişlər",
@@ -1456,7 +1456,7 @@
 			"botTokenSavedPlaceholder": "Yadda saxlanılıb. Əvəzləmək üçün yeni giriş nişanı yapışdırın.",
 			"loadError": "Telegram parametrlərini yükləmək alınmadı.",
 			"events": {
-				"taskAssigneeChanged": "Assignee changed"
+				"taskAssigneeChanged": "İcraçı dəyişdi"
 			}
 		},
 		"repositoryBrowser": {

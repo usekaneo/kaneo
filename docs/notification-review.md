@@ -744,7 +744,7 @@ Kaneo không cần biết đích cuối là gì. Nhờ vậy nó tích hợp đ�
 | Nguồn sự kiện | Inbox notification của user | Task event của project |
 | Payload | `notification`, `workspace`, `project`, `task`, `user` | `event`, `timestamp`, `project`, `task`, `actor`, `data` |
 | Sự kiện đặc biệt | assignment, status, comment, mention, due date | thêm `task.deleted`, `task.moved`, `task.due_date_changed`, `task.assignee_changed`, `task.unassigned`, `task.due_date_reminder` |
-| Signature | `X-Kaneo-Signature` (nếu có secret) | `X-Kaneo-Signature` (nếu có secret) |
+| Signature | `X-Kaneo-Signature` (chỉ gửi khi có secret) | `X-Kaneo-Signature` (chỉ gửi khi có secret) |
 | Health metadata | Không | Có (`lastSuccessAt`, `lastFailureAt`, `failureCount`) |
 | Retry | Không | Không |
 
@@ -794,7 +794,7 @@ Kaneo generic webhook   ──┘
 Relay chịu trách nhiệm:
 
 - Nhận JSON từ Kaneo.
-- Verify `X-Kaneo-Signature` (HMAC-SHA256 hex của raw body) nếu có secret.
+- Verify `X-Kaneo-Signature` (HMAC-SHA256 hex của raw body) bằng secret đã cấu hình và **từ chối** request thiếu header hoặc sai chữ ký trước khi tra cứu người nhận hay gọi Telegram. Kaneo không gửi header khi webhook không có secret, nên mọi webhook trỏ tới relay phải được đặt secret.
 - Map `user.id` / `data.newAssigneeId` → Telegram `chat_id`.
 - Format message.
 - Gọi `https://api.telegram.org/bot<TOKEN>/sendMessage`.
@@ -898,7 +898,7 @@ Nếu self-host **không có public HTTPS**, có thể dùng `getUpdates` pollin
 
 Khuyến nghị:
 
-- **Nếu cần chạy ngay, chưa muốn sửa Kaneo:** dùng **generic webhook + relay** cho assignment, và **personal webhook + relay** cho status/comment. Chấp nhận không có thông báo mời dự án.
+- **Nếu cần chạy ngay, chưa muốn sửa Kaneo:** dùng **generic webhook + relay** cho assignment, và **personal webhook + relay** cho status/comment. Bắt buộc đặt `webhookSecret` cho mọi webhook gửi tới relay và cấu hình relay chỉ chấp nhận chữ ký hợp lệ. Chấp nhận không có thông báo mời dự án.
 - **Nếu muốn giải đúng bài toán:** thêm **Telegram channel native** vào notification preferences, và dùng **Telegram webhook** chỉ để link `chatId`. Đây là hướng sạch, ít vận hành, mở rộng được cho invitation sau này.
 - **Project bot hiện tại** giữ nguyên cho chat chung; có thể thêm `onTaskAssigneeChanged` nếu muốn group cũng thấy assignment.
 
