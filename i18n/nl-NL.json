@@ -582,7 +582,8 @@
 			"updateError": "Bijwerken profiel mislukt",
 			"validation": {
 				"nameRequired": "Naam is verplicht",
-				"nameShort": "Naam moet minimaal 2 tekens bevatten"
+				"nameShort": "Naam moet minimaal 2 tekens bevatten",
+				"telegramInvalid": "Enter a valid Telegram username or user ID"
 			},
 			"avatar": {
 				"hint": "Vierkante afbeeldingen zien er het beste uit.",
@@ -605,7 +606,10 @@
 				"title": "Delete account",
 				"sessionTooOld": "For security, sign out and sign back in before deleting your account."
 			},
-			"emailHint": "Met dit adres log je in."
+			"emailHint": "Met dit adres log je in.",
+			"telegramHint": "Your @username or numeric Telegram user ID. Kaneo mentions you when you are the assignee. You must be a member of the Telegram group that receives the notifications.",
+			"telegramLabel": "Telegram",
+			"telegramPlaceholder": "@username or 123456789"
 		},
 		"preferencesPage": {
 			"title": "Voorkeuren",
@@ -1505,7 +1509,10 @@
 			"chatLabelPlaceholder": "Engineering-updates",
 			"connect": "Verbind Telegram",
 			"botTokenSavedPlaceholder": "Opgeslagen. Plak een nieuw token om het te vervangen.",
-			"loadError": "De Telegram-instellingen konden niet worden geladen."
+			"loadError": "De Telegram-instellingen konden niet worden geladen.",
+			"events": {
+				"taskAssigneeChanged": "Assignee changed"
+			}
 		},
 		"mattermostIntegration": {
 			"connect": "Connect Mattermost",

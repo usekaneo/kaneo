@@ -8,6 +8,7 @@ export type TaskCreatedEvent = {
   taskId: string;
   projectId: string;
   userId: string;
+  actorId?: string;
   title: string;
   description: string | null;
   priority: string | null;

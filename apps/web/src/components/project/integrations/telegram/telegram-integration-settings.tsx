@@ -3,7 +3,6 @@ import { UnplugIcon, PlugIcon } from "lucide-react";
 import React from "react";
 import { useForm } from "react-hook-form";
 import { useTranslation } from "react-i18next";
-import { CHAT_EVENT_ITEMS } from "@/components/project/integrations/chat-webhook/chat-events";
 import { DeliveryActiveRow } from "@/components/project/integrations/delivery-panel/delivery-active-row";
 import { DeliveryFooter } from "@/components/project/integrations/delivery-panel/delivery-footer";
 import { DeliveryPanelSkeleton } from "@/components/project/integrations/delivery-panel/delivery-panel-skeleton";
@@ -20,6 +19,7 @@ import useGetTelegramIntegration from "@/hooks/queries/telegram-integration/use-
 import { toast } from "@/lib/toast";
 import { buildTelegramRequest } from "./build-telegram-request";
 import { TelegramFields } from "./telegram-fields";
+import { TELEGRAM_EVENT_ITEMS } from "./telegram-events";
 import {
   type TelegramFormValues,
   telegramFormSchema,
@@ -179,7 +179,7 @@ export function TelegramIntegrationSettings({
               name="events"
               render={({ field }) => (
                 <EventChecklist
-                  items={CHAT_EVENT_ITEMS}
+                  items={TELEGRAM_EVENT_ITEMS}
                   label={t("settings:chatIntegrations.postWhen")}
                   onChange={field.onChange}
                   value={field.value}

@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vite-plus/test";
-import { toChatEvents } from "@/components/project/integrations/chat-webhook/chat-events";
+import { toTelegramEvents } from "@/components/project/integrations/telegram/telegram-events";
 import { buildTelegramRequest } from "./build-telegram-request";
 import type { TelegramFormValues } from "./telegram-form-values";
 
@@ -11,7 +11,7 @@ function values(overrides: Partial<TelegramFormValues> = {}) {
     chatId: "-1001234567890",
     threadId: "",
     chatLabel: "",
-    events: toChatEvents(),
+    events: toTelegramEvents(),
     ...overrides,
   };
 }
@@ -51,7 +51,7 @@ describe("buildTelegramRequest", () => {
         chatId: "-1001234567890",
         threadId: 42,
         chatLabel: undefined,
-        events: toChatEvents(),
+        events: toTelegramEvents(),
       },
     });
   });
@@ -66,7 +66,7 @@ describe("buildTelegramRequest", () => {
         chatId: "-1001234567890",
         threadId: null,
         chatLabel: null,
-        events: toChatEvents(),
+        events: toTelegramEvents(),
       },
     });
   });

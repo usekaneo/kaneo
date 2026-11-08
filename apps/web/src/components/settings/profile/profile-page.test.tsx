@@ -1,4 +1,10 @@
-import { cleanup, render, screen } from "@testing-library/react";
+import {
+  cleanup,
+  fireEvent,
+  render,
+  screen,
+  waitFor,
+} from "@testing-library/react";
 import {
   afterEach,
   beforeEach,
@@ -22,7 +28,9 @@ const m = vi.hoisted(() => ({
     name: "Jane Doe",
     email: "jane@example.com",
     image: null as string | null,
+    telegramHandle: null as string | null,
   },
+  updateProfile: vi.fn(),
 }));
 
 vi.mock("react-i18next", () => ({
@@ -41,7 +49,7 @@ vi.mock("@/hooks/queries/config/use-get-config", () => ({
   default: () => ({ data: m.config }),
 }));
 vi.mock("@/hooks/mutations/use-update-user-profile", () => ({
-  default: () => ({ mutateAsync: vi.fn() }),
+  default: () => ({ mutateAsync: m.updateProfile }),
 }));
 vi.mock("@/hooks/mutations/use-update-user-avatar", () => ({
   default: () => ({ mutateAsync: vi.fn(), isPending: false }),
@@ -76,11 +84,13 @@ describe("ProfilePage", () => {
   beforeEach(() => {
     m.managedFields = [];
     m.config = { customOAuthName: "Keycloak", customOAuthAccountUrl: null };
+    m.updateProfile.mockReset();
     m.user = {
       id: "user-1",
       name: "Jane Doe",
       email: "jane@example.com",
       image: "https://id.example.com/jane.png",
+      telegramHandle: null,
     };
   });
 
@@ -136,5 +146,40 @@ describe("ProfilePage", () => {
     expect(avatarButton("remove")).toBeTruthy();
     expect(avatarButton("upload")).toBeNull();
     expect(nameInput()).toBeEnabled();
+  });
+
+  it("renders and saves the Telegram handle", async () => {
+    m.updateProfile.mockResolvedValue(undefined);
+    render(<ProfilePage />);
+
+    const input = screen.getByRole("textbox", {
+      name: "settings:informationPage.telegramLabel",
+    });
+    fireEvent.change(input, { target: { value: "@Alex_Name" } });
+
+    await waitFor(
+      () =>
+        expect(m.updateProfile).toHaveBeenCalledWith({
+          telegramHandle: "alex_name",
+        }),
+      { timeout: 2500 },
+    );
+  });
+
+  it("clears the Telegram handle", async () => {
+    m.user.telegramHandle = "alex_name";
+    m.updateProfile.mockResolvedValue(undefined);
+    render(<ProfilePage />);
+
+    const input = screen.getByRole("textbox", {
+      name: "settings:informationPage.telegramLabel",
+    });
+    fireEvent.change(input, { target: { value: "" } });
+
+    await waitFor(
+      () =>
+        expect(m.updateProfile).toHaveBeenCalledWith({ telegramHandle: null }),
+      { timeout: 2500 },
+    );
   });
 });

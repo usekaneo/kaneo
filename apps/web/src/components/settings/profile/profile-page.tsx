@@ -4,14 +4,18 @@ import useAuth from "@/components/providers/auth-provider/hooks/use-auth";
 import { AutosaveNote } from "@/components/settings/autosave-note";
 import { DeleteAccountSection } from "@/components/settings/profile/delete-account-section";
 import { ProfileDetailsSection } from "@/components/settings/profile/profile-details-section";
-import { useProfileNameAutosave } from "@/components/settings/profile/use-profile-name-autosave";
+import { useProfileDetailsAutosave } from "@/components/settings/profile/use-profile-details-autosave";
 import { SettingsPage } from "@/components/settings/settings-page";
 import useManagedProfileFields from "@/hooks/queries/user/use-managed-profile-fields";
 
 export function ProfilePage() {
   const { t } = useTranslation();
   const { user, refetchUser } = useAuth();
-  const form = useProfileNameAutosave({ name: user?.name, refetchUser });
+  const form = useProfileDetailsAutosave({
+    name: user?.name,
+    telegramHandle: user?.telegramHandle,
+    refetchUser,
+  });
   const managedFields = useManagedProfileFields();
 
   return (

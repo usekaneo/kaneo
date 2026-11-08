@@ -588,7 +588,8 @@
 			"updateError": "Échec de la mise à jour du profil",
 			"validation": {
 				"nameRequired": "Le nom est requis",
-				"nameShort": "Le nom doit contenir au moins 2 caractères"
+				"nameShort": "Le nom doit contenir au moins 2 caractères",
+				"telegramInvalid": "Enter a valid Telegram username or user ID"
 			},
 			"avatar": {
 				"hint": "Les images carrées rendent mieux.",
@@ -611,7 +612,10 @@
 				"title": "Supprimer le compte",
 				"sessionTooOld": "Pour des raisons de sécurité, déconnectez-vous puis reconnectez-vous avant de supprimer votre compte."
 			},
-			"emailHint": "Vous vous connectez avec cette adresse."
+			"emailHint": "Vous vous connectez avec cette adresse.",
+			"telegramHint": "Your @username or numeric Telegram user ID. Kaneo mentions you when you are the assignee. You must be a member of the Telegram group that receives the notifications.",
+			"telegramLabel": "Telegram",
+			"telegramPlaceholder": "@username or 123456789"
 		},
 		"notificationsPage": {
 			"pageTitle": "Notifications",
@@ -1195,7 +1199,10 @@
 			"chatLabelPlaceholder": "Mises à jour engineering",
 			"connect": "Connecter Telegram",
 			"botTokenSavedPlaceholder": "Enregistré. Collez un nouveau jeton pour le remplacer.",
-			"loadError": "Impossible de charger les paramètres Telegram."
+			"loadError": "Impossible de charger les paramètres Telegram.",
+			"events": {
+				"taskAssigneeChanged": "Assignee changed"
+			}
 		},
 		"repositoryBrowser": {
 			"title": "Choisissez un dépôt",

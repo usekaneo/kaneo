@@ -41,6 +41,7 @@ export const userTable = pgTable("user", {
     .notNull(),
   image: text("image"),
   locale: text("locale"),
+  telegramHandle: text("telegram_handle"),
   createdAt: timestamp("created_at", { mode: "date" })
     .default(utcNow)
     .notNull(),

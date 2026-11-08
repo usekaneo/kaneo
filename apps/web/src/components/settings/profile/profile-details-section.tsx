@@ -2,6 +2,7 @@ import type { UseFormReturn } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 import { ManagedProfileNote } from "@/components/settings/managed-profile-note";
 import { AvatarRow } from "@/components/settings/profile/avatar-row";
+import type { ProfileFormValues } from "@/components/settings/profile/use-profile-details-autosave";
 import { SettingsCard } from "@/components/settings/settings-card";
 import { SettingsFormRow } from "@/components/settings/settings-form-row";
 import { SettingsRow } from "@/components/settings/settings-row";
@@ -11,8 +12,15 @@ import { Input } from "@/components/ui/input";
 import type { ManagedProfileField } from "@/hooks/queries/user/use-managed-profile-fields";
 
 type ProfileDetailsSectionProps = {
-  form: UseFormReturn<{ name: string }>;
-  user: { name?: string; email?: string; image?: string | null } | undefined;
+  form: UseFormReturn<ProfileFormValues>;
+  user:
+    | {
+        name?: string;
+        email?: string;
+        image?: string | null;
+        telegramHandle?: string | null;
+      }
+    | undefined;
   refetchUser: () => Promise<unknown>;
   managedFields: readonly ManagedProfileField[];
 };
@@ -58,6 +66,27 @@ export function ProfileDetailsSection({
                     )}
                     {...field}
                     disabled={isNameManaged}
+                  />
+                </SettingsFormRow>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="telegramHandle"
+              render={({ field }) => (
+                <SettingsFormRow
+                  label={t("settings:informationPage.telegramLabel")}
+                  description={t("settings:informationPage.telegramHint")}
+                >
+                  <Input
+                    size="sm"
+                    className="sm:w-64"
+                    autoComplete="off"
+                    maxLength={64}
+                    placeholder={t(
+                      "settings:informationPage.telegramPlaceholder",
+                    )}
+                    {...field}
                   />
                 </SettingsFormRow>
               )}

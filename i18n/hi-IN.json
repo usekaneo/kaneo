@@ -583,7 +583,8 @@
 			"updateError": "प्रोफ़ाइल अपडेट करने में विफल",
 			"validation": {
 				"nameRequired": "नाम आवश्यक है",
-				"nameShort": "नाम कम से कम 2 अक्षरों का होना चाहिए"
+				"nameShort": "नाम कम से कम 2 अक्षरों का होना चाहिए",
+				"telegramInvalid": "Enter a valid Telegram username or user ID"
 			},
 			"avatar": {
 				"hint": "चौकोर छवियाँ सबसे अच्छी दिखती हैं।",
@@ -606,7 +607,10 @@
 				"title": "Delete account",
 				"sessionTooOld": "For security, sign out and sign back in before deleting your account."
 			},
-			"emailHint": "आप इसी पते से साइन इन करते हैं।"
+			"emailHint": "आप इसी पते से साइन इन करते हैं।",
+			"telegramHint": "Your @username or numeric Telegram user ID. Kaneo mentions you when you are the assignee. You must be a member of the Telegram group that receives the notifications.",
+			"telegramLabel": "Telegram",
+			"telegramPlaceholder": "@username or 123456789"
 		},
 		"notificationsPage": {
 			"pageTitle": "सूचनाएँ",
@@ -1432,7 +1436,10 @@
 			"chatLabelPlaceholder": "इंजीनियरिंग अपडेट",
 			"connect": "Telegram कनेक्ट करें",
 			"botTokenSavedPlaceholder": "सहेजा गया। बदलने के लिए नया टोकन चिपकाएँ।",
-			"loadError": "Telegram सेटिंग लोड नहीं हो सकीं।"
+			"loadError": "Telegram सेटिंग लोड नहीं हो सकीं।",
+			"events": {
+				"taskAssigneeChanged": "Assignee changed"
+			}
 		},
 		"repositoryBrowser": {
 			"title": "रिपॉज़िटरी चुनें",

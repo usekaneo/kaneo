@@ -578,7 +578,8 @@
 			"updateError": "プロフィールの更新に失敗しました",
 			"validation": {
 				"nameRequired": "名前は必須です",
-				"nameShort": "名前は2文字以上で入力してください"
+				"nameShort": "名前は2文字以上で入力してください",
+				"telegramInvalid": "Enter a valid Telegram username or user ID"
 			},
 			"avatar": {
 				"hint": "正方形の画像がおすすめです。",
@@ -601,7 +602,10 @@
 				"error": "アカウントの削除に失敗しました",
 				"sessionTooOld": "セキュリティのため、アカウントを削除する前に一度サインアウトして再サインインしてください。"
 			},
-			"emailHint": "このアドレスでサインインします。"
+			"emailHint": "このアドレスでサインインします。",
+			"telegramHint": "Your @username or numeric Telegram user ID. Kaneo mentions you when you are the assignee. You must be a member of the Telegram group that receives the notifications.",
+			"telegramLabel": "Telegram",
+			"telegramPlaceholder": "@username or 123456789"
 		},
 		"notificationsPage": {
 			"pageTitle": "通知",
@@ -1423,7 +1427,10 @@
 			"chatLabelPlaceholder": "開発チームの更新",
 			"connect": "Telegram に接続",
 			"botTokenSavedPlaceholder": "保存済みです。置き換えるには新しいトークンを貼り付けてください。",
-			"loadError": "Telegram の設定を読み込めませんでした。"
+			"loadError": "Telegram の設定を読み込めませんでした。",
+			"events": {
+				"taskAssigneeChanged": "Assignee changed"
+			}
 		},
 		"repositoryBrowser": {
 			"title": "リポジトリを選択",

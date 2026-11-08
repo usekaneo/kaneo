@@ -4,6 +4,7 @@ import { auth } from "../../apps/api/src/auth";
 import db, { schema } from "../../apps/api/src/database";
 import { createApp } from "../../apps/api/src/index";
 import { mockAuthenticatedSession } from "./helpers/auth";
+import { signUpWithSession } from "./helpers/auth-session";
 import { resetTestDatabase } from "./helpers/database";
 import { createWorkspaceMember } from "./helpers/fixtures";
 import { readErrorBody } from "./helpers/error-body";
@@ -36,6 +37,7 @@ describe("GET /api/user/me", () => {
         email: user.email,
         image: user.image,
         role: user.role,
+        telegramHandle: null,
         managedProfileFields: [],
       });
     },
@@ -93,6 +95,81 @@ describe("GET /api/user/me", () => {
       message: "Unauthorized",
       code: "UNAUTHORIZED",
     });
+  });
+
+  it("normalizes and clears the owner's Telegram handle", async () => {
+    const { app } = createApp();
+    const session = await signUpWithSession(app, {
+      email: "telegram@example.com",
+      name: "Telegram User",
+    });
+
+    const update = await app.request("/api/auth/update-user", {
+      method: "POST",
+      headers: { "content-type": "application/json", cookie: session.cookies },
+      body: JSON.stringify({ telegramHandle: "@Alex_Name" }),
+    });
+    expect(update.status).toBe(200);
+
+    const me = await app.request("/api/user/me", {
+      headers: { cookie: session.cookies },
+    });
+    expect(await me.json()).toMatchObject({ telegramHandle: "alex_name" });
+
+    const clear = await app.request("/api/auth/update-user", {
+      method: "POST",
+      headers: { "content-type": "application/json", cookie: session.cookies },
+      body: JSON.stringify({ telegramHandle: "" }),
+    });
+    expect(clear.status).toBe(200);
+
+    const cleared = await app.request("/api/user/me", {
+      headers: { cookie: session.cookies },
+    });
+    expect(await cleared.json()).toMatchObject({ telegramHandle: null });
+  });
+
+  it("clears the owner's Telegram handle with null", async () => {
+    const { app } = createApp();
+    const session = await signUpWithSession(app, {
+      email: "telegram-null@example.com",
+      name: "Telegram Null",
+    });
+
+    const set = await app.request("/api/auth/update-user", {
+      method: "POST",
+      headers: { "content-type": "application/json", cookie: session.cookies },
+      body: JSON.stringify({ telegramHandle: "@Alex_Name" }),
+    });
+    expect(set.status).toBe(200);
+
+    const clear = await app.request("/api/auth/update-user", {
+      method: "POST",
+      headers: { "content-type": "application/json", cookie: session.cookies },
+      body: JSON.stringify({ telegramHandle: null }),
+    });
+    expect(clear.status).toBe(200);
+
+    const cleared = await app.request("/api/user/me", {
+      headers: { cookie: session.cookies },
+    });
+    expect(await cleared.json()).toMatchObject({ telegramHandle: null });
+  });
+
+  it("rejects an invalid Telegram handle with 400", async () => {
+    const { app } = createApp();
+    const session = await signUpWithSession(app, {
+      email: "telegram-invalid@example.com",
+      name: "Telegram Invalid",
+    });
+
+    const response = await app.request("/api/auth/update-user", {
+      method: "POST",
+      headers: { "content-type": "application/json", cookie: session.cookies },
+      body: JSON.stringify({ telegramHandle: "alex name" }),
+    });
+
+    expect(response.status).toBe(400);
   });
 
   it("returns 404 when the authenticated user no longer exists", async () => {

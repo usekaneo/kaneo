@@ -3988,7 +3988,7 @@
             "type": "string"
           },
           "events": {
-            "$ref": "#/components/schemas/IntegrationEvents"
+            "$ref": "#/components/schemas/TelegramIntegrationEvents"
           },
           "isActive": {
             "type": [
@@ -4017,6 +4017,24 @@
           "isActive",
           "createdAt",
           "updatedAt"
+        ]
+      },
+      "TelegramIntegrationEvents": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/IntegrationEvents"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "taskAssigneeChanged": {
+                "type": "boolean"
+              }
+            },
+            "required": [
+              "taskAssigneeChanged"
+            ]
+          }
         ]
       },
       "TaskRelation": {
@@ -5304,6 +5322,13 @@
               "null"
             ]
           },
+          "telegramHandle": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "The user's normalized Telegram username (without @) or numeric user ID, used for assignee mentions. Null when unset."
+          },
           "managedProfileFields": {
             "type": "array",
             "items": {
@@ -5323,6 +5348,7 @@
           "email",
           "image",
           "role",
+          "telegramHandle",
           "managedProfileFields"
         ]
       },
@@ -22358,6 +22384,9 @@
                       },
                       "taskCommentCreated": {
                         "type": "boolean"
+                      },
+                      "taskAssigneeChanged": {
+                        "type": "boolean"
                       }
                     }
                   }
@@ -22490,6 +22519,9 @@
                         "type": "boolean"
                       },
                       "taskCommentCreated": {
+                        "type": "boolean"
+                      },
+                      "taskAssigneeChanged": {
                         "type": "boolean"
                       }
                     }

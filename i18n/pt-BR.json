@@ -588,7 +588,8 @@
 			"updateError": "Falha ao atualizar perfil",
 			"validation": {
 				"nameRequired": "O nome é obrigatório",
-				"nameShort": "O nome deve ter pelo menos 2 caracteres"
+				"nameShort": "O nome deve ter pelo menos 2 caracteres",
+				"telegramInvalid": "Enter a valid Telegram username or user ID"
 			},
 			"avatar": {
 				"hint": "Imagens quadradas ficam melhores.",
@@ -611,7 +612,10 @@
 				"title": "Delete account",
 				"sessionTooOld": "For security, sign out and sign back in before deleting your account."
 			},
-			"emailHint": "Você entra com este endereço."
+			"emailHint": "Você entra com este endereço.",
+			"telegramHint": "Your @username or numeric Telegram user ID. Kaneo mentions you when you are the assignee. You must be a member of the Telegram group that receives the notifications.",
+			"telegramLabel": "Telegram",
+			"telegramPlaceholder": "@username or 123456789"
 		},
 		"notificationsPage": {
 			"pageTitle": "Notificações",
@@ -1441,7 +1445,10 @@
 			"chatLabelPlaceholder": "Atualizações de Engenharia",
 			"connect": "Conectar Telegram",
 			"botTokenSavedPlaceholder": "Salvo. Cole um novo token para substituí-lo.",
-			"loadError": "Não foi possível carregar as configurações do Telegram."
+			"loadError": "Não foi possível carregar as configurações do Telegram.",
+			"events": {
+				"taskAssigneeChanged": "Assignee changed"
+			}
 		},
 		"repositoryBrowser": {
 			"title": "Escolha um repositório",

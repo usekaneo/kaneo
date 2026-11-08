@@ -3,28 +3,34 @@ import { useCallback, useEffect, useMemo, useRef } from "react";
 import { useForm } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 import { z } from "zod";
-import useUpdateUserProfile from "@/hooks/mutations/use-update-user-profile";
+import useUpdateUserProfile, {
+  type UpdateUserProfileRequest,
+} from "@/hooks/mutations/use-update-user-profile";
 import { toast } from "@/lib/toast";
+import { normalizeTelegramHandleInput } from "./telegram-handle";
 
-type ProfileFormValues = {
+export type ProfileFormValues = {
   name: string;
+  telegramHandle: string;
 };
 
-type UseProfileNameAutosaveOptions = {
+type UseProfileDetailsAutosaveOptions = {
   name: string | undefined;
+  telegramHandle: string | null | undefined;
   refetchUser: () => Promise<unknown>;
 };
 
-export function useProfileNameAutosave({
+export function useProfileDetailsAutosave({
   name,
+  telegramHandle,
   refetchUser,
-}: UseProfileNameAutosaveOptions) {
+}: UseProfileDetailsAutosaveOptions) {
   const { t } = useTranslation();
   const { mutateAsync: updateProfile } = useUpdateUserProfile();
   const debounceTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const isSavingRef = useRef(false);
   const queuedSaveRef = useRef<ProfileFormValues | null>(null);
-  const lastSavedRef = useRef<string | null>(null);
+  const lastSavedRef = useRef<ProfileFormValues | null>(null);
   const schema = useMemo(
     () =>
       z.object({
@@ -32,6 +38,14 @@ export function useProfileNameAutosave({
           .string()
           .min(1, t("settings:informationPage.validation.nameRequired"))
           .min(2, t("settings:informationPage.validation.nameShort")),
+        telegramHandle: z.string().refine((value) => {
+          try {
+            normalizeTelegramHandleInput(value);
+            return true;
+          } catch {
+            return false;
+          }
+        }, t("settings:informationPage.validation.telegramInvalid")),
       }),
     [t],
   );
@@ -39,24 +53,40 @@ export function useProfileNameAutosave({
   const form = useForm<ProfileFormValues>({
     resolver: standardSchemaResolver(schema),
     mode: "onChange",
-    defaultValues: { name: name || "" },
+    defaultValues: { name: name || "", telegramHandle: telegramHandle ?? "" },
   });
 
   useEffect(() => {
     if (name === undefined) return;
 
-    lastSavedRef.current = name.trim();
+    const saved = {
+      name: name.trim(),
+      telegramHandle: telegramHandle ?? "",
+    };
+    lastSavedRef.current = saved;
 
     if (!form.formState.isDirty) {
-      form.reset({ name });
+      form.reset(saved);
     }
-  }, [name, form]);
+  }, [name, telegramHandle, form]);
 
-  const saveName = useCallback(
+  const saveDetails = useCallback(
     async (data: ProfileFormValues) => {
       const nextName = data.name.trim();
+      let nextHandle: string | null;
+      try {
+        nextHandle = normalizeTelegramHandleInput(data.telegramHandle);
+      } catch {
+        return;
+      }
 
-      if (lastSavedRef.current === nextName) return;
+      const last = lastSavedRef.current;
+      const payload: UpdateUserProfileRequest = {};
+      if (last?.name !== nextName) payload.name = nextName;
+      if ((last?.telegramHandle ?? "") !== (nextHandle ?? "")) {
+        payload.telegramHandle = nextHandle;
+      }
+      if (Object.keys(payload).length === 0) return;
 
       if (isSavingRef.current) {
         queuedSaveRef.current = data;
@@ -66,10 +96,11 @@ export function useProfileNameAutosave({
       isSavingRef.current = true;
 
       try {
-        await updateProfile({ name: nextName });
+        await updateProfile(payload);
 
-        form.reset({ name: nextName }, { keepDirty: false });
-        lastSavedRef.current = nextName;
+        const saved = { name: nextName, telegramHandle: nextHandle ?? "" };
+        form.reset(saved, { keepDirty: false });
+        lastSavedRef.current = saved;
         queuedSaveRef.current = null;
 
         await refetchUser();
@@ -85,7 +116,7 @@ export function useProfileNameAutosave({
         if (queuedSaveRef.current) {
           const queuedData = queuedSaveRef.current;
           queuedSaveRef.current = null;
-          await saveName(queuedData);
+          await saveDetails(queuedData);
         }
       }
     },
@@ -100,10 +131,10 @@ export function useProfileNameAutosave({
     debounceTimeoutRef.current = setTimeout(async () => {
       if (!form.formState.isDirty) return;
       if (await form.trigger()) {
-        saveName(form.getValues());
+        saveDetails(form.getValues());
       }
     }, 1000);
-  }, [form, saveName]);
+  }, [form, saveDetails]);
 
   useEffect(() => {
     const subscription = form.watch(() => {
@@ -123,3 +154,5 @@ export function useProfileNameAutosave({
 
   return form;
 }
+
+export default useProfileDetailsAutosave;

@@ -578,7 +578,8 @@
 			"updateError": "프로필 업데이트에 실패했습니다",
 			"validation": {
 				"nameRequired": "이름은 필수입니다",
-				"nameShort": "이름은 2자 이상이어야 합니다"
+				"nameShort": "이름은 2자 이상이어야 합니다",
+				"telegramInvalid": "Enter a valid Telegram username or user ID"
 			},
 			"avatar": {
 				"hint": "정사각형 이미지가 가장 잘 보입니다.",
@@ -601,7 +602,10 @@
 				"title": "Delete account",
 				"sessionTooOld": "For security, sign out and sign back in before deleting your account."
 			},
-			"emailHint": "이 주소로 로그인합니다."
+			"emailHint": "이 주소로 로그인합니다.",
+			"telegramHint": "Your @username or numeric Telegram user ID. Kaneo mentions you when you are the assignee. You must be a member of the Telegram group that receives the notifications.",
+			"telegramLabel": "Telegram",
+			"telegramPlaceholder": "@username or 123456789"
 		},
 		"notificationsPage": {
 			"pageTitle": "알림",
@@ -1179,7 +1183,10 @@
 			"chatLabelPlaceholder": "엔지니어링 업데이트",
 			"connect": "Telegram 연결",
 			"botTokenSavedPlaceholder": "저장되었습니다. 교체하려면 새 토큰을 붙여넣으세요.",
-			"loadError": "Telegram 설정을 불러오지 못했습니다."
+			"loadError": "Telegram 설정을 불러오지 못했습니다.",
+			"events": {
+				"taskAssigneeChanged": "Assignee changed"
+			}
 		},
 		"repositoryBrowser": {
 			"title": "저장소 선택",

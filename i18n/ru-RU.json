@@ -593,7 +593,8 @@
 			"updateError": "Не удалось обновить профиль",
 			"validation": {
 				"nameRequired": "Имя обязательно",
-				"nameShort": "Имя должно содержать не менее 2 символов"
+				"nameShort": "Имя должно содержать не менее 2 символов",
+				"telegramInvalid": "Enter a valid Telegram username or user ID"
 			},
 			"avatar": {
 				"hint": "Лучше всего смотрятся квадратные изображения.",
@@ -616,7 +617,10 @@
 				"title": "Delete account",
 				"sessionTooOld": "For security, sign out and sign back in before deleting your account."
 			},
-			"emailHint": "Вы входите с этим адресом."
+			"emailHint": "Вы входите с этим адресом.",
+			"telegramHint": "Your @username or numeric Telegram user ID. Kaneo mentions you when you are the assignee. You must be a member of the Telegram group that receives the notifications.",
+			"telegramLabel": "Telegram",
+			"telegramPlaceholder": "@username or 123456789"
 		},
 		"notificationsPage": {
 			"pageTitle": "Уведомления",
@@ -1203,7 +1207,10 @@
 			"chatLabelPlaceholder": "Обновления разработки",
 			"connect": "Подключить Telegram",
 			"botTokenSavedPlaceholder": "Сохранено. Вставьте новый токен, чтобы заменить его.",
-			"loadError": "Не удалось загрузить настройки Telegram."
+			"loadError": "Не удалось загрузить настройки Telegram.",
+			"events": {
+				"taskAssigneeChanged": "Assignee changed"
+			}
 		},
 		"repositoryBrowser": {
 			"title": "Выберите репозиторий",

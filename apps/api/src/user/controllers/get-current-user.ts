@@ -12,6 +12,7 @@ export async function getCurrentUser(userId: string) {
       email: userTable.email,
       image: userTable.image,
       role: userTable.role,
+      telegramHandle: userTable.telegramHandle,
     })
     .from(userTable)
     .where(eq(userTable.id, userId))

@@ -578,7 +578,8 @@
 			"updateError": "Không thể cập nhật hồ sơ",
 			"validation": {
 				"nameRequired": "Cần có tên",
-				"nameShort": "Tên phải có ít nhất 2 ký tự"
+				"nameShort": "Tên phải có ít nhất 2 ký tự",
+				"telegramInvalid": "Enter a valid Telegram username or user ID"
 			},
 			"avatar": {
 				"hint": "Ảnh vuông hiển thị đẹp nhất.",
@@ -601,7 +602,10 @@
 				"title": "Delete account",
 				"sessionTooOld": "For security, sign out and sign back in before deleting your account."
 			},
-			"emailHint": "Bạn đăng nhập bằng địa chỉ này."
+			"emailHint": "Bạn đăng nhập bằng địa chỉ này.",
+			"telegramHint": "Your @username or numeric Telegram user ID. Kaneo mentions you when you are the assignee. You must be a member of the Telegram group that receives the notifications.",
+			"telegramLabel": "Telegram",
+			"telegramPlaceholder": "@username or 123456789"
 		},
 		"notificationsPage": {
 			"pageTitle": "Thông báo",
@@ -1423,7 +1427,10 @@
 			"chatLabelPlaceholder": "Cập nhật kỹ thuật",
 			"connect": "Kết nối Telegram",
 			"botTokenSavedPlaceholder": "Đã lưu. Dán token mới để thay thế.",
-			"loadError": "Không thể tải cài đặt Telegram."
+			"loadError": "Không thể tải cài đặt Telegram.",
+			"events": {
+				"taskAssigneeChanged": "Assignee changed"
+			}
 		},
 		"repositoryBrowser": {
 			"title": "Chọn một kho lưu trữ",
