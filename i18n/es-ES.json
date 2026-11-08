@@ -587,7 +587,8 @@
 			"updateError": "Error al actualizar tu perfil",
 			"validation": {
 				"nameRequired": "El nombre es obligatorio",
-				"nameShort": "Tu nombre debe tener al menos 2 caracteres"
+				"nameShort": "Tu nombre debe tener al menos 2 caracteres",
+				"telegramInvalid": "Introduce un nombre de usuario o un ID de usuario de Telegram válido"
 			},
 			"avatar": {
 				"hint": "Las imágenes cuadradas quedan mejor.",
@@ -610,7 +611,10 @@
 				"title": "Delete account",
 				"sessionTooOld": "For security, sign out and sign back in before deleting your account."
 			},
-			"emailHint": "Inicias sesión con esta dirección."
+			"emailHint": "Inicias sesión con esta dirección.",
+			"telegramHint": "Tu @nombre de usuario o tu ID numérico de usuario de Telegram. Kaneo te menciona cuando eres el asignado. Debes ser miembro del grupo de Telegram que recibe las notificaciones.",
+			"telegramLabel": "Telegram",
+			"telegramPlaceholder": "@nombre de usuario o 123456789"
 		},
 		"preferencesPage": {
 			"title": "Preferencias",
@@ -1514,7 +1518,10 @@
 			"chatLabelPlaceholder": "Actualizaciones de ingeniería",
 			"connect": "Conectar Telegram",
 			"botTokenSavedPlaceholder": "Guardado. Pega un token nuevo para reemplazarlo.",
-			"loadError": "No se han podido cargar los ajustes de Telegram."
+			"loadError": "No se han podido cargar los ajustes de Telegram.",
+			"events": {
+				"taskAssigneeChanged": "Cambio de asignado"
+			}
 		},
 		"mattermostIntegration": {
 			"connect": "Connect Mattermost",

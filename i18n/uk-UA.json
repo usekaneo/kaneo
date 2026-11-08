@@ -593,7 +593,8 @@
 			"updateError": "Не вдалося оновити профіль",
 			"validation": {
 				"nameRequired": "Ім'я є обов'язковим",
-				"nameShort": "Ім'я має містити щонайменше 2 символи"
+				"nameShort": "Ім'я має містити щонайменше 2 символи",
+				"telegramInvalid": "Введіть дійсне ім'я користувача або ID користувача Telegram"
 			},
 			"avatar": {
 				"hint": "Найкраще виглядають квадратні зображення.",
@@ -616,7 +617,10 @@
 				"title": "Delete account",
 				"sessionTooOld": "For security, sign out and sign back in before deleting your account."
 			},
-			"emailHint": "Ви входите з цією адресою."
+			"emailHint": "Ви входите з цією адресою.",
+			"telegramHint": "Ваше @ім'я користувача або числовий ID користувача Telegram. Kaneo згадує вас, коли ви призначені виконавцем. Ви маєте бути учасником групи Telegram, яка отримує сповіщення.",
+			"telegramLabel": "Telegram",
+			"telegramPlaceholder": "@ім'я користувача або 123456789"
 		},
 		"notificationsPage": {
 			"pageTitle": "Сповіщення",
@@ -1203,7 +1207,10 @@
 			"chatLabelPlaceholder": "Оновлення розробки",
 			"connect": "Підключити Telegram",
 			"botTokenSavedPlaceholder": "Збережено. Вставте новий токен, щоб замінити його.",
-			"loadError": "Не вдалося завантажити налаштування Telegram."
+			"loadError": "Не вдалося завантажити налаштування Telegram.",
+			"events": {
+				"taskAssigneeChanged": "Змінено виконавця"
+			}
 		},
 		"repositoryBrowser": {
 			"title": "Виберіть репозиторій",

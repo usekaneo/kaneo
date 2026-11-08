@@ -13,7 +13,7 @@ import {
   it,
   vi,
 } from "vite-plus/test";
-import { toChatEvents } from "@/components/project/integrations/chat-webhook/chat-events";
+import { toTelegramEvents } from "@/components/project/integrations/telegram/telegram-events";
 import { TelegramIntegrationSettings } from "./telegram-integration-settings";
 
 const mocks = vi.hoisted(() => ({
@@ -115,7 +115,7 @@ describe("TelegramIntegrationSettings", () => {
       chatLabel: "Engineering",
       botTokenConfigured: true,
       maskedBotToken: "1234:…abcd",
-      events: toChatEvents(),
+      events: toTelegramEvents(),
       isActive: true,
       createdAt: "",
       updatedAt: "",
@@ -142,7 +142,7 @@ describe("TelegramIntegrationSettings", () => {
           chatId: "-1001234567890",
           threadId: 7,
           chatLabel: "Engineering",
-          events: toChatEvents(),
+          events: toTelegramEvents(),
         },
       }),
     );

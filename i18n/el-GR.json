@@ -583,7 +583,8 @@
 			"updateError": "Αποτυχία ενημέρωσης προφίλ",
 			"validation": {
 				"nameRequired": "Το όνομα είναι υποχρεωτικό",
-				"nameShort": "Το όνομα πρέπει να έχει τουλάχιστον 2 χαρακτήρες"
+				"nameShort": "Το όνομα πρέπει να έχει τουλάχιστον 2 χαρακτήρες",
+				"telegramInvalid": "Εισαγάγετε ένα έγκυρο όνομα χρήστη ή αναγνωριστικό χρήστη Telegram"
 			},
 			"avatar": {
 				"hint": "Οι τετράγωνες εικόνες δείχνουν καλύτερα.",
@@ -606,7 +607,10 @@
 				"title": "Delete account",
 				"sessionTooOld": "For security, sign out and sign back in before deleting your account."
 			},
-			"emailHint": "Συνδέεστε με αυτήν τη διεύθυνση."
+			"emailHint": "Συνδέεστε με αυτήν τη διεύθυνση.",
+			"telegramHint": "Το @όνομα χρήστη ή το αριθμητικό αναγνωριστικό χρήστη σας στο Telegram. Το Kaneo σας αναφέρει όταν είστε ο υπεύθυνος της ανάθεσης. Πρέπει να είστε μέλος της ομάδας Telegram που λαμβάνει τις ειδοποιήσεις.",
+			"telegramLabel": "Telegram",
+			"telegramPlaceholder": "@όνομα χρήστη ή 123456789"
 		},
 		"notificationsPage": {
 			"pageTitle": "Ειδοποιήσεις",
@@ -1187,7 +1191,10 @@
 			"chatLabelPlaceholder": "Ενημερώσεις ομάδας μηχανικών",
 			"connect": "Σύνδεση Telegram",
 			"botTokenSavedPlaceholder": "Αποθηκεύτηκε. Επικολλήστε νέο token για να το αντικαταστήσετε.",
-			"loadError": "Δεν ήταν δυνατή η φόρτωση των ρυθμίσεων Telegram."
+			"loadError": "Δεν ήταν δυνατή η φόρτωση των ρυθμίσεων Telegram.",
+			"events": {
+				"taskAssigneeChanged": "Αλλαγή ανάθεσης"
+			}
 		},
 		"repositoryBrowser": {
 			"title": "Επιλέξτε αποθετήριο",

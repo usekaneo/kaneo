@@ -577,7 +577,8 @@
 			"updateError": "更新個人資料失敗",
 			"validation": {
 				"nameRequired": "請輸入姓名",
-				"nameShort": "姓名至少需要 2 個字元"
+				"nameShort": "姓名至少需要 2 個字元",
+				"telegramInvalid": "請輸入有效的 Telegram 使用者名稱或使用者 ID"
 			},
 			"avatar": {
 				"hint": "正方形圖片效果最佳。",
@@ -600,7 +601,10 @@
 				"error": "刪除帳號失敗",
 				"sessionTooOld": "為了安全，請先登出再重新登入，才能刪除帳號。"
 			},
-			"emailHint": "你使用此地址登入。"
+			"emailHint": "你使用此地址登入。",
+			"telegramHint": "你的 @使用者名稱或數字 Telegram 使用者 ID。當你被指派為負責人時，Kaneo 會提及你。你必須是接收通知的 Telegram 群組成員。",
+			"telegramLabel": "Telegram",
+			"telegramPlaceholder": "@使用者名稱 或 123456789"
 		},
 		"notificationsPage": {
 			"pageTitle": "通知",
@@ -1440,7 +1444,10 @@
 			"chatLabelPlaceholder": "工程團隊動態",
 			"connect": "連線 Telegram",
 			"botTokenSavedPlaceholder": "已儲存。貼上新的 Token 即可取代。",
-			"loadError": "無法載入 Telegram 設定。"
+			"loadError": "無法載入 Telegram 設定。",
+			"events": {
+				"taskAssigneeChanged": "負責人已變更"
+			}
 		},
 		"repositoryBrowser": {
 			"title": "選擇 Repo",

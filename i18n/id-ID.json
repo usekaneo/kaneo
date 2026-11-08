@@ -578,7 +578,8 @@
 			"updateError": "Gagal memperbarui profil",
 			"validation": {
 				"nameRequired": "Nama wajib diisi",
-				"nameShort": "Nama harus minimal 2 karakter"
+				"nameShort": "Nama harus minimal 2 karakter",
+				"telegramInvalid": "Masukkan nama pengguna atau ID pengguna Telegram yang valid"
 			},
 			"avatar": {
 				"hint": "Gambar persegi terlihat paling bagus.",
@@ -601,7 +602,10 @@
 				"title": "Delete account",
 				"sessionTooOld": "For security, sign out and sign back in before deleting your account."
 			},
-			"emailHint": "Anda masuk dengan alamat ini."
+			"emailHint": "Anda masuk dengan alamat ini.",
+			"telegramHint": "@nama pengguna atau ID pengguna Telegram numerik Anda. Kaneo menyebut Anda saat Anda menjadi penerima tugas. Anda harus menjadi anggota grup Telegram yang menerima notifikasi.",
+			"telegramLabel": "Telegram",
+			"telegramPlaceholder": "@nama pengguna atau 123456789"
 		},
 		"notificationsPage": {
 			"pageTitle": "Notifikasi",
@@ -1179,7 +1183,10 @@
 			"chatLabelPlaceholder": "Engineering Updates",
 			"connect": "Hubungkan Telegram",
 			"botTokenSavedPlaceholder": "Tersimpan. Tempel token baru untuk menggantinya.",
-			"loadError": "Tidak dapat memuat pengaturan Telegram."
+			"loadError": "Tidak dapat memuat pengaturan Telegram.",
+			"events": {
+				"taskAssigneeChanged": "Penanggung jawab diubah"
+			}
 		},
 		"repositoryBrowser": {
 			"title": "Pilih repositori",

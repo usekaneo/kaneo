@@ -1530,9 +1530,13 @@
 			"updateError": "Nie udało się zaktualizować profilu",
 			"validation": {
 				"nameRequired": "Imię i nazwisko jest wymagane",
-				"nameShort": "Imię i nazwisko musi mieć co najmniej 2 znaki"
+				"nameShort": "Imię i nazwisko musi mieć co najmniej 2 znaki",
+				"telegramInvalid": "Wpisz prawidłową nazwę użytkownika lub identyfikator użytkownika Telegram"
 			},
-			"emailHint": "Logujesz się przy użyciu tego adresu."
+			"emailHint": "Logujesz się przy użyciu tego adresu.",
+			"telegramHint": "Twoja @nazwa użytkownika lub numeryczny identyfikator użytkownika Telegram. Kaneo wspomina o Tobie, gdy jesteś osobą przypisaną. Musisz być członkiem grupy Telegram, która odbiera powiadomienia.",
+			"telegramLabel": "Telegram",
+			"telegramPlaceholder": "@nazwa użytkownika lub 123456789"
 		},
 		"notifications": "Powiadomienia",
 		"notificationsPage": {
@@ -1913,7 +1917,10 @@
 				"threadIdInvalid": "Wpisz prawidłowe ID tematu"
 			},
 			"botTokenSavedPlaceholder": "Zapisano. Wklej nowy token, aby go zastąpić.",
-			"loadError": "Nie udało się wczytać ustawień Telegrama."
+			"loadError": "Nie udało się wczytać ustawień Telegrama.",
+			"events": {
+				"taskAssigneeChanged": "Zmieniono osobę przypisaną"
+			}
 		},
 		"workflowEditor": {
 			"events": {

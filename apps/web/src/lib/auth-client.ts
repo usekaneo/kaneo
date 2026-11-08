@@ -73,6 +73,11 @@ export const authClient = createAuthClient({
           required: false,
           input: true,
         },
+        telegramHandle: {
+          type: "string",
+          required: false,
+          input: true,
+        },
       },
     }),
   ],

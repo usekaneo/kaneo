@@ -16,6 +16,7 @@ export type TelegramIntegration = {
     taskTitleChanged: boolean;
     taskDescriptionChanged: boolean;
     taskCommentCreated: boolean;
+    taskAssigneeChanged: boolean;
   };
   isActive: boolean | null;
   createdAt: string;

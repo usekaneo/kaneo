@@ -85,8 +85,28 @@ Once connected you can enable or disable the integration with the toggle, update
 | Task title changed | Off | A task's title is edited |
 | Task description changed | Off | A task's description is edited |
 | Task comment created | On | A new comment is added to a task |
+| Task assignee changed | Off | A task is reassigned to another member |
 
 You can change these toggles at any time in the integration settings.
+
+## Mention the assignee
+
+Kaneo can notify the task assignee in the Telegram group instead of only naming them. Each person sets their own handle in **Settings → Profile → Telegram**; it is private and is not shown to other workspace members.
+
+The profile field accepts:
+
+- `@username`, for example `@alex_name`
+- A bare username, for example `alex_name`
+- A profile link such as `t.me/alex_name`
+- A numeric Telegram user ID, for example `123456789`
+
+Kaneo stores usernames in lowercase. A username mention posts as `@alex_name`, so Telegram highlights and notifies that person. A numeric ID cannot be rendered as `@username`, so Kaneo posts the assignee's name as an inline link to `tg://user?id=...` instead.
+
+To find a numeric user ID, forward a message from that person to [`@userinfobot`](https://t.me/userinfobot) and read the ID it returns.
+
+The assignee must be a member of the Telegram group that receives the notifications. If they are not in the group, or the handle has a typo, the message still posts but the name stays plain text and nobody is notified. Usernames and IDs are self-declared: Kaneo does not verify them against Telegram.
+
+Task created messages include an `Assignee:` line whenever the task is created with an assignee. Reassignment messages are controlled by the separate **Task assignee changed** toggle, which is off by default so existing integrations keep their current behavior.
 
 ## Message format
 
@@ -95,6 +115,7 @@ Kaneo sends formatted Telegram messages with:
 - The event title
 - A direct link to the task in Kaneo
 - Project, status, and priority details
+- The task assignee, mentioned when they have a Telegram handle
 - The name of the user who triggered the event when available
 
 Make sure [`KANEO_CLIENT_URL`](/core/installation/environment-variables) is set to your public Kaneo URL so task links work correctly.

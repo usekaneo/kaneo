@@ -27,6 +27,10 @@ export const currentUserSchema = z
     email: z.string(),
     image: z.string().nullable(),
     role: z.string().nullable(),
+    telegramHandle: z.string().nullable().openapi({
+      description:
+        "The user's normalized Telegram username (without @) or numeric user ID, used for assignee mentions. Null when unset.",
+    }),
     managedProfileFields: z.array(z.enum(MANAGED_PROFILE_FIELDS)).openapi({
       description:
         "Profile fields the custom OAuth/OIDC provider manages for this user. Kaneo updates them at sign-in and refuses changes to them.",

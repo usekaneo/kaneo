@@ -583,7 +583,8 @@
 			"updateError": "Profili yeniləmək alınmadı",
 			"validation": {
 				"nameRequired": "Ad tələb olunur",
-				"nameShort": "Ad ən azı 2 simvoldan ibarət olmalıdır"
+				"nameShort": "Ad ən azı 2 simvoldan ibarət olmalıdır",
+				"telegramInvalid": "Etibarlı Telegram istifadəçi adı və ya istifadəçi ID-si daxil edin"
 			},
 			"avatar": {
 				"hint": "Kvadrat şəkillər daha yaxşı görünür.",
@@ -606,7 +607,10 @@
 				"error": "Hesabı silmək alınmadı",
 				"sessionTooOld": "Təhlükəsizlik üçün hesabınızı silməzdən əvvəl çıxış edib yenidən daxil olun."
 			},
-			"emailHint": "Bu ünvanla daxil olursunuz."
+			"emailHint": "Bu ünvanla daxil olursunuz.",
+			"telegramHint": "@istifadəçi adınız və ya rəqəmsal Telegram istifadəçi ID-niz. Siz icraçı olduqda Kaneo sizi qeyd edir. Bildirişləri qəbul edən Telegram qrupunun üzvü olmalısınız.",
+			"telegramLabel": "Telegram",
+			"telegramPlaceholder": "@istifadəçi adı və ya 123456789"
 		},
 		"notificationsPage": {
 			"pageTitle": "Bildirişlər",
@@ -1450,7 +1454,10 @@
 			"chatLabelPlaceholder": "Mühəndislik yenilikləri",
 			"connect": "Telegram-a qoşul",
 			"botTokenSavedPlaceholder": "Yadda saxlanılıb. Əvəzləmək üçün yeni giriş nişanı yapışdırın.",
-			"loadError": "Telegram parametrlərini yükləmək alınmadı."
+			"loadError": "Telegram parametrlərini yükləmək alınmadı.",
+			"events": {
+				"taskAssigneeChanged": "İcraçı dəyişdi"
+			}
 		},
 		"repositoryBrowser": {
 			"title": "Repozitoriya seçin",

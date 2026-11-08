@@ -15,6 +15,7 @@ export type UpdateTelegramIntegrationRequest = {
     taskTitleChanged?: boolean;
     taskDescriptionChanged?: boolean;
     taskCommentCreated?: boolean;
+    taskAssigneeChanged?: boolean;
   };
 };
 

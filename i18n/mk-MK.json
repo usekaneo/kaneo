@@ -583,7 +583,8 @@
 			"updateError": "Неуспешно ажурирање на профилот",
 			"validation": {
 				"nameRequired": "Името е задолжително",
-				"nameShort": "Името мора да има најмалку 2 знаци"
+				"nameShort": "Името мора да има најмалку 2 знаци",
+				"telegramInvalid": "Внеси валидно Telegram корисничко име или кориснички ID"
 			},
 			"avatar": {
 				"hint": "Квадратните слики изгледаат најдобро.",
@@ -606,7 +607,10 @@
 				"title": "Delete account",
 				"sessionTooOld": "For security, sign out and sign back in before deleting your account."
 			},
-			"emailHint": "Со оваа адреса се најавуваш."
+			"emailHint": "Со оваа адреса се најавуваш.",
+			"telegramHint": "Твоето @корисничко име или нумерички Telegram кориснички ID. Kaneo те споменува кога си задолжен за задачата. Мора да бидеш член на Telegram групата што ги прима известувањата.",
+			"telegramLabel": "Telegram",
+			"telegramPlaceholder": "@корисничко име или 123456789"
 		},
 		"notificationsPage": {
 			"pageTitle": "Известувања",
@@ -1187,7 +1191,10 @@
 			"chatLabelPlaceholder": "Тимски ажурирања",
 			"connect": "Поврзи Telegram",
 			"botTokenSavedPlaceholder": "Зачувано. Залепи нов токен за да го замениш.",
-			"loadError": "Не може да се вчитаат поставките за Telegram."
+			"loadError": "Не може да се вчитаат поставките за Telegram.",
+			"events": {
+				"taskAssigneeChanged": "Променето доделување"
+			}
 		},
 		"repositoryBrowser": {
 			"title": "Избери репозиториум",

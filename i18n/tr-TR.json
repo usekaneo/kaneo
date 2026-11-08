@@ -583,7 +583,8 @@
 			"updateError": "Profil güncellenemedi",
 			"validation": {
 				"nameRequired": "Ad gereklidir",
-				"nameShort": "Ad en az 2 karakter olmalıdır"
+				"nameShort": "Ad en az 2 karakter olmalıdır",
+				"telegramInvalid": "Geçerli bir Telegram kullanıcı adı veya kullanıcı kimliği girin"
 			},
 			"avatar": {
 				"hint": "Kare görseller en iyi sonucu verir.",
@@ -606,7 +607,10 @@
 				"title": "Delete account",
 				"sessionTooOld": "For security, sign out and sign back in before deleting your account."
 			},
-			"emailHint": "Bu adresle oturum açarsınız."
+			"emailHint": "Bu adresle oturum açarsınız.",
+			"telegramHint": "@kullanıcı adınız veya sayısal Telegram kullanıcı kimliğiniz. Görev size atandığında Kaneo sizden bahseder. Bildirimleri alan Telegram grubunun üyesi olmalısınız.",
+			"telegramLabel": "Telegram",
+			"telegramPlaceholder": "@kullanıcı adı veya 123456789"
 		},
 		"notificationsPage": {
 			"pageTitle": "Bildirimler",
@@ -1187,7 +1191,10 @@
 			"chatLabelPlaceholder": "Mühendislik Güncellemeleri",
 			"connect": "Telegram bağla",
 			"botTokenSavedPlaceholder": "Kaydedildi. Değiştirmek için yeni bir belirteç yapıştırın.",
-			"loadError": "Telegram ayarları yüklenemedi."
+			"loadError": "Telegram ayarları yüklenemedi.",
+			"events": {
+				"taskAssigneeChanged": "Atanan kişi değişti"
+			}
 		},
 		"repositoryBrowser": {
 			"title": "Bir depo seçin",

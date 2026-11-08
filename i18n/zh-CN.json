@@ -578,7 +578,8 @@
 			"updateError": "资料更新失败",
 			"validation": {
 				"nameRequired": "名称不能为空",
-				"nameShort": "姓名至少需要 2 个字符"
+				"nameShort": "姓名至少需要 2 个字符",
+				"telegramInvalid": "请输入有效的 Telegram 用户名或用户 ID"
 			},
 			"avatar": {
 				"hint": "方形图片效果最佳。",
@@ -601,7 +602,10 @@
 				"error": "删除账户失败",
 				"sessionTooOld": "为安全起见，请先退出并重新登录，之后才能删除账户。"
 			},
-			"emailHint": "你使用此地址登录。"
+			"emailHint": "你使用此地址登录。",
+			"telegramHint": "你的 @用户名或数字 Telegram 用户 ID。当你被指派为负责人时，Kaneo 会提及你。你必须是接收通知的 Telegram 群组成员。",
+			"telegramLabel": "Telegram",
+			"telegramPlaceholder": "@用户名 或 123456789"
 		},
 		"notificationsPage": {
 			"pageTitle": "通知",
@@ -1441,7 +1445,10 @@
 			"chatLabelPlaceholder": "工程更新",
 			"connect": "连接 Telegram",
 			"botTokenSavedPlaceholder": "已保存。粘贴新的令牌即可替换。",
-			"loadError": "无法加载 Telegram 设置。"
+			"loadError": "无法加载 Telegram 设置。",
+			"events": {
+				"taskAssigneeChanged": "负责人已变更"
+			}
 		},
 		"repositoryBrowser": {
 			"title": "选择仓库",

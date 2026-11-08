@@ -746,7 +746,8 @@
 			"updateError": "Profil konnte nicht aktualisiert werden",
 			"validation": {
 				"nameRequired": "Name ist erforderlich",
-				"nameShort": "Der Name muss mindestens 2 Zeichen lang sein"
+				"nameShort": "Der Name muss mindestens 2 Zeichen lang sein",
+				"telegramInvalid": "Gib einen gültigen Telegram-Benutzernamen oder eine gültige Benutzer-ID ein"
 			},
 			"avatar": {
 				"hint": "Quadratische Bilder sehen am besten aus.",
@@ -769,7 +770,10 @@
 				"title": "Konto löschen",
 				"sessionTooOld": "Melde dich aus Sicherheitsgründen ab und wieder an, bevor du dein Konto löschst."
 			},
-			"emailHint": "Mit dieser Adresse meldest du dich an."
+			"emailHint": "Mit dieser Adresse meldest du dich an.",
+			"telegramHint": "Dein @Benutzername oder deine numerische Telegram-Benutzer-ID. Kaneo erwähnt dich, wenn dir die Aufgabe zugewiesen ist. Du musst Mitglied der Telegram-Gruppe sein, die die Benachrichtigungen erhält.",
+			"telegramLabel": "Telegram",
+			"telegramPlaceholder": "@Benutzername oder 123456789"
 		},
 		"notificationsPage": {
 			"pageTitle": "Benachrichtigungen",
@@ -1350,7 +1354,10 @@
 			"chatLabelPlaceholder": "Entwicklungsupdates",
 			"connect": "Telegram verbinden",
 			"botTokenSavedPlaceholder": "Gespeichert. Füge einen neuen Token ein, um ihn zu ersetzen.",
-			"loadError": "Die Telegram-Einstellungen konnten nicht geladen werden."
+			"loadError": "Die Telegram-Einstellungen konnten nicht geladen werden.",
+			"events": {
+				"taskAssigneeChanged": "Zuweisung geändert"
+			}
 		},
 		"repositoryBrowser": {
 			"title": "Repository auswählen",

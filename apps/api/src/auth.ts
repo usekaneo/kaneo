@@ -78,6 +78,10 @@ import { assertNativeOwnerRoleSafe } from "./workspace-members/assert-native-own
 import { normalizeInvitationRole } from "./workspace-members/normalize-invitation-role";
 import { hideInaccessibleInvitationProjects } from "./project-access/hide-inaccessible-invitation-projects";
 import assertManagedProfileUnchanged from "./user/controllers/assert-managed-profile-unchanged";
+import {
+  normalizeTelegramHandle,
+  TelegramHandleError,
+} from "./user/telegram-handle";
 import { hideInvitationsFromNonInviters } from "./utils/hide-invitations-from-non-inviters";
 import { assertOwnerInvitationResendAllowed } from "./utils/assert-owner-invitation-resend-allowed";
 import {
@@ -299,6 +303,20 @@ function getDeviceAuthVerificationUri(): string {
   return `${base}/device`;
 }
 
+function normalizedTelegramHandleFromUser(user: object) {
+  if (!Object.hasOwn(user, "telegramHandle")) return undefined;
+  try {
+    return normalizeTelegramHandle(
+      (user as Record<string, unknown>).telegramHandle,
+    );
+  } catch (error) {
+    if (error instanceof TelegramHandleError) {
+      throw new APIError("BAD_REQUEST", { message: error.message });
+    }
+    throw error;
+  }
+}
+
 export const auth = betterAuth({
   baseURL: baseURLWithoutPath,
   trustedOrigins,
@@ -325,6 +343,11 @@ export const auth = betterAuth({
   user: {
     additionalFields: {
       locale: {
+        type: "string",
+        input: true,
+        required: false,
+      },
+      telegramHandle: {
         type: "string",
         input: true,
         required: false,
@@ -812,12 +835,16 @@ export const auth = betterAuth({
               message: "You cannot change your own role.",
             });
           }
+          const telegramHandle = normalizedTelegramHandleFromUser(user);
           await assertManagedProfileUnchanged(user, ctx);
-          return clearEmailVerificationOnAdminChange(user, ctx);
+          const cleared = await clearEmailVerificationOnAdminChange(user, ctx);
+          if (telegramHandle === undefined) return cleared;
+          return { data: { ...cleared?.data, telegramHandle } };
         },
       },
       create: {
         before: async (user, ctx) => {
+          const telegramHandle = normalizedTelegramHandleFromUser(user);
           await assertUserRegistrationAllowed(
             user as Partial<UserWithAnonymous> & { email: string },
             {
@@ -828,16 +855,25 @@ export const auth = betterAuth({
                 ctx?.headers?.get("x-invitation-id"),
             },
           );
-          if ((user as Partial<UserWithAnonymous>).isAnonymous) return;
+          if ((user as Partial<UserWithAnonymous>).isAnonymous) {
+            return telegramHandle === undefined
+              ? undefined
+              : { data: { telegramHandle } };
+          }
           // Every sign-up path (password, email code, OAuth/OIDC) gets the
           // default role. better-auth's admin endpoint sets its own role.
-          if (ctx?.path === "/admin/create-user") return;
+          if (ctx?.path === "/admin/create-user") {
+            return telegramHandle === undefined
+              ? undefined
+              : { data: { telegramHandle } };
+          }
           return {
             data: {
               role: (await readStoredSettings()).defaultRole,
               ...((await signUpNeedsVerification(ctx?.path))
                 ? { emailVerificationRequired: true }
                 : {}),
+              ...(telegramHandle === undefined ? {} : { telegramHandle }),
             },
           };
         },
