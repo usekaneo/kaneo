@@ -44,8 +44,14 @@ export function useProjectAutosave({
       slug: project?.slug || "",
       description: project?.description || "",
       icon: project?.icon || "Layout",
+      includeSubtasks: project?.includeSubtasks ?? true,
     },
   });
+
+  // Subscribe to dirty fields so reset can preserve edits during a refresh.
+  const dirtyFieldsRef = useRef(form.formState.dirtyFields);
+  dirtyFieldsRef.current = form.formState.dirtyFields;
+  const formProjectIdRef = useRef(project?.id);
 
   useEffect(() => {
     if (!project) return;
@@ -55,14 +61,16 @@ export function useProjectAutosave({
       slug: project.slug || "",
       description: project.description || "",
       icon: project.icon || "Layout",
+      includeSubtasks: project.includeSubtasks ?? true,
     };
     lastSavedRef.current = normalizeProjectValues(nextValues);
 
-    if (form.formState.isDirty) return;
-
+    const sameProject = formProjectIdRef.current === project.id;
+    formProjectIdRef.current = project.id;
     form.reset(nextValues, {
-      keepDirty: false,
-      keepTouched: false,
+      keepDirtyValues:
+        sameProject && Object.keys(dirtyFieldsRef.current).length > 0,
+      keepTouched: sameProject,
       keepIsValid: true,
     });
   }, [project, form]);
@@ -71,43 +79,79 @@ export function useProjectAutosave({
     async (data: ProjectFormValues): Promise<boolean> => {
       if (!project?.id) return false;
 
-      const normalizedData = normalizeProjectValues(data);
-      const changes = getProjectFieldChanges(
-        lastSavedRef.current,
-        normalizedData,
-      );
-
-      if (!hasProjectFieldChanges(changes)) return true;
-
       if (isSavingRef.current) {
         queuedSaveRef.current = data;
         return inFlightSaveRef.current ?? false;
       }
 
+      const normalizedData = normalizeProjectValues(data);
+      const baseline = lastSavedRef.current;
+      const changes = getProjectFieldChanges(baseline, normalizedData);
+
+      changes.includeSubtasks =
+        form.getFieldState("includeSubtasks").isDirty &&
+        changes.includeSubtasks;
+      if (!hasProjectFieldChanges(changes)) return true;
+
       isSavingRef.current = true;
+      const submittedDirtyFields = new Set(
+        (Object.keys(normalizedData) as Array<keyof ProjectFormValues>).filter(
+          (key) => form.getFieldState(key).isDirty,
+        ),
+      );
 
       const runSave = async (): Promise<boolean> => {
         let succeeded = false;
 
         try {
-          await updateProject({
+          const updatedProject = await updateProject({
             id: project.id,
-            name: changes.name ? normalizedData.name : project.name,
-            slug: changes.slug ? normalizedData.slug : project.slug,
+            name: changes.name
+              ? normalizedData.name
+              : (baseline?.name ?? project.name),
+            slug: changes.slug
+              ? normalizedData.slug
+              : (baseline?.slug ?? project.slug),
             description: changes.description
               ? normalizedData.description
-              : (project.description ?? ""),
+              : (baseline?.description ?? project.description ?? ""),
             icon: changes.icon
               ? normalizedData.icon
-              : (project.icon ?? "Layout"),
+              : (baseline?.icon ?? project.icon ?? "Layout"),
             isPublic: !!project.isPublic,
+            ...(changes.includeSubtasks
+              ? { includeSubtasks: normalizedData.includeSubtasks }
+              : {}),
           });
 
-          form.reset(normalizedData, { keepDirty: false });
-          lastSavedRef.current = normalizedData;
-          queuedSaveRef.current = null;
+          const currentValues = normalizeProjectValues(form.getValues());
+          const pendingChanges = getProjectFieldChanges(
+            normalizedData,
+            currentValues,
+          );
+          const pendingFields = (
+            Object.keys(pendingChanges) as Array<keyof ProjectFormValues>
+          ).filter(
+            (key) =>
+              pendingChanges[key] &&
+              (submittedDirtyFields.has(key) ||
+                form.getFieldState(key).isDirty),
+          );
+          const savedValues = normalizeProjectValues({
+            name: updatedProject.name,
+            slug: updatedProject.slug,
+            description: updatedProject.description ?? "",
+            icon: updatedProject.icon ?? "Layout",
+            includeSubtasks: updatedProject.includeSubtasks ?? true,
+          });
+          form.reset(savedValues);
+          lastSavedRef.current = savedValues;
+          for (const key of pendingFields) {
+            form.setValue(key, currentValues[key], { shouldDirty: true });
+          }
 
           await Promise.all([
+            queryClient.invalidateQueries({ queryKey: ["tasks", project.id] }),
             queryClient.invalidateQueries({ queryKey: ["projects"] }),
             queryClient.invalidateQueries({
               queryKey: ["projects", workspaceId],
@@ -127,9 +171,10 @@ export function useProjectAutosave({
           isSavingRef.current = false;
 
           if (queuedSaveRef.current) {
-            const queuedData = queuedSaveRef.current;
             queuedSaveRef.current = null;
-            succeeded = await saveProject(queuedData);
+            succeeded = (await form.trigger())
+              ? await saveProjectRef.current(form.getValues())
+              : false;
           }
         }
 
@@ -175,10 +220,10 @@ export function useProjectAutosave({
     debounceTimeoutRef.current = setTimeout(async () => {
       const isValid = await form.trigger();
       if (isValid) {
-        saveProject(form.getValues());
+        void saveProjectRef.current(form.getValues());
       }
     }, 800);
-  }, [form, saveProject]);
+  }, [form]);
 
   useEffect(() => {
     if (!canEdit) return;
@@ -200,7 +245,7 @@ export function useProjectAutosave({
       lastSavedRef.current,
       normalizeProjectValues(latest),
     );
-    if (!hasProjectFieldChanges(changes)) return true;
+    if (!isSavingRef.current && !hasProjectFieldChanges(changes)) return true;
 
     const isValid = await formRef.current.trigger();
     if (!isValid) return false;

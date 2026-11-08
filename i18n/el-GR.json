@@ -3782,7 +3782,9 @@
 			"showOnRows": "Εμφάνιση στις γραμμές",
 			"checklistProgress": "Πρόοδος λίστας ελέγχου",
 			"projectBackground": "Φόντο έργου",
-			"layout": "Διάταξη"
+			"layout": "Διάταξη",
+			"includeSubtasks": "Συμπερίληψη υποεργασιών",
+			"useProjectDefault": "Χρήση προεπιλογής έργου"
 		},
 		"filterBar": {
 			"label": "Ενεργά φίλτρα",

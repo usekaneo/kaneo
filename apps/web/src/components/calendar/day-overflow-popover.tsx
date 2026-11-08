@@ -1,3 +1,4 @@
+import CalendarSubtasks from "./calendar-subtasks";
 import { type JSX, useState } from "react";
 import { useTranslation } from "react-i18next";
 import {
@@ -71,6 +72,7 @@ export default function DayOverflowPopover({
                   {formatDateShort(task.scheduleStart)} –{" "}
                   {formatDateShort(task.scheduleEnd)}
                 </span>
+                <CalendarSubtasks subtasks={task.subtasks} />
               </button>
             ))}
           </div>
