@@ -49,7 +49,7 @@ jobs:
     timeout-minutes: 15
     steps:
       - name: Check out current trusted policy
-        uses: useblacksmith/checkout@25227e61ff9dafe400e22fa487b673eac4e4409a # v1
+        uses: useblacksmith/checkout@2b9fe87d796feea153b455ec2f3125b471a7b0e7 # v1
         with:
           # Always read the latest policy, including when an older run is queued.
           ref: main
