@@ -81,5 +81,18 @@ describe("getLocalizedDeliveryContent", () => {
 
   it("returns null for types without copy", () => {
     expect(getLocalizedDeliveryContent("custom", {}, "en-US")).toBeNull();
+    expect(
+      getLocalizedDeliveryContent("constructor", { taskTitle: "A" }, "en-US"),
+    ).toBeNull();
+  });
+
+  it("treats a column slug named like an object key as a custom column", () => {
+    expect(
+      getLocalizedDeliveryContent(
+        "task_status_changed",
+        { taskTitle: "A", oldStatus: "to-do", newStatus: "constructor" },
+        "en-US",
+      )?.body,
+    ).toBe('Task "A" status changed from "To Do" to "Constructor"');
   });
 });

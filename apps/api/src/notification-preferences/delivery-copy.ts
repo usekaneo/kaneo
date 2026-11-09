@@ -89,7 +89,9 @@ function toDisplayCase(value: string) {
 
 function statusLabel(bundle: Bundle, status: unknown) {
   const value = String(status ?? "");
-  return bundle.tasks.status[value] ?? toDisplayCase(value);
+  return Object.hasOwn(bundle.tasks.status, value)
+    ? bundle.tasks.status[value]
+    : toDisplayCase(value);
 }
 
 function leadTime(bundle: Bundle, eventData: Vars, locale: SupportedLocale) {
@@ -113,7 +115,10 @@ export function getLocalizedDeliveryContent(
 ): { title: string; body: string } | null {
   const resolved = resolveSupportedLocale(locale) ?? "en-US";
   const bundle = bundles[resolved];
-  const copy = bundle.notifications.events[type];
+  // Ignore inherited keys such as "constructor" when looking up copy.
+  const copy = Object.hasOwn(bundle.notifications.events, type)
+    ? bundle.notifications.events[type]
+    : undefined;
   if (!copy) return null;
 
   let vars: Vars = eventData;
