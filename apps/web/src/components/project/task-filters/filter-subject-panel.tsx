@@ -1,6 +1,7 @@
 import { DateFilterEditor } from "./date-filter-editor";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
+import { parseDateCondition } from "@/lib/task-filters/date-condition";
 import { subjectFilterEntries } from "./filter-entries";
 import { FilterListbox } from "./filter-listbox";
 import type { FilterSubject } from "./filter-subject";
@@ -49,7 +50,7 @@ export function FilterSubjectPanel({
       />
       {subject.onDateApply && (
         <DateFilterEditor
-          key={subject.selected.join("|")}
+          key={subject.selected.find((value) => parseDateCondition(value))}
           selected={subject.selected}
           onApply={(value) => {
             subject.onDateApply?.(value);

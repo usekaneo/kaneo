@@ -97,7 +97,10 @@ export function useFilterSubjects({
       ],
       onToggle: (value) => toggleFilter(key, value),
       onDateApply: (value) => {
-        updateFilter(key, [value]);
+        updateFilter(key, [
+          ...selected.filter((item) => !parseDateCondition(item)),
+          value,
+        ]);
       },
       onClear: () => updateFilter(key, null),
     });
