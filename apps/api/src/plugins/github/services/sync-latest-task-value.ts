@@ -85,6 +85,14 @@ export async function syncLatestTaskValue(
     const binding = await currentBinding();
     if (!binding) return;
     if (await statePaused()) return true;
+    // Re-closing an already closed GitHub issue resets "not planned" to "completed".
+    if (
+      attempts > 0 &&
+      field === "state" &&
+      readCurrent &&
+      (await readCurrent().catch(() => undefined)) === value
+    )
+      return true;
     identity ??= binding.integration
       ? { type: binding.integration.type, config: binding.integration.config }
       : undefined;
@@ -227,13 +235,6 @@ export async function syncLatestTaskValue(
         ]);
       return;
     }
-    // Re-closing an already closed GitHub issue resets "not planned" to "completed".
-    if (
-      field === "state" &&
-      readCurrent &&
-      (await readCurrent().catch(() => undefined)) === current
-    )
-      return true;
     value = current;
   }
 }
