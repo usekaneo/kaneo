@@ -1,8 +1,6 @@
 # @quackback/widget
 
 ## Unreleased
-
-- The package is now MIT licensed (was AGPL-3.0), so you can ship it in closed-source apps. The script-tag `sdk.js` is built from this package and is MIT too.
 - `tracking: false` on `init` keeps host-page visitor analytics off (no pageview beacons, no new device id), and `Quackback.tracking(true | false)` switches it at runtime, so a site can wait for analytics consent while the launcher stays available. `tracking(false)` also removes the stored device id. A withdrawal made before `init` holds, and `init` without the option keeps the last choice.
 - `Quackback.open` types now include `{ view: 'messages' }` and `{ view: 'tickets' }`, the two views the iframe already accepts, and the `open` event's `view` type includes `chat`, `messages` and `tickets`.
 
