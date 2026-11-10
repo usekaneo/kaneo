@@ -1,3 +1,4 @@
+import { listQuillsWorkspaceObjectKeys } from "../../database/quills/storage";
 import { and, eq, isNotNull } from "drizzle-orm";
 import db, { schema } from "../../database";
 import type { DbOrTx } from "../../project-access/db-or-tx";
@@ -21,7 +22,12 @@ export async function listWorkspaceObjectKeys(
         isNotNull(schema.projectTable.backgroundObjectKey),
       ),
     );
-  return [...assets, ...backgrounds].flatMap((row) =>
-    row.objectKey ? [row.objectKey] : [],
-  );
+  const quills = await listQuillsWorkspaceObjectKeys(workspaceId, database);
+  return [
+    ...new Set(
+      [...assets, ...backgrounds]
+        .flatMap((row) => (row.objectKey ? [row.objectKey] : []))
+        .concat(quills),
+    ),
+  ];
 }

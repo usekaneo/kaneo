@@ -1,0 +1,86 @@
+name: Deploy DigitalOcean
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: deploy-digitalocean-production
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    if: github.ref == 'refs/heads/main'
+    environment: digitalocean-production
+    runs-on: ubuntu-24.04
+    timeout-minutes: 120
+    permissions:
+      contents: read
+      packages: write
+      id-token: write
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+          ref: ${{ github.sha }}
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v6
+        with:
+          node-version: 24.22.2
+      - name: Check deployment logic
+        run: node --test scripts/deploy/*.test.mjs
+      - uses: docker/setup-buildx-action@f87e5991a6d7451dcb8d9637bfbc97413f497069 # v4
+      - uses: docker/login-action@8aa5831fb8d48d8f76594c7ddde61ae58019f550 # v4
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GH_PACKAGE_TOKEN || github.token }}
+      - name: Build bundled image
+        id: build
+        uses: docker/build-push-action@c3c9e263c25d99ce0380d002d59b67737d91b0dc # v7
+        with:
+          context: .
+          file: Dockerfile.kaneo
+          platforms: linux/amd64
+          push: true
+          tags: ghcr.io/playbookmediallc/kaneo:deploy-${{ github.sha }}
+      - name: Azure login with OIDC
+        env:
+          AZURE_CLIENT_ID: ${{ vars.AZURE_CLIENT_ID }}
+          AZURE_TENANT_ID: ${{ vars.AZURE_TENANT_ID }}
+        run: |
+          oidc_token=$(curl --fail --silent --show-error \
+            -H "Authorization: bearer $ACTIONS_ID_TOKEN_REQUEST_TOKEN" \
+            "${ACTIONS_ID_TOKEN_REQUEST_URL}&audience=api://AzureADTokenExchange" | jq -er .value)
+          echo "::add-mask::$oidc_token"
+          az login --service-principal --username "$AZURE_CLIENT_ID" \
+            --tenant "$AZURE_TENANT_ID" --federated-token "$oidc_token" --output none
+          az bicep install
+      - name: Install doctl
+        env:
+          DOCTL_VERSION: 2.3.0
+        run: |
+          archive="doctl-${DOCTL_VERSION}-linux-amd64.tar.gz"
+          release="https://github.com/digitalocean/doctl/releases/download/v${DOCTL_VERSION}"
+          curl --fail --silent --show-error --location "$release/$archive" -o "$RUNNER_TEMP/$archive"
+          curl --fail --silent --show-error --location "$release/doctl-${DOCTL_VERSION}-checksums.sha256" -o "$RUNNER_TEMP/checksums"
+          (cd "$RUNNER_TEMP" && grep " $archive$" checksums | sha256sum --check)
+          tar -xzf "$RUNNER_TEMP/$archive" -C "$RUNNER_TEMP" doctl
+          echo "$RUNNER_TEMP" >> "$GITHUB_PATH"
+      - name: Provision, deploy and validate
+        env:
+          DIGITALOCEAN_ACCESS_TOKEN: ${{ secrets.DIGITALOCEAN_ACCESS_TOKEN }}
+          DEPLOY_ENV: ${{ secrets.KANEO_DEPLOY_ENV }}
+          KANEO_IMAGE: ghcr.io/playbookmediallc/kaneo@${{ steps.build.outputs.digest }}
+        run: |
+          umask 077
+          env_file="$RUNNER_TEMP/kaneo-deploy.env"
+          trap 'rm -f "$env_file"' EXIT
+          printf '%s' "$DEPLOY_ENV" > "$env_file"
+          node --env-file="$env_file" scripts/deploy/digitalocean.mjs deploy
+      - name: Save deployment proof
+        if: success()
+        run: |
+          jq -r '"Deployment passed: \(.url)\n\nDeployment: \(.deploymentId)\n\nImage: \(.imageDigest)\n\nChecks: \(.checks | join(", "))"' \
+            .cache/deploy/result.json >> "$GITHUB_STEP_SUMMARY"

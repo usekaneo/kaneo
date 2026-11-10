@@ -1,3 +1,4 @@
+import { brandText } from "@kaneo/branding";
 import { Effect, Option } from "effect";
 import { Argument, Command } from "effect/cli";
 import { listWorkspaces } from "../../api/endpoints.js";
@@ -47,7 +48,7 @@ const chooseWorkspace = Effect.fn("workspace.use.choose")(function* (
   if (!only) {
     return yield* new InvalidArgument({
       message: "You are not a member of any workspace yet.",
-      hint: "Create one in the Kaneo web app, then run this again.",
+      hint: brandText("Create one in the Kaneo web app, then run this again."),
     });
   }
   if (workspaces.length === 1) return only;

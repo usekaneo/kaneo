@@ -57,6 +57,8 @@ describe("workspace role permission editing", () => {
       "Change member roles",
       "Invite members",
       "Edit teams",
+      "View Quills content",
+      "Manage Quills settings",
     ]) {
       expect(screen.getByRole("switch", { name: label })).toBeChecked();
       expect(screen.getByRole("switch", { name: label })).toHaveAttribute(

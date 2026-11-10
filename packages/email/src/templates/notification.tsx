@@ -1,3 +1,4 @@
+import { brandText } from "@kaneo/branding";
 import { Text } from "react-email";
 import React from "react";
 import { BoardColumn, type BoardColumnIcon } from "../components/board-column";
@@ -43,10 +44,10 @@ export type NotificationEmailProps = {
 
 const messages = {
   en: {
-    preview: "You have a new Kaneo notification",
+    preview: brandText("You have a new Kaneo notification"),
     subtitle: "A notification matched your delivery preferences.",
-    footer: "Kaneo notification",
-    actionLabel: "Open in Kaneo",
+    footer: brandText("Kaneo notification"),
+    actionLabel: brandText("Open in Kaneo"),
     openTask: "Open task",
     manage: "Manage notifications",
     priority: {
@@ -57,11 +58,11 @@ const messages = {
     },
   },
   de: {
-    preview: "Du hast eine neue Kaneo-Benachrichtigung",
+    preview: brandText("Du hast eine neue Kaneo-Benachrichtigung"),
     subtitle:
       "Eine Benachrichtigung entspricht deinen Zustellungs-Einstellungen.",
-    footer: "Kaneo Benachrichtigung",
-    actionLabel: "In Kaneo öffnen",
+    footer: brandText("Kaneo Benachrichtigung"),
+    actionLabel: brandText("In Kaneo öffnen"),
     openTask: "Aufgabe öffnen",
     manage: "Benachrichtigungen verwalten",
     priority: {
@@ -72,10 +73,10 @@ const messages = {
     },
   },
   vi: {
-    preview: "Bạn có thông báo mới từ Kaneo",
+    preview: brandText("Bạn có thông báo mới từ Kaneo"),
     subtitle: "Một thông báo khớp với tùy chọn nhận thông báo của bạn.",
-    footer: "Thông báo Kaneo",
-    actionLabel: "Mở trong Kaneo",
+    footer: brandText("Thông báo Kaneo"),
+    actionLabel: brandText("Mở trong Kaneo"),
     openTask: "Mở công việc",
     manage: "Quản lý thông báo",
     priority: {
@@ -86,10 +87,10 @@ const messages = {
     },
   },
   ja: {
-    preview: "Kaneo の新しい通知",
+    preview: brandText("Kaneo の新しい通知"),
     subtitle: "配信設定に一致する通知がありました。",
-    footer: "Kaneo 通知",
-    actionLabel: "Kaneo で開く",
+    footer: brandText("Kaneo 通知"),
+    actionLabel: brandText("Kaneo で開く"),
     openTask: "タスクを開く",
     manage: "通知を管理",
     priority: {
@@ -100,10 +101,10 @@ const messages = {
     },
   },
   "zh-tw": {
-    preview: "你有一則新的 Kaneo 通知",
+    preview: brandText("你有一則新的 Kaneo 通知"),
     subtitle: "有一則通知符合你的通知設定。",
-    footer: "Kaneo 通知",
-    actionLabel: "在 Kaneo 中開啟",
+    footer: brandText("Kaneo 通知"),
+    actionLabel: brandText("在 Kaneo 中開啟"),
     openTask: "開啟任務",
     manage: "管理通知",
     priority: {
@@ -191,11 +192,12 @@ const breadcrumbStyle = {
 NotificationEmail.PreviewProps = {
   title: "Sarah Chen assigned you a task",
   message: "You were assigned to Redesign transactional emails.",
-  actionUrl: "https://cloud.kaneo.app/acme/task/KAN-128",
+  actionUrl: brandText("https://cloud.kaneo.app/acme/task/KAN-128"),
   locale: "en-US",
   breadcrumb: "Acme / Website",
-  settingsUrl:
+  settingsUrl: brandText(
     "https://cloud.kaneo.app/dashboard/settings/account/notifications",
+  ),
   task: {
     ticket: "KAN-128",
     title: "Redesign transactional emails",

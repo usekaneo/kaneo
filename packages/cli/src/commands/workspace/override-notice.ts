@@ -1,3 +1,4 @@
+import { brandText } from "@kaneo/branding";
 import { Option } from "effect";
 import type { WorkspaceRef } from "../../services/session.js";
 
@@ -13,7 +14,9 @@ export function overrideNotice(
     return "-w overrides this default for the commands you pass it to.";
   }
   if (source === "env") {
-    return "KANEO_WORKSPACE is set and is used instead of this default until you unset it.";
+    return brandText(
+      "KANEO_WORKSPACE is set and is used instead of this default until you unset it.",
+    );
   }
   return `${repoPath ?? ".kaneo.json"} sets another workspace, which is used instead inside that folder.`;
 }

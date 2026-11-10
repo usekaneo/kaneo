@@ -60,6 +60,11 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
+      - name: Require approved public branding
+        run: |
+          pnpm branding:release
+          node -e "require('./branding/index.cjs').assertPackageBrand()"
+
       - name: Run MCP checks
         run: |
           pnpm --filter @kaneo/mcp test
@@ -85,8 +90,15 @@ jobs:
         id: version_check
         run: |
           PACKAGE_VERSION=$(node -p "require('./packages/mcp/package.json').version")
+          PACKAGE_NAME=$(node -p "'@' + require('./branding/config.json').npmScope + '/mcp'")
 
-          if npm view "@kaneo/mcp@${PACKAGE_VERSION}" version >/dev/null 2>&1; then
+          if npm view "${PACKAGE_NAME}@${PACKAGE_VERSION}" version >/dev/null 2>&1; then
+            EXPECTED_MCP_NAME=$(node -p "require('./branding/config.json').mcpRegistryName")
+            PUBLISHED_MCP_NAME=$(npm view "${PACKAGE_NAME}@${PACKAGE_VERSION}" mcpName)
+            if [ "$PUBLISHED_MCP_NAME" != "$EXPECTED_MCP_NAME" ]; then
+              echo "The existing package belongs to another product identity; publish a fork-owned version first."
+              exit 1
+            fi
             echo "already_published=true" >> "$GITHUB_OUTPUT"
             echo "@kaneo/mcp@${PACKAGE_VERSION} is already published; skipping publish."
           else
@@ -96,8 +108,8 @@ jobs:
       - name: Publish @kaneo/mcp
         if: ${{ steps.version_check.outputs.already_published == 'false' }}
         run: |
-          cd packages/mcp
-          npm publish --access public --provenance
+          node scripts/branding/prepare-package.mjs packages/mcp
+          npm publish .cache/npm/mcp --access public --provenance
 
       - name: Create MCP release
         if: ${{ github.event_name == 'push' }}
@@ -119,13 +131,13 @@ jobs:
 
   publish-registry:
     needs: publish
-    runs-on: blacksmith-4vcpu-ubuntu-2404
+    runs-on: ubuntu-24.04
     permissions:
       contents: read
       id-token: write
     steps:
       - name: Checkout repository
-        uses: useblacksmith/checkout@2b9fe87d796feea153b455ec2f3125b471a7b0e7 # v1
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
 
@@ -133,12 +145,14 @@ jobs:
         run: |
           set -euo pipefail
           PACKAGE_VERSION=$(jq -r .version packages/mcp/package.json)
+          REGISTRY_NAME=$(node -p "require('./branding/config.json').mcpRegistryName")
+          node scripts/branding/registry.mjs
           curl --fail --silent --show-error --connect-timeout 10 --max-time 60 \
             --retry 3 --retry-all-errors --retry-delay 2 --retry-max-time 240 \
             --output "$RUNNER_TEMP/mcp-registry.json" \
-            "https://registry.modelcontextprotocol.io/v0/servers?search=io.github.usekaneo/kaneo"
-          IN_REGISTRY=$(jq -er --arg v "$PACKAGE_VERSION" \
-            '[.servers[]? | (.server // .) | select(.name == "io.github.usekaneo/kaneo" and .version == $v)] | length' \
+            --get --data-urlencode "search=$REGISTRY_NAME" "https://registry.modelcontextprotocol.io/v0/servers"
+          IN_REGISTRY=$(jq -er --arg name "$REGISTRY_NAME" --arg v "$PACKAGE_VERSION" \
+            '[.servers[]? | (.server // .) | select(.name == $name and .version == $v)] | length' \
             "$RUNNER_TEMP/mcp-registry.json")
           if [ "$IN_REGISTRY" != "0" ]; then
             echo "MCP version already registered; skipping."
@@ -149,7 +163,7 @@ jobs:
             "https://github.com/modelcontextprotocol/registry/releases/download/v1.8.1/mcp-publisher_linux_amd64.tar.gz"
           echo "a06c9096dcb9727c13555b6be26c7effa707b01f06a4c561ba7a3635443cf2cc  $RUNNER_TEMP/mcp-publisher.tar.gz" | sha256sum --check --strict
           tar -xzf "$RUNNER_TEMP/mcp-publisher.tar.gz" -C "$RUNNER_TEMP" mcp-publisher
-          cd packages/mcp
+          cd .cache/mcp-registry
           jq --arg v "$PACKAGE_VERSION" '.version = $v | .packages[0].version = $v' server.json > server.tmp
           mv server.tmp server.json
           "$RUNNER_TEMP/mcp-publisher" login github-oidc

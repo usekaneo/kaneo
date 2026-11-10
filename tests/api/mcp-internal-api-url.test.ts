@@ -1,4 +1,11 @@
-import { afterEach, describe, expect, it, vi } from "vite-plus/test";
+import {
+  afterEach,
+  beforeEach,
+  describe,
+  expect,
+  it,
+  vi,
+} from "vite-plus/test";
 
 const authMocks = vi.hoisted(() => ({
   getSession: vi.fn(async () => ({ user: { id: "test-user" } })),
@@ -41,34 +48,39 @@ function toolRequest() {
   });
 }
 
-async function loadMcpRoutes(internalApiUrl?: string) {
-  vi.stubEnv("KANEO_API_URL", "http://public.test:5273/api");
-  vi.stubEnv("KANEO_INTERNAL_API_URL", internalApiUrl);
-  vi.resetModules();
-  return (await import("../../apps/api/src/mcp")).default;
-}
-
 afterEach(() => {
   vi.unstubAllGlobals();
   vi.unstubAllEnvs();
-  vi.resetModules();
   authMocks.getSession.mockClear();
 });
 
-describe("MCP API URLs", () => {
-  it("advertises the public URL while fetching tools through the internal URL", async () => {
-    const apiFetch = vi.fn(async () =>
-      Response.json({
-        user: {
-          id: "test-user",
-          name: "Test User",
-          email: "test@example.com",
-        },
-      }),
-    );
-    vi.stubGlobal("fetch", apiFetch);
-    const mcpRoutes = await loadMcpRoutes();
+describe.each([
+  undefined,
+  "http://api.internal:1337/api/",
+  "http://api.internal:1337/",
+])("MCP API URLs with internal URL %s", (internalApiUrl) => {
+  let mcpRoutes: typeof import("../../apps/api/src/mcp").default;
+  const apiFetch = vi.fn(async (_input: RequestInfo | URL) =>
+    Response.json({
+      user: {
+        id: "test-user",
+        name: "Test User",
+        email: "test@example.com",
+      },
+    }),
+  );
 
+  beforeEach(async () => {
+    apiFetch.mockClear();
+    vi.stubGlobal("fetch", apiFetch);
+    vi.stubEnv("KANEO_API_URL", "http://public.test:5273/api");
+    vi.stubEnv("KANEO_INTERNAL_API_URL", internalApiUrl);
+    vi.resetModules();
+    // Load the isolated route graph during setup, outside the request's test timeout.
+    mcpRoutes = (await import("../../apps/api/src/mcp")).default;
+  });
+
+  it("advertises the public URL and fetches through the internal URL without duplicate slashes", async () => {
     const metadataResponse = await mcpRoutes.request(
       "/.well-known/oauth-authorization-server/api",
     );
@@ -76,43 +88,20 @@ describe("MCP API URLs", () => {
       issuer: string;
       authorization_endpoint: string;
     };
-
     expect(metadata).toMatchObject({
       issuer: "http://public.test:5273/api",
       authorization_endpoint: "http://public.test:5273/api/mcp/authorize",
     });
 
     const toolResponse = await mcpRoutes.request(toolRequest());
+    await toolResponse.text();
 
     expect(toolResponse.status).toBe(200);
     expect(apiFetch).toHaveBeenCalledOnce();
     expect(String(apiFetch.mock.calls[0]?.[0])).toBe(
-      "http://127.0.0.1:1337/api/auth/get-session",
+      internalApiUrl
+        ? "http://api.internal:1337/api/auth/get-session"
+        : "http://127.0.0.1:1337/api/auth/get-session",
     );
   });
-
-  it.each(["http://api.internal:1337/api/", "http://api.internal:1337/"])(
-    "uses the configured internal URL %s without duplicate slashes",
-    async (internalApiUrl) => {
-      const apiFetch = vi.fn(async () =>
-        Response.json({
-          user: {
-            id: "test-user",
-            name: "Test User",
-            email: "test@example.com",
-          },
-        }),
-      );
-      vi.stubGlobal("fetch", apiFetch);
-      const mcpRoutes = await loadMcpRoutes(internalApiUrl);
-
-      const toolResponse = await mcpRoutes.request(toolRequest());
-
-      expect(toolResponse.status).toBe(200);
-      expect(apiFetch).toHaveBeenCalledOnce();
-      expect(String(apiFetch.mock.calls[0]?.[0])).toBe(
-        "http://api.internal:1337/api/auth/get-session",
-      );
-    },
-  );
 });

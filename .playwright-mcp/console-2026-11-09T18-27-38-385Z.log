@@ -1,0 +1,1 @@
+[    2053ms] [WARNING] An iframe which has both allow-scripts and allow-same-origin for its sandbox attribute can escape its sandboxing. @ http://127.0.0.1:6007/fixtures/widget/?showClose=1:0

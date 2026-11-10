@@ -13,8 +13,7 @@ const workflow = await readFile(
 const step = workflow.slice(
   workflow.indexOf("- name: Publish to the MCP Registry"),
 );
-const registryUrl =
-  "https://registry.modelcontextprotocol.io/v0/servers?search=io.github.usekaneo/kaneo";
+const registryUrl = "https://registry.modelcontextprotocol.io/v0/servers";
 const lookup = step
   .slice(
     step.indexOf("          curl"),

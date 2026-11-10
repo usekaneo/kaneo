@@ -1,0 +1,365 @@
+{
+	"name": "quills",
+	"publicUrl": "https://quills-site.playbookmedia.io",
+	"clientUrl": "https://quills.playbookmedia.io",
+	"docsUrl": "https://quills-docs.playbookmedia.io",
+	"supportUrl": "https://quills-support.playbookmedia.io",
+	"assetsUrl": "https://quills-assets.playbookmedia.io",
+	"assets": [
+		{
+			"source": "assets/quills/public/logo-dark.svg",
+			"target": "apps/web/public/logo-dark.svg",
+			"sha256": "4cd8af34bc28b51e5f3d6672a6fbf972380e5030b7c55a15a4f1af63ced70135",
+			"approved": true
+		},
+		{
+			"source": "assets/quills/public/logo-light.svg",
+			"target": "apps/web/public/logo-light.svg",
+			"sha256": "5ef42cdf5e5305462d623cf357e262fe0291c107e958e05c8bf30eb81d3bcfbd",
+			"approved": true
+		},
+		{
+			"source": "assets/quills/public/logo-dark.png",
+			"target": "apps/web/public/logo-dark.png",
+			"sha256": "c97c0231cf8b662a85fde824b2db856a01e96d3c8be7b3e9ef222a16651d1ebc",
+			"approved": true
+		},
+		{
+			"source": "assets/quills/public/logo-light.png",
+			"target": "apps/web/public/logo-light.png",
+			"sha256": "4b12d3c3d5aa4f76569f6bcfec7cb9f0d91c5af885c479e58b24047722351cbd",
+			"approved": true
+		},
+		{
+			"source": "assets/quills/public/mark-dark.svg",
+			"target": "apps/web/public/mark-dark.svg",
+			"sha256": "d3acf66b166ee50fcb4d14667499379fe487b06d449e3daf7b5ea68cde181d65",
+			"approved": true
+		},
+		{
+			"source": "assets/quills/public/mark-light.svg",
+			"target": "apps/web/public/mark-light.svg",
+			"sha256": "5b82128c43b4ec6b75458e62478b9b1ca4c926a1eea21c1d3af9a817ed5e422c",
+			"approved": true
+		},
+		{
+			"source": "assets/quills/public/mark-dark.png",
+			"target": "apps/web/public/mark-dark.png",
+			"sha256": "c01a5b1f9c2326e52700cbf3fb0329a0064166ae2402fb5f8d8010c4c15eb818",
+			"approved": true
+		},
+		{
+			"source": "assets/quills/public/mark-light.png",
+			"target": "apps/web/public/mark-light.png",
+			"sha256": "22f9d82dd016430c11a8461dad4f6ebdc6ebedf1a1aff857ace4659498419e81",
+			"approved": true
+		},
+		{
+			"source": "assets/quills/public/favicon.svg",
+			"target": "apps/web/public/favicon.svg",
+			"sha256": "15172b242089dcafca6eb6919b19c44a993505471cae74bc4309696f1499ad52",
+			"approved": true
+		},
+		{
+			"source": "assets/quills/public/favicon-dark.svg",
+			"target": "apps/web/public/favicon-dark.svg",
+			"sha256": "eb5e62a4b03604461b98d306cba3c08b9a143bfbefce49be997690a4251961cc",
+			"approved": true
+		},
+		{
+			"source": "assets/quills/public/favicon-light.svg",
+			"target": "apps/web/public/favicon-light.svg",
+			"sha256": "925677c5f9afbbce30632f257bbfebe00b0ccb3e1ce7fb7674c00f0d08abd1ed",
+			"approved": true
+		},
+		{
+			"source": "assets/quills/public/favicon.ico",
+			"target": "apps/web/public/favicon.ico",
+			"sha256": "468ab8441da748f5d46e01dd225722519d6f3b98bc06ae59a3db1eef715599e2",
+			"approved": true
+		},
+		{
+			"source": "assets/quills/public/favicon-16x16.png",
+			"target": "apps/web/public/favicon-16x16.png",
+			"sha256": "13014861c5188b52e21eb8b49f3f4a9c1a451dd3b9883f482012da9b754573d2",
+			"approved": true
+		},
+		{
+			"source": "assets/quills/public/favicon-32x32.png",
+			"target": "apps/web/public/favicon-32x32.png",
+			"sha256": "15b4d7844efb91c830176b2453459b3278ab1dc449a10b8e21afcc72d4867bd8",
+			"approved": true
+		},
+		{
+			"source": "assets/quills/public/favicon-48x48.png",
+			"target": "apps/web/public/favicon-48x48.png",
+			"sha256": "e52acd3adc59066abda7d3f3429518b0601a1c3d84baecef61559d740939f0ca",
+			"approved": true
+		},
+		{
+			"source": "assets/quills/public/favicon-96x96.png",
+			"target": "apps/web/public/favicon-96x96.png",
+			"sha256": "fc6fc64234532dbe6cc806066a053bafefd03bb0ab2c8a4ec601306f4c5053dc",
+			"approved": true
+		},
+		{
+			"source": "assets/quills/public/favicon-256x256.png",
+			"target": "apps/web/public/favicon-256x256.png",
+			"sha256": "f0ca7fbaf18f246215a4c7c7e2db2b090381232d7ebf4c4227111921628768c4",
+			"approved": true
+		},
+		{
+			"source": "assets/quills/public/apple-touch-icon.png",
+			"target": "apps/web/public/apple-touch-icon.png",
+			"sha256": "09f59ec6f7ba10bd992c0e9ff3b0552934bbb385cf4fdb38aec724503d93bc7b",
+			"approved": true
+		},
+		{
+			"source": "assets/quills/public/web-app-manifest-192x192.png",
+			"target": "apps/web/public/web-app-manifest-192x192.png",
+			"sha256": "7b87a473265d9d01a69c9de29c8b9ce96eae842d2ddfb5c0da68b2dc127dc146",
+			"approved": true
+		},
+		{
+			"source": "assets/quills/public/web-app-manifest-512x512.png",
+			"target": "apps/web/public/web-app-manifest-512x512.png",
+			"sha256": "4b6f0b563c91525daf6e02b21a3a67d1e2d86ab463e4d21d04fe0a4e95554122",
+			"approved": true
+		},
+		{
+			"source": "assets/quills/public/icon-1024.png",
+			"target": "apps/web/public/icon-1024.png",
+			"sha256": "e6a248cbec4003f902e9d5a6c5130ac18fbd2c5663cfe7ab414968b94ad7cdc9",
+			"approved": true
+		},
+		{
+			"source": "assets/quills/public/email/mark.png",
+			"target": "apps/web/public/email/mark.png",
+			"sha256": "8c9fe610c67da46b6528eb0ee4f34ff94dda84ab12074f31fb42fb42cfee91f6",
+			"approved": true
+		},
+		{
+			"source": "assets/quills/public/readme.png",
+			"target": "apps/web/public/readme.png",
+			"sha256": "3c7f7e2b64ae92bef1b7aa2f5b505e1d9ebb118419ed9aca13e4d074e107bea0",
+			"approved": true
+		},
+		{
+			"source": "assets/quills/public/site.webmanifest",
+			"target": "apps/web/public/site.webmanifest",
+			"sha256": "df522089efada7e68228cd57463275751c63a3fd3a3c5dbed38611f33fb66402",
+			"approved": true
+		},
+		{
+			"source": "assets/quills/public/quills-brand-kit.html",
+			"target": "apps/web/public/quills-brand-kit.html",
+			"sha256": "04735fe967e01880e48cc484960379cf5435b83ace5e3e8a6c5c4512e6679d8e",
+			"approved": true
+		},
+		{
+			"source": "assets/quills/public/favicon-dark-16x16.png",
+			"target": "apps/web/public/favicon-dark-16x16.png",
+			"sha256": "13014861c5188b52e21eb8b49f3f4a9c1a451dd3b9883f482012da9b754573d2",
+			"approved": true
+		},
+		{
+			"source": "assets/quills/public/favicon-dark-32x32.png",
+			"target": "apps/web/public/favicon-dark-32x32.png",
+			"sha256": "15b4d7844efb91c830176b2453459b3278ab1dc449a10b8e21afcc72d4867bd8",
+			"approved": true
+		},
+		{
+			"source": "assets/quills/public/favicon-dark-48x48.png",
+			"target": "apps/web/public/favicon-dark-48x48.png",
+			"sha256": "e52acd3adc59066abda7d3f3429518b0601a1c3d84baecef61559d740939f0ca",
+			"approved": true
+		},
+		{
+			"source": "assets/quills/public/favicon-dark-96x96.png",
+			"target": "apps/web/public/favicon-dark-96x96.png",
+			"sha256": "fc6fc64234532dbe6cc806066a053bafefd03bb0ab2c8a4ec601306f4c5053dc",
+			"approved": true
+		},
+		{
+			"source": "assets/quills/public/favicon-light-16x16.png",
+			"target": "apps/web/public/favicon-light-16x16.png",
+			"sha256": "905274ba8e06cfad85ea5068bc717bc91bdf4d52bae301f748fd75f8dfffb9ba",
+			"approved": true
+		},
+		{
+			"source": "assets/quills/public/favicon-light-32x32.png",
+			"target": "apps/web/public/favicon-light-32x32.png",
+			"sha256": "9a8a93b4b9908e2a99905cd8dfffa3aefced8fe8a6199da564c0f65bcc649b20",
+			"approved": true
+		},
+		{
+			"source": "assets/quills/public/favicon-light-48x48.png",
+			"target": "apps/web/public/favicon-light-48x48.png",
+			"sha256": "7149449bbc456f29e7385ba56a085ef313d0aa226d4be77c7e8d1b74a08a57df",
+			"approved": true
+		},
+		{
+			"source": "assets/quills/public/favicon-light-96x96.png",
+			"target": "apps/web/public/favicon-light-96x96.png",
+			"sha256": "f9733be7127c17fbcb074364ad8eb7bdc04ed0b20447f1a4d8a84d31c73ba498",
+			"approved": true
+		},
+		{
+			"source": "assets/quills/public/logo-dark.svg",
+			"target": "apps/site/public/logo-dark.svg",
+			"sha256": "4cd8af34bc28b51e5f3d6672a6fbf972380e5030b7c55a15a4f1af63ced70135",
+			"approved": true
+		},
+		{
+			"source": "assets/quills/public/logo-light.svg",
+			"target": "apps/site/public/logo-light.svg",
+			"sha256": "5ef42cdf5e5305462d623cf357e262fe0291c107e958e05c8bf30eb81d3bcfbd",
+			"approved": true
+		},
+		{
+			"source": "assets/quills/public/favicon.svg",
+			"target": "apps/site/public/favicon.svg",
+			"sha256": "15172b242089dcafca6eb6919b19c44a993505471cae74bc4309696f1499ad52",
+			"approved": true
+		},
+		{
+			"source": "assets/quills/public/favicon.ico",
+			"target": "apps/site/public/favicon.ico",
+			"sha256": "468ab8441da748f5d46e01dd225722519d6f3b98bc06ae59a3db1eef715599e2",
+			"approved": true
+		},
+		{
+			"source": "assets/quills/public/apple-touch-icon.png",
+			"target": "apps/site/public/apple-touch-icon.png",
+			"sha256": "09f59ec6f7ba10bd992c0e9ff3b0552934bbb385cf4fdb38aec724503d93bc7b",
+			"approved": true
+		},
+		{
+			"source": "assets/quills/public/web-app-manifest-512x512.png",
+			"target": "apps/site/public/logo-512.png",
+			"sha256": "4b6f0b563c91525daf6e02b21a3a67d1e2d86ab463e4d21d04fe0a4e95554122",
+			"approved": true
+		},
+		{
+			"source": "assets/quills/public/logo-dark.svg",
+			"target": "apps/docs/logo/dark.svg",
+			"sha256": "4cd8af34bc28b51e5f3d6672a6fbf972380e5030b7c55a15a4f1af63ced70135",
+			"approved": true
+		},
+		{
+			"source": "assets/quills/public/logo-dark.svg",
+			"target": "apps/mobile/assets/brand/logo-dark.svg",
+			"sha256": "4cd8af34bc28b51e5f3d6672a6fbf972380e5030b7c55a15a4f1af63ced70135",
+			"approved": true
+		},
+		{
+			"source": "assets/quills/public/logo-light.svg",
+			"target": "apps/docs/logo/light.svg",
+			"sha256": "5ef42cdf5e5305462d623cf357e262fe0291c107e958e05c8bf30eb81d3bcfbd",
+			"approved": true
+		},
+		{
+			"source": "assets/quills/public/logo-light.svg",
+			"target": "apps/mobile/assets/brand/logo-light.svg",
+			"sha256": "5ef42cdf5e5305462d623cf357e262fe0291c107e958e05c8bf30eb81d3bcfbd",
+			"approved": true
+		},
+		{
+			"source": "assets/quills/public/favicon.svg",
+			"target": "apps/docs/favicon.svg",
+			"sha256": "15172b242089dcafca6eb6919b19c44a993505471cae74bc4309696f1499ad52",
+			"approved": true
+		},
+		{
+			"source": "assets/quills/public/icon-1024.png",
+			"target": "apps/mobile/assets/images/icon.png",
+			"sha256": "e6a248cbec4003f902e9d5a6c5130ac18fbd2c5663cfe7ab414968b94ad7cdc9",
+			"approved": true
+		},
+		{
+			"source": "assets/quills/public/native/android-icon-background.png",
+			"target": "apps/mobile/assets/images/android-icon-background.png",
+			"sha256": "30c660d3ebe5942f83bd7188dbc118020e00ff08d3ea3349d2d48bf6389c6f7d",
+			"approved": true
+		},
+		{
+			"source": "assets/quills/public/native/android-icon-background.png",
+			"target": "apps/web/public/native/android-icon-background.png",
+			"sha256": "30c660d3ebe5942f83bd7188dbc118020e00ff08d3ea3349d2d48bf6389c6f7d",
+			"approved": true
+		},
+		{
+			"source": "assets/quills/public/native/android-icon-foreground.png",
+			"target": "apps/mobile/assets/images/android-icon-foreground.png",
+			"sha256": "7f24d4981e6048f4af51e16aec46fd3415809ad3b46654f333e8c70f5a7f0752",
+			"approved": true
+		},
+		{
+			"source": "assets/quills/public/native/android-icon-foreground.png",
+			"target": "apps/web/public/native/android-icon-foreground.png",
+			"sha256": "7f24d4981e6048f4af51e16aec46fd3415809ad3b46654f333e8c70f5a7f0752",
+			"approved": true
+		},
+		{
+			"source": "assets/quills/public/native/android-icon-monochrome.png",
+			"target": "apps/mobile/assets/images/android-icon-monochrome.png",
+			"sha256": "fc6d2d7f497292cad0d36b4bb2bb68feb6b03e875751ad356ad5ba167c95fdfb",
+			"approved": true
+		},
+		{
+			"source": "assets/quills/public/native/android-icon-monochrome.png",
+			"target": "apps/web/public/native/android-icon-monochrome.png",
+			"sha256": "fc6d2d7f497292cad0d36b4bb2bb68feb6b03e875751ad356ad5ba167c95fdfb",
+			"approved": true
+		},
+		{
+			"source": "assets/quills/public/native/notification-icon.png",
+			"target": "apps/mobile/assets/images/notification-icon.png",
+			"sha256": "4f4eb744f2ec1461913336c8b314b438f9344b416048a0ec7eea286656866a62",
+			"approved": true
+		},
+		{
+			"source": "assets/quills/public/native/notification-icon.png",
+			"target": "apps/web/public/native/notification-icon.png",
+			"sha256": "4f4eb744f2ec1461913336c8b314b438f9344b416048a0ec7eea286656866a62",
+			"approved": true
+		},
+		{
+			"source": "assets/quills/public/native/splash-icon.png",
+			"target": "apps/mobile/assets/images/splash-icon.png",
+			"sha256": "8c35daa7e377eb6be0f6e7015447a63d49dfe474c33964a11ea4a2dafb9b11a4",
+			"approved": true
+		},
+		{
+			"source": "assets/quills/public/native/splash-icon.png",
+			"target": "apps/web/public/native/splash-icon.png",
+			"sha256": "8c35daa7e377eb6be0f6e7015447a63d49dfe474c33964a11ea4a2dafb9b11a4",
+			"approved": true
+		},
+		{
+			"source": "assets/quills/public/native/splash-icon-dark.png",
+			"target": "apps/mobile/assets/images/splash-icon-dark.png",
+			"sha256": "f708efbfde66d062302f1b33c5ad6ffe028181c6800faa5f76b1efd3e81a04ec",
+			"approved": true
+		},
+		{
+			"source": "assets/quills/public/native/splash-icon-dark.png",
+			"target": "apps/web/public/native/splash-icon-dark.png",
+			"sha256": "f708efbfde66d062302f1b33c5ad6ffe028181c6800faa5f76b1efd3e81a04ec",
+			"approved": true
+		},
+		{
+			"source": "assets/quills/quills-brand-kit.zip",
+			"target": "apps/web/public/quills-brand-kit.zip",
+			"sha256": "3c7001de75071c181da97bdf3adb19cb4cc80456503ecab764fc6be238baef48",
+			"approved": true
+		}
+	],
+	"repositoryUrl": "https://repository.playbookmedia.io",
+	"supportEmail": "support@playbookmedia.io",
+	"releaseApiUrl": "https://quills-release.playbookmedia.io",
+	"imageBase": "ghcr.io/playbookmediallc",
+	"mcpRegistryName": "io.github.playbookmediallc/quills",
+	"appStoreUrl": null,
+	"npmScope": ""
+}

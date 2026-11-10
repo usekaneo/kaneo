@@ -1,3 +1,4 @@
+import { brandText } from "@kaneo/branding";
 import fs from "node:fs";
 import path from "node:path";
 import { authors } from "./authors";
@@ -43,7 +44,7 @@ function resolveImage(explicit: unknown, slug: string, categorySlug: string) {
 function readPost(file: string): BlogPost {
   const slug = file.replace(/\.md$/, "");
   const raw = fs.readFileSync(path.join(CONTENT_DIR, file), "utf8");
-  const { data, content } = parseFrontmatter(raw, file);
+  const { data, content } = parseFrontmatter(brandText(raw), file);
 
   const authorId = required(data.author, "author", file);
   const author = authors[authorId];

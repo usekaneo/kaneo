@@ -14,7 +14,7 @@ services:
     healthcheck:
       disable: true
   postgres:
-    image: postgres:18
+    image: pgvector/pgvector:0.8.7-pg18-bookworm
     environment:
       POSTGRES_DB: kaneo_ci_test
       POSTGRES_USER: postgres

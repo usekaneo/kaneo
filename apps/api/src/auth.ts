@@ -1,3 +1,4 @@
+import { brandText } from "@kaneo/branding";
 import { readClientIp } from "./utils/client-ip";
 import { deleteNativeWorkspace } from "./workspace/lifecycle/delete-native-workspace";
 import {
@@ -237,7 +238,10 @@ async function shouldDeliverSignInEmail(email: string) {
   return true;
 }
 
-function getAuthEmailCopy(locale?: string | null, instanceName = "Kaneo") {
+function getAuthEmailCopy(
+  locale?: string | null,
+  instanceName = brandText("Kaneo"),
+) {
   const localeKey = getLocaleKey(locale);
 
   if (localeKey === "de") {
@@ -410,7 +414,7 @@ export const auth = betterAuth({
       ? [
           anonymous({
             generateName: async () => generateDemoName(),
-            emailDomainName: "kaneo.app",
+            emailDomainName: "guest.invalid",
           }),
         ]
       : []),

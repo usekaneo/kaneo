@@ -1,3 +1,4 @@
+import { brand } from "@kaneo/branding";
 import { describe, expect, it } from "vite-plus/test";
 import { DEFAULT_KANEO_URL, parseArgs } from "./args.js";
 
@@ -67,7 +68,7 @@ describe("DEFAULT_KANEO_URL", () => {
   it("points at Kaneo Cloud and is echoed in the help text", async () => {
     const { HELP_TEXT } = await import("./args.js");
 
-    expect(DEFAULT_KANEO_URL).toBe("https://cloud.kaneo.app");
+    expect(DEFAULT_KANEO_URL).toBe(brand.clientUrl);
     expect(HELP_TEXT).toContain(DEFAULT_KANEO_URL);
   });
 });

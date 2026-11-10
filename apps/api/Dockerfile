@@ -10,9 +10,14 @@ WORKDIR /app
 
 # Copy only package files first for better caching
 COPY pnpm-workspace.yaml package.json pnpm-lock.yaml vite.config.ts ./
+COPY branding ./branding
+RUN node -e "require('./branding/index.cjs').assertReleaseBrand()"
+COPY scripts/branding ./scripts/branding
 COPY patches ./patches
 COPY packages/typescript-config/package.json ./packages/typescript-config/
 COPY packages/email/package.json ./packages/email/
+COPY packages/ids/package.json ./packages/ids/
+COPY packages/logger/package.json ./packages/logger/
 COPY packages/libs/package.json ./packages/libs/
 COPY packages/permissions/package.json ./packages/permissions/
 COPY packages/importers/package.json ./packages/importers/
@@ -25,6 +30,8 @@ RUN pnpm install --frozen-lockfile
 # Copy source files
 COPY packages/typescript-config ./packages/typescript-config
 COPY packages/email ./packages/email
+COPY packages/ids ./packages/ids
+COPY packages/logger ./packages/logger
 COPY packages/libs ./packages/libs
 COPY packages/permissions ./packages/permissions
 COPY packages/importers ./packages/importers
@@ -59,10 +66,15 @@ RUN corepack enable && corepack prepare pnpm@12.15.0 --activate
 WORKDIR /app
 
 COPY pnpm-workspace.yaml package.json pnpm-lock.yaml vite.config.ts ./
+COPY branding ./branding
+RUN node -e "require('./branding/index.cjs').assertReleaseBrand()"
+COPY scripts/branding ./scripts/branding
 COPY patches ./patches
 COPY packages/typescript-config/package.json ./packages/typescript-config/
 COPY packages/libs/package.json ./packages/libs/
 COPY packages/email/package.json ./packages/email/
+COPY packages/ids/package.json ./packages/ids/
+COPY packages/logger/package.json ./packages/logger/
 COPY packages/permissions/package.json ./packages/permissions/
 COPY packages/importers/package.json ./packages/importers/
 COPY packages/mcp/package.json ./packages/mcp/
@@ -87,9 +99,12 @@ ENV NODE_ENV=production
 COPY --from=prod-deps --chown=appuser:appuser /app ./
 
 # Built application and workspace packages
+COPY --from=builder /app/branding ./branding
 COPY --from=builder --chown=appuser:appuser /app/apps/api/dist ./apps/api/dist
 COPY --from=builder --chown=appuser:appuser /app/apps/api/drizzle ./apps/api/drizzle
 COPY --from=builder --chown=appuser:appuser /app/packages/email ./packages/email
+COPY --from=builder --chown=appuser:appuser /app/packages/ids ./packages/ids
+COPY --from=builder --chown=appuser:appuser /app/packages/logger ./packages/logger
 COPY --from=builder --chown=appuser:appuser /app/packages/permissions ./packages/permissions
 COPY --from=builder --chown=appuser:appuser /app/packages/importers/dist ./packages/importers/dist
 COPY --from=builder --chown=appuser:appuser /app/packages/mcp/dist ./packages/mcp/dist

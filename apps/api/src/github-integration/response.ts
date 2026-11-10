@@ -1,3 +1,4 @@
+import { brandText } from "@kaneo/branding";
 import { responseTimestamp, z } from "../openapi";
 
 export const importResultSchema = z
@@ -28,10 +29,14 @@ export const githubIntegrationSchema = z
     branchPattern: z.string().optional().openapi({
       description: "Template used to name branches created for a task.",
     }),
-    commentTaskLinkOnGitHubIssue: z.boolean().optional().openapi({
-      description:
-        "When on, Kaneo comments a link back to the task on the linked GitHub issue.",
-    }),
+    commentTaskLinkOnGitHubIssue: z
+      .boolean()
+      .optional()
+      .openapi({
+        description: brandText(
+          "When on, Kaneo comments a link back to the task on the linked GitHub issue.",
+        ),
+      }),
     isActive: z.boolean().nullable(),
     createdAt: responseTimestamp,
     updatedAt: responseTimestamp,

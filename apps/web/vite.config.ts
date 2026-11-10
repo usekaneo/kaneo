@@ -1,3 +1,9 @@
+import { brandResources } from "@kaneo/branding";
+import { foldBrandCalls } from "../../scripts/branding/source.mjs";
+import { brandHtml } from "../../scripts/branding/html.mjs";
+import { packageOutput } from "../../scripts/branding/package-output.mjs";
+import { prepareWebPublic } from "../../scripts/branding/prepare-web-public.mjs";
+
 import path from "node:path";
 import babel from "@rolldown/plugin-babel";
 import { sentryVitePlugin } from "@sentry/vite-plugin";
@@ -46,6 +52,30 @@ export default defineConfig({
   },
   base: "/",
   plugins: lazyPlugins(() => [
+    {
+      name: "fork-branding",
+      enforce: "pre",
+      async config() {
+        return { publicDir: await prepareWebPublic() };
+      },
+      transform(source, id) {
+        const filename = id.split("?")[0] ?? id;
+        if (/\/i18n\/[a-z]{2}-[A-Z]{2}\.json$/.test(filename))
+          return JSON.stringify(brandResources(JSON.parse(source)));
+        if (
+          filename.includes("/apps/web/src/") &&
+          /\.[jt]sx?$/.test(filename) &&
+          source.includes("@kaneo/branding")
+        )
+          return foldBrandCalls(source, filename);
+      },
+      transformIndexHtml(html) {
+        return brandHtml(html);
+      },
+      async closeBundle() {
+        await packageOutput("apps/web/public", "apps/web/dist");
+      },
+    },
     tanstackRouter({
       autoCodeSplitting: true,
       // Keep co-located route tests out of the generated route tree.

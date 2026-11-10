@@ -1,0 +1,22 @@
+{
+  "name": "quills",
+  "short_name": "quills",
+  "start_url": "/",
+  "display": "standalone",
+  "theme_color": "#171717",
+  "background_color": "#171717",
+  "icons": [
+    {
+      "src": "/web-app-manifest-192x192.png?brand=7b87a473265d9d01a69c9de29c8b9ce96eae842d2ddfb5c0da68b2dc127dc146",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "maskable"
+    },
+    {
+      "src": "/web-app-manifest-512x512.png?brand=4b6f0b563c91525daf6e02b21a3a67d1e2d86ab463e4d21d04fe0a4e95554122",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ]
+}

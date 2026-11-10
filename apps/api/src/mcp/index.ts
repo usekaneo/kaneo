@@ -1,3 +1,4 @@
+import { brandText } from "@kaneo/branding";
 import { WebStandardStreamableHTTPServerTransport } from "@modelcontextprotocol/sdk/server/webStandardStreamableHttp.js";
 import {
   isJsonContentType,
@@ -130,12 +131,13 @@ const authorizeRoute = createRoute({
   path: "/mcp/authorize",
   tags: ["MCP"],
   summary: "Start MCP authorization",
-  description:
+  description: brandText(
     "Begin an MCP OAuth authorization. Redirects the browser to the Kaneo consent page, which then approves or denies the request.",
+  ),
   security: [],
   request: { query: authorizationQuerySchema },
   responses: {
-    302: { description: "Redirect to the Kaneo consent page" },
+    302: { description: brandText("Redirect to the Kaneo consent page") },
     400: jsonError("Invalid authorization request"),
   },
 });

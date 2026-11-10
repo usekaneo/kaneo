@@ -62,3 +62,6 @@ apps/web/.tanstack/
 # TypeScript incremental build state
 *.tsbuildinfo
 .vitest/
+
+# code-review-graph database (built per session)
+.code-review-graph/

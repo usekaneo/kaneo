@@ -1,3 +1,4 @@
+import { brandText } from "@kaneo/branding";
 import { and, eq } from "drizzle-orm";
 import db from "../../database";
 import {
@@ -153,7 +154,7 @@ async function sendSlackMessage(
             type: "mrkdwn",
             text: data.actorName
               ? `Triggered by ${escapeSlack(data.actorName)}`
-              : "Triggered by Kaneo",
+              : brandText("Triggered by Kaneo"),
           },
         ],
       },

@@ -1,3 +1,4 @@
+import { brandText } from "@kaneo/branding";
 import {
   boardProjectName,
   buildDescription,
@@ -179,7 +180,7 @@ async function migrateBoard(context: {
   for (const column of columns) {
     if (column.renamedFrom) {
       report.warnings.push(
-        `List "${column.renamedFrom}" was imported as column "${column.name}" to avoid a naming conflict in Kaneo.`,
+        `List "${column.renamedFrom}" was imported as column "${column.name}${brandText('" to avoid a naming conflict in Kaneo.')}`,
       );
     }
   }
@@ -369,7 +370,7 @@ async function migrateBoard(context: {
   }
   if (notAWorkspaceMember > 0) {
     report.warnings.push(
-      `${notAWorkspaceMember} card assignment(s) were skipped because no member of this Kaneo workspace has a matching email. Invite those people to the workspace first, then re-run.`,
+      `${notAWorkspaceMember}${brandText(" card assignment(s) were skipped because no member of this Kaneo workspace has a matching email. Invite those people to the workspace first, then re-run.")}`,
     );
   }
 }

@@ -1,3 +1,4 @@
+import { brandText } from "@kaneo/branding";
 import type {
   ConnectOptions,
   ImportedProject,
@@ -94,7 +95,9 @@ function normalizeCredentials(
     throw new Error("That does not look like a Trello API key.");
   }
   if (!token) {
-    throw new Error("Paste the token Trello shows after you authorize Kaneo.");
+    throw new Error(
+      brandText("Paste the token Trello shows after you authorize Kaneo."),
+    );
   }
   if (!CREDENTIAL_FORMAT.test(token)) {
     throw new Error(

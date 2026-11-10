@@ -1,3 +1,4 @@
+import { brandText } from "@kaneo/branding";
 import { Effect, Option } from "effect";
 import { Argument, Command } from "effect/cli";
 import { ConfigStore } from "../../config/config-store.js";
@@ -86,7 +87,7 @@ export const runProfileUse = Effect.fn("command.profile.use")(
     const override = environment.env.KANEO_PROFILE?.trim();
     if (override && override !== name) {
       yield* note((ui) => [
-        `  ${ui.theme.warning(ui.glyphs.warning)} KANEO_PROFILE is set to ${override} and is used instead until you unset it.`,
+        `  ${ui.theme.warning(ui.glyphs.warning)}${brandText(" KANEO_PROFILE is set to ")}${override} and is used instead until you unset it.`,
         "",
       ]);
     }

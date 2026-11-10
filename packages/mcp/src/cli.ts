@@ -1,3 +1,4 @@
+import { brandText } from "@kaneo/branding";
 import { stdin as input } from "node:process";
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
 import { runInstall } from "./install/index.js";
@@ -39,21 +40,7 @@ async function startMcpServer(): Promise<void> {
 }
 
 function printMainHelp(): void {
-  console.log(`kaneo-mcp: Kaneo MCP server (stdio transport)
-
-Usage:
-  npx @kaneo/mcp         Interactive installer (terminal only; no global install)
-  kaneo-mcp              Same: installer in a TTY; MCP server when stdin is piped
-  kaneo-mcp install      Register in Cursor / Claude / a custom path (explicit)
-  kaneo-mcp serve        Run the MCP server (use from a terminal to test stdio)
-  kaneo-mcp help
-
-Options:
-  -h, --help             Show this help
-
-MCP clients (Cursor, etc.) run this process with a pipe, so they get the server.
-In a normal terminal, the default is the interactive installer.
-
-See also: kaneo-mcp install --help
-`);
+  console.log(
+    `${brandText("kaneo-mcp: Kaneo MCP server (stdio transport)\n\nUsage:\n  npx @kaneo/mcp         Interactive installer (terminal only; no global install)\n  kaneo-mcp              Same: installer in a TTY; MCP server when stdin is piped\n  kaneo-mcp install      Register in Cursor / Claude / a custom path (explicit)\n  kaneo-mcp serve        Run the MCP server (use from a terminal to test stdio)\n  kaneo-mcp help\n\nOptions:\n  -h, --help             Show this help\n\nMCP clients (Cursor, etc.) run this process with a pipe, so they get the server.\nIn a normal terminal, the default is the interactive installer.\n\nSee also: kaneo-mcp install --help\n")}`,
+  );
 }

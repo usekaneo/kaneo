@@ -1,5 +1,5 @@
+import { brand } from "@kaneo/branding";
 import type { Metadata, Viewport } from "next";
-import Script from "next/script";
 import { ThemeSync } from "@/components/landing/theme-sync";
 import { landing } from "@/lib/landing";
 import "./globals.css";
@@ -22,7 +22,7 @@ export const metadata: Metadata = {
   },
   description: siteDescription,
   keywords: [
-    "kaneo",
+    brand.name,
     "project management",
     "project management software",
     "kanban",
@@ -145,17 +145,6 @@ export default function RootLayout({
           // eslint-disable-next-line react/no-danger -- JSON-LD structured data must be inlined as a script tag for search engines to parse.
           dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
         />
-        <Script
-          defer
-          data-domain="kaneo.app"
-          src="https://plausible.kaneo.app/js/script.file-downloads.hash.outbound-links.pageview-props.revenue.tagged-events.js"
-          strategy="afterInteractive"
-        />
-        <Script id="plausible-init" strategy="afterInteractive">
-          {
-            "window.plausible = window.plausible || function() { (window.plausible.q = window.plausible.q || []).push(arguments) }"
-          }
-        </Script>
       </body>
     </html>
   );

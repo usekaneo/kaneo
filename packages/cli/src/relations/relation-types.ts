@@ -1,3 +1,4 @@
+import { brandText } from "@kaneo/branding";
 import { Result } from "effect";
 import type { NewTaskRelation } from "../api/task-relations.js";
 import { InvalidArgument } from "../errors/errors.js";
@@ -44,7 +45,7 @@ export function parseRelationType(
   return Result.fail(
     new InvalidArgument({
       message: UNSUPPORTED.has(word)
-        ? `Kaneo has no "${input.trim()}" relation.`
+        ? `${brandText('Kaneo has no "')}${input.trim()}" relation.`
         : `"${input.trim()}" is not a relation type.`,
       hint: UNSUPPORTED.has(word)
         ? `${TYPE_HINT} relates-to is the closest match.`

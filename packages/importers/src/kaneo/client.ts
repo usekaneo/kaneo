@@ -1,3 +1,4 @@
+import { brandText } from "@kaneo/branding";
 import { createJsonClient, SourceHttpError } from "../http.js";
 import type { FetchLike } from "../types.js";
 
@@ -132,13 +133,14 @@ export const BOARD_PAGE_SIZE = 100;
 
 export function createKaneoClient(options: KaneoClientOptions): KaneoClient {
   const http = createJsonClient({
-    service: "Kaneo",
+    service: brandText("Kaneo"),
     baseUrl: options.baseUrl,
     headers: () => ({ Authorization: `Bearer ${options.apiKey}` }),
     fetch: options.fetch,
     signal: options.signal,
-    describeUnauthorized:
+    describeUnauthorized: brandText(
       "Kaneo rejected the API key (HTTP 401). Check that the key is active and was created on this instance.",
+    ),
   });
 
   async function list<T>(path: string): Promise<T[]> {
@@ -226,7 +228,7 @@ export function toBoardPage(body: unknown): KaneoBoardPage {
   }
   if (isBoard(body)) return { board: body, pagination: {} };
   throw new Error(
-    "Kaneo returned an unexpected response for the project board.",
+    brandText("Kaneo returned an unexpected response for the project board."),
   );
 }
 
@@ -240,6 +242,6 @@ function isBoard(value: unknown): value is KaneoBoard {
 
 function notKaneoError(baseUrl: string): Error {
   return new Error(
-    `No Kaneo API answered at ${baseUrl}. Check the instance URL; if the web app and API are hosted separately, use the API URL.`,
+    `${brandText("No Kaneo API answered at ")}${baseUrl}. Check the instance URL; if the web app and API are hosted separately, use the API URL.`,
   );
 }

@@ -1,3 +1,4 @@
+import { brandText } from "@kaneo/branding";
 import { existsSync } from "node:fs";
 import { Effect, Option } from "effect";
 import { Command } from "effect/cli";
@@ -79,7 +80,9 @@ const checkLogin = Effect.fn("doctor.login")(function* (session: SessionShape) {
     return {
       name: "login",
       ok: false,
-      detail: "Not signed in. Run kaneo login, or set KANEO_API_KEY.",
+      detail: brandText(
+        "Not signed in. Run kaneo login, or set KANEO_API_KEY.",
+      ),
     } satisfies DoctorCheck;
   }
   const user = yield* Effect.result(getCurrentUser());

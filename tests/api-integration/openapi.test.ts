@@ -1,3 +1,4 @@
+import { brandText } from "../../branding/index.cjs";
 import { beforeAll, describe, expect, it } from "vite-plus/test";
 import { createApp } from "../../apps/api/src/index";
 
@@ -46,7 +47,7 @@ beforeAll(async () => {
 describe("Kaneo API OpenAPI spec", () => {
   it("is a valid OpenAPI 3.1 document", () => {
     expect(spec.openapi).toBe("3.1.0");
-    expect(spec.info.title).toBe("Kaneo API");
+    expect(spec.info.title).toBe(brandText("Kaneo API"));
   });
 
   it("requires bearer auth globally", () => {

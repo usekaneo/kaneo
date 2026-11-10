@@ -1,3 +1,4 @@
+import { brand } from "@kaneo/branding";
 import { HTTPException } from "hono/http-exception";
 import { beforeEach, describe, expect, it, vi } from "vite-plus/test";
 
@@ -80,7 +81,7 @@ describe("active imports", () => {
     expect(refused).toBeInstanceOf(HTTPException);
     expect(refused).toMatchObject({
       status: 503,
-      message: "Kaneo is restarting. Start the import again in a minute.",
+      message: `${brand.name} is restarting. Start the import again in a minute.`,
     });
     expect(registry.activeImportSlots()).toEqual([]);
   });

@@ -1,3 +1,4 @@
+import { brandText } from "@kaneo/branding";
 import { boardTasks, type MergedBoard, mergeBoardPages } from "./board.js";
 import type { KaneoBoard, KaneoClient } from "./client.js";
 
@@ -31,6 +32,7 @@ export async function readBoard(
   }
 
   const [project] = pages;
-  if (!project) throw new Error("Kaneo returned no board for this project.");
+  if (!project)
+    throw new Error(brandText("Kaneo returned no board for this project."));
   return { project, ...mergeBoardPages(pages) };
 }

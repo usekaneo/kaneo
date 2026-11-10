@@ -1,3 +1,4 @@
+import { brandText } from "@kaneo/branding";
 import { describe, expect, it, vi } from "vite-plus/test";
 import type { FetchLike } from "../types.js";
 import { connectKaneo } from "./index.js";
@@ -330,7 +331,7 @@ describe("connectKaneo", () => {
 
     await expect(
       connectKaneo({ url: BASE, apiKey: API_KEY }, { fetch: fake.fetch }),
-    ).rejects.toThrow(`No Kaneo API answered at ${BASE}`);
+    ).rejects.toThrow(`${brandText("No Kaneo API answered at ")}${BASE}`);
   });
 
   it("requires a URL and an API key", async () => {
@@ -512,7 +513,9 @@ describe("readProject", () => {
     expect(project.relations).toEqual([]);
     expect(project.warnings).toEqual([
       "Workspace members could not be read, so assignees and comment authors carry over by name only.",
-      "This Kaneo version does not expose task links, so they are not copied.",
+      brandText(
+        "This Kaneo version does not expose task links, so they are not copied.",
+      ),
     ]);
     expect(
       fake.paths().filter((path) => path.startsWith("/api/task-relation/")),
@@ -588,7 +591,9 @@ describe("readProject", () => {
     const project = await source.readProject("p1", { includeComments: true });
 
     expect(project.warnings).not.toContain(
-      "This Kaneo version does not expose task links, so they are not copied.",
+      brandText(
+        "This Kaneo version does not expose task links, so they are not copied.",
+      ),
     );
     expect(fake.paths()).toContain("/api/task-relation/t4");
     expect(project.relations).toContainEqual({

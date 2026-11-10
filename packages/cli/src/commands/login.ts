@@ -1,3 +1,4 @@
+import { brandText } from "@kaneo/branding";
 import { Effect, Option, Redacted } from "effect";
 import { Command, Flag } from "effect/cli";
 import { getCurrentUser, listWorkspaces } from "../api/endpoints.js";
@@ -187,7 +188,7 @@ export const runLogin = Effect.fn("command.login")(function* (options: {
   const overriding = Option.getOrUndefined(session.credentials)?.source;
   if (overriding === "env") {
     yield* note((ui) => [
-      `  ${ui.theme.warning(ui.glyphs.warning)} KANEO_API_KEY is set and is used instead of this login until you unset it.`,
+      `  ${ui.theme.warning(ui.glyphs.warning)}${brandText(" KANEO_API_KEY is set and is used instead of this login until you unset it.")}`,
       "",
     ]);
   }

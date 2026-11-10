@@ -1,0 +1,80 @@
+export { quillsSchema } from "../tenancy";
+// Better-auth tables (for Drizzle relational queries and joins)
+// These tables are managed by better-auth CLI, we define schema for type-safety
+export * from "./auth";
+export * from "./rbac";
+
+// Application schemas
+export * from "./boards";
+export * from "./statuses";
+export * from "./posts";
+export * from "./companies";
+export * from "./company-attributes";
+export * from "./post-mentions";
+export * from "./post-views";
+export * from "./integrations";
+export * from "./changelog";
+export * from "./changelog-categories";
+export * from "./changelog-subscriptions";
+export * from "./status";
+export * from "./conversation";
+export * from "./conversation-summary";
+export * from "./conversation-views";
+export * from "./conversation-attributes";
+export * from "./teams";
+export * from "./tickets";
+export * from "./ticket-types";
+export * from "./ticket-summary";
+export * from "./ticket-subscriptions";
+export * from "./ticket-activity";
+export * from "./channel-accounts";
+export * from "./email-ses-tenant";
+export * from "./channel-threads";
+export * from "./office-hours";
+export * from "./sla";
+export * from "./workflows";
+export * from "./channel-identities";
+export * from "./notifications";
+export * from "./sentiment";
+export * from "./api-keys";
+export * from "./webhooks";
+export * from "./external-links";
+export * from "./segments";
+export * from "./user-attributes";
+export * from "./user-tags";
+export * from "./merge-suggestions";
+export * from "./activity";
+export * from "./ai-usage-log";
+export * from "./email-log";
+export * from "./kb";
+export * from "./analytics";
+export * from "./visitor-analytics";
+export * from "./hook-deliveries";
+export * from "./events";
+export * from "./job-queue";
+export * from "./kv";
+export * from "./apps";
+export * from "./audit-log";
+export * from "./push-devices";
+export * from "./assistant";
+export * from "./files";
+export * from "./assistant-guidance";
+export * from "./assistant-pending-actions";
+export * from "./assistant-tool-calls";
+export * from "./assistant-events";
+export * from "./connectors";
+export * from "./agent-skills";
+export * from "./assistant-web-sources";
+export * from "./macros";
+export * from "./import-runs";
+export * from "./export-runs";
+export * from "./labs";
+
+export * from "./slack";
+export * from "./integration-deliveries";
+export * from "./integration-sync";
+
+export * from "./workspace-assistant";
+export * from "./onboarding-emails";
+
+export * from "./platform-links";

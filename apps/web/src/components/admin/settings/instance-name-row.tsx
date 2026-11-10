@@ -1,3 +1,4 @@
+import { brandText } from "@kaneo/branding";
 import { useId, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { SettingsRow } from "@/components/settings/settings-row";
@@ -40,7 +41,7 @@ export function InstanceNameRow({
           id={id}
           value={draft}
           maxLength={60}
-          placeholder="Kaneo"
+          placeholder={brandText("Kaneo")}
           onChange={(event) => setDraft(event.target.value)}
         />
         <Button

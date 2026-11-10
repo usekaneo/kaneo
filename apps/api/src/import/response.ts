@@ -1,3 +1,4 @@
+import { brandText } from "@kaneo/branding";
 import { IMPORT_SOURCE_IDS } from "@kaneo/importers";
 import { nullableResponseTimestamp, responseTimestamp, z } from "../openapi";
 import {
@@ -38,9 +39,14 @@ export const importRunProjectSchema = z
     sourceId: z.string(),
     name: z.string(),
     status: z.enum(IMPORT_RUN_PROJECT_STATUSES),
-    projectId: z.string().nullable().openapi({
-      description: "The Kaneo project created by the import, once completed.",
-    }),
+    projectId: z
+      .string()
+      .nullable()
+      .openapi({
+        description: brandText(
+          "The Kaneo project created by the import, once completed.",
+        ),
+      }),
     projectSlug: z.string().nullable(),
     counts: importCountsSchema,
     warnings: z.array(z.string()),
@@ -78,10 +84,14 @@ export const importRunListSchema = z
 
 export const trelloAuthorizeUrlSchema = z
   .object({
-    authorizeUrl: z.string().nullable().openapi({
-      description:
-        "Trello page where the user approves read access for Kaneo and copies a token. null when the server has no TRELLO_API_KEY; the user then sends their own Trello API key with the token.",
-    }),
+    authorizeUrl: z
+      .string()
+      .nullable()
+      .openapi({
+        description: brandText(
+          "Trello page where the user approves read access for Kaneo and copies a token. null when the server has no TRELLO_API_KEY; the user then sends their own Trello API key with the token.",
+        ),
+      }),
   })
   .openapi("TrelloAuthorizeUrl");
 

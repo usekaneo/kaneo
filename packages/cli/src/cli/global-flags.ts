@@ -1,3 +1,4 @@
+import { brandText } from "@kaneo/branding";
 import { Flag, GlobalFlag } from "effect/cli";
 import { jqFlagValue } from "../jq/jq-flag-value.js";
 
@@ -30,7 +31,7 @@ export const TokenFlag = GlobalFlag.Setting("token")({
 
 export const ApiUrlFlag = GlobalFlag.Setting("api-url")({
   flag: Flag.String("api-url").pipe(
-    Flag.withDescription("Kaneo server URL (or KANEO_API_URL)"),
+    Flag.withDescription(brandText("Kaneo server URL (or KANEO_API_URL)")),
     Flag.optional,
   ),
 });
@@ -38,14 +39,14 @@ export const ApiUrlFlag = GlobalFlag.Setting("api-url")({
 export const WorkspaceFlag = GlobalFlag.Setting("workspace")({
   flag: Flag.String("workspace").pipe(
     Flag.withAlias("w"),
-    Flag.withDescription("Workspace id (or KANEO_WORKSPACE)"),
+    Flag.withDescription(brandText("Workspace id (or KANEO_WORKSPACE)")),
     Flag.optional,
   ),
 });
 
 export const ProfileFlag = GlobalFlag.Setting("profile")({
   flag: Flag.String("profile").pipe(
-    Flag.withDescription("Stored login to use (or KANEO_PROFILE)"),
+    Flag.withDescription(brandText("Stored login to use (or KANEO_PROFILE)")),
     Flag.optional,
   ),
 });

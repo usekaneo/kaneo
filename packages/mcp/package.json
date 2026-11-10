@@ -1,80 +1,81 @@
 {
-	"name": "@kaneo/mcp",
-	"version": "0.1.14",
-	"mcpName": "io.github.usekaneo/kaneo",
-	"description": "Official MCP (Model Context Protocol) server for Kaneo: manage tasks, projects, and labels from Claude, Cursor, and other MCP clients",
-	"license": "MIT",
-	"author": "Kaneo (https://kaneo.app)",
-	"homepage": "https://kaneo.app/docs/core/integrations/mcp",
-	"repository": {
-		"type": "git",
-		"url": "https://github.com/usekaneo/kaneo/",
-		"directory": "packages/mcp"
-	},
-	"type": "module",
-	"bin": {
-		"kaneo-mcp": "dist/index.js"
-	},
-	"exports": {
-		".": {
-			"import": "./dist/server.js",
-			"types": "./dist/server.d.ts"
-		},
-		"./tools": {
-			"types": "./dist/tools/register.d.ts",
-			"import": "./dist/tools/register.js"
-		},
-		"./device-flow": {
-			"types": "./dist/auth/device-flow.d.ts",
-			"import": "./dist/auth/device-flow.js"
-		},
-		"./normalize-base-url": {
-			"types": "./dist/utils/normalize-base-url.d.ts",
-			"import": "./dist/utils/normalize-base-url.js"
-		}
-	},
-	"publishConfig": {
-		"access": "public"
-	},
-	"files": [
-		"dist",
-		"README.md",
-		"LICENSE"
-	],
-	"keywords": [
-		"ai-agents",
-		"claude",
-		"kanban",
-		"kaneo",
-		"kaneo-mcp",
-		"mcp",
-		"mcp-server",
-		"model-context-protocol",
-		"project-management",
-		"stdio",
-		"tasks"
-	],
-	"scripts": {
-		"build": "vp run compile",
-		"prepublishOnly": "pnpm run build",
-		"dev": "tsx watch src/index.ts",
-		"lint": "vp check .",
-		"start": "node dist/index.js",
-		"test": "vp run test:run",
-		"test:watch": "vp test --config vitest.config.ts"
-	},
-	"dependencies": {
-		"@modelcontextprotocol/sdk": "1.32.2",
-		"open": "^11.0.4",
-		"prompts": "^2.4.2",
-		"zod": "^4.6.7"
-	},
-	"devDependencies": {
-		"@kaneo/typescript-config": "workspace:*",
-		"@types/node": "^26.6.5",
-		"@types/prompts": "^2.4.9",
-		"tsx": "^4.23.15",
-		"typescript": "^7.0.2",
-		"vite-plus": "catalog:"
-	}
+  "name": "@kaneo/mcp",
+  "version": "0.1.14",
+  "mcpName": "io.github.usekaneo/kaneo",
+  "description": "Official MCP (Model Context Protocol) server for Kaneo: manage tasks, projects, and labels from Claude, Cursor, and other MCP clients",
+  "license": "MIT",
+  "author": "Kaneo (https://kaneo.app)",
+  "homepage": "https://kaneo.app/docs/core/integrations/mcp",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/usekaneo/kaneo/",
+    "directory": "packages/mcp"
+  },
+  "type": "module",
+  "bin": {
+    "kaneo-mcp": "dist/index.js"
+  },
+  "exports": {
+    ".": {
+      "import": "./dist/server.js",
+      "types": "./dist/server.d.ts"
+    },
+    "./tools": {
+      "types": "./dist/tools/register.d.ts",
+      "import": "./dist/tools/register.js"
+    },
+    "./device-flow": {
+      "types": "./dist/auth/device-flow.d.ts",
+      "import": "./dist/auth/device-flow.js"
+    },
+    "./normalize-base-url": {
+      "types": "./dist/utils/normalize-base-url.d.ts",
+      "import": "./dist/utils/normalize-base-url.js"
+    }
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
+  "keywords": [
+    "ai-agents",
+    "claude",
+    "kanban",
+    "kaneo",
+    "kaneo-mcp",
+    "mcp",
+    "mcp-server",
+    "model-context-protocol",
+    "project-management",
+    "stdio",
+    "tasks"
+  ],
+  "scripts": {
+    "build": "vp run compile",
+    "prepublishOnly": "node -e \"throw new Error('Publish the prepared .cache/npm/mcp package; see branding/README.md')\"",
+    "dev": "tsx watch src/index.ts",
+    "lint": "vp check .",
+    "start": "node dist/index.js",
+    "test": "vp run test:run",
+    "test:watch": "vp test --config vitest.config.ts"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "1.32.2",
+    "open": "^11.0.4",
+    "prompts": "^2.4.2",
+    "zod": "^4.6.7"
+  },
+  "devDependencies": {
+    "@kaneo/typescript-config": "workspace:*",
+    "@types/node": "^26.6.5",
+    "@types/prompts": "^2.4.9",
+    "tsx": "^4.23.15",
+    "typescript": "^7.0.2",
+    "vite-plus": "catalog:",
+    "@kaneo/branding": "workspace:*"
+  }
 }

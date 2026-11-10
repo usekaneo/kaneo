@@ -1,0 +1,41 @@
+{
+  "name": "@kaneo/ids",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./src/index.ts",
+  "exports": {
+    ".": {
+      "types": "./src/index.ts",
+      "default": "./dist/index.js"
+    },
+    "./zod": {
+      "types": "./src/zod.ts",
+      "default": "./dist/zod.js"
+    },
+    "./drizzle": {
+      "types": "./src/drizzle.ts",
+      "default": "./dist/drizzle.js"
+    }
+  },
+  "scripts": {
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "typecheck": "tsc --noEmit",
+    "build": "esbuild src/index.ts src/drizzle.ts src/zod.ts --bundle --platform=node --format=esm --outdir=dist --external:drizzle-orm --external:zod"
+  },
+  "dependencies": {
+    "typeid-js": "^1.2.0"
+  },
+  "peerDependencies": {
+    "drizzle-orm": ">=0.30.0",
+    "zod": ">=3.0.0"
+  },
+  "devDependencies": {
+    "drizzle-orm": "^0.45.2",
+    "vitest": "^5.0.0",
+    "zod": "^4.6.4",
+    "esbuild": "0.28.2"
+  }
+}

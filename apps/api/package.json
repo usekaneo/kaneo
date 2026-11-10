@@ -23,7 +23,11 @@
     "db:generate": "drizzle-kit generate",
     "db:migrate": "drizzle-kit migrate",
     "db:studio": "drizzle-kit studio",
-    "openapi:export": "tsx scripts/export-openapi.ts"
+    "openapi:export": "tsx scripts/export-openapi.ts",
+    "db:generate:quills": "tsx scripts/generate-quills.ts",
+    "db:migrate:quills": "tsx scripts/migrate-quills.ts",
+    "test:quills": "vp test run --config vitest.config.ts --no-file-parallelism src/database/quills src/quills",
+    "db:transfer:quills": "tsx scripts/transfer-quills.ts"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.1157.0",
@@ -58,7 +62,9 @@
     "pg": "^8.23.1",
     "undici": "^8.12.3",
     "valibot": "^1.5.0",
-    "zod": "^4.6.7"
+    "zod": "^4.6.7",
+    "@kaneo/ids": "workspace:*",
+    "@kaneo/branding": "workspace:*"
   },
   "devDependencies": {
     "@types/node": "^26.6.5",

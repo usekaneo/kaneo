@@ -28,7 +28,9 @@ const notes = [
   {
     title: "Mobile apps",
     body: "The iPhone and iPad app is free for Kaneo Cloud accounts. Using it with a self-hosted server is a one-time $9.99 unlock per person.",
-    link: { label: "Get it on the App Store", href: appStoreUrl },
+    link: appStoreUrl
+      ? { label: "Get it on the App Store", href: appStoreUrl }
+      : undefined,
   },
   {
     title: "Questions?",

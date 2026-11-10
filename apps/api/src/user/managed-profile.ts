@@ -1,3 +1,4 @@
+import { brandText } from "@kaneo/branding";
 import type { ManagedProfileField } from "../utils/custom-oauth-env";
 import {
   mapCustomOAuthProfileToUser,
@@ -14,8 +15,9 @@ export type StoredProfile = {
 
 export const PROFILE_FIELD_MANAGED_BY_PROVIDER = {
   code: "PROFILE_FIELD_MANAGED_BY_PROVIDER",
-  message:
+  message: brandText(
     "Profile fields managed by the identity provider cannot be changed in Kaneo.",
+  ),
 } as const;
 
 // An upload made in Kaneo can still be withdrawn, but never replaced.

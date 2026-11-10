@@ -1,3 +1,4 @@
+const { brandText } = require("@kaneo/branding");
 const fs = require("node:fs");
 const path = require("node:path");
 
@@ -22,7 +23,7 @@ module.exports = function withPermissionLocales(config) {
     const lang = LPROJ[locale] ?? locale.split("-")[0];
     locales[lang] = {
       ...locales[lang],
-      ios: { NSPhotoLibraryUsageDescription: permissions.photos },
+      ios: { NSPhotoLibraryUsageDescription: brandText(permissions.photos) },
     };
   }
   return { ...config, locales };

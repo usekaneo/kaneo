@@ -1,3 +1,4 @@
+import { brandText } from "@kaneo/branding";
 import { responseTimestamp, z } from "../openapi";
 
 // Credentials are only ever returned masked; the webhook secret goes only to
@@ -20,10 +21,14 @@ export const giteaIntegrationSchema = z
         "Only returned to callers with workspace:manage_settings, so the value can be pasted into Gitea.",
     }),
     branchPattern: z.string().optional(),
-    commentTaskLinkOnGiteaIssue: z.boolean().optional().openapi({
-      description:
-        "When on, Kaneo comments a link back to the task on the linked Gitea issue.",
-    }),
+    commentTaskLinkOnGiteaIssue: z
+      .boolean()
+      .optional()
+      .openapi({
+        description: brandText(
+          "When on, Kaneo comments a link back to the task on the linked Gitea issue.",
+        ),
+      }),
     isActive: z.boolean().nullable(),
     createdAt: responseTimestamp,
     updatedAt: responseTimestamp,

@@ -1,3 +1,4 @@
+import { brandText } from "@kaneo/branding";
 import { useQueryClient } from "@tanstack/react-query";
 import {
   ExternalLink,
@@ -94,7 +95,7 @@ export default function CommentCard({
             : externalSource === "linear"
               ? "Linear"
               : externalSource === "kaneo"
-                ? "Kaneo"
+                ? brandText("Kaneo")
                 : externalSource;
   // Gitea and GitLab profile URLs depend on the instance.
   const githubProfileUrl =

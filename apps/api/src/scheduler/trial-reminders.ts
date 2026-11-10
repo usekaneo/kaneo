@@ -1,3 +1,4 @@
+import { brandText } from "@kaneo/branding";
 import { isSmtpConfigured, sendTrialReminderEmail } from "@kaneo/email";
 import { and, asc, eq, gt, isNotNull, isNull, lte } from "drizzle-orm";
 import { isBillingEnabled, trialDays } from "../billing/config";
@@ -47,10 +48,9 @@ const REMINDERS: {
 ];
 
 function clientUrl() {
-  return (process.env.KANEO_CLIENT_URL ?? "https://cloud.kaneo.app").replace(
-    /\/$/,
-    "",
-  );
+  return (
+    process.env.KANEO_CLIENT_URL ?? brandText("https://cloud.kaneo.app")
+  ).replace(/\/$/, "");
 }
 
 async function getWorkspacesNeedingReminder(

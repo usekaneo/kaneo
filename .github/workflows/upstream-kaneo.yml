@@ -1,0 +1,70 @@
+name: Nightly upstream sync
+
+on:
+  schedule:
+    - cron: "17 7 * * *"
+  workflow_dispatch:
+
+permissions: {}
+
+concurrency:
+  group: upstream-kaneo
+  cancel-in-progress: false
+
+jobs:
+  sync:
+    if: ${{ github.repository == 'PlaybookMediaLLC/kaneo' }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    permissions:
+      contents: read
+      pull-requests: write
+    steps:
+      - name: Open or reuse the upstream pull request
+        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
+        with:
+          script: |
+            const base = 'develop';
+            const head = 'usekaneo:main';
+            const { data: comparison } = await github.rest.repos.compareCommitsWithBasehead({
+              ...context.repo,
+              basehead: `${base}...${head}`,
+            });
+            if (!Number.isInteger(comparison.ahead_by) || comparison.ahead_by < 0) {
+              throw new Error('Unexpected upstream comparison; no pull request was created.');
+            }
+            if (comparison.ahead_by === 0) {
+              core.info('develop already contains upstream main; nothing to sync.');
+              return;
+            }
+
+            const query = { ...context.repo, state: 'open', base, head, per_page: 1 };
+            const { data: existing } = await github.rest.pulls.list(query);
+            if (existing.length) {
+              core.info(`Upstream pull request already open: ${existing[0].html_url}`);
+              return;
+            }
+            try {
+              const { data: pull } = await github.rest.pulls.create({
+                ...context.repo,
+                base,
+                head,
+                title: 'chore: sync upstream main into develop',
+                body: [
+                  'Automated update from [`usekaneo/kaneo:main`](https://github.com/usekaneo/kaneo/tree/main) into `develop`.',
+                  '',
+                  'This PR tracks the upstream branch directly. Further upstream commits update this PR without rewriting fork branches.',
+                  '',
+                  'Before merging, review conflicts, migrations, API compatibility, licensing and runner changes. Run the normal CI and public-branding checks. GitHub may require a maintainer to approve workflow runs.',
+                  '',
+                  'This automation does not merge, force-push, deploy, approve CI runs or bypass release gates.',
+                ].join('\n'),
+                maintainer_can_modify: false,
+              });
+              core.info(`Opened upstream pull request: ${pull.html_url}`);
+            } catch (error) {
+              if (error.status !== 422) throw error;
+              const { data: raced } = await github.rest.pulls.list(query);
+              if (!raced.length) throw error;
+              core.info(`Upstream pull request already open: ${raced[0].html_url}`);
+            }

@@ -1,3 +1,4 @@
+import { brandText } from "@kaneo/branding";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import * as BackgroundTask from "expo-background-task";
 import * as Notifications from "expo-notifications";
@@ -51,7 +52,7 @@ export async function checkNotifications(): Promise<void> {
     const shown = hidden > 1 ? unread.slice(-(MAX_POSTED - 1)) : unread;
     if (hidden > 1)
       await post({
-        title: "Kaneo",
+        title: brandText("Kaneo"),
         body: i18n.t("mobile:background.summary", { count: hidden }),
         data: {},
       });

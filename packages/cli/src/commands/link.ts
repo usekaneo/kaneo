@@ -1,3 +1,4 @@
+import { brandText } from "@kaneo/branding";
 import { dirname } from "node:path";
 import { Effect, Option } from "effect";
 import { Command, Flag } from "effect/cli";
@@ -57,7 +58,7 @@ const chooseWorkspace = Effect.fn("link.workspace")(function* (
   if (!only) {
     return yield* new InvalidArgument({
       message: "You are not a member of any workspace yet.",
-      hint: "Create one in the Kaneo web app, then run this again.",
+      hint: brandText("Create one in the Kaneo web app, then run this again."),
     });
   }
   if (workspaces.length === 1) return only;
@@ -87,7 +88,7 @@ const chooseProject = Effect.fn("link.project")(function* (
   if (!only) {
     return yield* new InvalidArgument({
       message: `${workspace.name} has no projects yet.`,
-      hint: "Create one in the Kaneo web app, then run this again.",
+      hint: brandText("Create one in the Kaneo web app, then run this again."),
     });
   }
   if (projects.length === 1) return only;

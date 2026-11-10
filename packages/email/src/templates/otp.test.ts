@@ -1,3 +1,4 @@
+import { brandText } from "@kaneo/branding";
 import { render } from "react-email";
 import { createElement } from "react";
 import { describe, expect, it } from "vite-plus/test";
@@ -36,7 +37,7 @@ describe("OtpEmail", () => {
       createElement(OtpEmail, { otp: "123456", locale: "ja-JP" }),
     );
     expect(html).toContain("確認コード");
-    expect(html).toContain("Kaneo セキュリティメール");
+    expect(html).toContain(brandText("Kaneo セキュリティメール"));
   });
 
   it("renders the request details in the recipient's language", async () => {

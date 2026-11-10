@@ -1,3 +1,4 @@
+import { brandText } from "@kaneo/branding";
 import { createHmac } from "node:crypto";
 import { sendNotificationEmail } from "@kaneo/email";
 import { and, eq } from "drizzle-orm";
@@ -91,7 +92,7 @@ function buildDeliveryContent(notification: {
         title: "New task created",
         body: taskTitle
           ? `A new task was created: ${taskTitle}`
-          : "A new task was created in Kaneo.",
+          : brandText("A new task was created in Kaneo."),
       };
     }
     case "workspace_created": {
@@ -103,7 +104,7 @@ function buildDeliveryContent(notification: {
         title: "Workspace created",
         body: workspaceName
           ? `Workspace created: ${workspaceName}`
-          : "A new workspace was created in Kaneo.",
+          : brandText("A new workspace was created in Kaneo."),
       };
     }
     case "task_status_changed": {
@@ -115,7 +116,7 @@ function buildDeliveryContent(notification: {
         body:
           taskTitle && oldStatus && newStatus
             ? `${taskTitle} moved from ${oldStatus} to ${newStatus}.`
-            : "A task status changed in Kaneo.",
+            : brandText("A task status changed in Kaneo."),
       };
     }
     case "task_assignee_changed": {
@@ -124,7 +125,7 @@ function buildDeliveryContent(notification: {
         title: "Task assigned to you",
         body: taskTitle
           ? `You were assigned to ${taskTitle}.`
-          : "A task was assigned to you in Kaneo.",
+          : brandText("A task was assigned to you in Kaneo."),
       };
     }
     case "time_entry_created": {
@@ -133,7 +134,7 @@ function buildDeliveryContent(notification: {
         title: "Time entry created",
         body: taskTitle
           ? `A time entry was created for ${taskTitle}.`
-          : "A time entry was created in Kaneo.",
+          : brandText("A time entry was created in Kaneo."),
       };
     }
     case "due_date_reminder": {
@@ -169,7 +170,7 @@ function buildDeliveryContent(notification: {
           : "You were mentioned",
         body: taskTitle
           ? `You were mentioned in ${taskTitle}.`
-          : "You were mentioned in a Kaneo task.",
+          : brandText("You were mentioned in a Kaneo task."),
       };
     }
     case "task_comment": {
@@ -184,13 +185,15 @@ function buildDeliveryContent(notification: {
           : "New task comment",
         body: taskTitle
           ? `A new comment was added to ${taskTitle}.`
-          : "A new comment was added to a Kaneo task.",
+          : brandText("A new comment was added to a Kaneo task."),
       };
     }
     default:
       return {
-        title: notification.title ?? "New Kaneo notification",
-        body: notification.content ?? "You have a new notification in Kaneo.",
+        title: notification.title ?? brandText("New Kaneo notification"),
+        body:
+          notification.content ??
+          brandText("You have a new notification in Kaneo."),
       };
   }
 }

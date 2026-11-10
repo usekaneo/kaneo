@@ -14,6 +14,7 @@ export default defineConfig({
           // the sources explicitly or edits replay a stale build.
           input: [
             { auto: true },
+            { pattern: "branding/**", base: "workspace" },
             "src/**",
             "tsconfig.json",
             "package.json",
@@ -25,8 +26,10 @@ export default defineConfig({
         },
       },
       "test:run": {
-        command: "vp test run --config vitest.config.ts",
+        command:
+          "vp test run --config vitest.config.ts && pnpm run test:exports && pnpm run test:previews",
         dependsOn: [
+          "compile",
           { task: "build", from: ["dependencies", "devDependencies"] },
         ],
         cache: false,

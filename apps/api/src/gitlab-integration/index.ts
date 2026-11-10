@@ -1,3 +1,4 @@
+import { brandText } from "@kaneo/branding";
 import { and, eq } from "drizzle-orm";
 import type { Context } from "hono";
 import { HTTPException } from "hono/http-exception";
@@ -83,8 +84,9 @@ const verifyRoute = createRoute({
   path: "/verify",
   tags: ["GitLab"],
   summary: "Verify GitLab access",
-  description:
+  description: brandText(
     "Check that the base URL is a GitLab instance and that the token can reach the project with the permissions Kaneo needs. An unreachable instance, a missing project, or insufficient permissions are reported in a 200 body so the form can explain them; a token GitLab rejects outright is a 401.",
+  ),
   middleware: manageAccess,
   request: {
     body: {
@@ -134,8 +136,9 @@ const createIntegrationRoute = createRoute({
   path: "/project/{projectId}",
   tags: ["GitLab"],
   summary: "Create GitLab integration",
-  description:
+  description: brandText(
     "Link a project to a GitLab project. Kaneo generates the secret GitLab must send with each webhook; add the webhook in GitLab afterwards. Use the verify route first to confirm the token really reaches the project.",
+  ),
   middleware: manageAccess,
   request: {
     params: projectIdParam,
@@ -151,7 +154,9 @@ const createIntegrationRoute = createRoute({
       "No access to the project, or missing workspace:manage_settings",
     ),
     409: errorResponse(
-      "That GitLab project is already linked to another Kaneo project",
+      brandText(
+        "That GitLab project is already linked to another Kaneo project",
+      ),
     ),
     404: errorResponse("Project not found"),
   },

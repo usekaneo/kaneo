@@ -1,4 +1,5 @@
 import { randomUUID } from "node:crypto";
+import { brandText } from "../../branding/index.cjs";
 import { and, asc, eq, inArray, isNull } from "drizzle-orm";
 import { beforeEach, describe, expect, it, vi } from "vite-plus/test";
 import type {
@@ -670,7 +671,7 @@ describe("API integration: import from other tools", () => {
         expect.objectContaining({
           status: "failed",
           projectId: null,
-          error: "Kaneo could not save this project.",
+          error: brandText("Kaneo could not save this project."),
         }),
       ]);
       expect(writeImportRelations).toHaveBeenCalled();

@@ -1,3 +1,4 @@
+import { brandText } from "@kaneo/branding";
 import { Context, Effect, Layer, Option, Redacted } from "effect";
 import {
   ApiUrlFlag,
@@ -18,7 +19,7 @@ import { normalizeBaseUrl } from "@kaneo/mcp/normalize-base-url";
 import type { Environment } from "../render/capabilities.js";
 import { CliEnvironment } from "./cli-environment.js";
 
-export const DEFAULT_API_URL = "https://cloud.kaneo.app";
+export const DEFAULT_API_URL = brandText("https://cloud.kaneo.app");
 
 export type TokenSource = "flag" | "env" | "profile";
 

@@ -1,3 +1,4 @@
+import { isQuillsStorageObjectReferenced } from "../database/quills/storage";
 import { randomUUID } from "node:crypto";
 import { HTTPException } from "hono/http-exception";
 import { and, eq, sql } from "drizzle-orm";
@@ -64,7 +65,11 @@ export async function retryStorageCleanup(): Promise<{ degraded: boolean }> {
         .from(projectTable)
         .where(eq(projectTable.backgroundObjectKey, item.objectKey))
         .for("key share");
-      if (asset || background) {
+      if (
+        asset ||
+        background ||
+        (await isQuillsStorageObjectReferenced(item.objectKey, tx))
+      ) {
         await tx
           .delete(storageCleanupTable)
           .where(eq(storageCleanupTable.objectKey, item.objectKey));
@@ -98,6 +103,17 @@ export async function retryStorageCleanup(): Promise<{ degraded: boolean }> {
   return { degraded };
 }
 
+/** Keep these transaction locks through verification and reference creation. */
+export async function lockStorageObjects(
+  tx: Pick<typeof db, "execute">,
+  keys: readonly string[],
+) {
+  for (const key of [...new Set(keys)].sort())
+    await tx.execute(
+      sql`SELECT pg_advisory_xact_lock(hashtext('storage-object'),hashtext(${key}))`,
+    );
+}
+
 // Serialize reference changes, verification leases and deletion for this object only.
 export async function withStorageObject<T>(
   objectKey: string,
@@ -106,9 +122,7 @@ export async function withStorageObject<T>(
   ) => Promise<T>,
 ): Promise<T> {
   return db.transaction(async (tx) => {
-    await tx.execute(
-      sql`SELECT pg_advisory_xact_lock(hashtext('storage-object'), hashtext(${objectKey}))`,
-    );
+    await lockStorageObjects(tx, [objectKey]);
     return apply(tx);
   });
 }

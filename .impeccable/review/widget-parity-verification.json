@@ -1,0 +1,67 @@
+{
+	"scope": "Screenshot parity delta from quills-parity-dhes3875/before; local mock backend only",
+	"runtime": "mise Node 24.22.1, pnpm 12.18.0",
+	"automated": {
+		"tests": 236,
+		"files": 24,
+		"typecheck": "passed",
+		"build": "passed",
+		"scoped_vp_check": "passed",
+		"storybook_build": "passed with existing large preview-chunk warning",
+		"root_test_discovery": 24
+	},
+	"browser": {
+		"engine": "Chromium",
+		"storybook_render_smoke": 38,
+		"page_errors": 0,
+		"desktop_readers": "480x860",
+		"compact_panels": "384x760",
+		"mobile_dark_reduced_motion": "320x568; five surfaces; no horizontal overflow",
+		"capture": "injected local CanvasCaptureMediaStream through real capture utility; all tracks ended",
+		"annotation": "highlight/redact, keyboard position fields, undo, save, escape/cancel, focus restoration; exported redaction pixel [23,23,23,255]",
+		"attachments": "file picker, preview, edit, remove, lost response retry creates one saved request",
+		"cross_origin": "built IIFE using distinct local host/frame origins; same-origin sibling rejected; expand/collapse and destroy passed",
+		"late_capture_close": "Track stops; no modal; draft preserved on reopen",
+		"roadmap_scroll": "150px before and after Show more",
+		"mobile_light": "390x844; help/new conversation/feedback compose; no overflow",
+		"new_message_box": "80px empty, grows for multiline"
+	},
+	"bundle": {
+		"before_browser_raw": 42446,
+		"after_browser_raw": 42446,
+		"before_gzip": 14829,
+		"after_gzip": 14830,
+		"ui_esm_entry_raw": 89535,
+		"ui_esm_entry_gzip": 19375,
+		"ui_css_raw": 37410,
+		"ui_css_gzip": 7191,
+		"after_browser_gzip": 14830
+	},
+	"not_verified": [
+		"Native OS screen chooser",
+		"physical mobile keyboard or Safari/Firefox",
+		"real API/database/storage or live delivery"
+	],
+	"review": {
+		"verdict": "Ship for local preview",
+		"lenses": [
+			"structure",
+			"performance",
+			"chaos",
+			"QA",
+			"lean",
+			"TypeScript/React",
+			"fresh visual"
+		],
+		"resolved": [
+			"inline resize callback render loop",
+			"roadmap expansion scroll reset",
+			"capture after Close/Escape",
+			"unchanged attachment retry key",
+			"new-message composer height",
+			"help metadata wrapping",
+			"two unused CSS rules"
+		],
+		"unresolved": []
+	}
+}

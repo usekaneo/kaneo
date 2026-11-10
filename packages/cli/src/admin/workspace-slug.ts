@@ -1,3 +1,4 @@
+import { brandText } from "@kaneo/branding";
 import { Result } from "effect";
 import { InvalidArgument } from "../errors/errors.js";
 
@@ -71,7 +72,7 @@ export function checkWorkspaceSlug(
   if (isReservedSlug(slug)) {
     return Result.fail(
       new InvalidArgument({
-        message: `"${slug}" is reserved by Kaneo.`,
+        message: `"${slug}${brandText('" is reserved by Kaneo.')}`,
         hint: "Choose another slug.",
       }),
     );

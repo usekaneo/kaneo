@@ -31,12 +31,7 @@ exports[`screens > error at 120 columns, truecolor 1`] = `
 exports[`screens > home at 80 columns, no color 1`] = `
 "
 
-      ▄▄▄ ███      ▐█ ▗▟█▀
-  ███ ███ █▛▘      ▐█▄█▛  ▗▄██▙▟█ ▟█▟██▙  ▄███▄▖ ▄▟██▙▄
-  ███ ███ █▖       ▐█▜█▄  ██   ▜█ ██  ▝█▌▟█▄▄▄██▐█▌  ▝█▌
-  ███ ███ ██▙      ▐█ ▀█▙▖▜█▄ ▄▟█ ██   █▌▐█▙ ▗▄▖▝█▙▖▗▟█▘
-  ███ ███ ▀▀▀      ▝▀   ▀▀ ▝▀▀▀▝▀ ▀▀   ▀▘ ▝▀▀▀▀   ▀▀▀▀
-  ▀▀▀
+  quills
 
   Ada Lovelace · Acme Studio · cloud.kaneo.app
 
@@ -57,12 +52,7 @@ exports[`screens > home at 80 columns, no color 1`] = `
 exports[`screens > home at 80 columns, truecolor 1`] = `
 "
 
-      ▄▄▄ ███      ▐█ ▗▟█▀
-  ███ ███ █▛▘      ▐█▄█▛  ▗▄██▙▟█ ▟█▟██▙  ▄███▄▖ ▄▟██▙▄
-  ███ ███ █▖       ▐█▜█▄  ██   ▜█ ██  ▝█▌▟█▄▄▄██▐█▌  ▝█▌
-  ███ ███ ██▙      ▐█ ▀█▙▖▜█▄ ▄▟█ ██   █▌▐█▙ ▗▄▖▝█▙▖▗▟█▘
-  ███ ███ ▀▀▀      ▝▀   ▀▀ ▝▀▀▀▝▀ ▀▀   ▀▘ ▝▀▀▀▀   ▀▀▀▀
-  ▀▀▀
+  quills
 
   [1mAda Lovelace[22m [38;2;115;115;115m· Acme Studio · cloud.kaneo.app[39m
 
@@ -83,12 +73,7 @@ exports[`screens > home at 80 columns, truecolor 1`] = `
 exports[`screens > home at 120 columns, no color 1`] = `
 "
 
-      ▄▄▄ ███      ▐█ ▗▟█▀
-  ███ ███ █▛▘      ▐█▄█▛  ▗▄██▙▟█ ▟█▟██▙  ▄███▄▖ ▄▟██▙▄
-  ███ ███ █▖       ▐█▜█▄  ██   ▜█ ██  ▝█▌▟█▄▄▄██▐█▌  ▝█▌
-  ███ ███ ██▙      ▐█ ▀█▙▖▜█▄ ▄▟█ ██   █▌▐█▙ ▗▄▖▝█▙▖▗▟█▘
-  ███ ███ ▀▀▀      ▝▀   ▀▀ ▝▀▀▀▝▀ ▀▀   ▀▘ ▝▀▀▀▀   ▀▀▀▀
-  ▀▀▀
+  quills
 
   Ada Lovelace · Acme Studio · cloud.kaneo.app
 
@@ -109,12 +94,7 @@ exports[`screens > home at 120 columns, no color 1`] = `
 exports[`screens > home at 120 columns, truecolor 1`] = `
 "
 
-      ▄▄▄ ███      ▐█ ▗▟█▀
-  ███ ███ █▛▘      ▐█▄█▛  ▗▄██▙▟█ ▟█▟██▙  ▄███▄▖ ▄▟██▙▄
-  ███ ███ █▖       ▐█▜█▄  ██   ▜█ ██  ▝█▌▟█▄▄▄██▐█▌  ▝█▌
-  ███ ███ ██▙      ▐█ ▀█▙▖▜█▄ ▄▟█ ██   █▌▐█▙ ▗▄▖▝█▙▖▗▟█▘
-  ███ ███ ▀▀▀      ▝▀   ▀▀ ▝▀▀▀▝▀ ▀▀   ▀▘ ▝▀▀▀▀   ▀▀▀▀
-  ▀▀▀
+  quills
 
   [1mAda Lovelace[22m [38;2;115;115;115m· Acme Studio · cloud.kaneo.app[39m
 
@@ -135,12 +115,7 @@ exports[`screens > home at 120 columns, truecolor 1`] = `
 exports[`screens > home signed out at 80 columns, no color 1`] = `
 "
 
-      ▄▄▄ ███      ▐█ ▗▟█▀
-  ███ ███ █▛▘      ▐█▄█▛  ▗▄██▙▟█ ▟█▟██▙  ▄███▄▖ ▄▟██▙▄
-  ███ ███ █▖       ▐█▜█▄  ██   ▜█ ██  ▝█▌▟█▄▄▄██▐█▌  ▝█▌
-  ███ ███ ██▙      ▐█ ▀█▙▖▜█▄ ▄▟█ ██   █▌▐█▙ ▗▄▖▝█▙▖▗▟█▘
-  ███ ███ ▀▀▀      ▝▀   ▀▀ ▝▀▀▀▝▀ ▀▀   ▀▘ ▝▀▀▀▀   ▀▀▀▀
-  ▀▀▀
+  quills
 
   ● Not signed in to cloud.kaneo.app
 
@@ -152,12 +127,7 @@ exports[`screens > home signed out at 80 columns, no color 1`] = `
 exports[`screens > home signed out at 80 columns, truecolor 1`] = `
 "
 
-      ▄▄▄ ███      ▐█ ▗▟█▀
-  ███ ███ █▛▘      ▐█▄█▛  ▗▄██▙▟█ ▟█▟██▙  ▄███▄▖ ▄▟██▙▄
-  ███ ███ █▖       ▐█▜█▄  ██   ▜█ ██  ▝█▌▟█▄▄▄██▐█▌  ▝█▌
-  ███ ███ ██▙      ▐█ ▀█▙▖▜█▄ ▄▟█ ██   █▌▐█▙ ▗▄▖▝█▙▖▗▟█▘
-  ███ ███ ▀▀▀      ▝▀   ▀▀ ▝▀▀▀▝▀ ▀▀   ▀▘ ▝▀▀▀▀   ▀▀▀▀
-  ▀▀▀
+  quills
 
   [38;2;115;115;115m●[39m Not signed in to cloud.kaneo.app
 
@@ -169,12 +139,7 @@ exports[`screens > home signed out at 80 columns, truecolor 1`] = `
 exports[`screens > home signed out at 120 columns, no color 1`] = `
 "
 
-      ▄▄▄ ███      ▐█ ▗▟█▀
-  ███ ███ █▛▘      ▐█▄█▛  ▗▄██▙▟█ ▟█▟██▙  ▄███▄▖ ▄▟██▙▄
-  ███ ███ █▖       ▐█▜█▄  ██   ▜█ ██  ▝█▌▟█▄▄▄██▐█▌  ▝█▌
-  ███ ███ ██▙      ▐█ ▀█▙▖▜█▄ ▄▟█ ██   █▌▐█▙ ▗▄▖▝█▙▖▗▟█▘
-  ███ ███ ▀▀▀      ▝▀   ▀▀ ▝▀▀▀▝▀ ▀▀   ▀▘ ▝▀▀▀▀   ▀▀▀▀
-  ▀▀▀
+  quills
 
   ● Not signed in to cloud.kaneo.app
 
@@ -186,12 +151,7 @@ exports[`screens > home signed out at 120 columns, no color 1`] = `
 exports[`screens > home signed out at 120 columns, truecolor 1`] = `
 "
 
-      ▄▄▄ ███      ▐█ ▗▟█▀
-  ███ ███ █▛▘      ▐█▄█▛  ▗▄██▙▟█ ▟█▟██▙  ▄███▄▖ ▄▟██▙▄
-  ███ ███ █▖       ▐█▜█▄  ██   ▜█ ██  ▝█▌▟█▄▄▄██▐█▌  ▝█▌
-  ███ ███ ██▙      ▐█ ▀█▙▖▜█▄ ▄▟█ ██   █▌▐█▙ ▗▄▖▝█▙▖▗▟█▘
-  ███ ███ ▀▀▀      ▝▀   ▀▀ ▝▀▀▀▝▀ ▀▀   ▀▘ ▝▀▀▀▀   ▀▀▀▀
-  ▀▀▀
+  quills
 
   [38;2;115;115;115m●[39m Not signed in to cloud.kaneo.app
 
@@ -275,12 +235,7 @@ exports[`screens > login code at 120 columns, truecolor 1`] = `
 exports[`screens > login welcome at 80 columns, no color 1`] = `
 "
 
-      ▄▄▄ ███      ▐█ ▗▟█▀
-  ███ ███ █▛▘      ▐█▄█▛  ▗▄██▙▟█ ▟█▟██▙  ▄███▄▖ ▄▟██▙▄
-  ███ ███ █▖       ▐█▜█▄  ██   ▜█ ██  ▝█▌▟█▄▄▄██▐█▌  ▝█▌
-  ███ ███ ██▙      ▐█ ▀█▙▖▜█▄ ▄▟█ ██   █▌▐█▙ ▗▄▖▝█▙▖▗▟█▘
-  ███ ███ ▀▀▀      ▝▀   ▀▀ ▝▀▀▀▝▀ ▀▀   ▀▘ ▝▀▀▀▀   ▀▀▀▀
-  ▀▀▀
+  quills
 
   ✓ Signed in as Ada Lovelace · ada@example.com
 
@@ -295,12 +250,7 @@ exports[`screens > login welcome at 80 columns, no color 1`] = `
 exports[`screens > login welcome at 80 columns, truecolor 1`] = `
 "
 
-      ▄▄▄ ███      ▐█ ▗▟█▀
-  ███ ███ █▛▘      ▐█▄█▛  ▗▄██▙▟█ ▟█▟██▙  ▄███▄▖ ▄▟██▙▄
-  ███ ███ █▖       ▐█▜█▄  ██   ▜█ ██  ▝█▌▟█▄▄▄██▐█▌  ▝█▌
-  ███ ███ ██▙      ▐█ ▀█▙▖▜█▄ ▄▟█ ██   █▌▐█▙ ▗▄▖▝█▙▖▗▟█▘
-  ███ ███ ▀▀▀      ▝▀   ▀▀ ▝▀▀▀▝▀ ▀▀   ▀▘ ▝▀▀▀▀   ▀▀▀▀
-  ▀▀▀
+  quills
 
   [38;2;5;150;105m✓[39m Signed in as [1mAda Lovelace[22m [38;2;115;115;115m·[39m ada@example.com
 
@@ -315,12 +265,7 @@ exports[`screens > login welcome at 80 columns, truecolor 1`] = `
 exports[`screens > login welcome at 120 columns, no color 1`] = `
 "
 
-      ▄▄▄ ███      ▐█ ▗▟█▀
-  ███ ███ █▛▘      ▐█▄█▛  ▗▄██▙▟█ ▟█▟██▙  ▄███▄▖ ▄▟██▙▄
-  ███ ███ █▖       ▐█▜█▄  ██   ▜█ ██  ▝█▌▟█▄▄▄██▐█▌  ▝█▌
-  ███ ███ ██▙      ▐█ ▀█▙▖▜█▄ ▄▟█ ██   █▌▐█▙ ▗▄▖▝█▙▖▗▟█▘
-  ███ ███ ▀▀▀      ▝▀   ▀▀ ▝▀▀▀▝▀ ▀▀   ▀▘ ▝▀▀▀▀   ▀▀▀▀
-  ▀▀▀
+  quills
 
   ✓ Signed in as Ada Lovelace · ada@example.com
 
@@ -335,12 +280,7 @@ exports[`screens > login welcome at 120 columns, no color 1`] = `
 exports[`screens > login welcome at 120 columns, truecolor 1`] = `
 "
 
-      ▄▄▄ ███      ▐█ ▗▟█▀
-  ███ ███ █▛▘      ▐█▄█▛  ▗▄██▙▟█ ▟█▟██▙  ▄███▄▖ ▄▟██▙▄
-  ███ ███ █▖       ▐█▜█▄  ██   ▜█ ██  ▝█▌▟█▄▄▄██▐█▌  ▝█▌
-  ███ ███ ██▙      ▐█ ▀█▙▖▜█▄ ▄▟█ ██   █▌▐█▙ ▗▄▖▝█▙▖▗▟█▘
-  ███ ███ ▀▀▀      ▝▀   ▀▀ ▝▀▀▀▝▀ ▀▀   ▀▘ ▝▀▀▀▀   ▀▀▀▀
-  ▀▀▀
+  quills
 
   [38;2;5;150;105m✓[39m Signed in as [1mAda Lovelace[22m [38;2;115;115;115m·[39m ada@example.com
 

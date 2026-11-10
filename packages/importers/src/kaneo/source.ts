@@ -1,3 +1,4 @@
+import { brandText } from "@kaneo/branding";
 import { SourceHttpError } from "../http.js";
 import type { ConnectOptions, ImportSource, SourceProject } from "../types.js";
 import {
@@ -18,11 +19,15 @@ export async function connectKaneo(
   options: ConnectOptions = {},
 ): Promise<ImportSource> {
   if (!credentials.url?.trim()) {
-    throw new Error("Enter the URL of the Kaneo instance to import from.");
+    throw new Error(
+      brandText("Enter the URL of the Kaneo instance to import from."),
+    );
   }
   const apiKey = credentials.apiKey?.trim();
   if (!apiKey) {
-    throw new Error("Enter an API key from the Kaneo instance to import from.");
+    throw new Error(
+      brandText("Enter an API key from the Kaneo instance to import from."),
+    );
   }
 
   const baseUrl = normalizeKaneoUrl(credentials.url);

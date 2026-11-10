@@ -1,0 +1,9 @@
+[    9219ms] [ERROR] Executing inline event handler violates the following Content Security Policy directive 'script-src 'nonce-QTH8QdmeTjTdKnPT0G3WeA' 'strict-dynamic' 'report-sample' 'unsafe-eval' 'unsafe-inline' https: http:'. Note that 'unsafe-inline' is ignored if either a hash or nonce value is present in the source list. The action has been blocked. @ https://www.google.com/search?q=voltagent+awesome+codex+subagents&oq=voltagent+awesome+codex+subagents&gs_lcrp=EgZjaHJvbWUqBwgAEAAYgAQyBwgAEAAYgAQyBwgBEAAY7wUyBwgCEAAY7wUyCggDEAAYgAQYogQyBwgEEAAY7wXSAQg4MjkxajBqN6gCALACAA&sourceid=chrome&source=chrome.ob&ie=UTF-8:0
+[   11555ms] [ERROR] Failed to load resource: the server responded with a status of 404 () @ https://github.com/_global-navigation/payloads.json?can_toggle_site_admin_and_employee_status=0&is_admin_mode_on=0&is_ui_opted_out=0&show_ui_opt_out=0&v=8:0
+[   12777ms] [ERROR] Failed to load resource: the server responded with a status of 503 () @ https://collector.github.com/github/collect:0
+[   13565ms] [ERROR] Failed to load resource: the server responded with a status of 503 () @ https://collector.github.com/github/collect:0
+[   16547ms] [ERROR] Failed to load resource: the server responded with a status of 503 () @ https://collector.github.com/github/collect:0
+[   20382ms] [ERROR] Failed to load resource: the server responded with a status of 503 () @ https://collector.github.com/github/collect:0
+[   24053ms] [ERROR] Failed to load resource: the server responded with a status of 503 () @ https://collector.github.com/github/collect:0
+[ 3233548ms] [ERROR] Failed to load resource: the server responded with a status of 503 () @ https://collector.github.com/github/collect:0
+[ 7096355ms] [WARNING] Element requested is not a known focusable element. @ https://github.githubassets.com/assets/pb-3dcfcea3a346d8e5.js:346

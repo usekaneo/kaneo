@@ -24,14 +24,38 @@ Treat this guide as a set of defaults. The developer's request takes precedence.
 - `apps/docs` — product and API docs; `apps/site` — public site and docs host.
 - `charts/kaneo` — Helm chart; `tests/api` and `tests/api-integration` — API tests.
 
+## Kaneo and Quills data ownership
+
+Kaneo and Quills share one PostgreSQL database and the existing connection pool.
+Kaneo's `public` schema owns accounts, workspaces, membership, permissions, teams,
+projects and tasks. The `quills` schema owns feature data scoped to those same
+workspaces. Do not introduce a second tenant, authentication or membership model.
+
+Before building a Quills API, changing its schema, or connecting either product's
+resources, read [the API agent contract](apps/api/AGENTS.md) and the ownership and
+lifecycle sections of [the Quills database guide](apps/api/src/database/quills/README.md).
+This applies to API, client, worker, migration and test changes, including work
+outside `apps/api`. Use the adapted modules in this checkout; the original
+Quackback repository is an upstream reference, not a runtime dependency.
+
+The Kaneo/Quills boundary rules and API completion checklist are required acceptance
+criteria, not optional conventions. They apply to new and changed behavior across
+routes, services, jobs, scripts, clients and migrations. Existing code is an example
+to inspect, not permission to repeat an unsafe pattern. Do not bypass authorization,
+RLS, transaction ownership, migration history or failing tests to complete a feature.
+State the data/permission boundary before implementation and provide the required
+verification evidence before marking the work complete. If a guarantee is missing,
+implement and test the narrow fix or report that portion incomplete; never silently
+weaken the contract.
+
 ## Follow a change through
 
 The common mistake is finishing one path while leaving another stale. Check the surfaces your change actually touches:
 
 - API: Keep handlers thin and behavior in controllers. Use `createRoute`, Zod request and response schemas, `HTTPException` for expected failures, and `requireWorkspacePermission` for workspace actions. Middleware declared on `createRoute` runs before validators, so it must read the raw request instead of `c.req.valid()`.
 - Client: Use `@kaneo/libs`, fetchers in `apps/web/src/fetchers/`, and TanStack Query hooks. Update invalidation and visible loading, error, and current states.
-- Realtime: If a mutation drives activity, notifications, integrations, or live UI, use `publishEvent()` and check WebSocket delivery and cache updates. Redis fan-out must remain optional.
-- Data: Put schema and relations in `apps/api/src/database/`. Generate a migration with `pnpm --filter @kaneo/api db:generate`, inspect its SQL, and account for existing installations.
+- Realtime: For Kaneo mutations, use `publishEvent()` and check WebSocket delivery and cache updates. Quills mutations use the transactional `recordQuillsChange()` outbox described in the API agent contract. Redis fan-out must remain optional.
+- Data: Kaneo schema changes use `pnpm --filter @kaneo/api db:generate`. Quills schema changes use `pnpm --filter @kaneo/api db:generate:quills` and their separate `drizzle/quills` history. Inspect generated SQL and account for existing installations; never edit applied migrations or combine the two histories.
 - Public contracts: Keep Zod validation and OpenAPI descriptions accurate. After route or schema changes, run `pnpm openapi:check:fix`; `apps/docs/openapi.json` is committed.
 - UI: Put user-facing copy in static i18n keys, with `i18n/en-US.json` as the source. Check accessibility and the reverse action: assign/unassign, connect/disconnect, enable/disable.
 - Other entry points: Consider the mobile app, MCP, API keys, webhooks, Docker, Helm, and docs when the behavior reaches them.

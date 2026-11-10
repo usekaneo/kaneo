@@ -1,3 +1,4 @@
+import { brandText } from "@kaneo/branding";
 import { existsSync, readFileSync, statSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
@@ -5,7 +6,7 @@ import { fileURLToPath } from "node:url";
 const siteDir = fileURLToPath(new URL("../", import.meta.url));
 const outDir = path.join(siteDir, "out");
 const docsDir = path.resolve(siteDir, "../docs");
-const origin = "https://kaneo.app";
+const origin = brandText("https://kaneo.app");
 const failures = new Set();
 
 function check(condition, message) {
@@ -124,7 +125,7 @@ for (const url of urls) {
   );
   check(
     meta("twitter:title") === title ||
-      `${meta("twitter:title")} | Kaneo` === title,
+      `${meta("twitter:title")} | ${brandText("Kaneo")}` === title,
     `Twitter title differs from page title: ${url}`,
   );
   for (const name of ["og:description", "twitter:description"]) {

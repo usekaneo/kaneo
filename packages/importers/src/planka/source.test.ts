@@ -1,3 +1,4 @@
+import { brandText } from "@kaneo/branding";
 import { describe, expect, it, vi } from "vite-plus/test";
 import type { FetchLike } from "../types.js";
 import { connectPlanka } from "./source.js";
@@ -457,7 +458,9 @@ describe("readProject", () => {
 
     expect(project.warnings).toEqual([
       "2 attachments were not imported.",
-      "1 card had more than one member. Kaneo keeps one assignee per task, so only the first member was assigned.",
+      brandText(
+        "1 card had more than one member. Kaneo keeps one assignee per task, so only the first member was assigned.",
+      ),
       "PLANKA hid the assignee email on 1 card. Connect with a PLANKA admin account so assignees can be matched by email.",
       "1 checklist item linked to cards on other boards and was not imported.",
     ]);

@@ -610,3 +610,14 @@ export async function deleteS3Object(key: string): Promise<void> {
     }),
   );
 }
+
+/** Operator-only archive imports verify every referenced object before committing. */
+export async function verifyPrivateObjectExists(key: string) {
+  const config = getStorageConfig();
+  await headUploadedObject(
+    getClient(config),
+    config.bucket,
+    key,
+    AbortSignal.timeout(10000),
+  );
+}

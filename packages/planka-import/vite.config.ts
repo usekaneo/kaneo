@@ -1,7 +1,9 @@
 import { defineConfig } from "vite-plus";
+import { brandCopyPlugin } from "../../scripts/branding/source.mjs";
 
 export default defineConfig({
   pack: {
+    plugins: [brandCopyPlugin()],
     entry: { index: "src/index.ts" },
     format: "esm",
     platform: "node",
@@ -12,7 +14,7 @@ export default defineConfig({
     fixedExtension: false,
     report: false,
     deps: {
-      onlyBundle: [],
+      onlyBundle: ["@kaneo/branding"],
     },
   },
   run: {
@@ -27,6 +29,8 @@ export default defineConfig({
           // the sources explicitly or edits replay a stale build.
           input: [
             { auto: true },
+            { pattern: "branding/**", base: "workspace" },
+            { pattern: "scripts/branding/**", base: "workspace" },
             "src/**",
             "tsconfig.json",
             {

@@ -1,3 +1,4 @@
+import { brandText } from "@kaneo/branding";
 import { Command } from "effect/cli";
 import { ApiLayer } from "../commands/api-layer.js";
 import { runHome } from "../commands/home.js";
@@ -26,7 +27,7 @@ import { doctorCommand } from "../commands/doctor.js";
 import { globalFlags } from "./global-flags.js";
 
 export const root = Command.make("kaneo", {}, () => runHome()).pipe(
-  Command.withDescription("Kaneo from your terminal"),
+  Command.withDescription(brandText("Kaneo from your terminal")),
   Command.provide(ApiLayer),
   Command.withSubcommands([
     login,

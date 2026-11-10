@@ -1,3 +1,4 @@
+import { missingTranslation, brandResources } from "@kaneo/branding";
 import {
   type AppLocale,
   defaultLocale,
@@ -89,7 +90,7 @@ function loadLocaleResources(
       // Successful load — clear the per-locale reload guard so a future
       // stale-chunk failure in this same tab can still recover.
       clearReloadFlag(locale);
-      return resources as Record<string, unknown>;
+      return brandResources(resources) as Record<string, unknown>;
     })
     .catch((err: unknown) => {
       // Evict the failed promise so future attempts are not permanently stuck.
@@ -139,6 +140,7 @@ void i18n
   .init({
     lng: initialLocale,
     fallbackLng: defaultLocale,
+    parseMissingKeyHandler: missingTranslation,
     defaultNS: "common",
     interpolation: {
       escapeValue: false,

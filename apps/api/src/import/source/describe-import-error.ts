@@ -1,3 +1,4 @@
+import { brandText } from "@kaneo/branding";
 import type { GuardFailure } from "../guarded-fetch";
 
 export type ImportErrorContext = {
@@ -46,7 +47,7 @@ function describeHttpStatus(
   if (status === 404) {
     return {
       status: 400,
-      message: `${sourceName} could not find what Kaneo asked for (HTTP 404). Check the URL.`,
+      message: `${sourceName}${brandText(" could not find what Kaneo asked for (HTTP 404). Check the URL.")}`,
     };
   }
   if (status === 429) {
@@ -120,6 +121,6 @@ export function describeImportError(
 
   return {
     status: 502,
-    message: `${sourceName} sent a response Kaneo could not read.`,
+    message: `${sourceName}${brandText(" sent a response Kaneo could not read.")}`,
   };
 }

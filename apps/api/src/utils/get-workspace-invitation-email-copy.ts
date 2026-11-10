@@ -1,3 +1,4 @@
+import { brandResources } from "@kaneo/branding";
 import deDE from "../../../../i18n/de-DE.json";
 import enUS from "../../../../i18n/en-US.json";
 import frFR from "../../../../i18n/fr-FR.json";
@@ -30,7 +31,7 @@ function getBundle(locale?: string | null) {
 }
 
 export function getWorkspaceInvitationEmailCopy(locale?: string | null) {
-  return getBundle(locale).invitations.email;
+  return brandResources(getBundle(locale).invitations.email);
 }
 
 export function getInvitationRoleLabel(locale: string | null, role: string) {

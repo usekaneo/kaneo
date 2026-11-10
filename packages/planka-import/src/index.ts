@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+import { brandText } from "@kaneo/branding";
 import { writeFile } from "node:fs/promises";
 import { createRequire } from "node:module";
 import { PlankaClient } from "@kaneo/importers/planka";
@@ -102,7 +103,9 @@ async function main(): Promise<number> {
   const kaneoApiKey = args.kaneoApiKey ?? process.env.KANEO_API_KEY;
   if (!kaneoApiKey && !args.dryRun) {
     throw new Error(
-      "A Kaneo API key is required. Pass --kaneo-api-key or set KANEO_API_KEY.",
+      brandText(
+        "A Kaneo API key is required. Pass --kaneo-api-key or set KANEO_API_KEY.",
+      ),
     );
   }
 
@@ -110,7 +113,9 @@ async function main(): Promise<number> {
     baseUrl: args.kaneoUrl ?? DEFAULT_KANEO_URL,
     apiKey: kaneoApiKey ?? "",
     onRateLimit: (waitMs) =>
-      log(`Kaneo rate limit reached, waiting ${formatWait(waitMs)}…`),
+      log(
+        `${brandText("Kaneo rate limit reached, waiting ")}${formatWait(waitMs)}…`,
+      ),
   });
 
   let workspaceId = args.workspace ?? "";
@@ -132,14 +137,14 @@ async function main(): Promise<number> {
 
   if (args.dryRun) {
     await writeReport(args.report, preview);
-    log("Dry run. Nothing was written to Kaneo.");
+    log(brandText("Dry run. Nothing was written to Kaneo."));
     return 0;
   }
 
   if (!args.yes) {
     const confirmed = await confirm(
       interactive,
-      `Import ${targets.length} board(s) into Kaneo workspace ${workspaceId}?`,
+      `Import ${targets.length}${brandText(" board(s) into Kaneo workspace ")}${workspaceId}?`,
     );
     if (!confirmed) {
       log("Aborted.");
@@ -212,7 +217,7 @@ async function selectWorkspace(
   const workspaces = await kaneo.listWorkspaces();
 
   if (workspaces.length === 0) {
-    throw new Error("This Kaneo account has no workspaces.");
+    throw new Error(brandText("This Kaneo account has no workspaces."));
   }
 
   const first = workspaces[0];
@@ -229,7 +234,7 @@ async function selectWorkspace(
   const answer = await prompts({
     type: "select",
     name: "value",
-    message: "Target Kaneo workspace",
+    message: brandText("Target Kaneo workspace"),
     choices: workspaces.map((workspace) => ({
       title: workspace.name,
       value: workspace.id,

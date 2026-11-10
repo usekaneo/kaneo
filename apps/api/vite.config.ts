@@ -14,6 +14,7 @@ export default defineConfig({
           // the sources explicitly or edits replay a stale build.
           input: [
             { auto: true },
+            { pattern: "branding/**", base: "workspace" },
             "src/**",
             "tsconfig.json",
             {

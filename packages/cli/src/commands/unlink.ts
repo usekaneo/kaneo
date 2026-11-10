@@ -1,3 +1,4 @@
+import { brandText } from "@kaneo/branding";
 import { basename, dirname } from "node:path";
 import { Effect } from "effect";
 import { Command, Flag } from "effect/cli";
@@ -27,7 +28,7 @@ export function renderUnlink(ui: Ui, result: UnlinkResult): string[] {
   const { theme, glyphs } = ui;
   if (!result.path || !result.unlinked) {
     return [
-      `  ${theme.muted(glyphs.dot)} This directory is not linked to Kaneo`,
+      `  ${theme.muted(glyphs.dot)}${brandText(" This directory is not linked to Kaneo")}`,
     ];
   }
   const detail = result.deleted
@@ -56,7 +57,7 @@ export const runUnlink = Effect.fn("command.unlink")(function* (options: {
 
   if (!options.yes && output.interactive) {
     const confirmed = yield* confirm(
-      `Remove the Kaneo workspace and project from ${path}?`,
+      `${brandText("Remove the Kaneo workspace and project from ")}${path}?`,
     );
     if (!confirmed) return yield* new Cancelled();
   }

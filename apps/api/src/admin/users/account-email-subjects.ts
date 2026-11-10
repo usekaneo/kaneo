@@ -1,3 +1,4 @@
+import { brandText } from "@kaneo/branding";
 import type { AccountPasswordPurpose } from "@kaneo/email";
 
 type Subjects = Record<AccountPasswordPurpose | "verification", string>;
@@ -33,7 +34,7 @@ const subjects = {
 export function accountEmailSubject(
   kind: keyof Subjects,
   locale: string | null,
-  instanceName = "Kaneo",
+  instanceName = brandText("Kaneo"),
 ) {
   const normalized = locale?.toLowerCase() ?? "";
   const key = normalized === "zh-tw" ? normalized : normalized.split("-")[0];

@@ -1,3 +1,4 @@
+import { brand } from "@kaneo/branding";
 import { cleanup, render } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it } from "vite-plus/test";
 import { useInstanceNameStore } from "@/store/instance-name";
@@ -5,12 +6,13 @@ import PageTitle from "./page-title";
 
 describe("PageTitle", () => {
   beforeEach(() => {
-    document.title = "Kaneo";
+    document.title = brand.name;
+    useInstanceNameStore.setState(useInstanceNameStore.getInitialState());
   });
 
   afterEach(() => {
     cleanup();
-    useInstanceNameStore.setState({ instanceName: "Kaneo" });
+    useInstanceNameStore.setState(useInstanceNameStore.getInitialState());
   });
 
   it("uses the custom instance name and restores the fallback on unmount", () => {
@@ -18,7 +20,7 @@ describe("PageTitle", () => {
     const { unmount } = render(<PageTitle title="Settings" />);
     expect(document.title).toBe("Settings | Acme");
     unmount();
-    expect(document.title).toBe("Kaneo");
+    expect(document.title).toBe(brand.name);
   });
 
   it("sets the document title", () => {
@@ -28,7 +30,7 @@ describe("PageTitle", () => {
 
   it("keeps the fallback title while the title is still loading", () => {
     const { rerender } = render(<PageTitle title={undefined} />);
-    expect(document.title).toBe("Kaneo");
+    expect(document.title).toBe(brand.name);
 
     rerender(<PageTitle title="Website / Board" />);
     expect(document.title).toBe("Website / Board");
@@ -37,6 +39,6 @@ describe("PageTitle", () => {
   it("restores the fallback title when the page unmounts", () => {
     const { unmount } = render(<PageTitle title="Inbox" />);
     unmount();
-    expect(document.title).toBe("Kaneo");
+    expect(document.title).toBe(brand.name);
   });
 });

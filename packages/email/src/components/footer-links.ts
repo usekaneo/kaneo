@@ -1,3 +1,4 @@
+import { brandText } from "@kaneo/branding";
 import type { EmailLocale } from "../templates/resolve-locale";
 import type { FooterLink } from "./email-footer";
 
@@ -17,8 +18,8 @@ export function footerLinks(
 
   return [
     ...leading,
-    { label: "kaneo.app", href: "https://kaneo.app" },
-    { label: copy.help, href: "https://kaneo.app/docs" },
-    { label: copy.privacy, href: "https://kaneo.app/privacy" },
+    { label: brandText("kaneo.app"), href: brandText("https://kaneo.app") },
+    { label: copy.help, href: brandText("https://kaneo.app/docs") },
+    { label: copy.privacy, href: brandText("https://kaneo.app/privacy") },
   ];
 }

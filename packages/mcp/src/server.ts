@@ -1,3 +1,4 @@
+import { brand } from "@kaneo/branding";
 import { createRequire } from "node:module";
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { AuthService } from "./auth/auth-service.js";
@@ -19,7 +20,7 @@ export function createMcpServer(): McpServer {
   const auth = new AuthService({ baseUrl, clientId, apiKey });
   const client = new KaneoClient({ baseUrl, auth });
   const server = new McpServer({
-    name: "kaneo-mcp",
+    name: brand.name,
     version: packageVersion,
   });
   registerTools(server, { client });

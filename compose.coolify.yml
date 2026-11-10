@@ -15,7 +15,7 @@
 
 services:
   postgres:
-    image: postgres:16-alpine
+    image: pgvector/pgvector:0.8.7-pg16-bookworm
     environment:
       - POSTGRES_DB=kaneo
       - POSTGRES_USER=kaneo

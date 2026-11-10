@@ -1,0 +1,76 @@
+{
+	"version": "7",
+	"dialect": "postgresql",
+	"entries": [
+		{
+			"idx": 0,
+			"version": "7",
+			"when": 1794253175973,
+			"tag": "0000_mean_human_cannonball",
+			"breakpoints": true
+		},
+		{
+			"idx": 1,
+			"version": "7",
+			"when": 1794253683603,
+			"tag": "0001_quills_operations",
+			"breakpoints": true
+		},
+		{
+			"idx": 2,
+			"version": "7",
+			"when": 1794255272073,
+			"tag": "0002_tenant_dedupe_keys",
+			"breakpoints": true
+		},
+		{
+			"idx": 3,
+			"version": "7",
+			"when": 1794258034632,
+			"tag": "0003_kaneo_actors",
+			"breakpoints": true
+		},
+		{
+			"idx": 4,
+			"version": "7",
+			"when": 1794258171677,
+			"tag": "0004_kaneo_platform",
+			"breakpoints": true
+		},
+		{
+			"idx": 5,
+			"version": "7",
+			"when": 1794262554584,
+			"tag": "0005_platform_completion",
+			"breakpoints": true
+		},
+		{
+			"idx": 6,
+			"version": "7",
+			"when": 1794263944630,
+			"tag": "0006_schema_manifest",
+			"breakpoints": true
+		},
+		{
+			"idx": 7,
+			"version": "7",
+			"when": 1794265360874,
+			"tag": "0007_scoped_team_projection",
+			"breakpoints": true
+		},
+		{
+			"idx": 8,
+			"version": "7",
+			"when": 1794268322191,
+			"tag": "0008_safe_workspace_transfer",
+			"breakpoints": true
+		},
+		{
+			"idx": 9,
+			"version": "7",
+			"when": 1794269224964,
+			"tag": "0009_full_index_manifest",
+			"breakpoints": true
+		}
+	]
+}

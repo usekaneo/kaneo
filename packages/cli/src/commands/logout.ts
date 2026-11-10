@@ -1,3 +1,4 @@
+import { brandText } from "@kaneo/branding";
 import { Effect, Option, Redacted, Schema } from "effect";
 import { Command } from "effect/cli";
 import { KaneoApi } from "../api/kaneo-api.js";
@@ -23,7 +24,7 @@ export function renderLogout(ui: Ui, result: LogoutResult): string[] {
     : [`  ${theme.muted(glyphs.dot)} You were not signed in to ${host}`];
   if (result.apiKeyStillSet) {
     lines.push(
-      `  ${theme.warning(glyphs.warning)} KANEO_API_KEY is still set, so commands keep using it.`,
+      `  ${theme.warning(glyphs.warning)}${brandText(" KANEO_API_KEY is still set, so commands keep using it.")}`,
     );
   }
   return lines;

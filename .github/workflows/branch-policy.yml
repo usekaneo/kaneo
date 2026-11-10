@@ -1,0 +1,30 @@
+name: Branch policy
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, edited]
+    branches: [develop, main]
+
+permissions:
+  contents: read
+
+jobs:
+  branch-policy:
+    name: Branch policy
+    runs-on: ubuntu-latest
+    steps:
+      - name: Validate the target branch
+        env:
+          BASE_REF: ${{ github.base_ref }}
+          HEAD_REF: ${{ github.head_ref }}
+          HEAD_REPOSITORY: ${{ github.event.pull_request.head.repo.full_name }}
+          BASE_REPOSITORY: ${{ github.repository }}
+        run: |
+          if [[ "$BASE_REF" == "develop" ]]; then
+            exit 0
+          fi
+          if [[ "$BASE_REF" == "main" && "$HEAD_REF" == "develop" && "$HEAD_REPOSITORY" == "$BASE_REPOSITORY" ]]; then
+            exit 0
+          fi
+          echo "Work pull requests must target develop. Only this repository's develop branch may target main."
+          exit 1

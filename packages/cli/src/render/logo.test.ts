@@ -1,3 +1,4 @@
+import { brand } from "@kaneo/branding";
 import { describe, expect, it } from "vite-plus/test";
 import { LOGO_LINES, LOGO_WIDTH, logo } from "./logo.js";
 import { makeUi } from "./ui.js";
@@ -15,11 +16,11 @@ describe("logo", () => {
   });
 
   it("collapses to one line on narrow terminals", () => {
-    expect(LOGO_WIDTH).toBeGreaterThan(40);
-    expect(logo(make(true, 40))).toEqual(["  ▅▆▇ kaneo"]);
+    expect(LOGO_WIDTH).toBe([...brand.name].length);
+    expect(logo(make(true, 40))).toEqual([`  ${brand.name}`]);
   });
 
   it("uses plain text without unicode", () => {
-    expect(logo(make(false, 120))).toEqual(["  kaneo"]);
+    expect(logo(make(false, 120))).toEqual([`  ${brand.name}`]);
   });
 });

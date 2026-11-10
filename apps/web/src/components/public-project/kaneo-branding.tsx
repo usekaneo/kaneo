@@ -1,3 +1,4 @@
+import { brandText } from "@kaneo/branding";
 import { useTranslation } from "react-i18next";
 
 export function KaneoBranding() {
@@ -5,7 +6,7 @@ export function KaneoBranding() {
 
   return (
     <a
-      href="https://kaneo.app"
+      href={brandText("https://kaneo.app")}
       target="_blank"
       rel="noopener noreferrer"
       className="hover:text-foreground transition-colors"

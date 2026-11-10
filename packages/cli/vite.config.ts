@@ -1,7 +1,9 @@
 import { defineConfig } from "vite-plus";
+import { brandCopyPlugin } from "../../scripts/branding/source.mjs";
 
 export default defineConfig({
   pack: {
+    plugins: [brandCopyPlugin()],
     entry: { kaneo: "src/bin.ts" },
     format: "esm",
     platform: "node",
@@ -14,6 +16,7 @@ export default defineConfig({
     report: false,
     deps: {
       onlyBundle: [
+        "@kaneo/branding",
         "effect",
         "@effect/platform-node",
         "@effect/platform-node-shared",
@@ -34,6 +37,8 @@ export default defineConfig({
         cache: {
           input: [
             { auto: true },
+            { pattern: "branding/**", base: "workspace" },
+            { pattern: "scripts/branding/**", base: "workspace" },
             "src/**",
             "tsconfig.json",
             {

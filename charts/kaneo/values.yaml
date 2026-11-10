@@ -28,8 +28,8 @@ postgresql:
   # Set to true to deploy PostgreSQL as part of this chart
   enabled: true
   image:
-    repository: postgres
-    tag: 16-alpine
+    repository: pgvector/pgvector
+    tag: 0.8.7-pg16-bookworm
     pullPolicy: IfNotPresent
   # Database configuration
   auth:

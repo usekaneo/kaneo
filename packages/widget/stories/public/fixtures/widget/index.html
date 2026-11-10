@@ -1,0 +1,23 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Widget demo iframe</title>
+    <style>
+      body { margin: 0; padding: 24px; background: white; color: #18212f; font: 15px/1.5 system-ui, sans-serif; }
+      h1 { font-size: 20px; } button { padding: 8px 12px; margin: 4px 0; cursor: pointer; font: inherit; }
+      pre { white-space: pre-wrap; overflow-wrap: anywhere; padding: 12px; background: #f6f7f9; }
+    </style>
+    <script type="module" src="./fixture.js"></script>
+  </head>
+  <body>
+    <h1>Local widget fixture</h1>
+    <p>This is a protocol demo, not the Quackback application.</p>
+    <p id="user" aria-live="polite">Anonymous</p>
+    <pre id="target">Home</pre>
+    <button id="unread" type="button">Send 4 unread and close</button>
+    <button id="expand" type="button">Expand panel</button>
+    <button id="close" type="button">Close widget</button>
+  </body>
+</html>

@@ -1,3 +1,4 @@
+import { brandAssetUrl, brand, brandText } from "@kaneo/branding";
 import { Link } from "@tanstack/react-router";
 import useProjectStore from "@/store/project";
 
@@ -7,6 +8,11 @@ type LogoProps = {
 
 export function Logo({ className = "" }: LogoProps) {
   const { setProject } = useProjectStore();
+  const artwork = ["logo-dark.svg", "logo-light.svg"].every((name) =>
+    brand.assets.some(
+      (asset) => asset.approved && asset.target === `apps/web/public/${name}`,
+    ),
+  );
 
   return (
     <Link
@@ -16,16 +22,22 @@ export function Logo({ className = "" }: LogoProps) {
       to="/dashboard"
       className={`w-auto ${className}`}
     >
-      <img
-        src="/logo-dark.svg"
-        alt="Kaneo"
-        className="h-6 w-auto dark:hidden"
-      />
-      <img
-        src="/logo-light.svg"
-        alt="Kaneo"
-        className="hidden h-6 w-auto dark:block"
-      />
+      {artwork ? (
+        <>
+          <img
+            src={brandAssetUrl("apps/web/public/logo-dark.svg")}
+            alt={brand.name}
+            className="h-6 w-auto dark:hidden"
+          />
+          <img
+            src={brandAssetUrl("apps/web/public/logo-light.svg")}
+            alt={brand.name}
+            className="hidden h-6 w-auto dark:block"
+          />
+        </>
+      ) : (
+        <span className="font-semibold">{brandText("Kaneo")}</span>
+      )}
     </Link>
   );
 }

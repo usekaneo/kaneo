@@ -1,0 +1,90 @@
+{
+  "name": "@quackback/widget",
+  "version": "0.1.6",
+  "license": "MIT",
+  "description": "Official SDK for the Quackback feedback widget. Embed Quackback in your app.",
+  "type": "module",
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "development": "./src/index.ts",
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs"
+    },
+    "./react": {
+      "types": "./dist/react/index.d.ts",
+      "development": "./src/react/index.ts",
+      "import": "./dist/react/index.js",
+      "require": "./dist/react/index.cjs"
+    },
+    "./version": {
+      "types": "./dist/version.d.ts",
+      "development": "./src/version.ts",
+      "import": "./dist/version.js",
+      "require": "./dist/version.cjs"
+    },
+    "./browser.js": "./dist/browser.js",
+    "./ui": {
+      "types": "./dist/ui/index.d.ts",
+      "development": "./src/ui/index.ts",
+      "import": "./dist/ui/index.js",
+      "require": "./dist/ui/index.cjs"
+    },
+    "./ui/styles.css": "./src/ui/styles.css"
+  },
+  "files": [
+    "dist",
+    "src",
+    "README.md",
+    "LICENSE"
+  ],
+  "scripts": {
+    "build": "tsup && tsc --emitDeclarationOnly",
+    "test": "vp test run --config vitest.config.ts",
+    "test:watch": "vp test --config vitest.config.ts",
+    "typecheck": "tsc --noEmit && tsc -p .storybook/tsconfig.json --noEmit",
+    "storybook": "storybook dev -p 6006 --no-open",
+    "storybook:build": "storybook build"
+  },
+  "peerDependencies": {
+    "react": "^19"
+  },
+  "peerDependenciesMeta": {
+    "react": {
+      "optional": true
+    }
+  },
+  "devDependencies": {
+    "@storybook/react-vite": "10.6.6",
+    "@testing-library/dom": "^10.4.1",
+    "@testing-library/react": "^16.3.3",
+    "@types/react": "^19.3.0",
+    "@types/react-dom": "^19.3.0",
+    "happy-dom": "^20.14.5",
+    "react": "^19.3.0",
+    "react-dom": "^19.3.0",
+    "storybook": "10.6.6",
+    "tsup": "^9.0.0",
+    "vite-plus": "catalog:"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/QuackbackIO/quackback.git",
+    "directory": "packages/widget"
+  },
+  "homepage": "https://quackback.io/docs/widget",
+  "bugs": "https://github.com/QuackbackIO/quackback/issues",
+  "keywords": [
+    "quackback",
+    "feedback",
+    "widget",
+    "customer-feedback",
+    "feature-requests"
+  ],
+  "dependencies": {
+    "zod": "^4.6.4"
+  }
+}

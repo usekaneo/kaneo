@@ -1,3 +1,4 @@
+import { brandText } from "@kaneo/branding";
 import { Option, Redacted } from "effect";
 import { describe, expect, it } from "vite-plus/test";
 import { emptyConfig, withProfile } from "../config/format.js";
@@ -117,7 +118,7 @@ describe("buildProvenance", () => {
   it("works signed out with no config file", () => {
     const provenance = buildProvenance(inputs({ config: emptyConfig }));
     expect(provenance.server).toEqual({
-      url: "https://cloud.kaneo.app",
+      url: brandText("https://cloud.kaneo.app"),
       source: "default",
     });
     expect(provenance.web.source).toBe("server");

@@ -1,3 +1,4 @@
+import { brandText } from "@kaneo/branding";
 import type { CallToolResult } from "@modelcontextprotocol/sdk/types.js";
 import { z } from "zod";
 import { encodeCustomFieldValue } from "../kaneo/custom-field-value.js";
@@ -67,8 +68,9 @@ export function registerTools(
   registerTool(
     "whoami",
     {
-      description:
+      description: brandText(
         "Return the current Kaneo user for the configured authentication method.",
+      ),
       inputSchema: z.object({}),
     },
     async () => run(() => getCurrentUser(client)),

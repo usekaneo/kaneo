@@ -1,3 +1,4 @@
+import { brandText } from "@kaneo/branding";
 import { and, eq } from "drizzle-orm";
 import db from "../../database";
 import {
@@ -166,7 +167,7 @@ async function sendDiscordMessage(
           footer: {
             text: safeActor
               ? `Triggered by ${safeActor}`
-              : "Triggered by Kaneo",
+              : brandText("Triggered by Kaneo"),
           },
         },
       ],

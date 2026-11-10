@@ -1,0 +1,24 @@
+{
+	"detector": {
+		"ignoreRules": [],
+		"ignoreFiles": [],
+		"ignoreValues": [
+			{
+				"rule": "overused-font",
+				"value": "inter",
+				"createdAt": "2026-11-09T10:26:44.519Z",
+				"reason": "User requested a visual match to UserJot; the inspected live widget uses Inter, as recorded in packages/widget/DESIGN.md."
+			},
+			{
+				"rule": "low-contrast",
+				"value": "*",
+				"files": [
+					"apps/web/public/privacy/index.html",
+					"apps/web/public/terms/index.html"
+				],
+				"createdAt": "2026-11-10T01:07:45.628Z",
+				"reason": "Agent verified computed light colors at 6.71:1 or higher and dark media colors at 9.29:1 or higher. Detector incorrectly combines dark-only #b8b8b8 text with white background."
+			}
+		]
+	}
+}

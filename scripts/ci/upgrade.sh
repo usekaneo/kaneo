@@ -2,14 +2,23 @@
 set -euo pipefail
 
 # The standard GitHub latest release excludes prereleases and package-only releases.
-tag=$(gh api "repos/$GITHUB_REPOSITORY/releases/latest" --jq .tag_name)
+repo=$GITHUB_REPOSITORY
+if ! tag=$(gh api "repos/$repo/releases/latest" --jq .tag_name 2>&1); then
+  # A fork without a stable release of its own upgrades from the upstream release.
+  if [[ "$tag" != *"HTTP 404"* ]]; then
+    echo "$tag" >&2
+    exit 1
+  fi
+  repo=usekaneo/kaneo
+  tag=$(gh api "repos/$repo/releases/latest" --jq .tag_name)
+fi
 version=${tag#v}
 node scripts/security/validate-release-version.mjs "$version" --new-version
 if [[ "$tag" != "v$version" ]]; then
   echo "Expected a stable Kaneo vX.Y.Z release, got $tag" >&2
   exit 1
 fi
-owner=$(printf '%s' "$GITHUB_REPOSITORY_OWNER" | tr '[:upper:]' '[:lower:]')
+owner=$(printf '%s' "${repo%%/*}" | tr '[:upper:]' '[:lower:]')
 image="ghcr.io/$owner/kaneo:$version"
 # GHCR can time out before returning headers even when the image is available.
 # Retry only acquisition; the upgrade and its assertions still run once.

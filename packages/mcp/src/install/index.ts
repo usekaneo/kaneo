@@ -1,3 +1,4 @@
+import { brandText } from "@kaneo/branding";
 import { chmod, mkdir, readFile, writeFile } from "node:fs/promises";
 import { dirname } from "node:path";
 import { stdin as input, stdout as output } from "node:process";
@@ -324,27 +325,7 @@ export async function runInstall(argv: string[]): Promise<void> {
 }
 
 function printInstallHelp(): void {
-  console.log(`kaneo-mcp install: register Kaneo in an MCP client config
-
-Usage:
-  kaneo-mcp install [options]
-
-Without options, runs interactively (pick Cursor / Claude / custom path).
-
-Options:
-  --target <id>       ${VALID_TARGETS.join(" | ")}
-  --output <path>     Required for --target custom (absolute path to JSON file)
-  --project-dir <dir> Base directory for cursor-project (default: current dir)
-  --name <string>     MCP server key under mcpServers (default: kaneo)
-  --api-url <url>     Set KANEO_API_URL in the generated entry (optional)
-  -y, --yes           Overwrite existing entry without prompting
-  -h, --help          Show this help
-
-Examples:
-  npm install -g @kaneo/mcp
-  kaneo-mcp install
-
-  kaneo-mcp install --target cursor-user -y
-  kaneo-mcp install --target custom --output /path/to/mcp.json -y
-`);
+  console.log(
+    `${brandText("kaneo-mcp install: register Kaneo in an MCP client config\n\nUsage:\n  kaneo-mcp install [options]\n\nWithout options, runs interactively (pick Cursor / Claude / custom path).\n\nOptions:\n  --target <id>       ")}${VALID_TARGETS.join(" | ")}${brandText("\n  --output <path>     Required for --target custom (absolute path to JSON file)\n  --project-dir <dir> Base directory for cursor-project (default: current dir)\n  --name <string>     MCP server key under mcpServers (default: kaneo)\n  --api-url <url>     Set KANEO_API_URL in the generated entry (optional)\n  -y, --yes           Overwrite existing entry without prompting\n  -h, --help          Show this help\n\nExamples:\n  npm install -g @kaneo/mcp\n  kaneo-mcp install\n\n  kaneo-mcp install --target cursor-user -y\n  kaneo-mcp install --target custom --output /path/to/mcp.json -y\n")}`,
+  );
 }

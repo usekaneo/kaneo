@@ -1,3 +1,4 @@
+import { brandText } from "@kaneo/branding";
 import { render } from "react-email";
 import { createElement } from "react";
 import { describe, expect, it } from "vite-plus/test";
@@ -16,7 +17,7 @@ describe("AccountPasswordEmail", () => {
         instance: "kaneo.example",
       }),
     );
-    expect(html).toContain("Set up your Kaneo account");
+    expect(html).toContain(brandText("Set up your Kaneo account"));
     expect(html).toContain("expires in 2 days");
     expect(html).toContain("an administrator of kaneo.example");
     expect(html).not.toContain("Reset");

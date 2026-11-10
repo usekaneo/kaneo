@@ -1,10 +1,11 @@
+import { brandText } from "@kaneo/branding";
 import { getWorkspaceInvitationEmailCopy } from "./get-workspace-invitation-email-copy";
 
 export function getInvitationEmailSubject(
   locale: string | null,
   inviterName: string,
   workspaceName: string,
-  instanceName = "Kaneo",
+  instanceName = brandText("Kaneo"),
 ) {
   const values: Record<string, string> = {
     inviterName,

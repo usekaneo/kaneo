@@ -1,3 +1,4 @@
+import { brandResources } from "@kaneo/branding";
 import { render } from "react-email";
 import { createElement } from "react";
 import { describe, expect, it } from "vite-plus/test";
@@ -16,7 +17,7 @@ describe("WorkspaceInvitationEmail", () => {
         inviterEmail: "camille@example.com",
         invitationLink: "https://kaneo.example/invite/abc",
         to: "invite@example.com",
-        copy: frFR.invitations.email,
+        copy: brandResources(frFR.invitations.email),
       }),
     );
 
@@ -33,7 +34,7 @@ describe("WorkspaceInvitationEmail", () => {
         inviterEmail: "alice@example.com",
         invitationLink: "https://kaneo.example/invite/abc",
         to: "invite@example.com",
-        copy: jaJP.invitations.email,
+        copy: brandResources(jaJP.invitations.email),
       }),
     );
 
@@ -50,7 +51,7 @@ describe("WorkspaceInvitationEmail", () => {
         inviterEmail: "alice@example.com",
         invitationLink: "https://kaneo.example/invite/abc",
         to: "invite@example.com",
-        copy: zhTW.invitations.email,
+        copy: brandResources(zhTW.invitations.email),
       }),
     );
 
@@ -92,7 +93,7 @@ describe("WorkspaceInvitationEmail default copy", () => {
         inviterEmail: "john@acme.com",
         invitationLink: "https://kaneo.app/invite/abc123",
         to: "invitee@example.com",
-        copy: enUS.invitations.email,
+        copy: brandResources(enUS.invitations.email),
       }),
     );
 
@@ -110,7 +111,7 @@ describe("WorkspaceInvitationEmail default copy", () => {
         locale: "fr-FR",
         role: "Membre",
         expiresAt: new Date("2026-10-13T12:00:00Z"),
-        copy: frFR.invitations.email,
+        copy: brandResources(frFR.invitations.email),
       }),
     );
 

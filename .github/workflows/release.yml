@@ -32,7 +32,7 @@ jobs:
   plan:
     name: Plan
     timeout-minutes: 15
-    runs-on: blacksmith-4vcpu-ubuntu-2404
+    runs-on: ubuntu-24.04
     permissions:
       contents: write # semantic-release verifies push permission even on a dry run
     outputs:
@@ -46,7 +46,7 @@ jobs:
           fi
 
       - name: Checkout repository
-        uses: useblacksmith/checkout@2b9fe87d796feea153b455ec2f3125b471a7b0e7 # v1
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           fetch-depth: 0
 
@@ -63,6 +63,9 @@ jobs:
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
+
+      - name: Require approved public branding
+        run: pnpm branding:release
 
       - name: Resolve next version
         id: plan
@@ -99,13 +102,13 @@ jobs:
     name: Verify CI for release source
     needs: plan
     if: ${{ !inputs.dry_run && needs.plan.outputs.version != '' }}
-    runs-on: blacksmith-4vcpu-ubuntu-2404
+    runs-on: ubuntu-24.04
     timeout-minutes: 35
     permissions:
       contents: read
       actions: read
     steps:
-      - uses: useblacksmith/checkout@2b9fe87d796feea153b455ec2f3125b471a7b0e7 # v1
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
       - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7
@@ -148,7 +151,7 @@ jobs:
     needs: [plan, images, chart]
     if: ${{ !inputs.dry_run && needs.plan.outputs.version != '' }}
     timeout-minutes: 15
-    runs-on: blacksmith-4vcpu-ubuntu-2404
+    runs-on: ubuntu-24.04
     permissions:
       contents: write
       issues: write
@@ -159,7 +162,7 @@ jobs:
       # The same token the API calls use, so the release commit and tag are not
       # pushed under a different identity than the one that was verified.
       - name: Checkout repository
-        uses: useblacksmith/checkout@2b9fe87d796feea153b455ec2f3125b471a7b0e7 # v1
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           fetch-depth: 0
           token: ${{ secrets.RELEASE_TOKEN || secrets.GITHUB_TOKEN }}
@@ -177,6 +180,9 @@ jobs:
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
+
+      - name: Require approved public branding
+        run: pnpm branding:release
 
       # A release created with GITHUB_TOKEN does not trigger other workflows,
       # which would silence release-notify.yml.
@@ -208,7 +214,7 @@ jobs:
     name: Promote
     needs: [plan, release]
     timeout-minutes: 15
-    runs-on: blacksmith-4vcpu-ubuntu-2404
+    runs-on: ubuntu-24.04
     permissions:
       contents: read
       packages: write

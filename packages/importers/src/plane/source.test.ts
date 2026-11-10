@@ -1,3 +1,4 @@
+import { brandText } from "@kaneo/branding";
 import { describe, expect, it } from "vite-plus/test";
 import type { FetchLike } from "../types.js";
 import { connectPlane } from "./index.js";
@@ -400,7 +401,9 @@ describe("readProject", () => {
       { sourceKey: "w-parent", targetKey: "w-child", type: "subtask" },
     ]);
     expect(result.warnings).toEqual([
-      "1 work item has more than one assignee. Kaneo keeps one assignee per task, so only the first was assigned.",
+      brandText(
+        "1 work item has more than one assignee. Kaneo keeps one assignee per task, so only the first was assigned.",
+      ),
     ]);
   });
 

@@ -1,3 +1,4 @@
+import { brandText } from "@kaneo/branding";
 import { Effect, Option, Result, Schema } from "effect";
 import { Argument, Command, Flag } from "effect/cli";
 import { type HttpMethod, KaneoApi } from "../api/kaneo-api.js";
@@ -121,6 +122,8 @@ export const apiCommand = Command.make(
   },
   (options) => runApi(options),
 ).pipe(
-  Command.withDescription("Send an authenticated request to the Kaneo API"),
+  Command.withDescription(
+    brandText("Send an authenticated request to the Kaneo API"),
+  ),
   Command.provide(ApiLayer),
 );

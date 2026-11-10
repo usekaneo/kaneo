@@ -1,3 +1,4 @@
+import { brandText } from "@kaneo/branding";
 import {
   apiRouter,
   createRoute,
@@ -169,8 +170,9 @@ const removeAvatarRoute = createRoute({
   path: "/{userId}/avatar",
   tags: ["Admin"],
   summary: "Remove a user's avatar",
-  description:
+  description: brandText(
     "Remove the user's profile picture. A picture managed by the identity provider can't be removed, but an earlier Kaneo upload can. Requires the `users:update` instance permission; API keys are rejected.",
+  ),
   middleware: [
     requireUserSession,
     requireInstancePermission("users:update"),

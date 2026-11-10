@@ -1,3 +1,4 @@
+import { brandText } from "@kaneo/branding";
 import { Effect, Option } from "effect";
 import { Argument, Command, Flag, Prompt } from "effect/cli";
 import { createProject, updateProject } from "../../api/project-writes.js";
@@ -50,7 +51,9 @@ const resolveName = Effect.fnUntraced(function* (name: Option.Option<string>) {
   if (output.interactive) return yield* promptName();
   return yield* new InvalidArgument({
     message: "A project name is required.",
-    hint: 'Pass it as the first argument, for example kaneo project create "Kaneo Web".',
+    hint: brandText(
+      'Pass it as the first argument, for example kaneo project create "Kaneo Web".',
+    ),
   });
 });
 

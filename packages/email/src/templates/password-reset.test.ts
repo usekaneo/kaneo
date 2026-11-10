@@ -1,3 +1,4 @@
+import { brandText } from "@kaneo/branding";
 import { render } from "react-email";
 import { createElement } from "react";
 import { describe, expect, it } from "vite-plus/test";
@@ -12,7 +13,7 @@ describe("PasswordResetEmail", () => {
       }),
     );
     expect(html).toContain("パスワードのリセット");
-    expect(html).toContain("Kaneo セキュリティメール");
+    expect(html).toContain(brandText("Kaneo セキュリティメール"));
   });
 
   it("renders Traditional Chinese copy for a zh-TW locale", async () => {
@@ -23,6 +24,6 @@ describe("PasswordResetEmail", () => {
       }),
     );
     expect(html).toContain("重設密碼");
-    expect(html).toContain("Kaneo 安全性通知");
+    expect(html).toContain(brandText("Kaneo 安全性通知"));
   });
 });

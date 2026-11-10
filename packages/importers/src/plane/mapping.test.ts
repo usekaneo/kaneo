@@ -1,3 +1,4 @@
+import { brandText } from "@kaneo/branding";
 import { describe, expect, it } from "vite-plus/test";
 import type {
   PlaneComment,
@@ -225,7 +226,9 @@ describe("mapPlaneProject", () => {
       { name: "bob", email: "bob@example.com" },
     ]);
     expect(result.warnings).toContain(
-      "2 work items have more than one assignee. Kaneo keeps one assignee per task, so only the first was assigned.",
+      brandText(
+        "2 work items have more than one assignee. Kaneo keeps one assignee per task, so only the first was assigned.",
+      ),
     );
   });
 

@@ -62,7 +62,7 @@ export const publicCalendarFeed = apiRouter().openapi(
     c.header("Cache-Control", "private, no-store");
     c.header("X-Content-Type-Options", "nosniff");
     c.header("Content-Type", "text/calendar; charset=utf-8");
-    c.header("Content-Disposition", 'inline; filename="kaneo.ics"');
+    c.header("Content-Disposition", 'inline; filename="calendar.ics"');
     return c.body(await getCalendarFeed(c.req.valid("param").token), 200);
   },
 );

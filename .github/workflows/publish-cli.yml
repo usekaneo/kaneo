@@ -66,6 +66,11 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
+      - name: Require approved public branding
+        run: |
+          pnpm branding:release
+          node -e "require('./branding/index.cjs').assertPackageBrand()"
+
       - name: Run CLI checks
         run: |
           pnpm --filter @kaneo/cli typecheck
@@ -332,6 +337,14 @@ jobs:
           node-version: 24
           package-manager-cache: false
 
+      - name: Setup pnpm
+        uses: pnpm/action-setup@73e46992e05b19abd31f2f3c20e0e7370d762115 # v6.1.1
+        with:
+          version: 12.18.0
+
+      - name: Install branding validation dependencies
+        run: pnpm install --frozen-lockfile --ignore-scripts
+
       - name: Download CLI bundle
         uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
         with:
@@ -343,7 +356,8 @@ jobs:
         env:
           VERSION: ${{ needs.check.outputs.version }}
         run: |
-          if npm view "@kaneo/cli@${VERSION}" version > /dev/null 2>&1; then
+          PACKAGE_NAME=$(node -p "'@' + require('./branding/config.json').npmScope + '/cli'")
+          if npm view "${PACKAGE_NAME}@${VERSION}" version > /dev/null 2>&1; then
             echo "already_published=true" >> "$GITHUB_OUTPUT"
             echo "@kaneo/cli@${VERSION} is already published; skipping publish."
           else
@@ -353,4 +367,6 @@ jobs:
       - name: Publish @kaneo/cli
         if: steps.version_check.outputs.already_published == 'false'
         working-directory: packages/cli
-        run: npm publish --access public --provenance --ignore-scripts
+        run: |
+          node ../../scripts/branding/prepare-package.mjs packages/cli
+          npm publish ../../.cache/npm/cli --access public --provenance --ignore-scripts

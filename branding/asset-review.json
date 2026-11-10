@@ -1,0 +1,454 @@
+{
+	"apps/web/public/apple-touch-icon.png": {
+		"sha256": "2370dfe6826bea83c1bf5d6bc7a84b6dd83bc44e4ad796f13332dead976820b5",
+		"approved": false,
+		"requiresReplacement": true
+	},
+	"apps/web/public/email/arrow-up-right-light.png": {
+		"sha256": "8a22dd43f04984441abf61bfa421de4650e0b9101d48c24cb3b832bf0665d5f4",
+		"approved": true
+	},
+	"apps/web/public/email/check-circle-light.png": {
+		"sha256": "1fe8e0b8c8d9a0518dd7189437985ae3f5c320c51418a41ed026c314d86626be",
+		"approved": true
+	},
+	"apps/web/public/email/column-archive-dm.png": {
+		"sha256": "ef8057af0b313fc7da90b305528d84d6800ed327911ff5ec665446046494faeb",
+		"approved": true
+	},
+	"apps/web/public/email/column-archive.png": {
+		"sha256": "4d49de885d8d8d865951a292d34a38dac407f37be7c6a4c47d5525c37b9359e9",
+		"approved": true
+	},
+	"apps/web/public/email/column-check-circle-dm.png": {
+		"sha256": "23bcf71e9da826f1af580dbc85941b1f35204f2435446f6191f4d4eedecdefec",
+		"approved": true
+	},
+	"apps/web/public/email/column-check-circle.png": {
+		"sha256": "9e7074670fa4759295d782edf15bdf0e78caeb65d2f17c6f7f40c541119eacbd",
+		"approved": true
+	},
+	"apps/web/public/email/column-circle-dashed-dm.png": {
+		"sha256": "155280fbbe6aeed976cbda309a016fe47dd19149ec255e0ec6795ed1382fb8e0",
+		"approved": true
+	},
+	"apps/web/public/email/column-circle-dashed.png": {
+		"sha256": "d915918cb1fbeca10e52a1ed84249970c1bac0d79becf6b4716afd12b3dee93b",
+		"approved": true
+	},
+	"apps/web/public/email/column-circle-dm.png": {
+		"sha256": "8ebb8e82df407a20c3084d58831da350b169a37d27d247d3107677315c10bb6e",
+		"approved": true
+	},
+	"apps/web/public/email/column-circle-dot-dm.png": {
+		"sha256": "5ab14564f31ac91d04a06761c097e22107505a40bb2d34808242c0bc83017a5c",
+		"approved": true
+	},
+	"apps/web/public/email/column-circle-dot.png": {
+		"sha256": "56d52ad60603f36052e712e1efe0a34828039137969c675959a57754a7c445ad",
+		"approved": true
+	},
+	"apps/web/public/email/column-circle.png": {
+		"sha256": "ffc5328757557cc6c550b6c73f854fe4f1b61e85650c16b835a0cafde0b20fbc",
+		"approved": true
+	},
+	"apps/web/public/email/column-search-dm.png": {
+		"sha256": "1bc4a250e2a9f63d8acd29d5f1746c9d2b77422df66783658d81ee7d352e5a66",
+		"approved": true
+	},
+	"apps/web/public/email/column-search.png": {
+		"sha256": "9951f25a5aa28d8eeeaca89a0647dfcbdf0fdcb5b37d6b14166256f196a23c05",
+		"approved": true
+	},
+	"apps/web/public/email/credit-card-light.png": {
+		"sha256": "03a4b325a4d98688d2434adc91140db386e222fcb2e79fbc82960d10b92061d9",
+		"approved": true
+	},
+	"apps/web/public/email/due-far-future-dm.png": {
+		"sha256": "2ab9e6269453ba97b174419dcda1fbfe2cad3ae32ce056496f8f91c242c343a9",
+		"approved": true
+	},
+	"apps/web/public/email/due-far-future.png": {
+		"sha256": "db1ec5bec26d7d3a57e0cef86ed88eaac720891439b31a1f4409ce1666b80c4d",
+		"approved": true
+	},
+	"apps/web/public/email/due-overdue-dm.png": {
+		"sha256": "d63cc5e15f8bf1260cde7b04c7c77ebd4c189429a1ffa1f10eba47c445f72ff8",
+		"approved": true
+	},
+	"apps/web/public/email/due-overdue.png": {
+		"sha256": "95d22c9b2c62c5f2faf7a7d971edddcc1a601c1f316a839a6e50defd3f4ea129",
+		"approved": true
+	},
+	"apps/web/public/email/due-soon-dm.png": {
+		"sha256": "7c24daeb664c78e955e6ff67f4607ce5ca62b7bfdbee21a4324ca79a35a3c6ef",
+		"approved": true
+	},
+	"apps/web/public/email/due-soon.png": {
+		"sha256": "c2387743dc555484d38eaaedcff3aa8b1e7c3de2c2e4a47069a144907b7ecd35",
+		"approved": true
+	},
+	"apps/web/public/email/key-round-light.png": {
+		"sha256": "aba263e674aec7bd850746b661ed68dce2abb10b4f0c81aae2fc82b84ccb9941",
+		"approved": true
+	},
+	"apps/web/public/email/log-in-light.png": {
+		"sha256": "03fa33a550f881b0531a367fbaeaf36e53722ce294bffd2968752f94b3bf0683",
+		"approved": true
+	},
+	"apps/web/public/email/mark.png": {
+		"sha256": "92211d55ef7180ddcc32022092550be7dc8e59dd2cde0113fe5f4e329d110cbb",
+		"approved": false,
+		"requiresReplacement": true
+	},
+	"apps/web/public/email/priority-high-dm.png": {
+		"sha256": "7fbf0138a9471c3785ff2737701510453d2618b77b18d2743ec728813d36d3d9",
+		"approved": true
+	},
+	"apps/web/public/email/priority-high.png": {
+		"sha256": "830011ba384bbd42ce7bf1ac64f032b63c3543a9212f6741450001519791eb97",
+		"approved": true
+	},
+	"apps/web/public/email/priority-low-dm.png": {
+		"sha256": "3ee53f1f4a6c83c2c70faa88847cbe908cf75492a8a3dc95114e30be3e66968f",
+		"approved": true
+	},
+	"apps/web/public/email/priority-low.png": {
+		"sha256": "ef107feb12be1cf4ed57c756e6eb6f1440484eec245d054b9be9855f57c03443",
+		"approved": true
+	},
+	"apps/web/public/email/priority-medium-dm.png": {
+		"sha256": "7a7ba5a864313b3680e857b86543d16ce722f395e2edf7603de1e13bb3696acc",
+		"approved": true
+	},
+	"apps/web/public/email/priority-medium.png": {
+		"sha256": "e74a1dcdfc0b84d74f08a8f5d03f303589dc664dc5ba2ef4a7794a8d299087db",
+		"approved": true
+	},
+	"apps/web/public/email/priority-urgent-dm.png": {
+		"sha256": "74b63613e1c08e557dd7604eaa6b09cb820aacdd45751759c0c34292de344ef5",
+		"approved": true
+	},
+	"apps/web/public/email/priority-urgent.png": {
+		"sha256": "df3c9d5363d83b861863744db7059adb0b27b4204a5e541b1c31aac9abf3d53e",
+		"approved": true
+	},
+	"apps/web/public/email/users-circle-dm.png": {
+		"sha256": "b24e973de0eb9ade8c157a801712ea8bb816c91ba0ee7cc4eaaf3a5ed759f75b",
+		"approved": true
+	},
+	"apps/web/public/email/users-circle.png": {
+		"sha256": "29bfa37d03ace9fb3e9d3f809d5f59c0df150ddab857e1551dadac1e7dc750d3",
+		"approved": true
+	},
+	"apps/web/public/favicon-96x96.png": {
+		"sha256": "7b03078ac6f2a1fd7eb82d639894eef43cced11d766b41bd8825c85028be58de",
+		"approved": false,
+		"requiresReplacement": true
+	},
+	"apps/web/public/favicon.ico": {
+		"sha256": "f17311fd8e0aab96aacea7a0a31670c933dfdf34cf3268db3636b32b12377e7f",
+		"approved": false,
+		"requiresReplacement": true
+	},
+	"apps/web/public/favicon.svg": {
+		"sha256": "2bd741729a056f9c4af5055de32b3dfa9bf5d1e958d197ffedcf961df32a6c10",
+		"approved": false,
+		"requiresReplacement": true
+	},
+	"apps/web/public/images/import-sources/planka.png": {
+		"sha256": "814a1fcebc7b3e8300fa0cc9686f6ff6ed869c458c82c712969fdcb9a2b5899e",
+		"approved": true
+	},
+	"apps/web/public/logo-dark.svg": {
+		"sha256": "7a193cf2af593dc31b01e64bfdd7bcfa63e7d24f871eb024f653a6f3dc63e902",
+		"approved": false,
+		"requiresReplacement": true
+	},
+	"apps/web/public/logo-light.svg": {
+		"sha256": "1283a6549833e9284114aade29e1ce9e508768a278267b1457bce792ade5f8a5",
+		"approved": false,
+		"requiresReplacement": true
+	},
+	"apps/web/public/web-app-manifest-192x192.png": {
+		"sha256": "32f23146b81b823d34b286914b75a1a2dc7b1362c08e67761627994f66058d87",
+		"approved": false,
+		"requiresReplacement": true
+	},
+	"apps/web/public/web-app-manifest-512x512.png": {
+		"sha256": "d4f5129a0fd21043ba2493a185dbb475ef18a58c807d5a2f125c368d56302d5e",
+		"approved": false,
+		"requiresReplacement": true
+	},
+	"apps/site/public/apple-touch-icon.png": {
+		"sha256": "2370dfe6826bea83c1bf5d6bc7a84b6dd83bc44e4ad796f13332dead976820b5",
+		"approved": false,
+		"requiresReplacement": true
+	},
+	"apps/site/public/cursors/closed-hand.svg": {
+		"sha256": "b8655cc6f8ba3d5cffd2a0ec2c7b9870f9847b2ece8f87a0303fa5b5f5b35df8",
+		"approved": true
+	},
+	"apps/site/public/cursors/open-hand.svg": {
+		"sha256": "6a906ad5755543dc55b264e36f7889861f5a4a0b7595449b21982050afd3ca56",
+		"approved": true
+	},
+	"apps/site/public/cursors/pointing-hand.svg": {
+		"sha256": "1fff808ffcbd1c7a5feba9a7448a2bc5aecfc1fe1f7e60ba54dcaebf25c9c093",
+		"approved": true
+	},
+	"apps/site/public/favicon.ico": {
+		"sha256": "b6f730c7afa407e47e82284afa51bce82bf524e4bb7d0499a8e3a6453fd7eeed",
+		"approved": false,
+		"requiresReplacement": true
+	},
+	"apps/site/public/favicon.svg": {
+		"sha256": "2bd741729a056f9c4af5055de32b3dfa9bf5d1e958d197ffedcf961df32a6c10",
+		"approved": false,
+		"requiresReplacement": true
+	},
+	"apps/site/public/images/blacksmith-powered.png": {
+		"sha256": "749bece137d4c5b0e8374711c3c7f118c76ad2118b454fc723ada801dae260eb",
+		"approved": true
+	},
+	"apps/site/public/images/blog/best-asana-alternatives.png": {
+		"sha256": "cfec7a862c001362b789ec4e1057d1c62a9138402300afad0e9f8a9ab0eeb1cc",
+		"approved": true
+	},
+	"apps/site/public/images/blog/best-jira-alternatives.png": {
+		"sha256": "7555f09b7177fe9cd7ea3a102b679e4dd3d570164fafa8b0d7a748ab64abca46",
+		"approved": true
+	},
+	"apps/site/public/images/blog/best-monday-alternatives.png": {
+		"sha256": "857f9dc864318db2cf4b0f9372581b0d81c6340893d965f40d89a50e516f196f",
+		"approved": true
+	},
+	"apps/site/public/images/blog/best-trello-alternatives.png": {
+		"sha256": "d7fb00a7dba83b2f16d175d682265adfefcb507d883cbe22734eca81f0c4452c",
+		"approved": true
+	},
+	"apps/site/public/images/dark.png": {
+		"sha256": "577fe50dd5ab95ab198fe00d179c7a52cd6d1adeab854e4f8c339d931a1817d5",
+		"approved": true
+	},
+	"apps/site/public/images/hero.png": {
+		"sha256": "09c56949748907472d293aac54449e7a14eaa0db6b07beffcb3ac64e26d71ce8",
+		"approved": true
+	},
+	"apps/site/public/images/light.png": {
+		"sha256": "b66268d84681a9f8b69c390c1a86030eccf4a74debaeea16ec41dc638965cea5",
+		"approved": true
+	},
+	"apps/site/public/images/product/board-dark.png": {
+		"sha256": "577fe50dd5ab95ab198fe00d179c7a52cd6d1adeab854e4f8c339d931a1817d5",
+		"approved": true
+	},
+	"apps/site/public/images/product/board-light.png": {
+		"sha256": "b66268d84681a9f8b69c390c1a86030eccf4a74debaeea16ec41dc638965cea5",
+		"approved": true
+	},
+	"apps/site/public/images/product/list-dark.png": {
+		"sha256": "fb220422340031d9a48e9413adc448b1eb763927e7eac01fc739253dd0f2d79c",
+		"approved": true
+	},
+	"apps/site/public/images/product/list-light.png": {
+		"sha256": "48f6586e4b82bb1bd83de226b43d7524a4e0085796e1d83ff8e683e96c446c4e",
+		"approved": true
+	},
+	"apps/site/public/images/product/task-dark.png": {
+		"sha256": "cbd5264f2e5ceefe37c3cd0f629ee779099ffd1a0081ac345bb84a0e536ee23b",
+		"approved": true
+	},
+	"apps/site/public/images/product/task-light.png": {
+		"sha256": "d1b46636bd0be7fab130f78440ea8c88a77cf2c035d5ed184bf9f1404fea8a48",
+		"approved": true
+	},
+	"apps/site/public/images/product/timeline-dark.png": {
+		"sha256": "cc02e1115410c912d27a539c897a9ef7523ea54a1f457049eb53f8daef2b5e27",
+		"approved": true
+	},
+	"apps/site/public/images/product/timeline-light.png": {
+		"sha256": "bae3c51309658464e47825bcc482c3996e7d5a8ca609cb38036501672d09ddd1",
+		"approved": true
+	},
+	"apps/site/public/images/product-hunt.svg": {
+		"sha256": "c48cab9151a4fdc7b99fa374ac77d2bda17886429aa26c720ee517830db79328",
+		"approved": true
+	},
+	"apps/site/public/logo-512.png": {
+		"sha256": "d4f5129a0fd21043ba2493a185dbb475ef18a58c807d5a2f125c368d56302d5e",
+		"approved": false,
+		"requiresReplacement": true
+	},
+	"apps/site/public/logo-dark.svg": {
+		"sha256": "7a193cf2af593dc31b01e64bfdd7bcfa63e7d24f871eb024f653a6f3dc63e902",
+		"approved": false,
+		"requiresReplacement": true
+	},
+	"apps/site/public/logo-light.svg": {
+		"sha256": "1283a6549833e9284114aade29e1ce9e508768a278267b1457bce792ade5f8a5",
+		"approved": false,
+		"requiresReplacement": true
+	},
+	"apps/docs/favicon.svg": {
+		"sha256": "2bd741729a056f9c4af5055de32b3dfa9bf5d1e958d197ffedcf961df32a6c10",
+		"approved": false,
+		"requiresReplacement": true
+	},
+	"apps/docs/images/checks-passed.png": {
+		"sha256": "93add382731d1e6d443b128bbe1ac747b62d0efa1b8372ee3fcd37a59d86da30",
+		"approved": true
+	},
+	"apps/docs/images/hero-dark.png": {
+		"sha256": "b01bca41fd68bb5a9279596e131578a734d719f1ff6840f230014a421fc919a8",
+		"approved": true
+	},
+	"apps/docs/images/hero-light.png": {
+		"sha256": "41a7a3663ae3226dc0838af887963f143c3554d891781ec5c7c0f6e7c5fb0b32",
+		"approved": true
+	},
+	"apps/docs/images/product/backlog-dark.png": {
+		"sha256": "b5e2ba6529bd403290705b7cdfa3f77ab0aabcc9b32d50cd6f39ad0ad217186d",
+		"approved": true
+	},
+	"apps/docs/images/product/backlog-light.png": {
+		"sha256": "6637083b8839f63c4f71c3f2a014a2555a8d77f05e4f6b158cf4cbfeba25d6ea",
+		"approved": true
+	},
+	"apps/docs/images/product/board-dark.png": {
+		"sha256": "577fe50dd5ab95ab198fe00d179c7a52cd6d1adeab854e4f8c339d931a1817d5",
+		"approved": true
+	},
+	"apps/docs/images/product/board-light.png": {
+		"sha256": "b66268d84681a9f8b69c390c1a86030eccf4a74debaeea16ec41dc638965cea5",
+		"approved": true
+	},
+	"apps/docs/images/product/integrations-dark.png": {
+		"sha256": "1ea8c2e943ec3885b3f10481129f96b7294c875e6dbd39e091cfe32391328a5a",
+		"approved": true
+	},
+	"apps/docs/images/product/integrations-light.png": {
+		"sha256": "25b35849533f28b4e323e99fb7efc37d70e3d268dcbb2a996dba06ef135ba00a",
+		"approved": true
+	},
+	"apps/docs/images/product/labels-dark.png": {
+		"sha256": "3982917bedc0cd13052fee3dea0f667413b0ccc8ce49bdbe6c110de5ffb51555",
+		"approved": true
+	},
+	"apps/docs/images/product/labels-light.png": {
+		"sha256": "e67a47a40fc79bc6f0c5e35b7c0f308bfaeb0edb06c7aeab97a30109ab57249b",
+		"approved": true
+	},
+	"apps/docs/images/product/list-dark.png": {
+		"sha256": "fb220422340031d9a48e9413adc448b1eb763927e7eac01fc739253dd0f2d79c",
+		"approved": true
+	},
+	"apps/docs/images/product/list-light.png": {
+		"sha256": "48f6586e4b82bb1bd83de226b43d7524a4e0085796e1d83ff8e683e96c446c4e",
+		"approved": true
+	},
+	"apps/docs/images/product/members-dark.png": {
+		"sha256": "4d895fc1c375f64c62744ab81b6950252381bc8a404f43b21445bb1a6d39cc81",
+		"approved": true
+	},
+	"apps/docs/images/product/members-light.png": {
+		"sha256": "04d8a143f294d64bc167b77c0a465ce7cb4e3a5b1552671ea189b9b49d9b8ce8",
+		"approved": true
+	},
+	"apps/docs/images/product/notifications-dark.png": {
+		"sha256": "569128c5e279c2808c1818d0818172b1597d0df3081e60240b0d6a7429780a70",
+		"approved": true
+	},
+	"apps/docs/images/product/notifications-light.png": {
+		"sha256": "7a4e94dcc4a7bd0abef371e6a149281441d2b6ba54fc18cd0e589ffbe059a8af",
+		"approved": true
+	},
+	"apps/docs/images/product/security-dark.png": {
+		"sha256": "269a7b3223ea5ddaa54ccc95a26a2c8c08c553147a4d97b614954ceede3af3a0",
+		"approved": true
+	},
+	"apps/docs/images/product/security-light.png": {
+		"sha256": "8c35647835c3a33a6827d4eba48edeaf8512172f9941dd74bad572650e4b126c",
+		"approved": true
+	},
+	"apps/docs/images/product/task-dark.png": {
+		"sha256": "cbd5264f2e5ceefe37c3cd0f629ee779099ffd1a0081ac345bb84a0e536ee23b",
+		"approved": true
+	},
+	"apps/docs/images/product/task-light.png": {
+		"sha256": "d1b46636bd0be7fab130f78440ea8c88a77cf2c035d5ed184bf9f1404fea8a48",
+		"approved": true
+	},
+	"apps/docs/images/product/timeline-dark.png": {
+		"sha256": "cc02e1115410c912d27a539c897a9ef7523ea54a1f457049eb53f8daef2b5e27",
+		"approved": true
+	},
+	"apps/docs/images/product/timeline-light.png": {
+		"sha256": "bae3c51309658464e47825bcc482c3996e7d5a8ca609cb38036501672d09ddd1",
+		"approved": true
+	},
+	"apps/docs/images/product/workflow-dark.png": {
+		"sha256": "fd45833b15ea79482efa0475ef58b0c8f16c78ee7608f504fd8b3507a63f5151",
+		"approved": true
+	},
+	"apps/docs/images/product/workflow-light.png": {
+		"sha256": "179d763e341e86b95a0a45b721ab267f22bcd3378043f298040312f161e0d8c6",
+		"approved": true
+	},
+	"apps/docs/logo/dark.svg": {
+		"sha256": "7a193cf2af593dc31b01e64bfdd7bcfa63e7d24f871eb024f653a6f3dc63e902",
+		"approved": false
+	},
+	"apps/docs/logo/light.svg": {
+		"sha256": "1283a6549833e9284114aade29e1ce9e508768a278267b1457bce792ade5f8a5",
+		"approved": false
+	},
+	"apps/mobile/assets/brand/logo-dark.svg": {
+		"sha256": "7a193cf2af593dc31b01e64bfdd7bcfa63e7d24f871eb024f653a6f3dc63e902",
+		"approved": false,
+		"requiresReplacement": true
+	},
+	"apps/mobile/assets/brand/logo-light.svg": {
+		"sha256": "1283a6549833e9284114aade29e1ce9e508768a278267b1457bce792ade5f8a5",
+		"approved": false,
+		"requiresReplacement": true
+	},
+	"apps/mobile/assets/images/android-icon-background.png": {
+		"sha256": "7454d79b91dd75a8a9f9a286ecf95e5fd00625a05528c774a68da424a3cd0f2b",
+		"approved": false
+	},
+	"apps/mobile/assets/images/android-icon-foreground.png": {
+		"sha256": "bd6e98106ebb4a632f7d6cb5fab8a47a49d72f68af4956b99d508d1a7e46c188",
+		"approved": false,
+		"requiresReplacement": true
+	},
+	"apps/mobile/assets/images/android-icon-monochrome.png": {
+		"sha256": "9765c35bb727d15f6402cfce240f5e02f9001c46bcfb67d1ef72e8e5b23ab683",
+		"approved": false,
+		"requiresReplacement": true
+	},
+	"apps/mobile/assets/images/icon.png": {
+		"sha256": "a8338c9c2509fbd63f8d47a959c83631b061c3d000994fc886ebab9af77a8a0c",
+		"approved": false,
+		"requiresReplacement": true
+	},
+	"apps/mobile/assets/images/notification-icon.png": {
+		"sha256": "d75fad67088809c84526499072b330d066c9eeded886d2fb81015fd966d73563",
+		"approved": false,
+		"requiresReplacement": true
+	},
+	"apps/mobile/assets/images/splash-icon-dark.png": {
+		"sha256": "eedd561b29dc5071d83906142350df3ce31801f527ba06ad3e3c5ac041d85b3e",
+		"approved": false,
+		"requiresReplacement": true
+	},
+	"apps/mobile/assets/images/splash-icon.png": {
+		"sha256": "75bca0833c137133b34ee048bac3005b47fe8adf6068add679e56d8203b71c70",
+		"approved": false,
+		"requiresReplacement": true
+	},
+	"apps/site/public/press/kaneo-press-kit.zip": {
+		"sha256": "c10be7f618b62b7f26d4d2563ddabc60cc5dbbacbda993a0f1bd4a30120af2c7",
+		"approved": true
+	}
+}

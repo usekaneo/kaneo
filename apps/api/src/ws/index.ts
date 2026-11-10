@@ -109,6 +109,16 @@ export function broadcastToUser(userId: string, message: UserBroadcastMessage) {
     });
 }
 
+/** Durable producers acknowledge their outbox only after broadcast publication succeeds. */
+export async function broadcastToUserAndWait(
+  userId: string,
+  message: UserBroadcastMessage,
+) {
+  if (!adapter) throw new Error("Websocket adapter is not ready");
+  deliverToLocalUserConnections(userId, message);
+  await adapter.publishToUser({ userId, message, origin: INSTANCE_ID });
+}
+
 type Credential = { sessionId: string | null; apiKeyId?: string };
 
 function closeLocalCredentialConnections(

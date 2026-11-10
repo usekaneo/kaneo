@@ -1,3 +1,4 @@
+import { brandText } from "@kaneo/branding";
 import { and, eq } from "drizzle-orm";
 import { HTTPException } from "hono/http-exception";
 import db from "../../database";
@@ -52,8 +53,9 @@ export async function verifyRepositoryOwner(
   } catch {
     // Do not expose installation or repository existence to unauthorized users.
     throw new HTTPException(403, {
-      message:
+      message: brandText(
         "Repository access could not be verified. GitHub repository admin permission and an installed Kaneo App are required",
+      ),
     });
   }
 }

@@ -1,3 +1,4 @@
+import { brand } from "@kaneo/branding";
 import { describe, expect, it } from "vite-plus/test";
 import {
   DEFAULT_STORED_SETTINGS,
@@ -31,7 +32,7 @@ describe("resolveInstanceSettings", () => {
       DISABLE_WORKSPACE_CREATION: "true",
     });
     expect(resolved).toMatchObject({
-      instanceName: "Kaneo",
+      instanceName: brand.name,
       registrationEnabled: false,
       passwordRegistrationEnabled: false,
       workspaceCreationRestricted: true,

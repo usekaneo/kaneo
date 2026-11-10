@@ -1,7 +1,9 @@
+import { brandText } from "@kaneo/branding";
 import { SourceHttpError } from "../http.js";
 
-export const TOKEN_REJECTED =
-  "Trello rejected the token. Authorize Kaneo on Trello again and paste the new token.";
+export const TOKEN_REJECTED = brandText(
+  "Trello rejected the token. Authorize Kaneo on Trello again and paste the new token.",
+);
 
 export const KEY_REJECTED = "Trello rejected the API key.";
 

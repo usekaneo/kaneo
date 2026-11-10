@@ -1,3 +1,4 @@
+import { brandText } from "@kaneo/branding";
 import { Button } from "./ui/button";
 
 export function DemoAlert() {
@@ -9,7 +10,10 @@ export function DemoAlert() {
           every hour.
           <Button
             onClick={() =>
-              window.open("https://github.com/usekaneo/kaneo", "_blank")
+              window.open(
+                brandText("https://github.com/usekaneo/kaneo"),
+                "_blank",
+              )
             }
             className="h-7 whitespace-nowrap bg-warning/15 px-3 text-warning-foreground text-xs hover:bg-warning/25 sm:h-6 sm:px-2"
           >

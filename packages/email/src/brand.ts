@@ -1,4 +1,5 @@
-const DEFAULT_BRAND = "Kaneo";
+import { instanceName, brandText } from "@kaneo/branding";
+const DEFAULT_BRAND = brandText("Kaneo");
 
 let resolveName: () => Promise<string | null | undefined> = async () => null;
 
@@ -12,7 +13,7 @@ export function setBrandNameResolver(
 /** Take one immutable branding snapshot for an outgoing email. */
 export async function loadBrandName() {
   try {
-    return (await resolveName())?.trim() || DEFAULT_BRAND;
+    return instanceName(await resolveName());
   } catch {
     return DEFAULT_BRAND;
   }

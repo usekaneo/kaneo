@@ -1,3 +1,4 @@
+import { brandText } from "@kaneo/branding";
 import { describe, expect, it } from "vite-plus/test";
 import type { FetchLike } from "../types.js";
 import type { TrelloBoard, TrelloCommentAction } from "./client.js";
@@ -175,7 +176,7 @@ describe("connectTrello auth", () => {
     await expect(
       connectTrello({ apiKey: API_KEY, token: " " }, { fetch: trello.fetch }),
     ).rejects.toThrow(
-      "Paste the token Trello shows after you authorize Kaneo.",
+      brandText("Paste the token Trello shows after you authorize Kaneo."),
     );
     const error = await connectTrello(
       { apiKey: API_KEY, token: 'ATTA"bad token' },
@@ -315,8 +316,12 @@ describe("readProject", () => {
       ],
       relations: [],
       warnings: [
-        "1 card had more than one member. Kaneo keeps one assignee per task, so only the first member was kept.",
-        "Trello does not share members' email addresses, so assignees are matched to Kaneo members by full name.",
+        brandText(
+          "1 card had more than one member. Kaneo keeps one assignee per task, so only the first member was kept.",
+        ),
+        brandText(
+          "Trello does not share members' email addresses, so assignees are matched to Kaneo members by full name.",
+        ),
       ],
     });
   });

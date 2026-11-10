@@ -25,14 +25,16 @@ export function Footer() {
               >
                 Open Cloud
               </a>
-              <a
-                className="block text-muted-foreground transition-colors hover:text-foreground"
-                href={appStoreUrl}
-                target="_blank"
-                rel="noreferrer"
-              >
-                iOS app
-              </a>
+              {appStoreUrl && (
+                <a
+                  className="block text-muted-foreground transition-colors hover:text-foreground"
+                  href={appStoreUrl}
+                  target="_blank"
+                  rel="noreferrer"
+                >
+                  iOS app
+                </a>
+              )}
               <a
                 className="block text-muted-foreground transition-colors hover:text-foreground"
                 href="/docs/core"

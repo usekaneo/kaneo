@@ -1,7 +1,8 @@
+import { brandText } from "@kaneo/branding";
 import { i18n } from "../i18n";
 import { sessionStore, type Session } from "../session";
 
-export const CLOUD_URL = "https://cloud.kaneo.app";
+export const CLOUD_URL = brandText("https://cloud.kaneo.app");
 
 /** Device-authorization client accepted by default Kaneo instances (shared with the official CLI). */
 export const DEVICE_CLIENT_ID = "kaneo-cli";

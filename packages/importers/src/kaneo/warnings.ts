@@ -1,3 +1,4 @@
+import { brandText } from "@kaneo/branding";
 import type { ImportedTask } from "../types.js";
 import type { KaneoBoardTask, KaneoMember } from "./client.js";
 
@@ -13,10 +14,12 @@ const ASSET_REFERENCE = /\/api\/asset\/[\w-]+/;
 
 export const MEMBERS_UNAVAILABLE_WARNING =
   "Workspace members could not be read, so assignees and comment authors carry over by name only.";
-export const RELATIONS_UNAVAILABLE_WARNING =
-  "This Kaneo version does not expose task links, so they are not copied.";
-export const COMMENTS_UNAVAILABLE_WARNING =
-  "This Kaneo version does not expose comments, so they are not copied.";
+export const RELATIONS_UNAVAILABLE_WARNING = brandText(
+  "This Kaneo version does not expose task links, so they are not copied.",
+);
+export const COMMENTS_UNAVAILABLE_WARNING = brandText(
+  "This Kaneo version does not expose comments, so they are not copied.",
+);
 export const CUSTOM_FIELDS_UNREADABLE_WARNING =
   "Custom fields could not be read with this API key, so they are not listed here.";
 

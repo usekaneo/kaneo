@@ -1,3 +1,4 @@
+import { brandText } from "@kaneo/branding";
 import { toIsoDate } from "../markdown.js";
 import type {
   ImportedColumn,
@@ -207,7 +208,7 @@ export function mapPlaneProject(data: PlaneProjectData): ImportedProject {
   const warnings: string[] = [];
   if (multipleAssignees > 0) {
     warnings.push(
-      `${multipleAssignees} work ${multipleAssignees === 1 ? "item has" : "items have"} more than one assignee. Kaneo keeps one assignee per task, so only the first was assigned.`,
+      `${multipleAssignees} work ${multipleAssignees === 1 ? "item has" : "items have"}${brandText(" more than one assignee. Kaneo keeps one assignee per task, so only the first was assigned.")}`,
     );
   }
   if (data.members === null) warnings.push(MEMBERS_WARNING);

@@ -1,3 +1,4 @@
+import { brandText } from "@kaneo/branding";
 import { responseTimestamp, z } from "../openapi";
 
 // Tokens are masked; the webhook secret needs manage_settings.
@@ -24,10 +25,14 @@ export const gitlabIntegrationSchema = z
         "Only returned to callers with workspace:manage_settings, so the value can be pasted into GitLab.",
     }),
     branchPattern: z.string().optional(),
-    commentTaskLinkOnGitlabIssue: z.boolean().optional().openapi({
-      description:
-        "When on, Kaneo comments a link back to the task on each issue opened in GitLab. Issues Kaneo creates from tasks are not commented on.",
-    }),
+    commentTaskLinkOnGitlabIssue: z
+      .boolean()
+      .optional()
+      .openapi({
+        description: brandText(
+          "When on, Kaneo comments a link back to the task on each issue opened in GitLab. Issues Kaneo creates from tasks are not commented on.",
+        ),
+      }),
     isActive: z.boolean().nullable(),
     createdAt: responseTimestamp,
     updatedAt: responseTimestamp,

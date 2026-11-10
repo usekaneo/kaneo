@@ -1,3 +1,4 @@
+import { brandText } from "@kaneo/branding";
 export type CalendarTask = {
   id: string;
   title: string;
@@ -61,7 +62,7 @@ function calendarHeader(name: string) {
   return [
     "BEGIN:VCALENDAR",
     "VERSION:2.0",
-    "PRODID:-//Kaneo//Calendar Feed//EN",
+    brandText("PRODID:-//Kaneo//Calendar Feed//EN"),
     "CALSCALE:GREGORIAN",
     `X-WR-CALNAME:${escapeText(name)}`,
   ];

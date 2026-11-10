@@ -1,10 +1,12 @@
+import { brandText } from "@kaneo/branding";
 import { HTTPException } from "hono/http-exception";
 import type { ImportRunProject } from "./import-run-project";
 
 export const MAX_ACTIVE_IMPORTS = 2;
 
-export const RESTARTING_MESSAGE =
-  "Kaneo is restarting. Start the import again in a minute.";
+export const RESTARTING_MESSAGE = brandText(
+  "Kaneo is restarting. Start the import again in a minute.",
+);
 
 export type ImportSlot = {
   controller: AbortController;

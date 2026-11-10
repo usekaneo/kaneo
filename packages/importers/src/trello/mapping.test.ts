@@ -1,3 +1,4 @@
+import { brandText } from "@kaneo/branding";
 import { describe, expect, it } from "vite-plus/test";
 import type {
   TrelloBoard,
@@ -327,8 +328,12 @@ describe("mapBoard assignees and warnings", () => {
       undefined,
     ]);
     expect(project.warnings).toEqual([
-      "2 cards had more than one member. Kaneo keeps one assignee per task, so only the first member was kept.",
-      "Trello does not share members' email addresses, so assignees are matched to Kaneo members by full name.",
+      brandText(
+        "2 cards had more than one member. Kaneo keeps one assignee per task, so only the first member was kept.",
+      ),
+      brandText(
+        "Trello does not share members' email addresses, so assignees are matched to Kaneo members by full name.",
+      ),
     ]);
   });
 

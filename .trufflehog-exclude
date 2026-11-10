@@ -13,6 +13,7 @@
 ^\.cursor/rules/deployment-devops\.mdc$
 ^CONTRIBUTORS\.svg$
 ^scripts/security/file-secrets\.test\.mjs$
+^scripts/deploy/config\.test\.mjs$
 ^apps/api/src/gitlab-integration/index\.ts$
 ^apps/api/src/gitlab-integration/controllers/create-gitlab-integration\.ts$
 ^apps/api/src/gitlab-integration/utils/normalize-input\.ts$

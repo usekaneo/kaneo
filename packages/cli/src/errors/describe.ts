@@ -1,3 +1,4 @@
+import { brandText } from "@kaneo/branding";
 import type { AppError } from "./errors.js";
 
 export type Failure = {
@@ -18,7 +19,7 @@ export function describeError(error: AppError): Failure {
     case "NotSignedIn":
       return {
         message: `You are not signed in to ${host(error.apiUrl)}.`,
-        hint: "Run kaneo login, or set KANEO_API_KEY.",
+        hint: brandText("Run kaneo login, or set KANEO_API_KEY."),
       };
     case "SessionExpired":
       return {
@@ -32,13 +33,17 @@ export function describeError(error: AppError): Failure {
             hint: "Check the token, or run kaneo login.",
           }
         : {
-            message: "The API key in KANEO_API_KEY was rejected.",
-            hint: "Create a new key in Settings, then API keys, or unset KANEO_API_KEY.",
+            message: brandText("The API key in KANEO_API_KEY was rejected."),
+            hint: brandText(
+              "Create a new key in Settings, then API keys, or unset KANEO_API_KEY.",
+            ),
           };
     case "SessionRequired":
       return {
         message: error.message,
-        hint: "API keys cannot do this. Unset KANEO_API_KEY and run kaneo login.",
+        hint: brandText(
+          "API keys cannot do this. Unset KANEO_API_KEY and run kaneo login.",
+        ),
       };
     case "PermissionDenied":
       return {
@@ -56,7 +61,7 @@ export function describeError(error: AppError): Failure {
       return { message: error.message, hint: null };
     case "RateLimited":
       return {
-        message: "Too many requests to the Kaneo API.",
+        message: brandText("Too many requests to the Kaneo API."),
         hint:
           error.retryAfterSeconds === null
             ? "Wait a moment and try again."
@@ -75,7 +80,9 @@ export function describeError(error: AppError): Failure {
     case "UnexpectedResponse":
       return {
         message: `The server sent a response this CLI does not understand (${error.endpoint}): ${error.detail}`,
-        hint: "Update the CLI by running its install command again (https://kaneo.app/docs/cli/install#update), or check the server version.",
+        hint: brandText(
+          "Update the CLI by running its install command again (https://kaneo.app/docs/cli/install#update), or check the server version.",
+        ),
       };
     case "WorkspaceRequired":
       return {
@@ -96,8 +103,8 @@ export function describeError(error: AppError): Failure {
       };
     case "DeviceClientRejected":
       return {
-        message: `${host(error.apiUrl)} does not allow browser sign-in from the Kaneo CLI (client ID ${error.clientId}).`,
-        hint: `Ask the server admin to add ${error.clientId} to DEVICE_AUTH_CLIENT_IDS, or use an API key with KANEO_API_KEY.`,
+        message: `${host(error.apiUrl)}${brandText(" does not allow browser sign-in from the Kaneo CLI (client ID ")}${error.clientId}).`,
+        hint: `Ask the server admin to add ${error.clientId}${brandText(" to DEVICE_AUTH_CLIENT_IDS, or use an API key with KANEO_API_KEY.")}`,
       };
     case "DeviceLoginDenied":
       return {
@@ -112,8 +119,10 @@ export function describeError(error: AppError): Failure {
     case "ConfigUnreadable":
       return error.reason === "foreign"
         ? {
-            message: `${error.path} was written by a different kaneo CLI, so it was left untouched.`,
-            hint: "Move the file aside, or set KANEO_CONFIG to use another file.",
+            message: `${error.path} was written by a different CLI version, so it was left untouched.`,
+            hint: brandText(
+              "Move the file aside, or set KANEO_CONFIG to use another file.",
+            ),
           }
         : {
             message: `Could not read ${error.path}: ${error.detail}`,

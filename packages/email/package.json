@@ -6,18 +6,64 @@
     ".": {
       "types": "./dist/index.d.ts",
       "default": "./dist/index.js"
+    },
+    "./quills": {
+      "types": "./dist/quills/index.d.ts",
+      "default": "./dist/quills/index.js"
+    },
+    "./quills/templates": {
+      "types": "./dist/quills/templates/index.d.ts",
+      "default": "./dist/quills/templates/index.js"
+    },
+    "./quills/anon": {
+      "types": "./dist/quills/anon.d.ts",
+      "default": "./dist/quills/anon.js"
+    },
+    "./quills/message-id": {
+      "types": "./dist/quills/message-id.d.ts",
+      "default": "./dist/quills/message-id.js"
+    },
+    "./quills/idempotency": {
+      "types": "./dist/quills/idempotency.d.ts",
+      "default": "./dist/quills/idempotency.js"
+    },
+    "./quills/provider": {
+      "types": "./dist/quills/provider.d.ts",
+      "default": "./dist/quills/provider.js"
+    },
+    "./quills/recipient": {
+      "types": "./dist/quills/recipient.d.ts",
+      "default": "./dist/quills/recipient.js"
+    },
+    "./quills/sender": {
+      "types": "./dist/quills/sender.d.ts",
+      "default": "./dist/quills/sender.js"
+    },
+    "./quills/ses": {
+      "types": "./dist/quills/ses.d.ts",
+      "default": "./dist/quills/ses.js"
+    },
+    "./quills/ses-identity": {
+      "types": "./dist/quills/ses-identity.d.ts",
+      "default": "./dist/quills/ses-identity.js"
+    },
+    "./quills/ses-tenant": {
+      "types": "./dist/quills/ses-tenant.d.ts",
+      "default": "./dist/quills/ses-tenant.js"
     }
   },
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "scripts": {
     "build": "vp run compile",
-    "dev": "tsc && email dev --port 3002 --dir src/templates",
+    "dev": "pnpm run build && email dev --port 3002 --dir previews",
     "export": "email export",
     "lint": "vp check .",
     "format": "vp fmt .",
     "test": "vp run test:run",
-    "test:watch": "vp test --config vitest.config.ts"
+    "test:watch": "vp test --config vitest.config.ts",
+    "test:exports": "node --test tests/exports.test.mjs && tsc -p tests/tsconfig.json",
+    "test:previews": "tsc -p tsconfig.previews.json"
   },
   "dependencies": {
     "@types/node": "^26.6.5",
@@ -25,7 +71,13 @@
     "nodemailer": "^10.2.1",
     "react": "^19.3.1",
     "react-dom": "^19.3.1",
-    "react-email": "6.11.3"
+    "react-email": "6.11.3",
+    "@aws-sdk/client-sesv2": "^3.1131.0",
+    "@react-email/components": "^1.0.12",
+    "resend": "^6.28.0",
+    "@kaneo/logger": "workspace:*",
+    "zod": "^4.6.7",
+    "@kaneo/branding": "workspace:*"
   },
   "devDependencies": {
     "@react-email/ui": "6.11.3",

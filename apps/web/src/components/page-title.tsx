@@ -1,3 +1,4 @@
+import { brandText } from "@kaneo/branding";
 import { useInstanceNameStore } from "@/store/instance-name";
 
 export default function PageTitle({ title }: { title?: string }) {
@@ -6,7 +7,9 @@ export default function PageTitle({ title }: { title?: string }) {
 
   return (
     <title>
-      {instanceName === "Kaneo" ? title : `${title} | ${instanceName}`}
+      {instanceName === brandText("Kaneo")
+        ? title
+        : `${title} | ${instanceName}`}
     </title>
   );
 }

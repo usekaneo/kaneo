@@ -2,7 +2,7 @@
 	"name": "@kaneo/importers",
 	"version": "0.0.0",
 	"private": true,
-	"description": "Read projects from PLANKA, Plane, Linear, Jira, Trello and other Kaneo instances into one import model",
+	"description": "Board migration adapters for project management services",
 	"type": "module",
 	"main": "./dist/index.js",
 	"types": "./dist/index.d.ts",
@@ -25,7 +25,8 @@
 	},
 	"dependencies": {
 		"turndown": "^7.2.4",
-		"turndown-plugin-gfm": "^1.0.2"
+		"turndown-plugin-gfm": "^1.0.2",
+		"@kaneo/branding": "workspace:*"
 	},
 	"devDependencies": {
 		"@kaneo/typescript-config": "workspace:*",

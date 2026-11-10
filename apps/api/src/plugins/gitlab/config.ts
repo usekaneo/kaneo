@@ -1,3 +1,4 @@
+import { brandText } from "@kaneo/branding";
 import * as v from "valibot";
 import { type SyncRules, syncRulesSchema } from "../sync/rules";
 import { privateDestinationsAllowed } from "../../utils/assert-public-destination";
@@ -85,7 +86,9 @@ export function normalizeGitlabBaseUrl(url: string): string {
 export function assertGitlabTransport(baseUrl: string): void {
   if (new URL(baseUrl).protocol === "http:" && !privateDestinationsAllowed()) {
     throw new Error(
-      "GitLab URL must use https unless KANEO_ALLOW_PRIVATE_WEBHOOK_DESTINATIONS is enabled",
+      brandText(
+        "GitLab URL must use https unless KANEO_ALLOW_PRIVATE_WEBHOOK_DESTINATIONS is enabled",
+      ),
     );
   }
 }

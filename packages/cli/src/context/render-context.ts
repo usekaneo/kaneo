@@ -19,7 +19,7 @@ const COLOR_NAMES = ["no color", "16 colors", "256 colors", "truecolor"];
 const CONFIG_STATUS = {
   ok: "",
   missing: "not created yet",
-  foreign: "written by another kaneo CLI",
+  foreign: "written by another CLI version",
   invalid: "invalid",
   io: "unreadable",
 } as const;

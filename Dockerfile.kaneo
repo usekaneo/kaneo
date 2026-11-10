@@ -7,9 +7,14 @@ RUN apk add --no-cache python3 make g++ && \
 WORKDIR /app
 
 COPY pnpm-workspace.yaml package.json pnpm-lock.yaml vite.config.ts ./
+COPY branding ./branding
+RUN node -e "require('./branding/index.cjs').assertReleaseBrand()"
+COPY scripts/branding ./scripts/branding
 COPY patches ./patches
 COPY packages/typescript-config/package.json ./packages/typescript-config/
 COPY packages/email/package.json ./packages/email/
+COPY packages/ids/package.json ./packages/ids/
+COPY packages/logger/package.json ./packages/logger/
 COPY packages/libs/package.json ./packages/libs/
 COPY packages/permissions/package.json ./packages/permissions/
 COPY packages/importers/package.json ./packages/importers/
@@ -20,6 +25,8 @@ RUN pnpm install --frozen-lockfile
 
 COPY packages/typescript-config ./packages/typescript-config
 COPY packages/email ./packages/email
+COPY packages/ids ./packages/ids
+COPY packages/logger ./packages/logger
 COPY packages/libs ./packages/libs
 COPY packages/permissions ./packages/permissions
 COPY packages/importers ./packages/importers
@@ -47,11 +54,14 @@ FROM --platform=$BUILDPLATFORM node:24.22.2-alpine AS api-runtime
 WORKDIR /app
 
 COPY --from=api-builder /app/package.json /app/pnpm-lock.yaml /app/pnpm-workspace.yaml ./
+COPY --from=api-builder /app/branding ./branding
 COPY --from=api-builder /app/patches ./patches
 COPY --from=api-builder /app/apps/api/package.json ./apps/api/
 COPY --from=api-builder /app/packages/typescript-config/package.json ./packages/typescript-config/
 COPY --from=api-builder /app/packages/libs/package.json ./packages/libs/
 COPY --from=api-builder /app/packages/email/package.json ./packages/email/
+COPY --from=api-builder /app/packages/ids/package.json ./packages/ids/
+COPY --from=api-builder /app/packages/logger/package.json ./packages/logger/
 COPY --from=api-builder /app/packages/permissions/package.json ./packages/permissions/
 COPY --from=api-builder /app/packages/importers/package.json ./packages/importers/
 COPY --from=api-builder /app/packages/mcp/package.json ./packages/mcp/
@@ -64,6 +74,8 @@ RUN sed -i 's/"prepare": "husky"/"prepare": ""/g' package.json && \
 COPY --from=api-builder /app/apps/api/dist ./apps/api/dist
 COPY --from=api-builder /app/apps/api/drizzle ./apps/api/drizzle
 COPY --from=api-builder /app/packages/email ./packages/email
+COPY --from=api-builder /app/packages/ids ./packages/ids
+COPY --from=api-builder /app/packages/logger ./packages/logger
 COPY --from=api-builder /app/packages/permissions ./packages/permissions
 COPY --from=api-builder /app/packages/importers/dist ./packages/importers/dist
 COPY --from=api-builder /app/packages/mcp/dist ./packages/mcp/dist
@@ -77,6 +89,9 @@ RUN apk add --no-cache python3 make g++ && \
 WORKDIR /app
 
 COPY pnpm-workspace.yaml pnpm-lock.yaml package.json vite.config.ts ./
+COPY branding ./branding
+RUN node -e "require('./branding/index.cjs').assertReleaseBrand()"
+COPY scripts/branding ./scripts/branding
 COPY patches ./patches
 COPY apps/web/package.json ./apps/web/
 COPY packages/typescript-config/package.json ./packages/typescript-config/

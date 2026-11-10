@@ -190,6 +190,23 @@ export function useUserWebSocket() {
               void queryClient.invalidateQueries({ queryKey });
             reconcileProjectAccess(queryClient, workspaceId, () => !disposed);
           }
+          if (
+            message.type === "QUILLS_CHANGED" &&
+            typeof message.workspaceId === "string"
+          ) {
+            void queryClient.invalidateQueries({
+              predicate: (query) =>
+                [
+                  "quills-context",
+                  "quills-links",
+                  "quills-teams",
+                  "quills-exports",
+                  "quills-jobs",
+                ].includes(String(query.queryKey[0])) &&
+                query.queryKey[1] === userId &&
+                query.queryKey[2] === message.workspaceId,
+            });
+          }
           if (message.type === "NOTIFICATION_CREATED") {
             queryClient.invalidateQueries({ queryKey: ["notifications"] });
           }

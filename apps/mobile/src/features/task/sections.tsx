@@ -1,3 +1,4 @@
+import { brandText } from "@kaneo/branding";
 import * as WebBrowser from "expo-web-browser";
 import { CornerLeftUp, Link2, Play, Plus, X } from "lucide-react-native";
 import { useQuery } from "@tanstack/react-query";
@@ -1295,7 +1296,7 @@ export function ActivityFeed({
         const name =
           member?.name ??
           a.externalUserName ??
-          (a.userId ? t("mobile:taskDetail.someone") : "Kaneo");
+          (a.userId ? t("mobile:taskDetail.someone") : brandText("Kaneo"));
         if (a.type !== "comment") {
           return (
             <View

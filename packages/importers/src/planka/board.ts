@@ -1,3 +1,4 @@
+import { brandText } from "@kaneo/branding";
 import { toIsoDate } from "../markdown.js";
 import type {
   ImportedColumn,
@@ -169,7 +170,7 @@ export function mapBoard(
   }
   if (extraMembers > 0) {
     warnings.push(
-      `${count(extraMembers, "card")} had more than one member. Kaneo keeps one assignee per task, so only the first member was assigned.`,
+      `${count(extraMembers, "card")}${brandText(" had more than one member. Kaneo keeps one assignee per task, so only the first member was assigned.")}`,
     );
   }
   if (hiddenEmails > 0) {

@@ -1,0 +1,95 @@
+{
+	"scope": [
+		"paste/drop images",
+		"followed-request activity",
+		"conversation reading/navigation",
+		"internal image viewer",
+		"article feedback/context"
+	],
+	"runtime": {
+		"node": "24.22.1",
+		"pnpm": "12.18.0"
+	},
+	"automated": {
+		"tests": 249,
+		"test_files": 26,
+		"typecheck": "passed",
+		"build": "passed",
+		"storybook_build": "passed with preview chunk-size warning",
+		"scoped_check": "passed",
+		"root_test_discovery": 26
+	},
+	"browser": {
+		"engine": "Chromium",
+		"stories": [
+			"activity",
+			"article-feedback",
+			"conversation-reading",
+			"image-viewer"
+		],
+		"viewport_checks": [
+			"1200x960 desktop",
+			"320x568 dark reduced motion",
+			"390x844 light",
+			"390x844 emulated mobile touch reduced motion"
+		],
+		"page_errors": 0,
+		"observations": {
+			"image_viewer_focus_return": true,
+			"escape_keeps_panel_open": true,
+			"zoom_keyboard_pan_pixels": 40,
+			"conversation_anchor_before": 264.375,
+			"conversation_anchor_after": 264.375,
+			"jump_and_follow_bottom_gap": 0,
+			"native_enter_newline": true,
+			"control_enter_send": true,
+			"synthetic_image_paste_validated": true,
+			"synthetic_invalid_drop_rejected": true,
+			"touch_controls_minimum_px": 44,
+			"closed_panel_inert": true,
+			"launcher_reopen": true,
+			"jump_focus_returns_to_conversation": true,
+			"article_context_panel_compact": true
+		}
+	},
+	"not_verified": [
+		"real backend/database/storage delivery",
+		"OS clipboard and drag source integration",
+		"physical mobile hardware",
+		"Safari and Firefox"
+	],
+	"bundle": {
+		"packages/widget/dist/browser.js": {
+			"bytes": 42446,
+			"gzip_bytes": 14830
+		},
+		"packages/widget/dist/ui/index.js": {
+			"bytes": 105063,
+			"gzip_bytes": 22278
+		},
+		"packages/widget/src/ui/styles.css": {
+			"bytes": 41791,
+			"gzip_bytes": 7870
+		}
+	},
+	"review": {
+		"verdict": "Ship for local mock scope; real backend integration deferred",
+		"lenses": [
+			"structure",
+			"performance",
+			"chaos",
+			"qa",
+			"lean",
+			"TypeScript/React",
+			"visual"
+		],
+		"resolved": [
+			"Image URL renewal clears prior load failure",
+			"Opening unread boundary captured before synchronous acknowledgment",
+			"Removed duplicate image URL validation and status labels",
+			"Keyboard Jump to latest restores conversation focus"
+		],
+		"remaining_blocking_findings": 0,
+		"lean_reduction_lines": 8
+	}
+}

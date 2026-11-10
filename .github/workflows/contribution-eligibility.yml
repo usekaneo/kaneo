@@ -45,11 +45,11 @@ jobs:
     concurrency:
       group: contribution-eligibility
       cancel-in-progress: false
-    runs-on: blacksmith-4vcpu-ubuntu-2404
+    runs-on: ubuntu-24.04
     timeout-minutes: 15
     steps:
       - name: Check out current trusted policy
-        uses: useblacksmith/checkout@2b9fe87d796feea153b455ec2f3125b471a7b0e7 # v1
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           # Always read the latest policy, including when an older run is queued.
           ref: main

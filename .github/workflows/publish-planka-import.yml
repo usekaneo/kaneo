@@ -58,6 +58,11 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
+      - name: Require approved public branding
+        run: |
+          pnpm branding:release
+          node -e "require('./branding/index.cjs').assertPackageBrand()"
+
       - name: Run PLANKA import checks
         run: |
           pnpm --filter @kaneo/planka-import test
@@ -83,8 +88,9 @@ jobs:
         id: version_check
         run: |
           PACKAGE_VERSION=$(node -p "require('./packages/planka-import/package.json').version")
+          PACKAGE_NAME=$(node -p "'@' + require('./branding/config.json').npmScope + '/planka-import'")
 
-          if npm view "@kaneo/planka-import@${PACKAGE_VERSION}" version >/dev/null 2>&1; then
+          if npm view "${PACKAGE_NAME}@${PACKAGE_VERSION}" version >/dev/null 2>&1; then
             echo "already_published=true" >> "$GITHUB_OUTPUT"
             echo "@kaneo/planka-import@${PACKAGE_VERSION} is already published; skipping publish."
           else
@@ -94,8 +100,8 @@ jobs:
       - name: Publish @kaneo/planka-import
         if: ${{ steps.version_check.outputs.already_published == 'false' }}
         run: |
-          cd packages/planka-import
-          npm publish --access public --provenance
+          node scripts/branding/prepare-package.mjs packages/planka-import
+          npm publish .cache/npm/planka-import --access public --provenance
 
       - name: Create PLANKA import release
         if: ${{ github.event_name == 'push' }}

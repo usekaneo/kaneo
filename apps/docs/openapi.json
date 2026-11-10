@@ -1,14 +1,14 @@
 {
   "openapi": "3.1.0",
   "info": {
-    "title": "Kaneo API",
+    "title": "quills API",
     "version": "1.0.0",
-    "description": "Kaneo Project Management API - Manage projects, tasks, labels, and more"
+    "description": "quills Project Management API - Manage projects, tasks, labels, and more"
   },
   "servers": [
     {
       "url": "https://cloud.kaneo.app/api",
-      "description": "Kaneo API Server"
+      "description": "quills API Server"
     }
   ],
   "security": [
@@ -610,7 +610,7 @@
           },
           "instanceName": {
             "type": "string",
-            "description": "Name shown in page titles and emails. Defaults to Kaneo."
+            "description": "Name shown in page titles and emails. Defaults to quills."
           },
           "disableRegistration": {
             "type": "boolean"
@@ -2523,7 +2523,7 @@
                     ]
                   }
                 ],
-                "description": "Kaneo workspace label IDs controlling task sync. Missing labels pause sync."
+                "description": "quills workspace label IDs controlling task sync. Missing labels pause sync."
               },
               "incoming": {
                 "oneOf": [
@@ -3104,7 +3104,7 @@
           },
           "commentTaskLinkOnGitHubIssue": {
             "type": "boolean",
-            "description": "When on, Kaneo comments a link back to the task on the linked GitHub issue."
+            "description": "When on, quills comments a link back to the task on the linked GitHub issue."
           },
           "isActive": {
             "type": [
@@ -3195,7 +3195,7 @@
           },
           "commentTaskLinkOnGitHubIssue": {
             "type": "boolean",
-            "description": "When on, Kaneo comments a link back to the task on the linked GitHub issue."
+            "description": "When on, quills comments a link back to the task on the linked GitHub issue."
           },
           "isActive": {
             "type": [
@@ -3380,7 +3380,7 @@
           },
           "commentTaskLinkOnGiteaIssue": {
             "type": "boolean",
-            "description": "When on, Kaneo comments a link back to the task on the linked Gitea issue."
+            "description": "When on, quills comments a link back to the task on the linked Gitea issue."
           },
           "isActive": {
             "type": [
@@ -3592,7 +3592,7 @@
           },
           "commentTaskLinkOnGitlabIssue": {
             "type": "boolean",
-            "description": "When on, Kaneo comments a link back to the task on each issue opened in GitLab. Issues Kaneo creates from tasks are not commented on."
+            "description": "When on, quills comments a link back to the task on each issue opened in GitLab. Issues quills creates from tasks are not commented on."
           },
           "isActive": {
             "type": [
@@ -4325,7 +4325,7 @@
           },
           "eventType": {
             "type": "string",
-            "description": "The Kaneo event that triggers the move: `branch_push`, `pr_opened`, `pr_merged`, `issue_opened`, `issue_closed` or `issue_reopened`."
+            "description": "The quills event that triggers the move: `branch_push`, `pr_opened`, `pr_merged`, `issue_opened`, `issue_closed` or `issue_reopened`."
           },
           "columnId": {
             "type": "string",
@@ -4602,6 +4602,21 @@
       "WorkspaceCapabilities": {
         "type": "object",
         "properties": {
+          "readQuills": {
+            "type": "boolean"
+          },
+          "createQuills": {
+            "type": "boolean"
+          },
+          "updateQuills": {
+            "type": "boolean"
+          },
+          "deleteQuills": {
+            "type": "boolean"
+          },
+          "manageQuillsSettings": {
+            "type": "boolean"
+          },
           "manageProjects": {
             "type": "boolean"
           },
@@ -4661,6 +4676,11 @@
           }
         },
         "required": [
+          "readQuills",
+          "createQuills",
+          "updateQuills",
+          "deleteQuills",
+          "manageQuillsSettings",
           "manageProjects",
           "createProjects",
           "updateProjects",
@@ -4682,6 +4702,53 @@
           "removeMembers"
         ],
         "description": "Whether the caller's roles (and API key scope, if any) allow each named action in the workspace. Mirrors the checks the API enforces."
+      },
+      "QuillsWorkspaceContext": {
+        "type": "object",
+        "properties": {
+          "workspace": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string"
+              },
+              "name": {
+                "type": "string"
+              },
+              "slug": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "id",
+              "name",
+              "slug"
+            ]
+          },
+          "actor": {
+            "type": "object",
+            "properties": {
+              "principalId": {
+                "type": "string"
+              },
+              "userId": {
+                "type": "string"
+              },
+              "workspaceId": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "principalId",
+              "userId",
+              "workspaceId"
+            ]
+          }
+        },
+        "required": [
+          "workspace",
+          "actor"
+        ]
       },
       "CustomFieldDefinition": {
         "type": "object",
@@ -5043,7 +5110,7 @@
             "type": "string",
             "minLength": 1,
             "maxLength": 4096,
-            "description": "A Trello token authorized for this Kaneo instance. Used only for this import and never stored or logged."
+            "description": "A Trello token authorized for this quills instance. Used only for this import and never stored or logged."
           },
           "apiKey": {
             "type": "string",
@@ -5070,14 +5137,14 @@
             "type": "string",
             "minLength": 1,
             "maxLength": 2048,
-            "description": "Address of the Kaneo instance to import from.",
+            "description": "Address of the quills instance to import from.",
             "example": "https://planka.example.com"
           },
           "apiKey": {
             "type": "string",
             "minLength": 1,
             "maxLength": 4096,
-            "description": "An API key from that Kaneo instance. Used only for this import and never stored or logged."
+            "description": "An API key from that quills instance. Used only for this import and never stored or logged."
           }
         },
         "required": [
@@ -5196,7 +5263,7 @@
               "string",
               "null"
             ],
-            "description": "The Kaneo project created by the import, once completed."
+            "description": "The quills project created by the import, once completed."
           },
           "projectSlug": {
             "type": [
@@ -5285,7 +5352,7 @@
               "string",
               "null"
             ],
-            "description": "Trello page where the user approves read access for Kaneo and copies a token. null when the server has no TRELLO_API_KEY; the user then sends their own Trello API key with the token."
+            "description": "Trello page where the user approves read access for quills and copies a token. null when the server has no TRELLO_API_KEY; the user then sends their own Trello API key with the token."
           }
         },
         "required": [
@@ -5326,7 +5393,7 @@
                 "locale"
               ]
             },
-            "description": "Profile fields the custom OAuth/OIDC provider manages for this user. Kaneo updates them at sign-in and refuses changes to them."
+            "description": "Profile fields the custom OAuth/OIDC provider manages for this user. quills updates them at sign-in and refuses changes to them."
           }
         },
         "required": [
@@ -5995,7 +6062,7 @@
               "string",
               "null"
             ],
-            "description": "Kaneo release version of this API instance."
+            "description": "quills release version of this API instance."
           },
           "api": {
             "type": "object",
@@ -6664,7 +6731,7 @@
               "string",
               "null"
             ],
-            "description": "The saved name, or null for the default Kaneo."
+            "description": "The saved name, or null for the default quills."
           },
           "instanceUrl": {
             "type": [
@@ -10095,7 +10162,7 @@
           "MCP"
         ],
         "summary": "Start MCP authorization",
-        "description": "Begin an MCP OAuth authorization. Redirects the browser to the Kaneo consent page, which then approves or denies the request.",
+        "description": "Begin an MCP OAuth authorization. Redirects the browser to the quills consent page, which then approves or denies the request.",
         "security": [],
         "parameters": [
           {
@@ -10163,7 +10230,7 @@
         ],
         "responses": {
           "302": {
-            "description": "Redirect to the Kaneo consent page"
+            "description": "Redirect to the quills consent page"
           },
           "400": {
             "description": "Invalid authorization request",
@@ -18106,7 +18173,7 @@
                             ]
                           }
                         ],
-                        "description": "Kaneo workspace label IDs controlling task sync. Missing labels pause sync."
+                        "description": "quills workspace label IDs controlling task sync. Missing labels pause sync."
                       },
                       "incoming": {
                         "oneOf": [
@@ -18339,7 +18406,7 @@
                             ]
                           }
                         ],
-                        "description": "Kaneo workspace label IDs controlling task sync. Missing labels pause sync."
+                        "description": "quills workspace label IDs controlling task sync. Missing labels pause sync."
                       },
                       "incoming": {
                         "oneOf": [
@@ -18598,7 +18665,7 @@
           "Integration sync"
         ],
         "summary": "Resume a reviewed issue link",
-        "description": "Explicitly choose the current Kaneo or repository title, description and open/closed state. Existing links are reused; historical comments are not replayed. The task must still match its outgoing rule. A changed comparison requires another review.",
+        "description": "Explicitly choose the current quills or repository title, description and open/closed state. Existing links are reused; historical comments are not replayed. The task must still match its outgoing rule. A changed comparison requires another review.",
         "parameters": [
           {
             "schema": {
@@ -18883,7 +18950,7 @@
           "GitHub"
         ],
         "summary": "Verify GitHub installation",
-        "description": "Check that the GitHub App is installed on a repository and holds the permissions Kaneo needs. Always 200 -- problems are reported in the body so the client can guide the user.",
+        "description": "Check that the GitHub App is installed on a repository and holds the permissions quills needs. Always 200 -- problems are reported in the body so the client can guide the user.",
         "requestBody": {
           "required": true,
           "content": {
@@ -19538,7 +19605,7 @@
           "Gitea"
         ],
         "summary": "Verify Gitea access",
-        "description": "Check that the base URL is a Gitea instance and that the token can reach the repository with the permissions Kaneo needs. Repository permission failures are reported in the body; invalid credentials and upstream errors return an error status. Omit accessToken to use the saved token for the unchanged base URL.",
+        "description": "Check that the base URL is a Gitea instance and that the token can reach the repository with the permissions quills needs. Repository permission failures are reported in the body; invalid credentials and upstream errors return an error status. Omit accessToken to use the saved token for the unchanged base URL.",
         "requestBody": {
           "required": true,
           "content": {
@@ -19600,7 +19667,7 @@
             }
           },
           "401": {
-            "description": "Kaneo authentication required",
+            "description": "quills authentication required",
             "content": {
               "application/json": {
                 "schema": {
@@ -20172,7 +20239,7 @@
           "GitLab"
         ],
         "summary": "Verify GitLab access",
-        "description": "Check that the base URL is a GitLab instance and that the token can reach the project with the permissions Kaneo needs. An unreachable instance, a missing project, or insufficient permissions are reported in a 200 body so the form can explain them; a token GitLab rejects outright is a 401.",
+        "description": "Check that the base URL is a GitLab instance and that the token can reach the project with the permissions quills needs. An unreachable instance, a missing project, or insufficient permissions are reported in a 200 body so the form can explain them; a token GitLab rejects outright is a 401.",
         "requestBody": {
           "required": true,
           "content": {
@@ -20343,7 +20410,7 @@
           "GitLab"
         ],
         "summary": "Create GitLab integration",
-        "description": "Link a project to a GitLab project. Kaneo generates the secret GitLab must send with each webhook; add the webhook in GitLab afterwards. Use the verify route first to confirm the token really reaches the project.",
+        "description": "Link a project to a GitLab project. quills generates the secret GitLab must send with each webhook; add the webhook in GitLab afterwards. Use the verify route first to confirm the token really reaches the project.",
         "parameters": [
           {
             "schema": {
@@ -20442,7 +20509,7 @@
             }
           },
           "409": {
-            "description": "That GitLab project is already linked to another Kaneo project",
+            "description": "That GitLab project is already linked to another quills project",
             "content": {
               "application/json": {
                 "schema": {
@@ -20774,7 +20841,7 @@
           "Generic Webhook"
         ],
         "summary": "Create webhook integration",
-        "description": "Create or replace the outgoing webhook for a project. Kaneo POSTs the selected task events to this URL, signed with the secret when one is set.",
+        "description": "Create or replace the outgoing webhook for a project. quills POSTs the selected task events to this URL, signed with the secret when one is set.",
         "parameters": [
           {
             "schema": {
@@ -24116,6 +24183,1125 @@
         }
       }
     },
+    "/quills/{workspaceId}/jobs": {
+      "get": {
+        "operationId": "listQuillsJobs",
+        "tags": [
+          "Quills"
+        ],
+        "summary": "List recent Quills jobs",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "minLength": 1
+            },
+            "required": true,
+            "name": "workspaceId",
+            "in": "path"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "maxLength": 19,
+              "pattern": "^\\d+$"
+            },
+            "required": false,
+            "name": "before",
+            "in": "query"
+          },
+          {
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100,
+              "default": 50
+            },
+            "required": false,
+            "name": "limit",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Recent jobs",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "jobs": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "id": {
+                            "type": "string"
+                          },
+                          "jobId": {
+                            "type": "string"
+                          },
+                          "queue": {
+                            "type": "string"
+                          },
+                          "status": {
+                            "type": "string"
+                          },
+                          "attempts": {
+                            "type": "number"
+                          },
+                          "maxAttempts": {
+                            "type": "number"
+                          },
+                          "lastError": {
+                            "type": [
+                              "string",
+                              "null"
+                            ]
+                          }
+                        },
+                        "required": [
+                          "id",
+                          "jobId",
+                          "queue",
+                          "status",
+                          "attempts",
+                          "maxAttempts",
+                          "lastError"
+                        ]
+                      }
+                    },
+                    "nextCursor": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "jobs",
+                    "nextCursor"
+                  ]
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication required",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Insufficient permission",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "429": {
+            "$ref": "#/components/responses/ApiKeyRateLimited"
+          }
+        }
+      }
+    },
+    "/quills/{workspaceId}/jobs/{jobId}/retry": {
+      "post": {
+        "operationId": "retryQuillsJob",
+        "tags": [
+          "Quills"
+        ],
+        "summary": "Retry a failed Quills job",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "minLength": 1
+            },
+            "required": true,
+            "name": "workspaceId",
+            "in": "path"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 200
+            },
+            "required": true,
+            "name": "jobId",
+            "in": "path"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Job queued",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "retried": {
+                      "type": "boolean"
+                    }
+                  },
+                  "required": [
+                    "retried"
+                  ]
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication required",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Insufficient permission",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Job is not a failed registered job",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "429": {
+            "$ref": "#/components/responses/ApiKeyRateLimited"
+          }
+        }
+      }
+    },
+    "/quills/{workspaceId}/boards/{boardId}/projects/{projectId}": {
+      "put": {
+        "operationId": "linkQuillsBoardToProject",
+        "tags": [
+          "Quills"
+        ],
+        "summary": "Link a Quills board to a project",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "minLength": 1
+            },
+            "required": true,
+            "name": "workspaceId",
+            "in": "path"
+          },
+          {
+            "schema": {
+              "type": "string"
+            },
+            "required": true,
+            "name": "boardId",
+            "in": "path"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "minLength": 1
+            },
+            "required": true,
+            "name": "projectId",
+            "in": "path"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Link updated",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "changed": {
+                      "type": "boolean"
+                    }
+                  },
+                  "required": [
+                    "changed"
+                  ]
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication required",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Insufficient access",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Resource not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "429": {
+            "$ref": "#/components/responses/ApiKeyRateLimited"
+          }
+        }
+      },
+      "delete": {
+        "operationId": "unlinkQuillsBoardFromProject",
+        "tags": [
+          "Quills"
+        ],
+        "summary": "Unlink a Quills board from a project",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "minLength": 1
+            },
+            "required": true,
+            "name": "workspaceId",
+            "in": "path"
+          },
+          {
+            "schema": {
+              "type": "string"
+            },
+            "required": true,
+            "name": "boardId",
+            "in": "path"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "minLength": 1
+            },
+            "required": true,
+            "name": "projectId",
+            "in": "path"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Link updated",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "changed": {
+                      "type": "boolean"
+                    }
+                  },
+                  "required": [
+                    "changed"
+                  ]
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication required",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Insufficient access",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Resource not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "429": {
+            "$ref": "#/components/responses/ApiKeyRateLimited"
+          }
+        }
+      }
+    },
+    "/quills/{workspaceId}/posts/{postId}/tasks/{taskId}": {
+      "put": {
+        "operationId": "linkQuillsPostToTask",
+        "tags": [
+          "Quills"
+        ],
+        "summary": "Link a Quills post to a task",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "minLength": 1
+            },
+            "required": true,
+            "name": "workspaceId",
+            "in": "path"
+          },
+          {
+            "schema": {
+              "type": "string"
+            },
+            "required": true,
+            "name": "postId",
+            "in": "path"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "minLength": 1
+            },
+            "required": true,
+            "name": "taskId",
+            "in": "path"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Link updated",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "changed": {
+                      "type": "boolean"
+                    }
+                  },
+                  "required": [
+                    "changed"
+                  ]
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication required",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Insufficient access",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Resource not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "429": {
+            "$ref": "#/components/responses/ApiKeyRateLimited"
+          }
+        }
+      },
+      "delete": {
+        "operationId": "unlinkQuillsPostFromTask",
+        "tags": [
+          "Quills"
+        ],
+        "summary": "Unlink a Quills post from a task",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "minLength": 1
+            },
+            "required": true,
+            "name": "workspaceId",
+            "in": "path"
+          },
+          {
+            "schema": {
+              "type": "string"
+            },
+            "required": true,
+            "name": "postId",
+            "in": "path"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "minLength": 1
+            },
+            "required": true,
+            "name": "taskId",
+            "in": "path"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Link updated",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "changed": {
+                      "type": "boolean"
+                    }
+                  },
+                  "required": [
+                    "changed"
+                  ]
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication required",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Insufficient access",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Resource not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "429": {
+            "$ref": "#/components/responses/ApiKeyRateLimited"
+          }
+        }
+      }
+    },
+    "/quills/{workspaceId}/links": {
+      "get": {
+        "operationId": "listQuillsLinks",
+        "tags": [
+          "Quills"
+        ],
+        "summary": "List visible Quills board and post links",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "minLength": 1
+            },
+            "required": true,
+            "name": "workspaceId",
+            "in": "path"
+          },
+          {
+            "schema": {
+              "type": [
+                "integer",
+                "null"
+              ],
+              "minimum": 0,
+              "maximum": 10000000,
+              "default": 0
+            },
+            "required": false,
+            "name": "offset",
+            "in": "query"
+          },
+          {
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100,
+              "default": 100
+            },
+            "required": false,
+            "name": "limit",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Visible product links",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "nextOffset": {
+                      "type": [
+                        "number",
+                        "null"
+                      ]
+                    },
+                    "boards": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "boardId": {
+                            "type": "string"
+                          },
+                          "projectId": {
+                            "type": "string"
+                          }
+                        },
+                        "required": [
+                          "boardId",
+                          "projectId"
+                        ]
+                      }
+                    },
+                    "posts": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "postId": {
+                            "type": "string"
+                          },
+                          "taskId": {
+                            "type": "string"
+                          }
+                        },
+                        "required": [
+                          "postId",
+                          "taskId"
+                        ]
+                      }
+                    }
+                  },
+                  "required": [
+                    "nextOffset",
+                    "boards",
+                    "posts"
+                  ]
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication required",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Insufficient access",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Resource not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "429": {
+            "$ref": "#/components/responses/ApiKeyRateLimited"
+          }
+        }
+      }
+    },
+    "/quills/{workspaceId}/teams": {
+      "post": {
+        "operationId": "bindQuillsTeam",
+        "tags": [
+          "Quills"
+        ],
+        "summary": "Bind a workspace team to Quills",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "minLength": 1
+            },
+            "required": true,
+            "name": "workspaceId",
+            "in": "path"
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "kaneoTeamId": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "isDefault": {
+                    "type": "boolean",
+                    "default": false
+                  }
+                },
+                "required": [
+                  "kaneoTeamId"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Team",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string"
+                    },
+                    "name": {
+                      "type": "string"
+                    },
+                    "kaneoTeamId": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    },
+                    "isDefault": {
+                      "type": "boolean"
+                    }
+                  },
+                  "required": [
+                    "id",
+                    "name",
+                    "kaneoTeamId",
+                    "isDefault"
+                  ]
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication required",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Insufficient access",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Team not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "429": {
+            "$ref": "#/components/responses/ApiKeyRateLimited"
+          }
+        }
+      },
+      "get": {
+        "operationId": "listQuillsTeams",
+        "tags": [
+          "Quills"
+        ],
+        "summary": "List Quills teams and their rosters",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "minLength": 1
+            },
+            "required": true,
+            "name": "workspaceId",
+            "in": "path"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Teams and their projected rosters",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "teams": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "id": {
+                            "type": "string"
+                          },
+                          "name": {
+                            "type": "string"
+                          },
+                          "kaneoTeamId": {
+                            "type": [
+                              "string",
+                              "null"
+                            ]
+                          },
+                          "isDefault": {
+                            "type": "boolean"
+                          }
+                        },
+                        "required": [
+                          "id",
+                          "name",
+                          "kaneoTeamId",
+                          "isDefault"
+                        ]
+                      }
+                    },
+                    "members": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "teamId": {
+                            "type": "string"
+                          },
+                          "principalId": {
+                            "type": "string"
+                          }
+                        },
+                        "required": [
+                          "teamId",
+                          "principalId"
+                        ]
+                      }
+                    }
+                  },
+                  "required": [
+                    "teams",
+                    "members"
+                  ]
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication required",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Insufficient access",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Team not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "429": {
+            "$ref": "#/components/responses/ApiKeyRateLimited"
+          }
+        }
+      }
+    },
+    "/quills/{workspaceId}/teams/{teamId}/binding": {
+      "put": {
+        "operationId": "updateQuillsTeamBinding",
+        "tags": [
+          "Quills"
+        ],
+        "summary": "Change the team binding of a Quills team",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "minLength": 1
+            },
+            "required": true,
+            "name": "workspaceId",
+            "in": "path"
+          },
+          {
+            "schema": {
+              "type": "string"
+            },
+            "required": true,
+            "name": "teamId",
+            "in": "path"
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "kaneoTeamId": {
+                    "type": [
+                      "string",
+                      "null"
+                    ],
+                    "minLength": 1
+                  },
+                  "isDefault": {
+                    "type": "boolean"
+                  }
+                },
+                "required": [
+                  "kaneoTeamId"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Team",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string"
+                    },
+                    "name": {
+                      "type": "string"
+                    },
+                    "kaneoTeamId": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    },
+                    "isDefault": {
+                      "type": "boolean"
+                    }
+                  },
+                  "required": [
+                    "id",
+                    "name",
+                    "kaneoTeamId",
+                    "isDefault"
+                  ]
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication required",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Insufficient access",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Team not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "429": {
+            "$ref": "#/components/responses/ApiKeyRateLimited"
+          }
+        }
+      }
+    },
+    "/quills/{workspaceId}/context": {
+      "get": {
+        "operationId": "getQuillsWorkspaceContext",
+        "tags": [
+          "Quills"
+        ],
+        "summary": "Get the caller's Quills workspace context",
+        "description": "Uses the existing quills account, workspace membership, roles and API-key scope. Initializes Quills defaults and the caller's actor when needed. Requires workspace:read and quills:read.",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "minLength": 1
+            },
+            "required": true,
+            "name": "workspaceId",
+            "in": "path"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Workspace and actor for Quills features",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/QuillsWorkspaceContext"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication required",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Workspace archived or insufficient permission or API-key scope",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Workspace not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "429": {
+            "$ref": "#/components/responses/ApiKeyRateLimited"
+          }
+        }
+      }
+    },
     "/custom-field/project/{projectId}": {
       "get": {
         "operationId": "getCustomFieldsByProject",
@@ -24897,7 +26083,7 @@
           "Import"
         ],
         "summary": "List projects in an import source",
-        "description": "Sign in to PLANKA, Plane, Linear, Jira, Trello or another Kaneo instance and list the projects that can be imported. The credentials are used only for this request; they are never stored, logged, or returned.",
+        "description": "Sign in to PLANKA, Plane, Linear, Jira, Trello or another quills instance and list the projects that can be imported. The credentials are used only for this request; they are never stored, logged, or returned.",
         "requestBody": {
           "required": true,
           "content": {
@@ -25005,7 +26191,7 @@
           "Import"
         ],
         "summary": "Start an import",
-        "description": "Import the selected source projects into the workspace as new Kaneo projects. The import runs in the background; poll getImportRun for progress. The credentials are held in memory only while the import runs; they are never stored, logged, or returned. Imported tasks do not send notifications or trigger integrations.",
+        "description": "Import the selected source projects into the workspace as new quills projects. The import runs in the background; poll getImportRun for progress. The credentials are held in memory only while the import runs; they are never stored, logged, or returned. Imported tasks do not send notifications or trigger integrations.",
         "requestBody": {
           "required": true,
           "content": {
@@ -27473,7 +28659,7 @@
           "Admin"
         ],
         "summary": "Remove a user's avatar",
-        "description": "Remove the user's profile picture. A picture managed by the identity provider can't be removed, but an earlier Kaneo upload can. Requires the `users:update` instance permission; API keys are rejected.",
+        "description": "Remove the user's profile picture. A picture managed by the identity provider can't be removed, but an earlier quills upload can. Requires the `users:update` instance permission; API keys are rejected.",
         "parameters": [
           {
             "schema": {
@@ -28309,7 +29495,7 @@
                       "null"
                     ],
                     "maxLength": 60,
-                    "description": "Shown in page titles and email headers and subjects. Empty or null restores Kaneo."
+                    "description": "Shown in page titles and email headers and subjects. Empty or null restores quills."
                   },
                   "registrationEnabled": {
                     "type": "boolean",

@@ -105,7 +105,8 @@
 		"turndown": "^7.2.4",
 		"turndown-plugin-gfm": "^1.0.2",
 		"zod": "^4.6.7",
-		"zustand": "^5.0.16"
+		"zustand": "^5.0.16",
+		"@kaneo/branding": "workspace:*"
 	},
 	"devDependencies": {
 		"@babel/core": "^8.0.9",

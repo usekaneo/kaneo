@@ -1,3 +1,7 @@
+import { runQuillsJobs } from "../quills/jobs/worker";
+import { runQuillsRetention } from "../quills/jobs/retention";
+import { maintainPageViewPartitions } from "../database/quills/page-view-partitions";
+import { resolveDatabaseConnectionString } from "../database/resolve-database-url";
 import { retryStorageCleanup } from "../storage/cleanup-queue";
 import { cleanupDraftUploads } from "./draft-upload-cleanup";
 import { replayDeferredIssueEdits } from "../plugins/github/services/deferred-issue-edits";
@@ -49,6 +53,32 @@ function withCheckIn<T>(name: string, fn: () => Promise<T>) {
 }
 
 export function initializeScheduler(): void {
+  jobs.push(
+    new Cron(
+      "*/10 * * * * *",
+      { protect: true },
+      withCheckIn("quills-jobs", runQuillsJobs),
+    ),
+  );
+  jobs.push(
+    new Cron(
+      "43 * * * *",
+      { protect: true },
+      withCheckIn("quills-retention", runQuillsRetention),
+    ),
+  );
+  jobs.push(
+    new Cron(
+      "7 0 * * *",
+      { protect: true, timezone: "UTC" },
+      withCheckIn("quills-page-view-partitions", () =>
+        maintainPageViewPartitions(
+          process.env.QUILLS_MIGRATION_DATABASE_URL ||
+            resolveDatabaseConnectionString(),
+        ),
+      ),
+    ),
+  );
   jobs.push(
     new Cron(
       "* * * * *",

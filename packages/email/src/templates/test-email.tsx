@@ -1,3 +1,4 @@
+import { brandText } from "@kaneo/branding";
 import React from "react";
 import { EmailFooter } from "../components/email-footer";
 import { EmailIntro } from "../components/email-intro";
@@ -18,13 +19,16 @@ export type TestEmailProps = Pick<
 >;
 
 const copy = {
-  preview: "Outgoing email from your Kaneo instance is working.",
+  preview: brandText("Outgoing email from your Kaneo instance is working."),
   title: "Your email settings work",
-  subtitle:
+  subtitle: brandText(
     "An administrator sent this test from the System page. If you can read it, your Kaneo instance can deliver email.",
+  ),
   noteTitle: "Nothing else to do",
-  note: "You can delete this email. It contains no links and changes nothing in Kaneo.",
-  footer: "Kaneo test email",
+  note: brandText(
+    "You can delete this email. It contains no links and changes nothing in Kaneo.",
+  ),
+  footer: brandText("Kaneo test email"),
 };
 
 const TestEmail = ({ email, instance, requestedAt }: TestEmailProps) => (
@@ -43,7 +47,7 @@ const TestEmail = ({ email, instance, requestedAt }: TestEmailProps) => (
 
 TestEmail.PreviewProps = {
   email: "maya@example.com",
-  instance: "kaneo.example.com",
+  instance: brandText("kaneo.example.com"),
   requestedAt: "2026-10-26T09:30:00.000Z",
 } as TestEmailProps;
 

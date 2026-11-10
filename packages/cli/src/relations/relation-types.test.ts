@@ -1,3 +1,4 @@
+import { brandText } from "@kaneo/branding";
 import { Result } from "effect";
 import { describe, expect, it } from "vite-plus/test";
 import {
@@ -38,7 +39,7 @@ describe("parseRelationType", () => {
     expect(Result.isFailure(result)).toBe(true);
     if (Result.isFailure(result)) {
       expect(result.failure.message).toBe(
-        'Kaneo has no "duplicates" relation.',
+        brandText('Kaneo has no "duplicates" relation.'),
       );
       expect(result.failure.hint).toContain("relates-to is the closest match");
     }

@@ -1,3 +1,4 @@
+import { brandText } from "@kaneo/branding";
 import type { ImportedProject } from "@kaneo/importers";
 import { HTTPException } from "hono/http-exception";
 import {
@@ -28,7 +29,7 @@ export type ImportJob = {
 const HEARTBEAT_MS = 20_000;
 const STOPPED = "The import was stopped.";
 const UNEXPECTED = "The import stopped because of an unexpected error.";
-const SAVE_FAILED = "Kaneo could not save this project.";
+const SAVE_FAILED = brandText("Kaneo could not save this project.");
 
 function stopReason(signal: AbortSignal) {
   return signal.reason instanceof Error ? signal.reason.message : STOPPED;

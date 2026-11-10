@@ -1,3 +1,4 @@
+import { brand } from "@kaneo/branding";
 import { createMcpHandler, McpServer } from "@modelcontextprotocol/server";
 import { registerMcpTools, toMcpToolRegistrar } from "./tools";
 import { MCP_BODY_BYTES, MCP_MAX_TOOL_INPUT_ELEMENTS } from "./request-bounds";
@@ -11,7 +12,7 @@ export function createModernMcpHandler(
     () => {
       const server = new McpServer(
         {
-          name: "kaneo-mcp",
+          name: brand.name,
           version: "1.0.0",
         },
         {

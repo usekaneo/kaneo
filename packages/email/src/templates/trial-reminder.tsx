@@ -1,3 +1,4 @@
+import { brandText } from "@kaneo/branding";
 import React from "react";
 import { EmailButton } from "../components/email-button";
 import { EmailFooter } from "../components/email-footer";
@@ -74,7 +75,7 @@ const TrialReminderEmail = ({
     >
       <EmailIntro title={title(daysLeft)} subtitle={subtitle(daysLeft)} />
       <Frame
-        title="Kaneo Cloud trial"
+        title={brandText("Kaneo Cloud trial")}
         description={
           endDate
             ? `${workspaceName} workspace, ends ${endDate}`
@@ -96,11 +97,11 @@ const TrialReminderEmail = ({
         at any time.
       </EmailNote>
       <EmailFooter
-        title="Kaneo Cloud billing"
+        title={brandText("Kaneo Cloud billing")}
         reason={
           email
-            ? `Sent to ${email} because you own the ${workspaceName} workspace on Kaneo Cloud.`
-            : `You are receiving this because you own this workspace on Kaneo Cloud.`
+            ? `Sent to ${email} because you own the ${workspaceName}${brandText(" workspace on Kaneo Cloud.")}`
+            : `${brandText("You are receiving this because you own this workspace on Kaneo Cloud.")}`
         }
         links={footerLinks("en", [{ label: "Billing", href: billingUrl }])}
       />
@@ -111,7 +112,9 @@ const TrialReminderEmail = ({
 TrialReminderEmail.PreviewProps = {
   workspaceName: "Acme",
   daysLeft: 3,
-  billingUrl: "https://cloud.kaneo.app/dashboard/settings/workspace/billing",
+  billingUrl: brandText(
+    "https://cloud.kaneo.app/dashboard/settings/workspace/billing",
+  ),
   trialDays: 14,
   endsAt: "2026-10-14T00:00:00.000Z",
   email: "maya@example.com",

@@ -1,3 +1,4 @@
+import { brandText } from "@kaneo/branding";
 export type ParsedArgs = {
   plankaUrl?: string;
   plankaUser?: string;
@@ -102,42 +103,6 @@ export function parseArgs(argv: string[]): ParsedArgs {
   return parsed;
 }
 
-export const DEFAULT_KANEO_URL = "https://cloud.kaneo.app";
+export const DEFAULT_KANEO_URL = brandText("https://cloud.kaneo.app");
 
-export const HELP_TEXT = `kaneo-planka-import: migrate PLANKA boards into Kaneo
-
-Usage:
-  npx @kaneo/planka-import --planka-url <url> --kaneo-api-key <key> [options]
-
-PLANKA source:
-  --planka-url <url>        PLANKA instance URL (required)
-  --planka-user <user>      Email or username (prompted if omitted)
-  --planka-password <pass>  Password (env PLANKA_PASSWORD, or prompted)
-  --planka-token <token>    Use an existing access token instead of logging in
-  --planka-api-key <key>    Use a PLANKA user API key (env PLANKA_API_KEY).
-                            Best option for SSO-only accounts, which have no
-                            password to log in with
-
-Kaneo target:
-  --kaneo-url <url>         Kaneo instance URL (default ${DEFAULT_KANEO_URL})
-  --kaneo-api-key <key>     Kaneo API key (env KANEO_API_KEY)
-  --workspace <id>          Target workspace ID (prompted if omitted)
-
-Selection:
-  --project <name|id>       Migrate only this PLANKA project (repeatable)
-  --all                     Migrate every project without prompting
-
-Behaviour:
-  --dry-run                 Report what would be migrated, write nothing
-  --skip-comments           Do not migrate card comments
-  --icon <name>             Lucide icon for created projects (default Layout)
-  --report <path>           Write a JSON report to this path
-  -y, --yes                 Do not ask for confirmation before writing
-  -h, --help                Show this help
-  -v, --version             Show the version
-
-Examples:
-  npx @kaneo/planka-import --planka-url https://planka.acme.com --dry-run
-  npx @kaneo/planka-import --planka-url https://planka.acme.com \\
-    --kaneo-api-key kaneo_xxx --workspace ws_123 --all
-`;
+export const HELP_TEXT = `${brandText("kaneo-planka-import: migrate PLANKA boards into Kaneo\n\nUsage:\n  npx @kaneo/planka-import --planka-url <url> --kaneo-api-key <key> [options]\n\nPLANKA source:\n  --planka-url <url>        PLANKA instance URL (required)\n  --planka-user <user>      Email or username (prompted if omitted)\n  --planka-password <pass>  Password (env PLANKA_PASSWORD, or prompted)\n  --planka-token <token>    Use an existing access token instead of logging in\n  --planka-api-key <key>    Use a PLANKA user API key (env PLANKA_API_KEY).\n                            Best option for SSO-only accounts, which have no\n                            password to log in with\n\nKaneo target:\n  --kaneo-url <url>         Kaneo instance URL (default ")}${DEFAULT_KANEO_URL}${brandText(")\n  --kaneo-api-key <key>     Kaneo API key (env KANEO_API_KEY)\n  --workspace <id>          Target workspace ID (prompted if omitted)\n\nSelection:\n  --project <name|id>       Migrate only this PLANKA project (repeatable)\n  --all                     Migrate every project without prompting\n\nBehaviour:\n  --dry-run                 Report what would be migrated, write nothing\n  --skip-comments           Do not migrate card comments\n  --icon <name>             Lucide icon for created projects (default Layout)\n  --report <path>           Write a JSON report to this path\n  -y, --yes                 Do not ask for confirmation before writing\n  -h, --help                Show this help\n  -v, --version             Show the version\n\nExamples:\n  npx @kaneo/planka-import --planka-url https://planka.acme.com --dry-run\n  npx @kaneo/planka-import --planka-url https://planka.acme.com \\\n    --kaneo-api-key kaneo_xxx --workspace ws_123 --all\n")}`;

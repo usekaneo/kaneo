@@ -1,6 +1,7 @@
+import { brand } from "@kaneo/branding";
 import { landing } from "@/lib/landing";
 
-export const appStoreUrl = "https://apps.apple.com/app/id6828574501";
+export const appStoreUrl = brand.appStoreUrl;
 
 // The homepage and text exports use the same answers so product facts stay aligned.
 export const productAnswers = [
@@ -8,7 +9,7 @@ export const productAnswers = [
   { ...landing.product.planning, href: "/openproject-alternative" },
   { ...landing.product.sso, href: "/pricing#managed-instance" },
   { ...landing.product.agents, href: "/docs/core/integrations/mcp" },
-  { ...landing.product.mobile, href: appStoreUrl },
+  ...(appStoreUrl ? [{ ...landing.product.mobile, href: appStoreUrl }] : []),
 ];
 
 export function productMarkdown() {

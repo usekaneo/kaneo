@@ -1,5 +1,6 @@
 "use client";
 
+import { brand } from "@kaneo/branding";
 import NumberFlow from "@number-flow/react";
 import { ArrowRight, Check } from "lucide-react";
 import { useState } from "react";
@@ -7,8 +8,7 @@ import { Button } from "@/components/ui/button";
 
 const APP_URL = "https://cloud.kaneo.app";
 
-const MANAGED_CONTACT =
-  "mailto:support@kaneo.app?subject=Managed%20Kaneo%20instance&body=Team%20size%3A%0AIdentity%20provider%3A%0AAnything%20else%20we%20should%20know%3A";
+const MANAGED_CONTACT = `mailto:${brand.supportEmail}?subject=${encodeURIComponent(`Managed ${brand.name} instance`)}&body=Team%20size%3A%0AIdentity%20provider%3A%0AAnything%20else%20we%20should%20know%3A`;
 
 const MANAGED_PRICE = {
   price: 299,

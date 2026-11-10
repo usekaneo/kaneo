@@ -1,0 +1,1523 @@
+[33597513ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://127.0.0.1:6006/src/ui/FeedbackView.tsx?t=1794247520603:0
+[33597514ms] [ERROR] TypeError: Failed to fetch dynamically imported module: http://127.0.0.1:6006/stories/Design.stories.tsx?t=1794247520603 @ http://127.0.0.1:6006/@vite/client:363
+[33597515ms] [ERROR] TypeError: Failed to fetch dynamically imported module: http://127.0.0.1:6006/stories/Design.stories.tsx?t=1794247520603 @ http://127.0.0.1:6006/@vite/client:363
+[33597526ms] [ERROR] TypeError: Failed to fetch dynamically imported module: http://127.0.0.1:6006/stories/Design.stories.tsx?t=1794247520603 @ http://127.0.0.1:6006/@vite/client:363
+[33945137ms] [ERROR] %o
+
+%s
+
+%s
+ TypeError: launcher.current?.setUnreadCount is not a function
+    at http://127.0.0.1:6006/stories/WidgetPreview.tsx?t=1794247868242:93:21
+    at Object.react_stack_bottom_frame (http://127.0.0.1:6006/node_modules/.cache/storybook/10.6.6/c4103542e6fc7dba0a4ffc28df2d3a01f62ccdb6a0b127d301770c8a590cbffc/sb-vite/deps/client-rPskUaMY.js?v=6b1ba780:14367:13)
+    at runWithFiberInDEV (http://127.0.0.1:6006/node_modules/.cache/storybook/10.6.6/c4103542e6fc7dba0a4ffc28df2d3a01f62ccdb6a0b127d301770c8a590cbffc/sb-vite/deps/client-rPskUaMY.js?v=6b1ba780:1133:66)
+    at commitHookEffectListMount (http://127.0.0.1:6006/node_modules/.cache/storybook/10.6.6/c4103542e6fc7dba0a4ffc28df2d3a01f62ccdb6a0b127d301770c8a590cbffc/sb-vite/deps/client-rPskUaMY.js?v=6b1ba780:7090:153)
+    at commitHookPassiveMountEffects (http://127.0.0.1:6006/node_modules/.cache/storybook/10.6.6/c4103542e6fc7dba0a4ffc28df2d3a01f62ccdb6a0b127d301770c8a590cbffc/sb-vite/deps/client-rPskUaMY.js?v=6b1ba780:7125:55)
+    at commitPassiveMountOnFiber (http://127.0.0.1:6006/node_modules/.cache/storybook/10.6.6/c4103542e6fc7dba0a4ffc28df2d3a01f62ccdb6a0b127d301770c8a590cbffc/sb-vite/deps/client-rPskUaMY.js?v=6b1ba780:8502:22)
+    at recursivelyTraversePassiveMountEffects (http://127.0.0.1:6006/node_modules/.cache/storybook/10.6.6/c4103542e6fc7dba0a4ffc28df2d3a01f62ccdb6a0b127d301770c8a590cbffc/sb-vite/deps/client-rPskUaMY.js?v=6b1ba780:8489:313)
+    at commitPassiveMountOnFiber (http://127.0.0.1:6006/node_modules/.cache/storybook/10.6.6/c4103542e6fc7dba0a4ffc28df2d3a01f62ccdb6a0b127d301770c8a590cbffc/sb-vite/deps/client-rPskUaMY.js?v=6b1ba780:8501:6)
+    at recursivelyTraversePassiveMountEffects (http://127.0.0.1:6006/node_modules/.cache/storybook/10.6.6/c4103542e6fc7dba0a4ffc28df2d3a01f62ccdb6a0b127d301770c8a590cbffc/sb-vite/deps/client-rPskUaMY.js?v=6b1ba780:8489:313)
+    at commitPassiveMountOnFiber (http://127.0.0.1:6006/node_modules/.cache/storybook/10.6.6/c4103542e6fc7dba0a4ffc28df2d3a01f62ccdb6a0b127d301770c8a590cbffc/sb-vite/deps/client-rPskUaMY.js?v=6b1ba780:8501:6) The above error occurred in the <WidgetPreview> component. React will try to recreate this component tree from scratch using the error boundary you provided, ErrorBoundary. @ http://127.0.0.1:6006/@vite/client:363
+[33945137ms] [ERROR] Error rendering story 'widget-design--home': @ http://127.0.0.1:6006/@vite/client:363
+[33945138ms] [ERROR] TypeError: launcher.current?.setUnreadCount is not a function
+    at http://127.0.0.1:6006/stories/WidgetPreview.tsx?t=1794247868242:93:21
+    at Object.react_stack_bottom_frame (http://127.0.0.1:6006/node_modules/.cache/storybook/10.6.6/c4103542e6fc7dba0a4ffc28df2d3a01f62ccdb6a0b127d301770c8a590cbffc/sb-vite/deps/client-rPskUaMY.js?v=6b1ba780:14367:13)
+    at runWithFiberInDEV (http://127.0.0.1:6006/node_modules/.cache/storybook/10.6.6/c4103542e6fc7dba0a4ffc28df2d3a01f62ccdb6a0b127d301770c8a590cbffc/sb-vite/deps/client-rPskUaMY.js?v=6b1ba780:1133:66)
+    at commitHookEffectListMount (http://127.0.0.1:6006/node_modules/.cache/storybook/10.6.6/c4103542e6fc7dba0a4ffc28df2d3a01f62ccdb6a0b127d301770c8a590cbffc/sb-vite/deps/client-rPskUaMY.js?v=6b1ba780:7090:153)
+    at commitHookPassiveMountEffects (http://127.0.0.1:6006/node_modules/.cache/storybook/10.6.6/c4103542e6fc7dba0a4ffc28df2d3a01f62ccdb6a0b127d301770c8a590cbffc/sb-vite/deps/client-rPskUaMY.js?v=6b1ba780:7125:55)
+    at commitPassiveMountOnFiber (http://127.0.0.1:6006/node_modules/.cache/storybook/10.6.6/c4103542e6fc7dba0a4ffc28df2d3a01f62ccdb6a0b127d301770c8a590cbffc/sb-vite/deps/client-rPskUaMY.js?v=6b1ba780:8502:22)
+    at recursivelyTraversePassiveMountEffects (http://127.0.0.1:6006/node_modules/.cache/storybook/10.6.6/c4103542e6fc7dba0a4ffc28df2d3a01f62ccdb6a0b127d301770c8a590cbffc/sb-vite/deps/client-rPskUaMY.js?v=6b1ba780:8489:313)
+    at commitPassiveMountOnFiber (http://127.0.0.1:6006/node_modules/.cache/storybook/10.6.6/c4103542e6fc7dba0a4ffc28df2d3a01f62ccdb6a0b127d301770c8a590cbffc/sb-vite/deps/client-rPskUaMY.js?v=6b1ba780:8501:6)
+    at recursivelyTraversePassiveMountEffects (http://127.0.0.1:6006/node_modules/.cache/storybook/10.6.6/c4103542e6fc7dba0a4ffc28df2d3a01f62ccdb6a0b127d301770c8a590cbffc/sb-vite/deps/client-rPskUaMY.js?v=6b1ba780:8489:313)
+    at commitPassiveMountOnFiber (http://127.0.0.1:6006/node_modules/.cache/storybook/10.6.6/c4103542e6fc7dba0a4ffc28df2d3a01f62ccdb6a0b127d301770c8a590cbffc/sb-vite/deps/client-rPskUaMY.js?v=6b1ba780:8501:6) @ http://127.0.0.1:6006/@vite/client:363
+[33999975ms] [ERROR] %o
+
+%s
+
+%s
+ TypeError: launcher.current?.setUnreadCount is not a function
+    at http://127.0.0.1:6006/stories/WidgetPreview.tsx?t=1794247923059:93:21
+    at Object.react_stack_bottom_frame (http://127.0.0.1:6006/node_modules/.cache/storybook/10.6.6/c4103542e6fc7dba0a4ffc28df2d3a01f62ccdb6a0b127d301770c8a590cbffc/sb-vite/deps/client-rPskUaMY.js?v=6b1ba780:14367:13)
+    at runWithFiberInDEV (http://127.0.0.1:6006/node_modules/.cache/storybook/10.6.6/c4103542e6fc7dba0a4ffc28df2d3a01f62ccdb6a0b127d301770c8a590cbffc/sb-vite/deps/client-rPskUaMY.js?v=6b1ba780:1133:66)
+    at commitHookEffectListMount (http://127.0.0.1:6006/node_modules/.cache/storybook/10.6.6/c4103542e6fc7dba0a4ffc28df2d3a01f62ccdb6a0b127d301770c8a590cbffc/sb-vite/deps/client-rPskUaMY.js?v=6b1ba780:7090:153)
+    at commitHookPassiveMountEffects (http://127.0.0.1:6006/node_modules/.cache/storybook/10.6.6/c4103542e6fc7dba0a4ffc28df2d3a01f62ccdb6a0b127d301770c8a590cbffc/sb-vite/deps/client-rPskUaMY.js?v=6b1ba780:7125:55)
+    at commitPassiveMountOnFiber (http://127.0.0.1:6006/node_modules/.cache/storybook/10.6.6/c4103542e6fc7dba0a4ffc28df2d3a01f62ccdb6a0b127d301770c8a590cbffc/sb-vite/deps/client-rPskUaMY.js?v=6b1ba780:8502:22)
+    at recursivelyTraversePassiveMountEffects (http://127.0.0.1:6006/node_modules/.cache/storybook/10.6.6/c4103542e6fc7dba0a4ffc28df2d3a01f62ccdb6a0b127d301770c8a590cbffc/sb-vite/deps/client-rPskUaMY.js?v=6b1ba780:8489:313)
+    at commitPassiveMountOnFiber (http://127.0.0.1:6006/node_modules/.cache/storybook/10.6.6/c4103542e6fc7dba0a4ffc28df2d3a01f62ccdb6a0b127d301770c8a590cbffc/sb-vite/deps/client-rPskUaMY.js?v=6b1ba780:8501:6)
+    at recursivelyTraversePassiveMountEffects (http://127.0.0.1:6006/node_modules/.cache/storybook/10.6.6/c4103542e6fc7dba0a4ffc28df2d3a01f62ccdb6a0b127d301770c8a590cbffc/sb-vite/deps/client-rPskUaMY.js?v=6b1ba780:8489:313)
+    at commitPassiveMountOnFiber (http://127.0.0.1:6006/node_modules/.cache/storybook/10.6.6/c4103542e6fc7dba0a4ffc28df2d3a01f62ccdb6a0b127d301770c8a590cbffc/sb-vite/deps/client-rPskUaMY.js?v=6b1ba780:8501:6) The above error occurred in the <WidgetPreview> component. React will try to recreate this component tree from scratch using the error boundary you provided, ErrorBoundary. @ http://127.0.0.1:6006/@vite/client:363
+[33999976ms] [ERROR] Error rendering story 'widget-design--home': @ http://127.0.0.1:6006/@vite/client:363
+[33999976ms] [ERROR] TypeError: launcher.current?.setUnreadCount is not a function
+    at http://127.0.0.1:6006/stories/WidgetPreview.tsx?t=1794247923059:93:21
+    at Object.react_stack_bottom_frame (http://127.0.0.1:6006/node_modules/.cache/storybook/10.6.6/c4103542e6fc7dba0a4ffc28df2d3a01f62ccdb6a0b127d301770c8a590cbffc/sb-vite/deps/client-rPskUaMY.js?v=6b1ba780:14367:13)
+    at runWithFiberInDEV (http://127.0.0.1:6006/node_modules/.cache/storybook/10.6.6/c4103542e6fc7dba0a4ffc28df2d3a01f62ccdb6a0b127d301770c8a590cbffc/sb-vite/deps/client-rPskUaMY.js?v=6b1ba780:1133:66)
+    at commitHookEffectListMount (http://127.0.0.1:6006/node_modules/.cache/storybook/10.6.6/c4103542e6fc7dba0a4ffc28df2d3a01f62ccdb6a0b127d301770c8a590cbffc/sb-vite/deps/client-rPskUaMY.js?v=6b1ba780:7090:153)
+    at commitHookPassiveMountEffects (http://127.0.0.1:6006/node_modules/.cache/storybook/10.6.6/c4103542e6fc7dba0a4ffc28df2d3a01f62ccdb6a0b127d301770c8a590cbffc/sb-vite/deps/client-rPskUaMY.js?v=6b1ba780:7125:55)
+    at commitPassiveMountOnFiber (http://127.0.0.1:6006/node_modules/.cache/storybook/10.6.6/c4103542e6fc7dba0a4ffc28df2d3a01f62ccdb6a0b127d301770c8a590cbffc/sb-vite/deps/client-rPskUaMY.js?v=6b1ba780:8502:22)
+    at recursivelyTraversePassiveMountEffects (http://127.0.0.1:6006/node_modules/.cache/storybook/10.6.6/c4103542e6fc7dba0a4ffc28df2d3a01f62ccdb6a0b127d301770c8a590cbffc/sb-vite/deps/client-rPskUaMY.js?v=6b1ba780:8489:313)
+    at commitPassiveMountOnFiber (http://127.0.0.1:6006/node_modules/.cache/storybook/10.6.6/c4103542e6fc7dba0a4ffc28df2d3a01f62ccdb6a0b127d301770c8a590cbffc/sb-vite/deps/client-rPskUaMY.js?v=6b1ba780:8501:6)
+    at recursivelyTraversePassiveMountEffects (http://127.0.0.1:6006/node_modules/.cache/storybook/10.6.6/c4103542e6fc7dba0a4ffc28df2d3a01f62ccdb6a0b127d301770c8a590cbffc/sb-vite/deps/client-rPskUaMY.js?v=6b1ba780:8489:313)
+    at commitPassiveMountOnFiber (http://127.0.0.1:6006/node_modules/.cache/storybook/10.6.6/c4103542e6fc7dba0a4ffc28df2d3a01f62ccdb6a0b127d301770c8a590cbffc/sb-vite/deps/client-rPskUaMY.js?v=6b1ba780:8501:6) @ http://127.0.0.1:6006/@vite/client:363
+[34004941ms] [ERROR] %o
+
+%s
+
+%s
+ TypeError: launcher.current?.setUnreadCount is not a function
+    at http://127.0.0.1:6006/stories/WidgetPreview.tsx?t=1794247923059:93:21
+    at Object.react_stack_bottom_frame (http://127.0.0.1:6006/node_modules/.cache/storybook/10.6.6/c4103542e6fc7dba0a4ffc28df2d3a01f62ccdb6a0b127d301770c8a590cbffc/sb-vite/deps/client-rPskUaMY.js?v=6b1ba780:14367:13)
+    at runWithFiberInDEV (http://127.0.0.1:6006/node_modules/.cache/storybook/10.6.6/c4103542e6fc7dba0a4ffc28df2d3a01f62ccdb6a0b127d301770c8a590cbffc/sb-vite/deps/client-rPskUaMY.js?v=6b1ba780:1133:66)
+    at commitHookEffectListMount (http://127.0.0.1:6006/node_modules/.cache/storybook/10.6.6/c4103542e6fc7dba0a4ffc28df2d3a01f62ccdb6a0b127d301770c8a590cbffc/sb-vite/deps/client-rPskUaMY.js?v=6b1ba780:7090:153)
+    at commitHookPassiveMountEffects (http://127.0.0.1:6006/node_modules/.cache/storybook/10.6.6/c4103542e6fc7dba0a4ffc28df2d3a01f62ccdb6a0b127d301770c8a590cbffc/sb-vite/deps/client-rPskUaMY.js?v=6b1ba780:7125:55)
+    at commitPassiveMountOnFiber (http://127.0.0.1:6006/node_modules/.cache/storybook/10.6.6/c4103542e6fc7dba0a4ffc28df2d3a01f62ccdb6a0b127d301770c8a590cbffc/sb-vite/deps/client-rPskUaMY.js?v=6b1ba780:8502:22)
+    at recursivelyTraversePassiveMountEffects (http://127.0.0.1:6006/node_modules/.cache/storybook/10.6.6/c4103542e6fc7dba0a4ffc28df2d3a01f62ccdb6a0b127d301770c8a590cbffc/sb-vite/deps/client-rPskUaMY.js?v=6b1ba780:8489:313)
+    at commitPassiveMountOnFiber (http://127.0.0.1:6006/node_modules/.cache/storybook/10.6.6/c4103542e6fc7dba0a4ffc28df2d3a01f62ccdb6a0b127d301770c8a590cbffc/sb-vite/deps/client-rPskUaMY.js?v=6b1ba780:8501:6)
+    at recursivelyTraversePassiveMountEffects (http://127.0.0.1:6006/node_modules/.cache/storybook/10.6.6/c4103542e6fc7dba0a4ffc28df2d3a01f62ccdb6a0b127d301770c8a590cbffc/sb-vite/deps/client-rPskUaMY.js?v=6b1ba780:8489:313)
+    at commitPassiveMountOnFiber (http://127.0.0.1:6006/node_modules/.cache/storybook/10.6.6/c4103542e6fc7dba0a4ffc28df2d3a01f62ccdb6a0b127d301770c8a590cbffc/sb-vite/deps/client-rPskUaMY.js?v=6b1ba780:8501:6) The above error occurred in the <WidgetPreview> component. React will try to recreate this component tree from scratch using the error boundary you provided, ErrorBoundary. @ http://127.0.0.1:6006/@vite/client:363
+[34004942ms] [ERROR] Error rendering story 'widget-design--home': @ http://127.0.0.1:6006/@vite/client:363
+[34004942ms] [ERROR] TypeError: launcher.current?.setUnreadCount is not a function
+    at http://127.0.0.1:6006/stories/WidgetPreview.tsx?t=1794247923059:93:21
+    at Object.react_stack_bottom_frame (http://127.0.0.1:6006/node_modules/.cache/storybook/10.6.6/c4103542e6fc7dba0a4ffc28df2d3a01f62ccdb6a0b127d301770c8a590cbffc/sb-vite/deps/client-rPskUaMY.js?v=6b1ba780:14367:13)
+    at runWithFiberInDEV (http://127.0.0.1:6006/node_modules/.cache/storybook/10.6.6/c4103542e6fc7dba0a4ffc28df2d3a01f62ccdb6a0b127d301770c8a590cbffc/sb-vite/deps/client-rPskUaMY.js?v=6b1ba780:1133:66)
+    at commitHookEffectListMount (http://127.0.0.1:6006/node_modules/.cache/storybook/10.6.6/c4103542e6fc7dba0a4ffc28df2d3a01f62ccdb6a0b127d301770c8a590cbffc/sb-vite/deps/client-rPskUaMY.js?v=6b1ba780:7090:153)
+    at commitHookPassiveMountEffects (http://127.0.0.1:6006/node_modules/.cache/storybook/10.6.6/c4103542e6fc7dba0a4ffc28df2d3a01f62ccdb6a0b127d301770c8a590cbffc/sb-vite/deps/client-rPskUaMY.js?v=6b1ba780:7125:55)
+    at commitPassiveMountOnFiber (http://127.0.0.1:6006/node_modules/.cache/storybook/10.6.6/c4103542e6fc7dba0a4ffc28df2d3a01f62ccdb6a0b127d301770c8a590cbffc/sb-vite/deps/client-rPskUaMY.js?v=6b1ba780:8502:22)
+    at recursivelyTraversePassiveMountEffects (http://127.0.0.1:6006/node_modules/.cache/storybook/10.6.6/c4103542e6fc7dba0a4ffc28df2d3a01f62ccdb6a0b127d301770c8a590cbffc/sb-vite/deps/client-rPskUaMY.js?v=6b1ba780:8489:313)
+    at commitPassiveMountOnFiber (http://127.0.0.1:6006/node_modules/.cache/storybook/10.6.6/c4103542e6fc7dba0a4ffc28df2d3a01f62ccdb6a0b127d301770c8a590cbffc/sb-vite/deps/client-rPskUaMY.js?v=6b1ba780:8501:6)
+    at recursivelyTraversePassiveMountEffects (http://127.0.0.1:6006/node_modules/.cache/storybook/10.6.6/c4103542e6fc7dba0a4ffc28df2d3a01f62ccdb6a0b127d301770c8a590cbffc/sb-vite/deps/client-rPskUaMY.js?v=6b1ba780:8489:313)
+    at commitPassiveMountOnFiber (http://127.0.0.1:6006/node_modules/.cache/storybook/10.6.6/c4103542e6fc7dba0a4ffc28df2d3a01f62ccdb6a0b127d301770c8a590cbffc/sb-vite/deps/client-rPskUaMY.js?v=6b1ba780:8501:6) @ http://127.0.0.1:6006/@vite/client:363
+[34005051ms] [ERROR] %o
+
+%s
+
+%s
+ TypeError: launcher.current?.setUnreadCount is not a function
+    at http://127.0.0.1:6006/stories/WidgetPreview.tsx?t=1794247923059:93:21
+    at Object.react_stack_bottom_frame (http://127.0.0.1:6006/node_modules/.cache/storybook/10.6.6/c4103542e6fc7dba0a4ffc28df2d3a01f62ccdb6a0b127d301770c8a590cbffc/sb-vite/deps/client-rPskUaMY.js?v=6b1ba780:14367:13)
+    at runWithFiberInDEV (http://127.0.0.1:6006/node_modules/.cache/storybook/10.6.6/c4103542e6fc7dba0a4ffc28df2d3a01f62ccdb6a0b127d301770c8a590cbffc/sb-vite/deps/client-rPskUaMY.js?v=6b1ba780:1133:66)
+    at commitHookEffectListMount (http://127.0.0.1:6006/node_modules/.cache/storybook/10.6.6/c4103542e6fc7dba0a4ffc28df2d3a01f62ccdb6a0b127d301770c8a590cbffc/sb-vite/deps/client-rPskUaMY.js?v=6b1ba780:7090:153)
+    at commitHookPassiveMountEffects (http://127.0.0.1:6006/node_modules/.cache/storybook/10.6.6/c4103542e6fc7dba0a4ffc28df2d3a01f62ccdb6a0b127d301770c8a590cbffc/sb-vite/deps/client-rPskUaMY.js?v=6b1ba780:7125:55)
+    at commitPassiveMountOnFiber (http://127.0.0.1:6006/node_modules/.cache/storybook/10.6.6/c4103542e6fc7dba0a4ffc28df2d3a01f62ccdb6a0b127d301770c8a590cbffc/sb-vite/deps/client-rPskUaMY.js?v=6b1ba780:8502:22)
+    at recursivelyTraversePassiveMountEffects (http://127.0.0.1:6006/node_modules/.cache/storybook/10.6.6/c4103542e6fc7dba0a4ffc28df2d3a01f62ccdb6a0b127d301770c8a590cbffc/sb-vite/deps/client-rPskUaMY.js?v=6b1ba780:8489:313)
+    at commitPassiveMountOnFiber (http://127.0.0.1:6006/node_modules/.cache/storybook/10.6.6/c4103542e6fc7dba0a4ffc28df2d3a01f62ccdb6a0b127d301770c8a590cbffc/sb-vite/deps/client-rPskUaMY.js?v=6b1ba780:8501:6)
+    at recursivelyTraversePassiveMountEffects (http://127.0.0.1:6006/node_modules/.cache/storybook/10.6.6/c4103542e6fc7dba0a4ffc28df2d3a01f62ccdb6a0b127d301770c8a590cbffc/sb-vite/deps/client-rPskUaMY.js?v=6b1ba780:8489:313)
+    at commitPassiveMountOnFiber (http://127.0.0.1:6006/node_modules/.cache/storybook/10.6.6/c4103542e6fc7dba0a4ffc28df2d3a01f62ccdb6a0b127d301770c8a590cbffc/sb-vite/deps/client-rPskUaMY.js?v=6b1ba780:8501:6) The above error occurred in the <WidgetPreview> component. React will try to recreate this component tree from scratch using the error boundary you provided, ErrorBoundary. @ http://127.0.0.1:6006/@vite/client:363
+[34005052ms] [ERROR] Error rendering story 'widget-design--home': @ http://127.0.0.1:6006/@vite/client:363
+[34005052ms] [ERROR] TypeError: launcher.current?.setUnreadCount is not a function
+    at http://127.0.0.1:6006/stories/WidgetPreview.tsx?t=1794247923059:93:21
+    at Object.react_stack_bottom_frame (http://127.0.0.1:6006/node_modules/.cache/storybook/10.6.6/c4103542e6fc7dba0a4ffc28df2d3a01f62ccdb6a0b127d301770c8a590cbffc/sb-vite/deps/client-rPskUaMY.js?v=6b1ba780:14367:13)
+    at runWithFiberInDEV (http://127.0.0.1:6006/node_modules/.cache/storybook/10.6.6/c4103542e6fc7dba0a4ffc28df2d3a01f62ccdb6a0b127d301770c8a590cbffc/sb-vite/deps/client-rPskUaMY.js?v=6b1ba780:1133:66)
+    at commitHookEffectListMount (http://127.0.0.1:6006/node_modules/.cache/storybook/10.6.6/c4103542e6fc7dba0a4ffc28df2d3a01f62ccdb6a0b127d301770c8a590cbffc/sb-vite/deps/client-rPskUaMY.js?v=6b1ba780:7090:153)
+    at commitHookPassiveMountEffects (http://127.0.0.1:6006/node_modules/.cache/storybook/10.6.6/c4103542e6fc7dba0a4ffc28df2d3a01f62ccdb6a0b127d301770c8a590cbffc/sb-vite/deps/client-rPskUaMY.js?v=6b1ba780:7125:55)
+    at commitPassiveMountOnFiber (http://127.0.0.1:6006/node_modules/.cache/storybook/10.6.6/c4103542e6fc7dba0a4ffc28df2d3a01f62ccdb6a0b127d301770c8a590cbffc/sb-vite/deps/client-rPskUaMY.js?v=6b1ba780:8502:22)
+    at recursivelyTraversePassiveMountEffects (http://127.0.0.1:6006/node_modules/.cache/storybook/10.6.6/c4103542e6fc7dba0a4ffc28df2d3a01f62ccdb6a0b127d301770c8a590cbffc/sb-vite/deps/client-rPskUaMY.js?v=6b1ba780:8489:313)
+    at commitPassiveMountOnFiber (http://127.0.0.1:6006/node_modules/.cache/storybook/10.6.6/c4103542e6fc7dba0a4ffc28df2d3a01f62ccdb6a0b127d301770c8a590cbffc/sb-vite/deps/client-rPskUaMY.js?v=6b1ba780:8501:6)
+    at recursivelyTraversePassiveMountEffects (http://127.0.0.1:6006/node_modules/.cache/storybook/10.6.6/c4103542e6fc7dba0a4ffc28df2d3a01f62ccdb6a0b127d301770c8a590cbffc/sb-vite/deps/client-rPskUaMY.js?v=6b1ba780:8489:313)
+    at commitPassiveMountOnFiber (http://127.0.0.1:6006/node_modules/.cache/storybook/10.6.6/c4103542e6fc7dba0a4ffc28df2d3a01f62ccdb6a0b127d301770c8a590cbffc/sb-vite/deps/client-rPskUaMY.js?v=6b1ba780:8501:6) @ http://127.0.0.1:6006/@vite/client:363
+[34078885ms] [INFO] %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold @ http://127.0.0.1:6006/node_modules/.cache/storybook/10.6.6/c4103542e6fc7dba0a4ffc28df2d3a01f62ccdb6a0b127d301770c8a590cbffc/sb-vite/deps/client-rPskUaMY.js?v=6b1ba780:15993
+[34496854ms] [INFO] %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold @ http://127.0.0.1:6006/node_modules/.cache/storybook/10.6.6/c4103542e6fc7dba0a4ffc28df2d3a01f62ccdb6a0b127d301770c8a590cbffc/sb-vite/deps/client-rPskUaMY.js?v=6b1ba780:15993
+[34759295ms] [INFO] %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold @ http://127.0.0.1:6006/node_modules/.cache/storybook/10.6.6/c4103542e6fc7dba0a4ffc28df2d3a01f62ccdb6a0b127d301770c8a590cbffc/sb-vite/deps/client-rPskUaMY.js?v=6b1ba780:15993
+[34850959ms] [INFO] %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold @ http://127.0.0.1:6006/node_modules/.cache/storybook/10.6.6/c4103542e6fc7dba0a4ffc28df2d3a01f62ccdb6a0b127d301770c8a590cbffc/sb-vite/deps/client-rPskUaMY.js?v=6b1ba780:15993
+[34852186ms] [INFO] %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold @ http://127.0.0.1:6006/node_modules/.cache/storybook/10.6.6/c4103542e6fc7dba0a4ffc28df2d3a01f62ccdb6a0b127d301770c8a590cbffc/sb-vite/deps/client-rPskUaMY.js?v=6b1ba780:15993
+[34853341ms] [INFO] %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold @ http://127.0.0.1:6006/node_modules/.cache/storybook/10.6.6/c4103542e6fc7dba0a4ffc28df2d3a01f62ccdb6a0b127d301770c8a590cbffc/sb-vite/deps/client-rPskUaMY.js?v=6b1ba780:15993
+[34853883ms] [INFO] %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold @ http://127.0.0.1:6006/node_modules/.cache/storybook/10.6.6/c4103542e6fc7dba0a4ffc28df2d3a01f62ccdb6a0b127d301770c8a590cbffc/sb-vite/deps/client-rPskUaMY.js?v=6b1ba780:15993
+[35602466ms] [INFO] %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold @ http://127.0.0.1:6006/node_modules/.cache/storybook/10.6.6/c4103542e6fc7dba0a4ffc28df2d3a01f62ccdb6a0b127d301770c8a590cbffc/sb-vite/deps/client-rPskUaMY.js?v=6b1ba780:15993
+[35604858ms] [INFO] %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold @ http://127.0.0.1:6006/node_modules/.cache/storybook/10.6.6/c4103542e6fc7dba0a4ffc28df2d3a01f62ccdb6a0b127d301770c8a590cbffc/sb-vite/deps/client-rPskUaMY.js?v=6b1ba780:15993
+[35608450ms] [INFO] %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold @ http://127.0.0.1:6006/node_modules/.cache/storybook/10.6.6/c4103542e6fc7dba0a4ffc28df2d3a01f62ccdb6a0b127d301770c8a590cbffc/sb-vite/deps/client-rPskUaMY.js?v=6b1ba780:15993
+[35609835ms] [INFO] %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold @ http://127.0.0.1:6006/node_modules/.cache/storybook/10.6.6/c4103542e6fc7dba0a4ffc28df2d3a01f62ccdb6a0b127d301770c8a590cbffc/sb-vite/deps/client-rPskUaMY.js?v=6b1ba780:15993
+[35912293ms] [INFO] %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold @ http://127.0.0.1:6006/node_modules/.cache/storybook/10.6.6/c4103542e6fc7dba0a4ffc28df2d3a01f62ccdb6a0b127d301770c8a590cbffc/sb-vite/deps/client-rPskUaMY.js?v=6b1ba780:15993
+[36110371ms] [INFO] %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold @ http://127.0.0.1:6006/node_modules/.cache/storybook/10.6.6/c4103542e6fc7dba0a4ffc28df2d3a01f62ccdb6a0b127d301770c8a590cbffc/sb-vite/deps/client-rPskUaMY.js?v=6b1ba780:15993
+[36111606ms] [INFO] %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold @ http://127.0.0.1:6006/node_modules/.cache/storybook/10.6.6/c4103542e6fc7dba0a4ffc28df2d3a01f62ccdb6a0b127d301770c8a590cbffc/sb-vite/deps/client-rPskUaMY.js?v=6b1ba780:15993
+[36112882ms] [INFO] %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold @ http://127.0.0.1:6006/node_modules/.cache/storybook/10.6.6/c4103542e6fc7dba0a4ffc28df2d3a01f62ccdb6a0b127d301770c8a590cbffc/sb-vite/deps/client-rPskUaMY.js?v=6b1ba780:15993
+[36113098ms] [INFO] %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold @ http://127.0.0.1:6006/node_modules/.cache/storybook/10.6.6/c4103542e6fc7dba0a4ffc28df2d3a01f62ccdb6a0b127d301770c8a590cbffc/sb-vite/deps/client-rPskUaMY.js?v=6b1ba780:15993
+[37018268ms] [INFO] %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold @ http://127.0.0.1:6006/node_modules/.cache/storybook/10.6.6/c4103542e6fc7dba0a4ffc28df2d3a01f62ccdb6a0b127d301770c8a590cbffc/sb-vite/deps/client-rPskUaMY.js?v=6b1ba780:15993
+[38008413ms] [INFO] %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold @ http://127.0.0.1:6006/node_modules/.cache/storybook/10.6.6/c4103542e6fc7dba0a4ffc28df2d3a01f62ccdb6a0b127d301770c8a590cbffc/sb-vite/deps/client-rPskUaMY.js?v=6b1ba780:15993
+[38199534ms] [INFO] %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold @ http://127.0.0.1:6006/node_modules/.cache/storybook/10.6.6/c4103542e6fc7dba0a4ffc28df2d3a01f62ccdb6a0b127d301770c8a590cbffc/sb-vite/deps/client-rPskUaMY.js?v=6b1ba780:15993
+[38200463ms] [INFO] %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold @ http://127.0.0.1:6006/node_modules/.cache/storybook/10.6.6/c4103542e6fc7dba0a4ffc28df2d3a01f62ccdb6a0b127d301770c8a590cbffc/sb-vite/deps/client-rPskUaMY.js?v=6b1ba780:15993
+[38201374ms] [INFO] %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold @ http://127.0.0.1:6006/node_modules/.cache/storybook/10.6.6/c4103542e6fc7dba0a4ffc28df2d3a01f62ccdb6a0b127d301770c8a590cbffc/sb-vite/deps/client-rPskUaMY.js?v=6b1ba780:15993
+[38202308ms] [INFO] %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold @ http://127.0.0.1:6006/node_modules/.cache/storybook/10.6.6/c4103542e6fc7dba0a4ffc28df2d3a01f62ccdb6a0b127d301770c8a590cbffc/sb-vite/deps/client-rPskUaMY.js?v=6b1ba780:15993
+[38203236ms] [INFO] %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold @ http://127.0.0.1:6006/node_modules/.cache/storybook/10.6.6/c4103542e6fc7dba0a4ffc28df2d3a01f62ccdb6a0b127d301770c8a590cbffc/sb-vite/deps/client-rPskUaMY.js?v=6b1ba780:15993
+[38203654ms] [INFO] %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold @ http://127.0.0.1:6006/node_modules/.cache/storybook/10.6.6/c4103542e6fc7dba0a4ffc28df2d3a01f62ccdb6a0b127d301770c8a590cbffc/sb-vite/deps/client-rPskUaMY.js?v=6b1ba780:15993
+[38282839ms] [INFO] %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold @ http://127.0.0.1:6006/node_modules/.cache/storybook/10.6.6/c4103542e6fc7dba0a4ffc28df2d3a01f62ccdb6a0b127d301770c8a590cbffc/sb-vite/deps/client-rPskUaMY.js?v=6b1ba780:15993
+[38444166ms] [INFO] %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold @ http://127.0.0.1:6006/node_modules/.cache/storybook/10.6.6/c4103542e6fc7dba0a4ffc28df2d3a01f62ccdb6a0b127d301770c8a590cbffc/sb-vite/deps/client-rPskUaMY.js?v=6b1ba780:15993
+[38445667ms] [INFO] %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold @ http://127.0.0.1:6006/node_modules/.cache/storybook/10.6.6/c4103542e6fc7dba0a4ffc28df2d3a01f62ccdb6a0b127d301770c8a590cbffc/sb-vite/deps/client-rPskUaMY.js?v=6b1ba780:15993
+[38447156ms] [INFO] %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold @ http://127.0.0.1:6006/node_modules/.cache/storybook/10.6.6/c4103542e6fc7dba0a4ffc28df2d3a01f62ccdb6a0b127d301770c8a590cbffc/sb-vite/deps/client-rPskUaMY.js?v=6b1ba780:15993
+[38447361ms] [INFO] %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold @ http://127.0.0.1:6006/node_modules/.cache/storybook/10.6.6/c4103542e6fc7dba0a4ffc28df2d3a01f62ccdb6a0b127d301770c8a590cbffc/sb-vite/deps/client-rPskUaMY.js?v=6b1ba780:15993
+[38505912ms] [INFO] %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold @ http://127.0.0.1:6006/node_modules/.cache/storybook/10.6.6/c4103542e6fc7dba0a4ffc28df2d3a01f62ccdb6a0b127d301770c8a590cbffc/sb-vite/deps/client-rPskUaMY.js?v=6b1ba780:15993
+[38506733ms] [INFO] %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold @ http://127.0.0.1:6006/node_modules/.cache/storybook/10.6.6/c4103542e6fc7dba0a4ffc28df2d3a01f62ccdb6a0b127d301770c8a590cbffc/sb-vite/deps/client-rPskUaMY.js?v=6b1ba780:15993
+[38507608ms] [INFO] %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold @ http://127.0.0.1:6006/node_modules/.cache/storybook/10.6.6/c4103542e6fc7dba0a4ffc28df2d3a01f62ccdb6a0b127d301770c8a590cbffc/sb-vite/deps/client-rPskUaMY.js?v=6b1ba780:15993
+[38508685ms] [INFO] %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold @ http://127.0.0.1:6006/node_modules/.cache/storybook/10.6.6/c4103542e6fc7dba0a4ffc28df2d3a01f62ccdb6a0b127d301770c8a590cbffc/sb-vite/deps/client-rPskUaMY.js?v=6b1ba780:15993
+[38509546ms] [INFO] %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold @ http://127.0.0.1:6006/node_modules/.cache/storybook/10.6.6/c4103542e6fc7dba0a4ffc28df2d3a01f62ccdb6a0b127d301770c8a590cbffc/sb-vite/deps/client-rPskUaMY.js?v=6b1ba780:15993
+[38509946ms] [INFO] %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold @ http://127.0.0.1:6006/node_modules/.cache/storybook/10.6.6/c4103542e6fc7dba0a4ffc28df2d3a01f62ccdb6a0b127d301770c8a590cbffc/sb-vite/deps/client-rPskUaMY.js?v=6b1ba780:15993
+[38612492ms] [INFO] %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold @ http://127.0.0.1:6006/node_modules/.cache/storybook/10.6.6/c4103542e6fc7dba0a4ffc28df2d3a01f62ccdb6a0b127d301770c8a590cbffc/sb-vite/deps/client-rPskUaMY.js?v=6b1ba780:15993
+[38728500ms] [INFO] %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold @ http://127.0.0.1:6006/node_modules/.cache/storybook/10.6.6/c4103542e6fc7dba0a4ffc28df2d3a01f62ccdb6a0b127d301770c8a590cbffc/sb-vite/deps/client-rPskUaMY.js?v=6b1ba780:15993
+[39270192ms] [INFO] %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold @ http://127.0.0.1:6006/node_modules/.cache/storybook/10.6.6/c4103542e6fc7dba0a4ffc28df2d3a01f62ccdb6a0b127d301770c8a590cbffc/sb-vite/deps/client-rPskUaMY.js?v=6b1ba780:15993
+[39271212ms] [INFO] %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold @ http://127.0.0.1:6006/node_modules/.cache/storybook/10.6.6/c4103542e6fc7dba0a4ffc28df2d3a01f62ccdb6a0b127d301770c8a590cbffc/sb-vite/deps/client-rPskUaMY.js?v=6b1ba780:15993
+[39426805ms] [INFO] %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold @ http://127.0.0.1:6006/node_modules/.cache/storybook/10.6.6/c4103542e6fc7dba0a4ffc28df2d3a01f62ccdb6a0b127d301770c8a590cbffc/sb-vite/deps/client-rPskUaMY.js?v=6b1ba780:15993
+[39427209ms] [INFO] %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold @ http://127.0.0.1:6006/node_modules/.cache/storybook/10.6.6/c4103542e6fc7dba0a4ffc28df2d3a01f62ccdb6a0b127d301770c8a590cbffc/sb-vite/deps/client-rPskUaMY.js?v=6b1ba780:15993
+[39427920ms] [INFO] %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold @ http://127.0.0.1:6006/node_modules/.cache/storybook/10.6.6/c4103542e6fc7dba0a4ffc28df2d3a01f62ccdb6a0b127d301770c8a590cbffc/sb-vite/deps/client-rPskUaMY.js?v=6b1ba780:15993
+[39428018ms] [INFO] %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold @ http://127.0.0.1:6006/node_modules/.cache/storybook/10.6.6/c4103542e6fc7dba0a4ffc28df2d3a01f62ccdb6a0b127d301770c8a590cbffc/sb-vite/deps/client-rPskUaMY.js?v=6b1ba780:15993
+[39525659ms] [INFO] %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold @ http://127.0.0.1:6006/node_modules/.cache/storybook/10.6.6/c4103542e6fc7dba0a4ffc28df2d3a01f62ccdb6a0b127d301770c8a590cbffc/sb-vite/deps/client-rPskUaMY.js?v=6b1ba780:15993
+[39526077ms] [INFO] %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold @ http://127.0.0.1:6006/node_modules/.cache/storybook/10.6.6/c4103542e6fc7dba0a4ffc28df2d3a01f62ccdb6a0b127d301770c8a590cbffc/sb-vite/deps/client-rPskUaMY.js?v=6b1ba780:15993
+[39563318ms] [INFO] %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold @ http://127.0.0.1:6006/node_modules/.cache/storybook/10.6.6/c4103542e6fc7dba0a4ffc28df2d3a01f62ccdb6a0b127d301770c8a590cbffc/sb-vite/deps/client-rPskUaMY.js?v=6b1ba780:15993
+[39564477ms] [INFO] %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold @ http://127.0.0.1:6006/node_modules/.cache/storybook/10.6.6/c4103542e6fc7dba0a4ffc28df2d3a01f62ccdb6a0b127d301770c8a590cbffc/sb-vite/deps/client-rPskUaMY.js?v=6b1ba780:15993
+[39566136ms] [INFO] %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold @ http://127.0.0.1:6006/node_modules/.cache/storybook/10.6.6/c4103542e6fc7dba0a4ffc28df2d3a01f62ccdb6a0b127d301770c8a590cbffc/sb-vite/deps/client-rPskUaMY.js?v=6b1ba780:15993
+[39566613ms] [INFO] %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold @ http://127.0.0.1:6006/node_modules/.cache/storybook/10.6.6/c4103542e6fc7dba0a4ffc28df2d3a01f62ccdb6a0b127d301770c8a590cbffc/sb-vite/deps/client-rPskUaMY.js?v=6b1ba780:15993
+[44436921ms] [ERROR] TestingLibraryElementError: Unable to find role="button" and name `/How to share feedback/`
+
+Ignored nodes: comments, script, style
+<div
+  id="storybook-root"
+>
+  <main
+    class="widget-design-preview"
+  >
+    <div
+      class="widget-design-caption"
+    >
+      <strong>
+        Quills
+      </strong>
+      <span>
+        Interactive widget preview
+      </span>
+      <p>
+        Mock backend. Data stays in memory for this story. No messages leave this page.
+      </p>
+      <div
+        class="widget-demo-controls"
+      >
+        <label>
+          Demo visitor
+          <select
+            aria-label="Demo visitor"
+          >
+            <option
+              value="anonymous"
+            >
+              Anonymous
+            </option>
+            <option
+              value="ada"
+            >
+              Ada
+            </option>
+          </select>
+        </label>
+        <button
+          type="button"
+        >
+          Go offline
+        </button>
+        <button
+          type="button"
+        >
+          Fail next submission
+        </button>
+        <button
+          type="button"
+        >
+          Lose next response
+        </button>
+        <button
+          disabled=""
+          type="button"
+        >
+          Simulate team reply
+        </button>
+        <button
+          disabled=""
+          type="button"
+        >
+          Simulate request progress
+        </button>
+        <button
+          disabled=""
+          type="button"
+        >
+          Simulate request reply
+        </button>
+      </div>
+    </div>
+    <div
+      class="quackback-panel quackback-open"
+    >
+      <section
+        aria-label="Quills support"
+        class="qb-widget"
+        data-expanded="false"
+        data-theme="light"
+        tabindex="-1"
+      >
+        <header
+          class="qb-header"
+        >
+          <span
+            class="qb-brand-mark"
+          >
+            <svg
+              aria-hidden="true"
+              fill="currentColor"
+              height="20"
+              viewBox="0 0 256 256"
+              width="20"
+            >
+              <path
+                d="M128,24A104,104,0,0,0,36.18,176.88L24.83,210.93a16,16,0,0,0,20.24,20.24l34.05-11.35A104,104,0,1,0,128,24Zm0,192a87.87,87.87,0,0,1-44.06-11.81,8,8,0,0,0-6.54-.67L40,216,52.47,178.6a8,8,0,0,0-.66-6.54A88,88,0,1,1,128,216Z"
+              />
+            </svg>
+          </span>
+          <strong>
+            Quills
+          </strong>
+          <button
+            aria-label="Activity"
+            class="qb-icon-button qb-activity-trigger"
+            type="button"
+          >
+            <svg
+              aria-hidden="true"
+              fill="currentColor"
+              height="20"
+              viewBox="0 0 256 256"
+              width="20"
+            >
+              <path
+                d="M208,32H48A16,16,0,0,0,32,48V208a16,16,0,0,0,16,16H208a16,16,0,0,0,16-16V48A16,16,0,0,0,208,32Zm0,16V152h-28.7A15.86,15.86,0,0,0,168,156.69L148.69,176H107.31L88,156.69A15.86,15.86,0,0,0,76.69,152H48V48Zm0,160H48V168H76.69L96,187.31A15.86,15.86,0,0,0,107.31,192h41.38A15.86,15.86,0,0,0,160,187.31L179.31,168H208v40Z"
+              />
+            </svg>
+          </button>
+          <button
+            aria-label="Close widget"
+            class="qb-icon-button qb-close"
+            type="button"
+          >
+            <svg
+              aria-hidden="true"
+              fill="currentColor"
+              height="20"
+              viewBox="0 0 256 256"
+              width="20"
+            >
+              <path
+                d="M205.66,194.34a8,8,0,0,1-11.32,11.32L128,139.31,61.66,205.66a8,8,0,0,1-11.32-11.32L116.69,128,50.34,61.66A8,8,0,0,1,61.66,50.34L128,116.69l66.34-66.35a8,8,0,0,1,11.32,11.32L139.31,128Z"
+              />
+            </svg>
+          </button>
+        </header>
+        <div
+          class="qb-content"
+          tabindex="-1"
+        >
+          <div
+            class="qb-list-view"
+          >
+            <h1>
+              Help & Support
+            </h1>
+            <div
+              class="qb-search"
+            >
+              <svg
+                aria-hidden="true"
+                fill="currentColor"
+                height="20"
+                viewBox="0 0 256 256"
+                width="20"
+              >
+                <path
+                  d="M229.66,218.34l-50.07-50.06a88.11,88.11,0,1,0-11.31,11.31l50.06,50.07a8,8,0,0,0,11.32-11.32ZM40,112a72,72,0,1,1,72,72A72.08,72.08,0,0,1,40,112Z"
+                />
+              </svg>
+              <input
+                aria-label="Search for help"
+                placeholder="Search for help"
+                type="search"
+                value="HHooww  ttoo  sshhaarree"
+              />
+              <button
+                aria-label="Clear search"
+                class="qb-search-clear"
+                type="button"
+              >
+                <svg
+                  aria-hidden="true"
+                  fill="currentColor"
+                  height="20"
+                  viewBox="0 0 256 256"
+                  width="20"
+                >
+                  <path
+                    d="M205.66,194.34a8,8,0,0,1-11.32,11.32L128,139.31,61.66,205.66a8,8,0,0,1-11.32-11.32L116.69,128,50.34,61.66A8,8,0,0,1,61.66,50.34L128,116.69l66.34-66.35a8,8,0,0,1,11.32,11.32L139.31,128Z"
+                  />
+                </svg>
+              </button>
+            </div>
+            <div
+              class="qb-empty"
+              role="status"
+            >
+              <span
+                class="qb-empty-icon"
+              >
+                <svg
+                  aria-hidden="true"
+                  fill="currentColor"
+                  height="20"
+                  viewBox="0 0 256 256"
+                  width="20"
+                >
+                  <path
+                    d="M229.66,218.34l-50.07-50.06a88.11,88.11,0,1,0-11.31,11.31l50.06,50.07a8,8,0,0,0,11.32-11.32ZM40,112a72,72,0,1,1,72,72A72.08,72.08,0,0,1,40,112Z"
+                  />
+                </svg>
+              </span>
+              <h2>
+                No articles match your search.
+              </h2>
+              <p>
+                Try another word or clear your search.
+              </p>
+            </div>
+          </div>
+        </div>
+        <nav
+          aria-label="Widget navigation"
+          class="qb-nav"
+        >
+          <button
+            type="button"
+          >
+            <span>
+              <svg
+                aria-hidden="true"
+                fill="currentColor"
+                height="20"
+                viewBox="0 0 256 256"
+                width="20"
+              >
+                <path
+                  d="M219.31,108.68l-80-80a16,16,0,0,0-22.62,0l-80,80A15.87,15.87,0,0,0,32,120v96a8,8,0,0,0,8,8h64a8,8,0,0,0,8-8V160h32v56a8,8,0,0,0,8,8h64a8,8,0,0,0,8-8V120A15.87,15.87,0,0,0,219.31,108.68ZM208,208H160V152a8,8,0,0,0-8-8H104a8,8,0,0,0-8,8v56H48V120l80-80,80,80Z"
+                />
+              </svg>
+            </span>
+            Home
+          </button>
+          <button
+            type="button"
+          >
+            <span>
+              <svg
+                aria-hidden="true"
+                fill="currentColor"
+                height="20"
+                viewBox="0 0 256 256"
+                width="20"
+              >
+                <path
+                  d="M128,24A104,104,0,0,0,36.18,176.88L24.83,210.93a16,16,0,0,0,20.24,20.24l34.05-11.35A104,104,0,1,0,128,24Zm0,192a87.87,87.87,0,0,1-44.06-11.81,8,8,0,0,0-6.54-.67L40,216,52.47,178.6a8,8,0,0,0-.66-6.54A88,88,0,1,1,128,216Z"
+                />
+              </svg>
+            </span>
+            Messages
+          </button>
+          <button
+            aria-current="page"
+            type="button"
+          >
+            <span>
+              <svg
+                aria-hidden="true"
+                fill="currentColor"
+                height="20"
+                viewBox="0 0 256 256"
+                width="20"
+              >
+                <path
+                  d="M240,56V200a8,8,0,0,1-8,8H160a24,24,0,0,0-24,23.94,7.9,7.9,0,0,1-5.12,7.55A8,8,0,0,1,120,232a24,24,0,0,0-24-24H24a8,8,0,0,1-8-8V56a8,8,0,0,1,8-8H88a32,32,0,0,1,32,32v87.73a8.17,8.17,0,0,0,7.47,8.25,8,8,0,0,0,8.53-8V80a32,32,0,0,1,32-32h64A8,8,0,0,1,240,56Z"
+                />
+              </svg>
+            </span>
+            Help
+          </button>
+          <button
+            type="button"
+          >
+            <span>
+              <svg
+                aria-hidden="true"
+                fill="currentColor"
+                height="20"
+                viewBox="0 0 256 256"
+                width="20"
+              >
+                <path
+                  d="M176,232a8,8,0,0,1-8,8H88a8,8,0,0,1,0-16h80A8,8,0,0,1,176,232Zm40-128a87.55,87.55,0,0,1-33.64,69.21A16.24,16.24,0,0,0,176,186v6a16,16,0,0,1-16,16H96a16,16,0,0,1-16-16v-6a16,16,0,0,0-6.23-12.66A87.59,87.59,0,0,1,40,104.49C39.74,56.83,78.26,17.14,125.88,16A88,88,0,0,1,216,104Zm-16,0a72,72,0,0,0-73.74-72c-39,.92-70.47,33.39-70.26,72.39a71.65,71.65,0,0,0,27.64,56.3A32,32,0,0,1,96,186v6h64v-6a32.15,32.15,0,0,1,12.47-25.35A71.65,71.65,0,0,0,200,104Zm-16.11-9.34a57.6,57.6,0,0,0-46.56-46.55,8,8,0,0,0-2.66,15.78c16.57,2.79,30.63,16.85,33.44,33.45A8,8,0,0,0,176,104a9,9,0,0,0,1.35-.11A8,8,0,0,0,183.89,94.66Z"
+                />
+              </svg>
+            </span>
+            Feedback
+          </button>
+          <button
+            type="button"
+          >
+            <span>
+              <svg
+                aria-hidden="true"
+                fill="currentColor"
+                height="20"
+                viewBox="0 0 256 256"
+                width="20"
+              >
+                <path
+                  d="M248,120a48.05,48.05,0,0,0-48-48H160.2c-2.91-.17-53.62-3.74-101.91-44.24A16,16,0,0,0,32,40V200a16,16,0,0,0,26.29,12.25c37.77-31.68,77-40.76,93.71-43.3v31.72A16,16,0,0,0,159.12,214l11,7.33A16,16,0,0,0,194.5,212l11.77-44.36A48.07,48.07,0,0,0,248,120ZM48,199.93V40h0c42.81,35.91,86.63,45,104,47.24v65.48C134.65,155,90.84,164.07,48,199.93Zm131,8,0,.11-11-7.33V168h21.6ZM200,152H168V88h32a32,32,0,1,1,0,64Z"
+                />
+              </svg>
+              <i
+                aria-label="1 unread"
+                class="qb-nav-unread"
+              />
+            </span>
+            Updates
+          </button>
+        </nav>
+        <footer
+          class="qb-footer"
+        >
+          Powered by 
+          <strong>
+            Quills
+          </strong>
+        </footer>
+      </section>
+    </div>
+  </main>
+</div>
+
+Ignored nodes: comments, script, style
+<div
+  id="storybook-root"
+>
+  <main
+    class="widget-design-preview"
+  >
+    <div
+      class="widget-design-caption"
+    >
+      <strong>
+        Quills
+      </strong>
+      <span>
+        Interactive widget preview
+      </span>
+      <p>
+        Mock backend. Data stays in memory for this story. No messages leave this page.
+      </p>
+      <div
+        class="widget-demo-controls"
+      >
+        <label>
+          Demo visitor
+          <select
+            aria-label="Demo visitor"
+          >
+            <option
+              value="anonymous"
+            >
+              Anonymous
+            </option>
+            <option
+              value="ada"
+            >
+              Ada
+            </option>
+          </select>
+        </label>
+        <button
+          type="button"
+        >
+          Go offline
+        </button>
+        <button
+          type="button"
+        >
+          Fail next submission
+        </button>
+        <button
+          type="button"
+        >
+          Lose next response
+        </button>
+        <button
+          disabled=""
+          type="button"
+        >
+          Simulate team reply
+        </button>
+        <button
+          disabled=""
+          type="button"
+        >
+          Simulate request progress
+        </button>
+        <button
+          disabled=""
+          type="button"
+        >
+          Simulate request reply
+        </button>
+      </div>
+    </div>
+    <div
+      class="quackback-panel quackback-open"
+    >
+      <section
+        aria-label="Quills support"
+        class="qb-widget"
+        data-expanded="false"
+        data-theme="light"
+        tabindex="-1"
+      >
+        <header
+          class="qb-header"
+        >
+          <span
+            class="qb-brand-mark"
+          >
+            <svg
+              aria-hidden="true"
+              fill="currentColor"
+              height="20"
+              viewBox="0 0 256 256"
+              width="20"
+            >
+              <path
+                d="M128,24A104,104,0,0,0,36.18,176.88L24.83,210.93a16,16,0,0,0,20.24,20.24l34.05-11.35A104,104,0,1,0,128,24Zm0,192a87.87,87.87,0,0,1-44.06-11.81,8,8,0,0,0-6.54-.67L40,216,52.47,178.6a8,8,0,0,0-.66-6.54A88,88,0,1,1,128,216Z"
+              />
+            </svg>
+          </span>
+          <strong>
+            Quills
+          </strong>
+          <button
+            aria-label="Activity"
+            class="qb-icon-button qb-activity-trigger"
+            type="button"
+          >
+            <svg
+              aria-hidden="true"
+              fill="currentColor"
+              height="20"
+              viewBox="0 0 256 256"
+              width="20"
+            >
+              <path
+                d="M208,32H48A16,16,0,0,0,32,48V208a16,16,0,0,0,16,16H208a16,16,0,0,0,16-16V48A16,16,0,0,0,208,32Zm0,16V152h-28.7A15.86,15.86,0,0,0,168,156.69L148.69,176H107.31L88,156.69A15.86,15.86,0,0,0,76.69,152H48V48Zm0,160H48V168H76.69L96,187.31A15.86,15.86,0,0,0,107.31,192h41.38A15.86,15.86,0,0,0,160,187.31L179.31,168H208v40Z"
+              />
+            </svg>
+          </button>
+          <button
+            aria-label="Close widget"
+            class="qb-icon-button qb-close"
+            type="button"
+          >
+            <svg
+              aria-hidden="true"
+              fill="currentColor"
+              height="20"
+              viewBox="0 0 256 256"
+              width="20"
+            >
+              <path
+                d="M205.66,194.34a8,8,0,0,1-11.32,11.32L128,139.31,61.66,205.66a8,8,0,0,1-11.32-11.32L116.69,128,50.34,61.66A8,8,0,0,1,61.66,50.34L128,116.69l66.34-66.35a8,8,0,0,1,11.32,11.32L139.31,128Z"
+              />
+            </svg>
+          </button>
+        </header>
+        <div
+          class="qb-content"
+          tabindex="-1"
+        >
+          <div
+            class="qb-list-view"
+          >
+            <h1>
+              Help & Support
+            </h1>
+            <div
+              class="qb-search"
+            >
+              <svg
+                aria-hidden="true"
+                fill="currentColor"
+                height="20"
+                viewBox="0 0 256 256"
+                width="20"
+              >
+                <path
+                  d="M229.66,218.34l-50.07-50.06a88.11,88.11,0,1,0-11.31,11.31l50.06,50.07a8,8,0,0,0,11.32-11.32ZM40,112a72,72,0,1,1,72,72A72.08,72.08,0,0,1,40,112Z"
+                />
+              </svg>
+              <input
+                aria-label="Search for help"
+                placeholder="Search for help"
+                type="search"
+                value="HHooww  ttoo  sshhaarree"
+              />
+              <button
+                aria-label="Clear search"
+                class="qb-search-clear"
+                type="button"
+              >
+                <svg
+                  aria-hidden="true"
+                  fill="currentColor"
+                  height="20"
+                  viewBox="0 0 256 256"
+                  width="20"
+                >
+                  <path
+                    d="M205.66,194.34a8,8,0,0,1-11.32,11.32L128,139.31,61.66,205.66a8,8,0,0,1-11.32-11.32L116.69,128,50.34,61.66A8,8,0,0,1,61.66,50.34L128,116.69l66.34-66.35a8,8,0,0,1,11.32,11.32L139.31,128Z"
+                  />
+                </svg>
+              </button>
+            </div>
+            <div
+              class="qb-empty"
+              role="status"
+            >
+              <span
+                class="qb-empty-icon"
+              >
+                <svg
+                  aria-hidden="true"
+                  fill="currentColor"
+                  height="20"
+                  viewBox="0 0 256 256"
+                  width="20"
+                >
+                  <path
+                    d="M229.66,218.34l-50.07-50.06a88.11,88.11,0,1,0-11.31,11.31l50.06,50.07a8,8,0,0,0,11.32-11.32ZM40,112a72,72,0,1,1,72,72A72.08,72.08,0,0,1,40,112Z"
+                  />
+                </svg>
+              </span>
+              <h2>
+                No articles match your search.
+              </h2>
+              <p>
+                Try another word or clear your search.
+              </p>
+            </div>
+          </div>
+        </div>
+        <nav
+          aria-label="Widget navigation"
+          class="qb-nav"
+        >
+          <button
+            type="button"
+          >
+            <span>
+              <svg
+                aria-hidden="true"
+                fill="currentColor"
+                height="20"
+                viewBox="0 0 256 256"
+                width="20"
+              >
+                <path
+                  d="M219.31,108.68l-80-80a16,16,0,0,0-22.62,0l-80,80A15.87,15.87,0,0,0,32,120v96a8,8,0,0,0,8,8h64a8,8,0,0,0,8-8V160h32v56a8,8,0,0,0,8,8h64a8,8,0,0,0,8-8V120A15.87,15.87,0,0,0,219.31,108.68ZM208,208H160V152a8,8,0,0,0-8-8H104a8,8,0,0,0-8,8v56H48V120l80-80,80,80Z"
+                />
+              </svg>
+            </span>
+            Home
+          </button>
+          <button
+            type="button"
+          >
+            <span>
+              <svg
+                aria-hidden="true"
+                fill="currentColor"
+                height="20"
+                viewBox="0 0 256 256"
+                width="20"
+              >
+                <path
+                  d="M128,24A104,104,0,0,0,36.18,176.88L24.83,210.93a16,16,0,0,0,20.24,20.24l34.05-11.35A104,104,0,1,0,128,24Zm0,192a87.87,87.87,0,0,1-44.06-11.81,8,8,0,0,0-6.54-.67L40,216,52.47,178.6a8,8,0,0,0-.66-6.54A88,88,0,1,1,128,216Z"
+                />
+              </svg>
+            </span>
+            Messages
+          </button>
+          <button
+            aria-current="page"
+            type="button"
+          >
+            <span>
+              <svg
+                aria-hidden="true"
+                fill="currentColor"
+                height="20"
+                viewBox="0 0 256 256"
+                width="20"
+              >
+                <path
+                  d="M240,56V200a8,8,0,0,1-8,8H160a24,24,0,0,0-24,23.94,7.9,7.9,0,0,1-5.12,7.55A8,8,0,0,1,120,232a24,24,0,0,0-24-24H24a8,8,0,0,1-8-8V56a8,8,0,0,1,8-8H88a32,32,0,0,1,32,32v87.73a8.17,8.17,0,0,0,7.47,8.25,8,8,0,0,0,8.53-8V80a32,32,0,0,1,32-32h64A8,8,0,0,1,240,56Z"
+                />
+              </svg>
+            </span>
+            Help
+          </button>
+          <button
+            type="button"
+          >
+            <span>
+              <svg
+                aria-hidden="true"
+                fill="currentColor"
+                height="20"
+                viewBox="0 0 256 256"
+                width="20"
+              >
+                <path
+                  d="M176,232a8,8,0,0,1-8,8H88a8,8,0,0,1,0-16h80A8,8,0,0,1,176,232Zm40-128a87.55,87.55,0,0,1-33.64,69.21A16.24,16.24,0,0,0,176,186v6a16,16,0,0,1-16,16H96a16,16,0,0,1-16-16v-6a16,16,0,0,0-6.23-12.66A87.59,87.59,0,0,1,40,104.49C39.74,56.83,78.26,17.14,125.88,16A88,88,0,0,1,216,104Zm-16,0a72,72,0,0,0-73.74-72c-39,.92-70.47,33.39-70.26,72.39a71.65,71.65,0,0,0,27.64,56.3A32,32,0,0,1,96,186v6h64v-6a32.15,32.15,0,0,1,12.47-25.35A71.65,71.65,0,0,0,200,104Zm-16.11-9.34a57.6,57.6,0,0,0-46.56-46.55,8,8,0,0,0-2.66,15.78c16.57,2.79,30.63,16.85,33.44,33.45A8,8,0,0,0,176,104a9,9,0,0,0,1.35-.11A8,8,0,0,0,183.89,94.66Z"
+                />
+              </svg>
+            </span>
+            Feedback
+          </button>
+          <button
+            type="button"
+          >
+            <span>
+              <svg
+                aria-hidden="true"
+                fill="currentColor"
+                height="20"
+                viewBox="0 0 256 256"
+                width="20"
+              >
+                <path
+                  d="M248,120a48.05,48.05,0,0,0-48-48H160.2c-2.91-.17-53.62-3.74-101.91-44.24A16,16,0,0,0,32,40V200a16,16,0,0,0,26.29,12.25c37.77-31.68,77-40.76,93.71-43.3v31.72A16,16,0,0,0,159.12,214l11,7.33A16,16,0,0,0,194.5,212l11.77-44.36A48.07,48.07,0,0,0,248,120ZM48,199.93V40h0c42.81,35.91,86.63,45,104,47.24v65.48C134.65,155,90.84,164.07,48,199.93Zm131,8,0,.11-11-7.33V168h21.6ZM200,152H168V88h32a32,32,0,1,1,0,64Z"
+                />
+              </svg>
+              <i
+                aria-label="1 unread"
+                class="qb-nav-unread"
+              />
+            </span>
+            Updates
+          </button>
+        </nav>
+        <footer
+          class="qb-footer"
+        >
+          Powered by 
+          <strong>
+            Quills
+          </strong>
+        </footer>
+      </section>
+    </div>
+  </main>
+</div>
+    at waitForWrapper (http://127.0.0.1:6006/node_modules/.cache/storybook/10.6.6/c4103542e6fc7dba0a4ffc28df2d3a01f62ccdb6a0b127d301770c8a590cbffc/sb-vite/deps/storybook_internal_preview_runtime.js?v=ed3d6fe3:25400:40)
+    at http://127.0.0.1:6006/node_modules/.cache/storybook/10.6.6/c4103542e6fc7dba0a4ffc28df2d3a01f62ccdb6a0b127d301770c8a590cbffc/sb-vite/deps/storybook_internal_preview_runtime.js?v=ed3d6fe3:25456:55
+    at play (http://127.0.0.1:6006/stories/Design.stories.tsx?t=1794258358525:160:38)
+    at async StoryRender.runPhase (http://127.0.0.1:6006/node_modules/.cache/storybook/10.6.6/c4103542e6fc7dba0a4ffc28df2d3a01f62ccdb6a0b127d301770c8a590cbffc/sb-vite/deps/storybook_internal_preview_runtime.js?v=ed3d6fe3:33745:19)
+    at async StoryRender.render (http://127.0.0.1:6006/node_modules/.cache/storybook/10.6.6/c4103542e6fc7dba0a4ffc28df2d3a01f62ccdb6a0b127d301770c8a590cbffc/sb-vite/deps/storybook_internal_preview_runtime.js?v=ed3d6fe3:33852:9) @ http://127.0.0.1:6006/@vite/client:363
+[44436922ms] [ERROR] TestingLibraryElementError: Unable to find role="button" and name `/How to share feedback/`
+
+Ignored nodes: comments, script, style
+<div
+  id="storybook-root"
+>
+  <main
+    class="widget-design-preview"
+  >
+    <div
+      class="widget-design-caption"
+    >
+      <strong>
+        Quills
+      </strong>
+      <span>
+        Interactive widget preview
+      </span>
+      <p>
+        Mock backend. Data stays in memory for this story. No messages leave this page.
+      </p>
+      <div
+        class="widget-demo-controls"
+      >
+        <label>
+          Demo visitor
+          <select
+            aria-label="Demo visitor"
+          >
+            <option
+              value="anonymous"
+            >
+              Anonymous
+            </option>
+            <option
+              value="ada"
+            >
+              Ada
+            </option>
+          </select>
+        </label>
+        <button
+          type="button"
+        >
+          Go offline
+        </button>
+        <button
+          type="button"
+        >
+          Fail next submission
+        </button>
+        <button
+          type="button"
+        >
+          Lose next response
+        </button>
+        <button
+          disabled=""
+          type="button"
+        >
+          Simulate team reply
+        </button>
+        <button
+          disabled=""
+          type="button"
+        >
+          Simulate request progress
+        </button>
+        <button
+          disabled=""
+          type="button"
+        >
+          Simulate request reply
+        </button>
+      </div>
+    </div>
+    <div
+      class="quackback-panel quackback-open"
+    >
+      <section
+        aria-label="Quills support"
+        class="qb-widget"
+        data-expanded="false"
+        data-theme="light"
+        tabindex="-1"
+      >
+        <header
+          class="qb-header"
+        >
+          <span
+            class="qb-brand-mark"
+          >
+            <svg
+              aria-hidden="true"
+              fill="currentColor"
+              height="20"
+              viewBox="0 0 256 256"
+              width="20"
+            >
+              <path
+                d="M128,24A104,104,0,0,0,36.18,176.88L24.83,210.93a16,16,0,0,0,20.24,20.24l34.05-11.35A104,104,0,1,0,128,24Zm0,192a87.87,87.87,0,0,1-44.06-11.81,8,8,0,0,0-6.54-.67L40,216,52.47,178.6a8,8,0,0,0-.66-6.54A88,88,0,1,1,128,216Z"
+              />
+            </svg>
+          </span>
+          <strong>
+            Quills
+          </strong>
+          <button
+            aria-label="Activity"
+            class="qb-icon-button qb-activity-trigger"
+            type="button"
+          >
+            <svg
+              aria-hidden="true"
+              fill="currentColor"
+              height="20"
+              viewBox="0 0 256 256"
+              width="20"
+            >
+              <path
+                d="M208,32H48A16,16,0,0,0,32,48V208a16,16,0,0,0,16,16H208a16,16,0,0,0,16-16V48A16,16,0,0,0,208,32Zm0,16V152h-28.7A15.86,15.86,0,0,0,168,156.69L148.69,176H107.31L88,156.69A15.86,15.86,0,0,0,76.69,152H48V48Zm0,160H48V168H76.69L96,187.31A15.86,15.86,0,0,0,107.31,192h41.38A15.86,15.86,0,0,0,160,187.31L179.31,168H208v40Z"
+              />
+            </svg>
+          </button>
+          <button
+            aria-label="Close widget"
+            class="qb-icon-button qb-close"
+            type="button"
+          >
+            <svg
+              aria-hidden="true"
+              fill="currentColor"
+              height="20"
+              viewBox="0 0 256 256"
+              width="20"
+            >
+              <path
+                d="M205.66,194.34a8,8,0,0,1-11.32,11.32L128,139.31,61.66,205.66a8,8,0,0,1-11.32-11.32L116.69,128,50.34,61.66A8,8,0,0,1,61.66,50.34L128,116.69l66.34-66.35a8,8,0,0,1,11.32,11.32L139.31,128Z"
+              />
+            </svg>
+          </button>
+        </header>
+        <div
+          class="qb-content"
+          tabindex="-1"
+        >
+          <div
+            class="qb-list-view"
+          >
+            <h1>
+              Help & Support
+            </h1>
+            <div
+              class="qb-search"
+            >
+              <svg
+                aria-hidden="true"
+                fill="currentColor"
+                height="20"
+                viewBox="0 0 256 256"
+                width="20"
+              >
+                <path
+                  d="M229.66,218.34l-50.07-50.06a88.11,88.11,0,1,0-11.31,11.31l50.06,50.07a8,8,0,0,0,11.32-11.32ZM40,112a72,72,0,1,1,72,72A72.08,72.08,0,0,1,40,112Z"
+                />
+              </svg>
+              <input
+                aria-label="Search for help"
+                placeholder="Search for help"
+                type="search"
+                value="HHooww  ttoo  sshhaarree"
+              />
+              <button
+                aria-label="Clear search"
+                class="qb-search-clear"
+                type="button"
+              >
+                <svg
+                  aria-hidden="true"
+                  fill="currentColor"
+                  height="20"
+                  viewBox="0 0 256 256"
+                  width="20"
+                >
+                  <path
+                    d="M205.66,194.34a8,8,0,0,1-11.32,11.32L128,139.31,61.66,205.66a8,8,0,0,1-11.32-11.32L116.69,128,50.34,61.66A8,8,0,0,1,61.66,50.34L128,116.69l66.34-66.35a8,8,0,0,1,11.32,11.32L139.31,128Z"
+                  />
+                </svg>
+              </button>
+            </div>
+            <div
+              class="qb-empty"
+              role="status"
+            >
+              <span
+                class="qb-empty-icon"
+              >
+                <svg
+                  aria-hidden="true"
+                  fill="currentColor"
+                  height="20"
+                  viewBox="0 0 256 256"
+                  width="20"
+                >
+                  <path
+                    d="M229.66,218.34l-50.07-50.06a88.11,88.11,0,1,0-11.31,11.31l50.06,50.07a8,8,0,0,0,11.32-11.32ZM40,112a72,72,0,1,1,72,72A72.08,72.08,0,0,1,40,112Z"
+                  />
+                </svg>
+              </span>
+              <h2>
+                No articles match your search.
+              </h2>
+              <p>
+                Try another word or clear your search.
+              </p>
+            </div>
+          </div>
+        </div>
+        <nav
+          aria-label="Widget navigation"
+          class="qb-nav"
+        >
+          <button
+            type="button"
+          >
+            <span>
+              <svg
+                aria-hidden="true"
+                fill="currentColor"
+                height="20"
+                viewBox="0 0 256 256"
+                width="20"
+              >
+                <path
+                  d="M219.31,108.68l-80-80a16,16,0,0,0-22.62,0l-80,80A15.87,15.87,0,0,0,32,120v96a8,8,0,0,0,8,8h64a8,8,0,0,0,8-8V160h32v56a8,8,0,0,0,8,8h64a8,8,0,0,0,8-8V120A15.87,15.87,0,0,0,219.31,108.68ZM208,208H160V152a8,8,0,0,0-8-8H104a8,8,0,0,0-8,8v56H48V120l80-80,80,80Z"
+                />
+              </svg>
+            </span>
+            Home
+          </button>
+          <button
+            type="button"
+          >
+            <span>
+              <svg
+                aria-hidden="true"
+                fill="currentColor"
+                height="20"
+                viewBox="0 0 256 256"
+                width="20"
+              >
+                <path
+                  d="M128,24A104,104,0,0,0,36.18,176.88L24.83,210.93a16,16,0,0,0,20.24,20.24l34.05-11.35A104,104,0,1,0,128,24Zm0,192a87.87,87.87,0,0,1-44.06-11.81,8,8,0,0,0-6.54-.67L40,216,52.47,178.6a8,8,0,0,0-.66-6.54A88,88,0,1,1,128,216Z"
+                />
+              </svg>
+            </span>
+            Messages
+          </button>
+          <button
+            aria-current="page"
+            type="button"
+          >
+            <span>
+              <svg
+                aria-hidden="true"
+                fill="currentColor"
+                height="20"
+                viewBox="0 0 256 256"
+                width="20"
+              >
+                <path
+                  d="M240,56V200a8,8,0,0,1-8,8H160a24,24,0,0,0-24,23.94,7.9,7.9,0,0,1-5.12,7.55A8,8,0,0,1,120,232a24,24,0,0,0-24-24H24a8,8,0,0,1-8-8V56a8,8,0,0,1,8-8H88a32,32,0,0,1,32,32v87.73a8.17,8.17,0,0,0,7.47,8.25,8,8,0,0,0,8.53-8V80a32,32,0,0,1,32-32h64A8,8,0,0,1,240,56Z"
+                />
+              </svg>
+            </span>
+            Help
+          </button>
+          <button
+            type="button"
+          >
+            <span>
+              <svg
+                aria-hidden="true"
+                fill="currentColor"
+                height="20"
+                viewBox="0 0 256 256"
+                width="20"
+              >
+                <path
+                  d="M176,232a8,8,0,0,1-8,8H88a8,8,0,0,1,0-16h80A8,8,0,0,1,176,232Zm40-128a87.55,87.55,0,0,1-33.64,69.21A16.24,16.24,0,0,0,176,186v6a16,16,0,0,1-16,16H96a16,16,0,0,1-16-16v-6a16,16,0,0,0-6.23-12.66A87.59,87.59,0,0,1,40,104.49C39.74,56.83,78.26,17.14,125.88,16A88,88,0,0,1,216,104Zm-16,0a72,72,0,0,0-73.74-72c-39,.92-70.47,33.39-70.26,72.39a71.65,71.65,0,0,0,27.64,56.3A32,32,0,0,1,96,186v6h64v-6a32.15,32.15,0,0,1,12.47-25.35A71.65,71.65,0,0,0,200,104Zm-16.11-9.34a57.6,57.6,0,0,0-46.56-46.55,8,8,0,0,0-2.66,15.78c16.57,2.79,30.63,16.85,33.44,33.45A8,8,0,0,0,176,104a9,9,0,0,0,1.35-.11A8,8,0,0,0,183.89,94.66Z"
+                />
+              </svg>
+            </span>
+            Feedback
+          </button>
+          <button
+            type="button"
+          >
+            <span>
+              <svg
+                aria-hidden="true"
+                fill="currentColor"
+                height="20"
+                viewBox="0 0 256 256"
+                width="20"
+              >
+                <path
+                  d="M248,120a48.05,48.05,0,0,0-48-48H160.2c-2.91-.17-53.62-3.74-101.91-44.24A16,16,0,0,0,32,40V200a16,16,0,0,0,26.29,12.25c37.77-31.68,77-40.76,93.71-43.3v31.72A16,16,0,0,0,159.12,214l11,7.33A16,16,0,0,0,194.5,212l11.77-44.36A48.07,48.07,0,0,0,248,120ZM48,199.93V40h0c42.81,35.91,86.63,45,104,47.24v65.48C134.65,155,90.84,164.07,48,199.93Zm131,8,0,.11-11-7.33V168h21.6ZM200,152H168V88h32a32,32,0,1,1,0,64Z"
+                />
+              </svg>
+              <i
+                aria-label="1 unread"
+                class="qb-nav-unread"
+              />
+            </span>
+            Updates
+          </button>
+        </nav>
+        <footer
+          class="qb-footer"
+        >
+          Powered by 
+          <strong>
+            Quills
+          </strong>
+        </footer>
+      </section>
+    </div>
+  </main>
+</div>
+
+Ignored nodes: comments, script, style
+<div
+  id="storybook-root"
+>
+  <main
+    class="widget-design-preview"
+  >
+    <div
+      class="widget-design-caption"
+    >
+      <strong>
+        Quills
+      </strong>
+      <span>
+        Interactive widget preview
+      </span>
+      <p>
+        Mock backend. Data stays in memory for this story. No messages leave this page.
+      </p>
+      <div
+        class="widget-demo-controls"
+      >
+        <label>
+          Demo visitor
+          <select
+            aria-label="Demo visitor"
+          >
+            <option
+              value="anonymous"
+            >
+              Anonymous
+            </option>
+            <option
+              value="ada"
+            >
+              Ada
+            </option>
+          </select>
+        </label>
+        <button
+          type="button"
+        >
+          Go offline
+        </button>
+        <button
+          type="button"
+        >
+          Fail next submission
+        </button>
+        <button
+          type="button"
+        >
+          Lose next response
+        </button>
+        <button
+          disabled=""
+          type="button"
+        >
+          Simulate team reply
+        </button>
+        <button
+          disabled=""
+          type="button"
+        >
+          Simulate request progress
+        </button>
+        <button
+          disabled=""
+          type="button"
+        >
+          Simulate request reply
+        </button>
+      </div>
+    </div>
+    <div
+      class="quackback-panel quackback-open"
+    >
+      <section
+        aria-label="Quills support"
+        class="qb-widget"
+        data-expanded="false"
+        data-theme="light"
+        tabindex="-1"
+      >
+        <header
+          class="qb-header"
+        >
+          <span
+            class="qb-brand-mark"
+          >
+            <svg
+              aria-hidden="true"
+              fill="currentColor"
+              height="20"
+              viewBox="0 0 256 256"
+              width="20"
+            >
+              <path
+                d="M128,24A104,104,0,0,0,36.18,176.88L24.83,210.93a16,16,0,0,0,20.24,20.24l34.05-11.35A104,104,0,1,0,128,24Zm0,192a87.87,87.87,0,0,1-44.06-11.81,8,8,0,0,0-6.54-.67L40,216,52.47,178.6a8,8,0,0,0-.66-6.54A88,88,0,1,1,128,216Z"
+              />
+            </svg>
+          </span>
+          <strong>
+            Quills
+          </strong>
+          <button
+            aria-label="Activity"
+            class="qb-icon-button qb-activity-trigger"
+            type="button"
+          >
+            <svg
+              aria-hidden="true"
+              fill="currentColor"
+              height="20"
+              viewBox="0 0 256 256"
+              width="20"
+            >
+              <path
+                d="M208,32H48A16,16,0,0,0,32,48V208a16,16,0,0,0,16,16H208a16,16,0,0,0,16-16V48A16,16,0,0,0,208,32Zm0,16V152h-28.7A15.86,15.86,0,0,0,168,156.69L148.69,176H107.31L88,156.69A15.86,15.86,0,0,0,76.69,152H48V48Zm0,160H48V168H76.69L96,187.31A15.86,15.86,0,0,0,107.31,192h41.38A15.86,15.86,0,0,0,160,187.31L179.31,168H208v40Z"
+              />
+            </svg>
+          </button>
+          <button
+            aria-label="Close widget"
+            class="qb-icon-button qb-close"
+            type="button"
+          >
+            <svg
+              aria-hidden="true"
+              fill="currentColor"
+              height="20"
+              viewBox="0 0 256 256"
+              width="20"
+            >
+              <path
+                d="M205.66,194.34a8,8,0,0,1-11.32,11.32L128,139.31,61.66,205.66a8,8,0,0,1-11.32-11.32L116.69,128,50.34,61.66A8,8,0,0,1,61.66,50.34L128,116.69l66.34-66.35a8,8,0,0,1,11.32,11.32L139.31,128Z"
+              />
+            </svg>
+          </button>
+        </header>
+        <div
+          class="qb-content"
+          tabindex="-1"
+        >
+          <div
+            class="qb-list-view"
+          >
+            <h1>
+              Help & Support
+            </h1>
+            <div
+              class="qb-search"
+            >
+              <svg
+                aria-hidden="true"
+                fill="currentColor"
+                height="20"
+                viewBox="0 0 256 256"
+                width="20"
+              >
+                <path
+                  d="M229.66,218.34l-50.07-50.06a88.11,88.11,0,1,0-11.31,11.31l50.06,50.07a8,8,0,0,0,11.32-11.32ZM40,112a72,72,0,1,1,72,72A72.08,72.08,0,0,1,40,112Z"
+                />
+              </svg>
+              <input
+                aria-label="Search for help"
+                placeholder="Search for help"
+                type="search"
+                value="HHooww  ttoo  sshhaarree"
+              />
+              <button
+                aria-label="Clear search"
+                class="qb-search-clear"
+                type="button"
+              >
+                <svg
+                  aria-hidden="true"
+                  fill="currentColor"
+                  height="20"
+                  viewBox="0 0 256 256"
+                  width="20"
+                >
+                  <path
+                    d="M205.66,194.34a8,8,0,0,1-11.32,11.32L128,139.31,61.66,205.66a8,8,0,0,1-11.32-11.32L116.69,128,50.34,61.66A8,8,0,0,1,61.66,50.34L128,116.69l66.34-66.35a8,8,0,0,1,11.32,11.32L139.31,128Z"
+                  />
+                </svg>
+              </button>
+            </div>
+            <div
+              class="qb-empty"
+              role="status"
+            >
+              <span
+                class="qb-empty-icon"
+              >
+                <svg
+                  aria-hidden="true"
+                  fill="currentColor"
+                  height="20"
+                  viewBox="0 0 256 256"
+                  width="20"
+                >
+                  <path
+                    d="M229.66,218.34l-50.07-50.06a88.11,88.11,0,1,0-11.31,11.31l50.06,50.07a8,8,0,0,0,11.32-11.32ZM40,112a72,72,0,1,1,72,72A72.08,72.08,0,0,1,40,112Z"
+                  />
+                </svg>
+              </span>
+              <h2>
+                No articles match your search.
+              </h2>
+              <p>
+                Try another word or clear your search.
+              </p>
+            </div>
+          </div>
+        </div>
+        <nav
+          aria-label="Widget navigation"
+          class="qb-nav"
+        >
+          <button
+            type="button"
+          >
+            <span>
+              <svg
+                aria-hidden="true"
+                fill="currentColor"
+                height="20"
+                viewBox="0 0 256 256"
+                width="20"
+              >
+                <path
+                  d="M219.31,108.68l-80-80a16,16,0,0,0-22.62,0l-80,80A15.87,15.87,0,0,0,32,120v96a8,8,0,0,0,8,8h64a8,8,0,0,0,8-8V160h32v56a8,8,0,0,0,8,8h64a8,8,0,0,0,8-8V120A15.87,15.87,0,0,0,219.31,108.68ZM208,208H160V152a8,8,0,0,0-8-8H104a8,8,0,0,0-8,8v56H48V120l80-80,80,80Z"
+                />
+              </svg>
+            </span>
+            Home
+          </button>
+          <button
+            type="button"
+          >
+            <span>
+              <svg
+                aria-hidden="true"
+                fill="currentColor"
+                height="20"
+                viewBox="0 0 256 256"
+                width="20"
+              >
+                <path
+                  d="M128,24A104,104,0,0,0,36.18,176.88L24.83,210.93a16,16,0,0,0,20.24,20.24l34.05-11.35A104,104,0,1,0,128,24Zm0,192a87.87,87.87,0,0,1-44.06-11.81,8,8,0,0,0-6.54-.67L40,216,52.47,178.6a8,8,0,0,0-.66-6.54A88,88,0,1,1,128,216Z"
+                />
+              </svg>
+            </span>
+            Messages
+          </button>
+          <button
+            aria-current="page"
+            type="button"
+          >
+            <span>
+              <svg
+                aria-hidden="true"
+                fill="currentColor"
+                height="20"
+                viewBox="0 0 256 256"
+                width="20"
+              >
+                <path
+                  d="M240,56V200a8,8,0,0,1-8,8H160a24,24,0,0,0-24,23.94,7.9,7.9,0,0,1-5.12,7.55A8,8,0,0,1,120,232a24,24,0,0,0-24-24H24a8,8,0,0,1-8-8V56a8,8,0,0,1,8-8H88a32,32,0,0,1,32,32v87.73a8.17,8.17,0,0,0,7.47,8.25,8,8,0,0,0,8.53-8V80a32,32,0,0,1,32-32h64A8,8,0,0,1,240,56Z"
+                />
+              </svg>
+            </span>
+            Help
+          </button>
+          <button
+            type="button"
+          >
+            <span>
+              <svg
+                aria-hidden="true"
+                fill="currentColor"
+                height="20"
+                viewBox="0 0 256 256"
+                width="20"
+              >
+                <path
+                  d="M176,232a8,8,0,0,1-8,8H88a8,8,0,0,1,0-16h80A8,8,0,0,1,176,232Zm40-128a87.55,87.55,0,0,1-33.64,69.21A16.24,16.24,0,0,0,176,186v6a16,16,0,0,1-16,16H96a16,16,0,0,1-16-16v-6a16,16,0,0,0-6.23-12.66A87.59,87.59,0,0,1,40,104.49C39.74,56.83,78.26,17.14,125.88,16A88,88,0,0,1,216,104Zm-16,0a72,72,0,0,0-73.74-72c-39,.92-70.47,33.39-70.26,72.39a71.65,71.65,0,0,0,27.64,56.3A32,32,0,0,1,96,186v6h64v-6a32.15,32.15,0,0,1,12.47-25.35A71.65,71.65,0,0,0,200,104Zm-16.11-9.34a57.6,57.6,0,0,0-46.56-46.55,8,8,0,0,0-2.66,15.78c16.57,2.79,30.63,16.85,33.44,33.45A8,8,0,0,0,176,104a9,9,0,0,0,1.35-.11A8,8,0,0,0,183.89,94.66Z"
+                />
+              </svg>
+            </span>
+            Feedback
+          </button>
+          <button
+            type="button"
+          >
+            <span>
+              <svg
+                aria-hidden="true"
+                fill="currentColor"
+                height="20"
+                viewBox="0 0 256 256"
+                width="20"
+              >
+                <path
+                  d="M248,120a48.05,48.05,0,0,0-48-48H160.2c-2.91-.17-53.62-3.74-101.91-44.24A16,16,0,0,0,32,40V200a16,16,0,0,0,26.29,12.25c37.77-31.68,77-40.76,93.71-43.3v31.72A16,16,0,0,0,159.12,214l11,7.33A16,16,0,0,0,194.5,212l11.77-44.36A48.07,48.07,0,0,0,248,120ZM48,199.93V40h0c42.81,35.91,86.63,45,104,47.24v65.48C134.65,155,90.84,164.07,48,199.93Zm131,8,0,.11-11-7.33V168h21.6ZM200,152H168V88h32a32,32,0,1,1,0,64Z"
+                />
+              </svg>
+              <i
+                aria-label="1 unread"
+                class="qb-nav-unread"
+              />
+            </span>
+            Updates
+          </button>
+        </nav>
+        <footer
+          class="qb-footer"
+        >
+          Powered by 
+          <strong>
+            Quills
+          </strong>
+        </footer>
+      </section>
+    </div>
+  </main>
+</div>
+    at waitForWrapper (http://127.0.0.1:6006/node_modules/.cache/storybook/10.6.6/c4103542e6fc7dba0a4ffc28df2d3a01f62ccdb6a0b127d301770c8a590cbffc/sb-vite/deps/storybook_internal_preview_runtime.js?v=ed3d6fe3:25400:40)
+    at http://127.0.0.1:6006/node_modules/.cache/storybook/10.6.6/c4103542e6fc7dba0a4ffc28df2d3a01f62ccdb6a0b127d301770c8a590cbffc/sb-vite/deps/storybook_internal_preview_runtime.js?v=ed3d6fe3:25456:55
+    at play (http://127.0.0.1:6006/stories/Design.stories.tsx?t=1794258358642:160:38)
+    at async StoryRender.runPhase (http://127.0.0.1:6006/node_modules/.cache/storybook/10.6.6/c4103542e6fc7dba0a4ffc28df2d3a01f62ccdb6a0b127d301770c8a590cbffc/sb-vite/deps/storybook_internal_preview_runtime.js?v=ed3d6fe3:33745:19)
+    at async StoryRender.render (http://127.0.0.1:6006/node_modules/.cache/storybook/10.6.6/c4103542e6fc7dba0a4ffc28df2d3a01f62ccdb6a0b127d301770c8a590cbffc/sb-vite/deps/storybook_internal_preview_runtime.js?v=ed3d6fe3:33852:9) @ http://127.0.0.1:6006/@vite/client:363
+[44502662ms] [INFO] %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold @ http://127.0.0.1:6006/node_modules/.cache/storybook/10.6.6/c4103542e6fc7dba0a4ffc28df2d3a01f62ccdb6a0b127d301770c8a590cbffc/sb-vite/deps/client-rPskUaMY.js?v=6b1ba780:15993
+[44599188ms] [INFO] %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold @ http://127.0.0.1:6006/node_modules/.cache/storybook/10.6.6/c4103542e6fc7dba0a4ffc28df2d3a01f62ccdb6a0b127d301770c8a590cbffc/sb-vite/deps/client-rPskUaMY.js?v=6b1ba780:15993
+[44630576ms] [INFO] %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold @ http://127.0.0.1:6006/node_modules/.cache/storybook/10.6.6/c4103542e6fc7dba0a4ffc28df2d3a01f62ccdb6a0b127d301770c8a590cbffc/sb-vite/deps/client-rPskUaMY.js?v=6b1ba780:15993
+[44662028ms] [INFO] %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold @ http://127.0.0.1:6006/node_modules/.cache/storybook/10.6.6/c4103542e6fc7dba0a4ffc28df2d3a01f62ccdb6a0b127d301770c8a590cbffc/sb-vite/deps/client-rPskUaMY.js?v=6b1ba780:15993
+[44693381ms] [INFO] %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold @ http://127.0.0.1:6006/node_modules/.cache/storybook/10.6.6/c4103542e6fc7dba0a4ffc28df2d3a01f62ccdb6a0b127d301770c8a590cbffc/sb-vite/deps/client-rPskUaMY.js?v=6b1ba780:15993
+[44766846ms] [INFO] %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold @ http://127.0.0.1:6006/node_modules/.cache/storybook/10.6.6/c4103542e6fc7dba0a4ffc28df2d3a01f62ccdb6a0b127d301770c8a590cbffc/sb-vite/deps/client-rPskUaMY.js?v=6b1ba780:15993
+[44767319ms] [INFO] %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold @ http://127.0.0.1:6006/node_modules/.cache/storybook/10.6.6/c4103542e6fc7dba0a4ffc28df2d3a01f62ccdb6a0b127d301770c8a590cbffc/sb-vite/deps/client-rPskUaMY.js?v=6b1ba780:15993
+[44768016ms] [INFO] %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold @ http://127.0.0.1:6006/node_modules/.cache/storybook/10.6.6/c4103542e6fc7dba0a4ffc28df2d3a01f62ccdb6a0b127d301770c8a590cbffc/sb-vite/deps/client-rPskUaMY.js?v=6b1ba780:15993
+[44768231ms] [INFO] %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold @ http://127.0.0.1:6006/node_modules/.cache/storybook/10.6.6/c4103542e6fc7dba0a4ffc28df2d3a01f62ccdb6a0b127d301770c8a590cbffc/sb-vite/deps/client-rPskUaMY.js?v=6b1ba780:15993
+[44771180ms] [INFO] %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold @ http://127.0.0.1:6006/node_modules/.cache/storybook/10.6.6/c4103542e6fc7dba0a4ffc28df2d3a01f62ccdb6a0b127d301770c8a590cbffc/sb-vite/deps/client-rPskUaMY.js?v=6b1ba780:15993
+[44807553ms] [INFO] %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold @ http://127.0.0.1:6006/node_modules/.cache/storybook/10.6.6/c4103542e6fc7dba0a4ffc28df2d3a01f62ccdb6a0b127d301770c8a590cbffc/sb-vite/deps/client-rPskUaMY.js?v=6b1ba780:15993
+[44842664ms] [INFO] %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold @ http://127.0.0.1:6006/node_modules/.cache/storybook/10.6.6/c4103542e6fc7dba0a4ffc28df2d3a01f62ccdb6a0b127d301770c8a590cbffc/sb-vite/deps/client-rPskUaMY.js?v=6b1ba780:15993
+[44844080ms] [INFO] %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold @ http://127.0.0.1:6006/node_modules/.cache/storybook/10.6.6/c4103542e6fc7dba0a4ffc28df2d3a01f62ccdb6a0b127d301770c8a590cbffc/sb-vite/deps/client-rPskUaMY.js?v=6b1ba780:15993
+[44844985ms] [INFO] %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold @ http://127.0.0.1:6006/node_modules/.cache/storybook/10.6.6/c4103542e6fc7dba0a4ffc28df2d3a01f62ccdb6a0b127d301770c8a590cbffc/sb-vite/deps/client-rPskUaMY.js?v=6b1ba780:15993
+[44845909ms] [INFO] %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold @ http://127.0.0.1:6006/node_modules/.cache/storybook/10.6.6/c4103542e6fc7dba0a4ffc28df2d3a01f62ccdb6a0b127d301770c8a590cbffc/sb-vite/deps/client-rPskUaMY.js?v=6b1ba780:15993
+[44847328ms] [INFO] %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold @ http://127.0.0.1:6006/node_modules/.cache/storybook/10.6.6/c4103542e6fc7dba0a4ffc28df2d3a01f62ccdb6a0b127d301770c8a590cbffc/sb-vite/deps/client-rPskUaMY.js?v=6b1ba780:15993
+[44848254ms] [INFO] %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold @ http://127.0.0.1:6006/node_modules/.cache/storybook/10.6.6/c4103542e6fc7dba0a4ffc28df2d3a01f62ccdb6a0b127d301770c8a590cbffc/sb-vite/deps/client-rPskUaMY.js?v=6b1ba780:15993
+[45611802ms] [INFO] %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold @ http://127.0.0.1:6006/node_modules/.cache/storybook/10.6.6/c4103542e6fc7dba0a4ffc28df2d3a01f62ccdb6a0b127d301770c8a590cbffc/sb-vite/deps/client-rPskUaMY.js?v=6b1ba780:15993
+[45613145ms] [INFO] %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold @ http://127.0.0.1:6006/node_modules/.cache/storybook/10.6.6/c4103542e6fc7dba0a4ffc28df2d3a01f62ccdb6a0b127d301770c8a590cbffc/sb-vite/deps/client-rPskUaMY.js?v=6b1ba780:15993
+[45700809ms] [INFO] %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold @ http://127.0.0.1:6006/node_modules/.cache/storybook/10.6.6/c4103542e6fc7dba0a4ffc28df2d3a01f62ccdb6a0b127d301770c8a590cbffc/sb-vite/deps/client-rPskUaMY.js?v=6b1ba780:15993
+[45701296ms] [INFO] %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold @ http://127.0.0.1:6006/node_modules/.cache/storybook/10.6.6/c4103542e6fc7dba0a4ffc28df2d3a01f62ccdb6a0b127d301770c8a590cbffc/sb-vite/deps/client-rPskUaMY.js?v=6b1ba780:15993
+[45702137ms] [INFO] %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold @ http://127.0.0.1:6006/node_modules/.cache/storybook/10.6.6/c4103542e6fc7dba0a4ffc28df2d3a01f62ccdb6a0b127d301770c8a590cbffc/sb-vite/deps/client-rPskUaMY.js?v=6b1ba780:15993
+[45702313ms] [INFO] %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold @ http://127.0.0.1:6006/node_modules/.cache/storybook/10.6.6/c4103542e6fc7dba0a4ffc28df2d3a01f62ccdb6a0b127d301770c8a590cbffc/sb-vite/deps/client-rPskUaMY.js?v=6b1ba780:15993
+[45761777ms] [INFO] %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold @ http://127.0.0.1:6006/node_modules/.cache/storybook/10.6.6/c4103542e6fc7dba0a4ffc28df2d3a01f62ccdb6a0b127d301770c8a590cbffc/sb-vite/deps/client-rPskUaMY.js?v=6b1ba780:15993
+[45763198ms] [INFO] %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold @ http://127.0.0.1:6006/node_modules/.cache/storybook/10.6.6/c4103542e6fc7dba0a4ffc28df2d3a01f62ccdb6a0b127d301770c8a590cbffc/sb-vite/deps/client-rPskUaMY.js?v=6b1ba780:15993
+[45837223ms] [INFO] %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold @ http://127.0.0.1:6006/node_modules/.cache/storybook/10.6.6/c4103542e6fc7dba0a4ffc28df2d3a01f62ccdb6a0b127d301770c8a590cbffc/sb-vite/deps/client-rPskUaMY.js?v=6b1ba780:15993
+[45838686ms] [INFO] %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold @ http://127.0.0.1:6006/node_modules/.cache/storybook/10.6.6/c4103542e6fc7dba0a4ffc28df2d3a01f62ccdb6a0b127d301770c8a590cbffc/sb-vite/deps/client-rPskUaMY.js?v=6b1ba780:15993
+[45841119ms] [INFO] %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold @ http://127.0.0.1:6006/node_modules/.cache/storybook/10.6.6/c4103542e6fc7dba0a4ffc28df2d3a01f62ccdb6a0b127d301770c8a590cbffc/sb-vite/deps/client-rPskUaMY.js?v=6b1ba780:15993
+[45841666ms] [INFO] %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold @ http://127.0.0.1:6006/node_modules/.cache/storybook/10.6.6/c4103542e6fc7dba0a4ffc28df2d3a01f62ccdb6a0b127d301770c8a590cbffc/sb-vite/deps/client-rPskUaMY.js?v=6b1ba780:15993
+[45866339ms] [INFO] %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold @ http://127.0.0.1:6006/node_modules/.cache/storybook/10.6.6/c4103542e6fc7dba0a4ffc28df2d3a01f62ccdb6a0b127d301770c8a590cbffc/sb-vite/deps/client-rPskUaMY.js?v=6b1ba780:15993

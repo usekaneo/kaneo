@@ -1,3 +1,4 @@
+import { brandText } from "@kaneo/branding";
 import { Result } from "effect";
 import { describe, expect, it } from "vite-plus/test";
 import {
@@ -73,7 +74,7 @@ describe("checkWorkspaceSlug", () => {
   it("refuses reserved slugs", () => {
     const result = checkWorkspaceSlug("api");
     expect(Result.isFailure(result) && result.failure.message).toBe(
-      '"api" is reserved by Kaneo.',
+      brandText('"api" is reserved by Kaneo.'),
     );
   });
 });

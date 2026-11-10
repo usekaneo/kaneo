@@ -1,3 +1,4 @@
+import { missingTranslation, brandResources } from "@kaneo/branding";
 // i18next plurals need Intl.PluralRules, which Hermes may lack; this installs only when missing.
 import "intl-pluralrules";
 import en from "@i18n/en-US.json";
@@ -12,7 +13,8 @@ import { resolveLocale } from "./resolve-locale";
 void i18n.use(initReactI18next).init({
   lng: defaultLocale,
   fallbackLng: defaultLocale,
-  resources: { [defaultLocale]: en },
+  parseMissingKeyHandler: missingTranslation,
+  resources: { [defaultLocale]: brandResources(en) },
   ns: Object.keys(en),
   defaultNS: "mobile",
   interpolation: { escapeValue: false },
@@ -31,7 +33,10 @@ export async function loadDeviceLocale(): Promise<void> {
   const locale = resolveLocale([deviceLocale()]);
   if (locale === i18n.language) return;
   try {
-    const catalog = (await loadLocale(locale)) as Record<string, object>;
+    const catalog = brandResources(await loadLocale(locale)) as Record<
+      string,
+      object
+    >;
     for (const [ns, resources] of Object.entries(catalog))
       i18n.addResourceBundle(locale, ns, resources, true, true);
     await i18n.changeLanguage(locale);

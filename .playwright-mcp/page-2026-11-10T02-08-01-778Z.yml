@@ -1,0 +1,41 @@
+- main [ref=f1e2]:
+  - heading "quills" [level=1] [ref=f1e3]
+  - paragraph [ref=f1e4]: Logo, favicon, app and email assets
+  - generic [ref=f1e5]:
+    - generic [ref=f1e6]:
+      - heading "Light interface" [level=2] [ref=f1e7]
+      - img "quills dark logo" [ref=f1e8]
+      - generic [ref=f1e9]:
+        - img "quills dark mark" [ref=f1e10]
+        - img "Light favicon" [ref=f1e11]
+    - generic [ref=f1e12]:
+      - heading "Dark interface" [level=2] [ref=f1e13]
+      - img "quills light logo" [ref=f1e14]
+      - generic [ref=f1e15]:
+        - img "quills light mark" [ref=f1e16]
+        - img "Dark favicon" [ref=f1e17]
+    - generic [ref=f1e18]:
+      - heading "Favicons at actual size" [level=2] [ref=f1e19]
+      - generic [ref=f1e20]:
+        - figure "16 px" [ref=f1e21]:
+          - img "16 pixel favicon" [ref=f1e22]
+        - figure "32 px" [ref=f1e24]:
+          - img "32 pixel favicon" [ref=f1e25]
+        - figure "48 px" [ref=f1e27]:
+          - img "48 pixel favicon" [ref=f1e28]
+        - figure "96 px" [ref=f1e30]:
+          - img "96 pixel favicon" [ref=f1e31]
+    - generic [ref=f1e33]:
+      - heading "Install, email and masked app icons" [level=2] [ref=f1e34]
+      - generic [ref=f1e35]:
+        - figure "Apple touch" [ref=f1e36]:
+          - img "Apple touch icon" [ref=f1e37]
+        - figure "Web app" [ref=f1e39]:
+          - img "Install icon" [ref=f1e40]
+        - figure "Email" [ref=f1e42]:
+          - img "Email mark" [ref=f1e43]
+        - figure "Safe circle" [ref=f1e45]:
+          - img "Icon inside mask safe area" [ref=f1e46]
+    - generic [ref=f1e48]:
+      - heading "Social preview · 1200 × 630" [level=2] [ref=f1e49]
+      - img "quills social preview" [ref=f1e50]

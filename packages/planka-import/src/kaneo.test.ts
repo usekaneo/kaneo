@@ -1,3 +1,4 @@
+import { brand } from "@kaneo/branding";
 import {
   afterEach,
   beforeEach,
@@ -103,7 +104,7 @@ describe("KaneoClient rate limiting", () => {
     });
 
     await expect(client.listWorkspaces()).rejects.toThrow(
-      /check your Kaneo API key/,
+      `check your ${brand.name} API key`,
     );
     expect(fetchMock).toHaveBeenCalledTimes(1);
   });

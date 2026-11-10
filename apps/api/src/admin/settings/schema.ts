@@ -1,3 +1,4 @@
+import { brandText } from "@kaneo/branding";
 import { z } from "../../openapi";
 
 const ENV_LOCKABLE = [
@@ -8,10 +9,17 @@ const ENV_LOCKABLE = [
 
 export const updateInstanceSettingsBody = z
   .object({
-    instanceName: z.string().trim().max(60).nullable().optional().openapi({
-      description:
-        "Shown in page titles and email headers and subjects. Empty or null restores Kaneo.",
-    }),
+    instanceName: z
+      .string()
+      .trim()
+      .max(60)
+      .nullable()
+      .optional()
+      .openapi({
+        description: brandText(
+          "Shown in page titles and email headers and subjects. Empty or null restores Kaneo.",
+        ),
+      }),
     registrationEnabled: z.boolean().optional().openapi({
       description:
         "When false, only people with a valid invitation can create an account. Locked when `DISABLE_REGISTRATION=true`.",
@@ -47,12 +55,22 @@ export type UpdateInstanceSettingsInput = z.infer<
 
 export const instanceSettingsSchema = z
   .object({
-    instanceName: z.string().nullable().openapi({
-      description: "The saved name, or null for the default Kaneo.",
-    }),
-    instanceUrl: z.string().nullable().openapi({
-      description: "The web app URL from `KANEO_CLIENT_URL`. Read-only.",
-    }),
+    instanceName: z
+      .string()
+      .nullable()
+      .openapi({
+        description: brandText(
+          "The saved name, or null for the default Kaneo.",
+        ),
+      }),
+    instanceUrl: z
+      .string()
+      .nullable()
+      .openapi({
+        description: brandText(
+          "The web app URL from `KANEO_CLIENT_URL`. Read-only.",
+        ),
+      }),
     registrationEnabled: z.boolean(),
     passwordRegistrationEnabled: z.boolean(),
     requireEmailVerification: z.boolean(),

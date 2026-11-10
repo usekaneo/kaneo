@@ -1,3 +1,4 @@
+import { brandText } from "@kaneo/branding";
 import { Option, Result } from "effect";
 import type {
   ProjectRecord,
@@ -47,7 +48,7 @@ export function parseProjectEdits(
       return Result.fail(
         new InvalidArgument({
           message: "The project name cannot be empty.",
-          hint: 'Pass a name, for example --name "Kaneo Web".',
+          hint: brandText('Pass a name, for example --name "Kaneo Web".'),
         }),
       );
     }

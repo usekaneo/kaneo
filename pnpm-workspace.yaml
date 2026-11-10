@@ -1,4 +1,5 @@
 packages:
+  - branding
   - packages/**
   - apps/**
 overrides:

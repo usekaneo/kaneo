@@ -112,6 +112,34 @@ describe("user WebSocket lifecycle", () => {
     vi.unstubAllGlobals();
     vi.unstubAllEnvs();
   });
+  it("invalidates Quills data only for the current user and changed workspace", () => {
+    renderHook(useUserWebSocket);
+    act(() =>
+      TestSocket.instances[0].onmessage?.({
+        data: JSON.stringify({
+          type: "QUILLS_CHANGED",
+          workspaceId: "workspace",
+          eventId: "event",
+        }),
+      }),
+    );
+    const predicate = client.invalidateQueries.mock.calls.at(-1)?.[0].predicate;
+    expect(
+      predicate({ queryKey: ["quills-context", "user-a", "workspace"] }),
+    ).toBe(true);
+    expect(
+      predicate({ queryKey: ["quills-teams", "user-a", "workspace"] }),
+    ).toBe(true);
+    expect(
+      predicate({ queryKey: ["quills-context", "user-b", "workspace"] }),
+    ).toBe(false);
+    expect(predicate({ queryKey: ["quills-context", "user-a", "other"] })).toBe(
+      false,
+    );
+    expect(predicate({ queryKey: ["projects", "user-a", "workspace"] })).toBe(
+      false,
+    );
+  });
   it("keeps an archived board open to show its archived state and refreshes on restore", () => {
     renderHook(useUserWebSocket);
     act(() =>

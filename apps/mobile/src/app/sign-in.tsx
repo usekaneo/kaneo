@@ -331,7 +331,7 @@ function StartStep(props: {
               label={t("mobile:signIn.serverAddress")}
               value={address}
               onChangeText={setAddress}
-              placeholder="kaneo.example.com"
+              placeholder="projects.example.com"
               autoCapitalize="none"
               autoCorrect={false}
               keyboardType="url"

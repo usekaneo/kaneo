@@ -4,13 +4,16 @@ export default defineConfig({
   run: {
     tasks: {
       compile: {
-        command: "tsc -p tsconfig.json",
+        command:
+          "node ../../scripts/branding/vendor.mjs --compile packages/mcp/dist",
         dependsOn: [
           { task: "build", from: ["dependencies", "devDependencies"] },
         ],
         cache: {
           input: [
             { auto: true },
+            { pattern: "scripts/branding/**", base: "workspace" },
+            { pattern: "branding/**", base: "workspace" },
             "src/**",
             "tsconfig.json",
             {

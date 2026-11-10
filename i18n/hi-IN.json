@@ -910,7 +910,8 @@
 				"member": "Members",
 				"invitation": "Invitations",
 				"team": "Teams",
-				"ac": "Roles and permissions"
+				"ac": "Roles and permissions",
+				"quills": "Quills"
 			},
 			"permissions": {
 				"project": {
@@ -1057,6 +1058,28 @@
 					"delete": {
 						"label": "Delete roles",
 						"description": "Delete custom workspace roles."
+					}
+				},
+				"quills": {
+					"read": {
+						"label": "View Quills content",
+						"description": "View feedback, conversations, tickets, and knowledge in this workspace."
+					},
+					"create": {
+						"label": "Create Quills content",
+						"description": "Create feedback, conversations, tickets, and knowledge."
+					},
+					"update": {
+						"label": "Edit Quills content",
+						"description": "Update Quills content in this workspace."
+					},
+					"delete": {
+						"label": "Delete Quills content",
+						"description": "Delete Quills content in this workspace."
+					},
+					"manage_settings": {
+						"label": "Manage Quills settings",
+						"description": "Change Quills configuration for this workspace."
 					}
 				}
 			},

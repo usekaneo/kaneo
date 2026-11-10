@@ -1,3 +1,4 @@
+import { brandText } from "@kaneo/branding";
 import { Cause, Effect } from "effect";
 import { CliError } from "effect/cli";
 import { describeError, type Failure } from "../errors/describe.js";
@@ -37,7 +38,9 @@ export function classifyFailure(
     kind: "failure",
     failure: {
       message: `Unexpected error: ${message}`,
-      hint: "Please report this at https://github.com/usekaneo/kaneo/issues",
+      hint: brandText(
+        "Please report this at https://github.com/usekaneo/kaneo/issues",
+      ),
     },
   };
 }

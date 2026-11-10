@@ -4,13 +4,16 @@ export default defineConfig({
   run: {
     tasks: {
       compile: {
-        command: "next build",
+        command:
+          "next build && node ../../scripts/branding/package-output.mjs apps/site/public apps/site/out",
         dependsOn: [
           { task: "build", from: ["dependencies", "devDependencies"] },
         ],
         cache: {
           input: [
             { auto: true },
+            { pattern: "branding/**", base: "workspace" },
+            { pattern: "scripts/branding/**", base: "workspace" },
             ".env*",
             { pattern: ".env*", base: "workspace" },
           ],

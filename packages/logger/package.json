@@ -1,0 +1,32 @@
+{
+  "name": "@kaneo/logger",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    },
+    "./context": {
+      "types": "./dist/context.d.ts",
+      "default": "./dist/context.js"
+    }
+  },
+  "scripts": {
+    "test": "vp test run --config vitest.config.ts",
+    "typecheck": "tsc --noEmit",
+    "build": "tsc -p tsconfig.build.json"
+  },
+  "dependencies": {
+    "@opentelemetry/api": "^1.9.1",
+    "pino": "^10.3.1",
+    "zod": "^4.6.7"
+  },
+  "devDependencies": {
+    "vite-plus": "catalog:",
+    "typescript": "^7.0.2"
+  }
+}

@@ -1,3 +1,4 @@
+import { brandText } from "@kaneo/branding";
 import type { ComponentType } from "react";
 import type { ImportUnit } from "@/components/import/import-unit-copy";
 import { JiraLogo } from "@/components/import/source-logos/jira-logo";
@@ -64,7 +65,7 @@ export const IMPORT_SOURCES: ImportSourceDefinition[] = [
   },
   {
     id: "kaneo",
-    name: "Kaneo",
+    name: brandText("Kaneo"),
     pickerNameKey: "settings:workspaceImport.sources.kaneo.pickerName",
     Logo: KaneoLogo,
     descriptionKey: "settings:workspaceImport.sources.kaneo.description",

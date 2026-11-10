@@ -1,3 +1,4 @@
+import { brandText } from "@kaneo/branding";
 import {
   apiRouter,
   type BaseVariables,
@@ -121,8 +122,9 @@ const resumeRoute = createRoute({
   operationId: "resumeIntegrationSync",
   tags: ["Integration sync"],
   summary: "Resume a reviewed issue link",
-  description:
+  description: brandText(
     "Explicitly choose the current Kaneo or repository title, description and open/closed state. Existing links are reused; historical comments are not replayed. The task must still match its outgoing rule. A changed comparison requires another review.",
+  ),
   middleware: [...manage, requireWorkspacePermission({ task: ["update"] })],
   request: { params: resumeParams, body: body(resumeBody) },
   responses: {

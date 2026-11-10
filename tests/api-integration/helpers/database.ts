@@ -4,9 +4,11 @@ import { sql } from "drizzle-orm";
 import { migrate } from "drizzle-orm/node-postgres/migrator";
 import { Client } from "pg";
 import db from "../../../apps/api/src/database";
+import { runQuillsMigrations } from "../../../apps/api/src/database/quills/migrate";
 
 const currentDir = dirname(fileURLToPath(import.meta.url));
 const migrationsFolder = resolve(currentDir, "../../../apps/api/drizzle");
+const quillsMigrationsFolder = resolve(migrationsFolder, "quills");
 
 let migrationPromise: Promise<void> | null = null;
 
@@ -68,6 +70,11 @@ export async function ensureTestDatabaseMigrated() {
       await migrate(db, {
         migrationsFolder,
       });
+      // Workspace and storage cleanup read the quills schema, as in production startup.
+      await runQuillsMigrations(
+        process.env.DATABASE_URL as string,
+        quillsMigrationsFolder,
+      );
     })();
   }
 

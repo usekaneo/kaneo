@@ -70,12 +70,34 @@ const RESOURCE_LABELS: Record<string, string> = {
   task: "Tasks",
   label: "Labels",
   workspace: "Workspace",
+  quills: "Quills",
 };
 
 const PERMISSION_LABELS: Record<
   string,
   { label: string; description: string }
 > = {
+  "quills:read": {
+    label: "View Quills content",
+    description:
+      "View feedback, conversations, tickets, and knowledge in this workspace.",
+  },
+  "quills:create": {
+    label: "Create Quills content",
+    description: "Create feedback, conversations, tickets, and knowledge.",
+  },
+  "quills:update": {
+    label: "Edit Quills content",
+    description: "Update Quills content in this workspace.",
+  },
+  "quills:delete": {
+    label: "Delete Quills content",
+    description: "Delete Quills content in this workspace.",
+  },
+  "quills:manage_settings": {
+    label: "Manage Quills settings",
+    description: "Change Quills configuration for this workspace.",
+  },
   "organization:update": {
     label: "Edit workspace administration",
     description: "Change workspace settings through the account service.",

@@ -1,3 +1,4 @@
+import { brandText } from "@kaneo/branding";
 import { z } from "../openapi";
 
 const NEVER_STORED = "Used only for this import and never stored or logged.";
@@ -90,7 +91,9 @@ const jiraConnection = z
 const trelloConnection = z
   .object({
     source: z.literal("trello"),
-    token: secret("A Trello token authorized for this Kaneo instance."),
+    token: secret(
+      brandText("A Trello token authorized for this Kaneo instance."),
+    ),
     apiKey: z.string().trim().min(1).max(256).optional().openapi({
       description:
         "Trello API key, a public app identifier. Defaults to the server's TRELLO_API_KEY.",
@@ -101,8 +104,8 @@ const trelloConnection = z
 const kaneoConnection = z
   .object({
     source: z.literal("kaneo"),
-    url: sourceUrl("Address of the Kaneo instance to import from."),
-    apiKey: secret("An API key from that Kaneo instance."),
+    url: sourceUrl(brandText("Address of the Kaneo instance to import from.")),
+    apiKey: secret(brandText("An API key from that Kaneo instance.")),
   })
   .openapi("KaneoImportConnection");
 

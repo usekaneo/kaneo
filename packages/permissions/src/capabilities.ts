@@ -2,6 +2,11 @@
 // in one request (GET /workspace/{id}/capabilities) with the same rules it
 // enforces, so custom workspace roles behave the same in the UI and the API.
 export const workspaceCapabilities = {
+  readQuills: { workspace: ["read"], quills: ["read"] },
+  createQuills: { workspace: ["read"], quills: ["create"] },
+  updateQuills: { workspace: ["read"], quills: ["update"] },
+  deleteQuills: { workspace: ["read"], quills: ["delete"] },
+  manageQuillsSettings: { workspace: ["read"], quills: ["manage_settings"] },
   manageProjects: { project: ["create", "update", "delete"] },
   createProjects: { project: ["create"] },
   updateProjects: { project: ["update"] },

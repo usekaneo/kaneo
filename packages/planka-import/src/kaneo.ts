@@ -1,3 +1,4 @@
+import { brandText } from "@kaneo/branding";
 import { formatWait, retryAfterMs } from "./retry-after.js";
 
 export type KaneoWorkspace = { id: string; name: string; slug?: string };
@@ -162,12 +163,12 @@ export class KaneoClient {
       const waitMs = retryAfterMs(res.headers.get("Retry-After"));
       if (waitMs === null || attempt >= MAX_RATE_LIMIT_RETRIES) {
         throw new Error(
-          `Kaneo ${path}: rate limited (HTTP 429), Kaneo throttled this API key; run again later`,
+          `${brandText("Kaneo ")}${path}${brandText(": rate limited (HTTP 429), Kaneo throttled this API key; run again later")}`,
         );
       }
       if (waitMs > MAX_RATE_LIMIT_WAIT_MS) {
         throw new Error(
-          `Kaneo ${path}: API key usage limit reached (HTTP 429); retry in about ${formatWait(waitMs)} or raise the key's limits`,
+          `${brandText("Kaneo ")}${path}: API key usage limit reached (HTTP 429); retry in about ${formatWait(waitMs)} or raise the key's limits`,
         );
       }
       this.onRateLimit(waitMs);
@@ -191,7 +192,7 @@ export class KaneoClient {
       });
     } catch (error) {
       const reason = error instanceof Error ? error.message : String(error);
-      throw new Error(`Kaneo ${path}: ${reason}`);
+      throw new Error(`${brandText("Kaneo ")}${path}: ${reason}`);
     }
   }
 
@@ -207,7 +208,9 @@ export class KaneoClient {
     }
 
     if (!res.ok) {
-      throw new Error(`Kaneo ${path}: ${describeError(body, res.status)}`);
+      throw new Error(
+        `${brandText("Kaneo ")}${path}: ${describeError(body, res.status)}`,
+      );
     }
 
     return body as T;
@@ -216,7 +219,7 @@ export class KaneoClient {
 
 function describeError(body: unknown, status: number): string {
   if (status === 401) {
-    return "unauthorized (HTTP 401), check your Kaneo API key";
+    return brandText("unauthorized (HTTP 401), check your Kaneo API key");
   }
   if (typeof body === "object" && body !== null) {
     const record = body as Record<string, unknown>;

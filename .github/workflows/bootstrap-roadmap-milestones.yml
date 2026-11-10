@@ -1,0 +1,33 @@
+name: Bootstrap GitHub roadmap milestones
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - develop
+    paths:
+      - .github/workflows/bootstrap-roadmap-milestones.yml
+
+permissions:
+  contents: read
+  issues: write
+
+concurrency:
+  group: bootstrap-roadmap-milestones
+  cancel-in-progress: false
+
+jobs:
+  create-and-assign:
+    if: github.repository == 'PlaybookMediaLLC/kaneo'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - name: Check out reviewed bootstrap script
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Create native milestones and assign existing roadmap issues
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+        run: bash scripts/github/bootstrap-roadmap-milestones.sh

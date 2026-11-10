@@ -1,3 +1,4 @@
+import { brandText } from "@kaneo/branding";
 import type { TaskComment } from "../api/comments.js";
 import type { Column, Project } from "../api/schemas.js";
 import type {
@@ -21,7 +22,7 @@ const project: Project = {
   id: "p1",
   workspaceId: "ws_1",
   slug: "kan",
-  name: "Kaneo Web",
+  name: brandText("Kaneo Web"),
   icon: null,
   description: null,
   archivedAt: null,

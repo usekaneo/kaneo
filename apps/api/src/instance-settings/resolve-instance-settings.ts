@@ -1,4 +1,5 @@
-export const DEFAULT_INSTANCE_NAME = "Kaneo";
+import { instanceName, brandText } from "@kaneo/branding";
+export const DEFAULT_INSTANCE_NAME = brandText("Kaneo");
 
 /** What the `instance_settings` row holds, with defaults for a missing row. */
 export type StoredInstanceSettings = {
@@ -54,7 +55,7 @@ export function resolveInstanceSettings(
 
   return {
     ...stored,
-    instanceName: stored.instanceName?.trim() || DEFAULT_INSTANCE_NAME,
+    instanceName: instanceName(stored.instanceName),
     registrationEnabled: registrationLocked
       ? false
       : stored.registrationEnabled,

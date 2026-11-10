@@ -1,3 +1,4 @@
+import { brandText } from "@kaneo/branding";
 import React from "react";
 import { EmailButton } from "../components/email-button";
 import { EmailFooter } from "../components/email-footer";
@@ -44,59 +45,63 @@ const fallback = {
 } as const;
 
 const footer = {
-  en: "Kaneo account email",
-  de: "Kaneo Konto-E-Mail",
-  vi: "Email tài khoản Kaneo",
-  ja: "Kaneo アカウントメール",
-  "zh-tw": "Kaneo 帳號通知",
+  en: brandText("Kaneo account email"),
+  de: brandText("Kaneo Konto-E-Mail"),
+  vi: brandText("Email tài khoản Kaneo"),
+  ja: brandText("Kaneo アカウントメール"),
+  "zh-tw": brandText("Kaneo 帳號通知"),
 } as const;
 
 const setup: Record<keyof typeof fallback, Copy> = {
   en: {
-    preview:
+    preview: brandText(
       "An administrator created a Kaneo account for you. Choose a password to sign in.",
-    title: "Set up your Kaneo account",
+    ),
+    title: brandText("Set up your Kaneo account"),
     subtitle: (name) =>
-      `${name ? `Hi ${name}, an` : "An"} administrator created a Kaneo account for you. Choose a password to sign in. The link works once and expires in 2 days.`,
+      `${name ? `Hi ${name}, an` : "An"}${brandText(" administrator created a Kaneo account for you. Choose a password to sign in. The link works once and expires in 2 days.")}`,
     cta: "Set password",
     noteTitle: "Not expecting this?",
     note: "You can ignore this email. No password is set until someone opens this link and chooses one.",
   },
   de: {
-    preview:
+    preview: brandText(
       "Eine Administratorin oder ein Administrator hat ein Kaneo-Konto für dich angelegt. Lege ein Passwort fest, um dich anzumelden.",
-    title: "Richte dein Kaneo-Konto ein",
+    ),
+    title: brandText("Richte dein Kaneo-Konto ein"),
     subtitle: (name) =>
-      `${name ? `Hallo ${name}, eine` : "Eine"} Administratorin oder ein Administrator hat ein Kaneo-Konto für dich angelegt. Lege ein Passwort fest, um dich anzumelden. Der Link funktioniert nur einmal und läuft in 2 Tagen ab.`,
+      `${name ? `Hallo ${name}, eine` : "Eine"}${brandText(" Administratorin oder ein Administrator hat ein Kaneo-Konto für dich angelegt. Lege ein Passwort fest, um dich anzumelden. Der Link funktioniert nur einmal und läuft in 2 Tagen ab.")}`,
     cta: "Passwort festlegen",
     noteTitle: "Hast du das nicht erwartet?",
     note: "Dann kannst du diese E-Mail ignorieren. Es wird kein Passwort festgelegt, bis jemand diesen Link öffnet und eines wählt.",
   },
   vi: {
-    preview:
+    preview: brandText(
       "Quản trị viên đã tạo tài khoản Kaneo cho bạn. Hãy đặt mật khẩu để đăng nhập.",
-    title: "Thiết lập tài khoản Kaneo",
+    ),
+    title: brandText("Thiết lập tài khoản Kaneo"),
     subtitle: (name) =>
-      `${name ? `Chào ${name}, quản` : "Quản"} trị viên đã tạo tài khoản Kaneo cho bạn. Hãy đặt mật khẩu để đăng nhập. Liên kết chỉ dùng được một lần và hết hạn sau 2 ngày.`,
+      `${name ? `Chào ${name}, quản` : "Quản"}${brandText(" trị viên đã tạo tài khoản Kaneo cho bạn. Hãy đặt mật khẩu để đăng nhập. Liên kết chỉ dùng được một lần và hết hạn sau 2 ngày.")}`,
     cta: "Đặt mật khẩu",
     noteTitle: "Bạn không mong đợi email này?",
     note: "Bạn có thể bỏ qua email này. Sẽ không có mật khẩu nào được đặt cho đến khi có người mở liên kết này và chọn mật khẩu.",
   },
   ja: {
-    preview:
+    preview: brandText(
       "管理者があなたの Kaneo アカウントを作成しました。パスワードを設定してサインインしてください。",
-    title: "Kaneo アカウントの設定",
+    ),
+    title: brandText("Kaneo アカウントの設定"),
     subtitle: (name) =>
-      `${name ? `${name} さん、` : ""}管理者があなたの Kaneo アカウントを作成しました。パスワードを設定してサインインしてください。リンクは1回のみ有効で、2日で有効期限が切れます。`,
+      `${name ? `${name} さん、` : ""}${brandText("管理者があなたの Kaneo アカウントを作成しました。パスワードを設定してサインインしてください。リンクは1回のみ有効で、2日で有効期限が切れます。")}`,
     cta: "パスワードを設定",
     noteTitle: "心当たりがありませんか？",
     note: "このメールは無視してかまいません。誰かがこのリンクを開いてパスワードを設定しない限り、パスワードは設定されません。",
   },
   "zh-tw": {
-    preview: "管理員已為你建立 Kaneo 帳號。請設定密碼以登入。",
-    title: "設定你的 Kaneo 帳號",
+    preview: brandText("管理員已為你建立 Kaneo 帳號。請設定密碼以登入。"),
+    title: brandText("設定你的 Kaneo 帳號"),
     subtitle: (name) =>
-      `${name ? `${name} 你好，` : ""}管理員已為你建立 Kaneo 帳號。請設定密碼以登入。連結只能使用一次，並將在 2 天後失效。`,
+      `${name ? `${name} 你好，` : ""}${brandText("管理員已為你建立 Kaneo 帳號。請設定密碼以登入。連結只能使用一次，並將在 2 天後失效。")}`,
     cta: "設定密碼",
     noteTitle: "沒有預期收到這封郵件？",
     note: "你可以忽略這封郵件。在有人開啟此連結並設定密碼之前，不會設定任何密碼。",
@@ -109,7 +114,7 @@ const reset: Record<keyof typeof fallback, Copy> = {
       "An administrator sent you a link to choose a new password. It expires in 1 hour.",
     title: "Choose a new password",
     subtitle: (name) =>
-      `${name ? `Hi ${name}, an` : "An"} administrator sent you a link to choose a new Kaneo password. The link works once and expires in 1 hour.`,
+      `${name ? `Hi ${name}, an` : "An"}${brandText(" administrator sent you a link to choose a new Kaneo password. The link works once and expires in 1 hour.")}`,
     cta: "Choose new password",
     noteTitle: "Don't need a new password?",
     note: "You can ignore this email. Your password stays the same until someone opens this link and sets a new one.",
@@ -119,7 +124,7 @@ const reset: Record<keyof typeof fallback, Copy> = {
       "Eine Administratorin oder ein Administrator hat dir einen Link für ein neues Passwort geschickt. Er läuft in 1 Stunde ab.",
     title: "Neues Passwort festlegen",
     subtitle: (name) =>
-      `${name ? `Hallo ${name}, eine` : "Eine"} Administratorin oder ein Administrator hat dir einen Link geschickt, mit dem du ein neues Kaneo-Passwort festlegst. Der Link funktioniert nur einmal und läuft in 1 Stunde ab.`,
+      `${name ? `Hallo ${name}, eine` : "Eine"}${brandText(" Administratorin oder ein Administrator hat dir einen Link geschickt, mit dem du ein neues Kaneo-Passwort festlegst. Der Link funktioniert nur einmal und läuft in 1 Stunde ab.")}`,
     cta: "Neues Passwort festlegen",
     noteTitle: "Brauchst du kein neues Passwort?",
     note: "Dann kannst du diese E-Mail ignorieren. Dein Passwort bleibt gleich, bis jemand diesen Link öffnet und ein neues festlegt.",
@@ -129,7 +134,7 @@ const reset: Record<keyof typeof fallback, Copy> = {
       "Quản trị viên đã gửi cho bạn liên kết để đặt mật khẩu mới. Liên kết hết hạn sau 1 giờ.",
     title: "Đặt mật khẩu mới",
     subtitle: (name) =>
-      `${name ? `Chào ${name}, quản` : "Quản"} trị viên đã gửi cho bạn liên kết để đặt mật khẩu Kaneo mới. Liên kết chỉ dùng được một lần và hết hạn sau 1 giờ.`,
+      `${name ? `Chào ${name}, quản` : "Quản"}${brandText(" trị viên đã gửi cho bạn liên kết để đặt mật khẩu Kaneo mới. Liên kết chỉ dùng được một lần và hết hạn sau 1 giờ.")}`,
     cta: "Đặt mật khẩu mới",
     noteTitle: "Bạn không cần mật khẩu mới?",
     note: "Bạn có thể bỏ qua email này. Mật khẩu của bạn sẽ giữ nguyên cho đến khi có người mở liên kết này và đặt mật khẩu mới.",
@@ -139,7 +144,7 @@ const reset: Record<keyof typeof fallback, Copy> = {
       "管理者から新しいパスワードを設定するためのリンクが届きました。有効期限は1時間です。",
     title: "新しいパスワードの設定",
     subtitle: (name) =>
-      `${name ? `${name} さん、` : ""}管理者から Kaneo の新しいパスワードを設定するためのリンクが届きました。リンクは1回のみ有効で、1時間で有効期限が切れます。`,
+      `${name ? `${name} さん、` : ""}${brandText("管理者から Kaneo の新しいパスワードを設定するためのリンクが届きました。リンクは1回のみ有効で、1時間で有効期限が切れます。")}`,
     cta: "新しいパスワードを設定",
     noteTitle: "新しいパスワードが不要な場合",
     note: "このメールは無視してかまいません。誰かがこのリンクを開いて新しいパスワードを設定しない限り、パスワードは変更されません。",
@@ -148,7 +153,7 @@ const reset: Record<keyof typeof fallback, Copy> = {
     preview: "管理員寄給你設定新密碼的連結。連結將在 1 小時後失效。",
     title: "設定新密碼",
     subtitle: (name) =>
-      `${name ? `${name} 你好，` : ""}管理員寄給你設定新 Kaneo 密碼的連結。連結只能使用一次，並將在 1 小時後失效。`,
+      `${name ? `${name} 你好，` : ""}${brandText("管理員寄給你設定新 Kaneo 密碼的連結。連結只能使用一次，並將在 1 小時後失效。")}`,
     cta: "設定新密碼",
     noteTitle: "不需要新密碼？",
     note: "你可以忽略這封郵件。在有人開啟此連結並設定新密碼之前，你的密碼都不會變更。",
@@ -191,11 +196,13 @@ const AccountPasswordEmail = ({
 
 AccountPasswordEmail.PreviewProps = {
   purpose: "setup",
-  passwordLink: "https://cloud.kaneo.app/auth/reset-password?token=example",
+  passwordLink: brandText(
+    "https://cloud.kaneo.app/auth/reset-password?token=example",
+  ),
   userName: "Maya",
   locale: "en-US",
   email: "maya@example.com",
-  instance: "cloud.kaneo.app",
+  instance: brandText("cloud.kaneo.app"),
 } as AccountPasswordEmailProps;
 
 export default AccountPasswordEmail;

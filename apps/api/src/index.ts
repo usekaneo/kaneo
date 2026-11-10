@@ -1,3 +1,7 @@
+import { brandText } from "@kaneo/branding";
+import quills from "./quills";
+import { runQuillsMigrations } from "./database/quills/migrate";
+import { resolveDatabaseConfig } from "./database/resolve-database-url";
 import { startWebhookWorker } from "./admin/webhooks/start-webhook-worker";
 import integrationSync from "./integration-sync";
 import { syncWorkspaceAccess } from "./ws/workspace-access";
@@ -238,7 +242,9 @@ export function createApp() {
 
   if (!corsOrigins && !reflectUnconfiguredOrigins) {
     console.warn(
-      "[cors] Neither CORS_ORIGINS nor KANEO_CLIENT_URL is set, so cross-origin requests are refused. Same-origin deployments (the bundled image) are unaffected; set KANEO_CLIENT_URL if the web app is served from another origin.",
+      brandText(
+        "[cors] Neither CORS_ORIGINS nor KANEO_CLIENT_URL is set, so cross-origin requests are refused. Same-origin deployments (the bundled image) are unaffected; set KANEO_CLIENT_URL if the web app is served from another origin.",
+      ),
     );
   }
 
@@ -661,17 +667,18 @@ export function createApp() {
     const document = api.getOpenAPI31Document({
       openapi: "3.1.0",
       info: {
-        title: "Kaneo API",
+        title: brandText("Kaneo API"),
         version: "1.0.0",
-        description:
+        description: brandText(
           "Kaneo Project Management API - Manage projects, tasks, labels, and more",
+        ),
       },
       servers: [
         {
           url: normalizeApiServerUrl(
-            process.env.KANEO_API_URL || "https://cloud.kaneo.app",
+            process.env.KANEO_API_URL || brandText("https://cloud.kaneo.app"),
           ),
-          description: "Kaneo API Server",
+          description: brandText("Kaneo API Server"),
         },
       ],
       security: [{ bearerAuth: [] }],
@@ -794,7 +801,7 @@ export function createApp() {
       Sentry.setUser(null);
       try {
         await authenticateApiRequest(c);
-        const windowId = c.req.header("X-Kaneo-Window-Id");
+        const windowId = c.req.header(brandText("X-Kaneo-Window-Id"));
         const userId = c.get("userId");
         const initiatorId = windowId ? `${userId}:${windowId}` : userId;
         return await eventContext.run({ initiatorId }, next);
@@ -871,6 +878,7 @@ export function createApp() {
   const workflowRuleApi = api.route("/workflow-rule", workflowRule);
   const invitationApi = api.route("/invitation", invitation);
   const workspaceApi = api.route("/workspace", workspace);
+  const quillsApi = api.route("/quills", quills);
   const customFieldApi = api.route("/custom-field", customField);
   const importApi = api.route("/import", importRoutes);
   const userApi = api.route("/user", user);
@@ -1013,6 +1021,7 @@ export function createApp() {
     adminApi,
     workflowRuleApi,
     workspaceApi,
+    quillsApi,
     customFieldApi,
     importApi,
     oauthApi,
@@ -1050,6 +1059,13 @@ export async function runStartupTasks() {
   await migrateGitHubIntegration();
   await migrateColumns();
   await seedDefaultWorkspaceRoles();
+  const quillsDatabase = resolveDatabaseConfig();
+  await runQuillsMigrations(
+    process.env.QUILLS_MIGRATION_DATABASE_URL ||
+      quillsDatabase.connectionString,
+    `${currentDir}/../drizzle/quills`,
+    quillsDatabase.username || undefined,
+  );
 
   initializePlugins();
   initializeScheduler();
@@ -1148,6 +1164,7 @@ const {
   adminApi,
   workflowRuleApi,
   workspaceApi,
+  quillsApi,
   customFieldApi,
   importApi,
   oauthApi,
@@ -1191,6 +1208,7 @@ export type AppType =
   | typeof workflowRuleApi
   | typeof invitationApi
   | typeof workspaceApi
+  | typeof quillsApi
   | typeof customFieldApi
   | typeof importApi
   | typeof userApi

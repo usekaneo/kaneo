@@ -2,7 +2,7 @@ name: kaneo-browserstack-e2e
 
 services:
   postgres:
-    image: postgres:18-alpine
+    image: pgvector/pgvector:0.8.7-pg18-bookworm
     environment:
       POSTGRES_DB: kaneo_e2e
       POSTGRES_USER: kaneo_e2e

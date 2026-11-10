@@ -1,6 +1,6 @@
 services:
   postgres:
-    image: postgres:16-alpine
+    image: pgvector/pgvector:0.8.7-pg16-bookworm
     env_file:
       - .env
     environment:

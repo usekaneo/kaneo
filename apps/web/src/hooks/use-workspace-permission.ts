@@ -52,6 +52,11 @@ export function useWorkspacePermission() {
 
   const helpers = useMemo(() => {
     return {
+      canReadQuills: () => can.readQuills,
+      canCreateQuills: () => can.createQuills,
+      canUpdateQuills: () => can.updateQuills,
+      canDeleteQuills: () => can.deleteQuills,
+      canManageQuillsSettings: () => can.manageQuillsSettings,
       canManageProjects: () => can.manageProjects,
       canCreateProjects: () => can.createProjects,
       canUpdateProjects: () => can.updateProjects,

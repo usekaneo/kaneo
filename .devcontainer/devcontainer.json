@@ -3,8 +3,9 @@
 {
 	"name": "Node.js & TypeScript",
 	// Or use a Dockerfile or Docker Compose file. More info: https://containers.dev/guide/dockerfile
-	"image": "mcr.microsoft.com/devcontainers/typescript-node:1-22-bookworm",
+	"image": "mcr.microsoft.com/devcontainers/base:bookworm",
 	"features": {
+		"ghcr.io/devcontainers/features/node:1": { "version": "24.22.1" },
 		"ghcr.io/devcontainers/features/git:1": {},
 		"ghcr.io/shyim/devcontainers-features/bun:0": {}
 	}

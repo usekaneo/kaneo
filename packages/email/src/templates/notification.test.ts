@@ -1,3 +1,4 @@
+import { brandText } from "@kaneo/branding";
 import { render } from "react-email";
 import { createElement } from "react";
 import { describe, expect, it } from "vite-plus/test";
@@ -13,7 +14,7 @@ describe("NotificationEmail", () => {
         locale: "ja-JP",
       }),
     );
-    expect(html).toContain("Kaneo で開く");
+    expect(html).toContain(brandText("Kaneo で開く"));
     expect(html).toContain("配信設定に一致する通知がありました。");
   });
 
@@ -26,7 +27,7 @@ describe("NotificationEmail", () => {
         locale: "zh-TW",
       }),
     );
-    expect(html).toContain("在 Kaneo 中開啟");
+    expect(html).toContain(brandText("在 Kaneo 中開啟"));
     expect(html).toContain("有一則通知符合你的通知設定。");
   });
 
