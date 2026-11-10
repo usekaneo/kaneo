@@ -3187,8 +3187,6 @@
 			"range": "Rentang tanggal",
 			"before": "Sebelum",
 			"after": "Setelah",
-			"from": "Dari",
-			"to": "Hingga",
 			"apply": "Terapkan filter tanggal",
 			"exactValue": "Pada {{date}}",
 			"beforeValue": "Sebelum {{date}}",

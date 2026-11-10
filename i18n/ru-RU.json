@@ -3357,8 +3357,6 @@
 			"range": "Диапазон дат",
 			"before": "До",
 			"after": "После",
-			"from": "С",
-			"to": "По",
 			"apply": "Применить фильтр по дате",
 			"exactValue": "На {{date}}",
 			"beforeValue": "До {{date}}",

@@ -3187,8 +3187,6 @@
 			"range": "Khoảng ngày",
 			"before": "Trước",
 			"after": "Sau",
-			"from": "Từ",
-			"to": "Đến",
 			"apply": "Áp dụng bộ lọc ngày",
 			"exactValue": "Vào {{date}}",
 			"beforeValue": "Trước {{date}}",

@@ -3295,8 +3295,6 @@
 			"range": "Intervallo di date",
 			"before": "Prima di",
 			"after": "Dopo",
-			"from": "Da",
-			"to": "A",
 			"apply": "Applica filtro per data",
 			"exactValue": "Il {{date}}",
 			"beforeValue": "Prima del {{date}}",

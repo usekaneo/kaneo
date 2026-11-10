@@ -3187,8 +3187,6 @@
 			"range": "날짜 범위",
 			"before": "지정일 이전",
 			"after": "지정일 이후",
-			"from": "시작일",
-			"to": "종료일",
 			"apply": "날짜 필터 적용",
 			"exactValue": "{{date}} 당일",
 			"beforeValue": "{{date}} 이전",

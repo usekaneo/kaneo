@@ -10,7 +10,6 @@ import {
 } from "@/components/ui/select";
 import { format, parseISO } from "date-fns";
 import { MonthGrid } from "@/components/common/date-picker/month-grid";
-import { formatDateMedium } from "@/lib/format";
 import {
   parseDateCondition,
   serializeDateCondition,
@@ -31,8 +30,6 @@ export function DateFilterEditor({
   );
   const [date, setDate] = useState(initial?.date ?? "");
   const [end, setEnd] = useState(initial?.end ?? "");
-  const [endpoint, setEndpoint] = useState<"date" | "end">("date");
-  const activeDate = operator === "range" && endpoint === "end" ? end : date;
   const value = serializeDateCondition({ operator, date, end });
   const operators = [
     { value: "exact", label: t("tasks:dateFilter.exact") },
@@ -49,7 +46,6 @@ export function DateFilterEditor({
         onValueChange={(value) => {
           if (!value) return;
           setOperator(value);
-          setEndpoint("date");
         }}
       >
         <SelectTrigger size="sm" aria-label={t("tasks:dateFilter.condition")}>
@@ -63,58 +59,29 @@ export function DateFilterEditor({
           ))}
         </SelectPopup>
       </Select>
-      {operator === "range" && (
-        <div className="flex gap-1">
-          <Button
-            type="button"
-            size="sm"
-            variant={endpoint === "date" ? "secondary" : "ghost"}
-            className="flex-1"
-            aria-pressed={endpoint === "date"}
-            onClick={() => setEndpoint("date")}
-          >
-            {date
-              ? formatDateMedium(parseISO(date))
-              : t("tasks:dateFilter.from")}
-          </Button>
-          <Button
-            type="button"
-            size="sm"
-            variant={endpoint === "end" ? "secondary" : "ghost"}
-            className="flex-1"
-            aria-pressed={endpoint === "end"}
-            onClick={() => setEndpoint("end")}
-          >
-            {end ? formatDateMedium(parseISO(end)) : t("tasks:dateFilter.to")}
-          </Button>
-        </div>
-      )}
-      <MonthGrid
-        key={`${operator}-${endpoint}`}
-        value={activeDate ? parseISO(activeDate) : null}
-        autoFocus={false}
-        defaultMonth={
-          activeDate ? parseISO(activeDate) : date ? parseISO(date) : undefined
-        }
-        marked={operator === "range" && date ? parseISO(date) : undefined}
-        disabled={
-          operator === "range" && endpoint === "end" && date
-            ? [{ before: parseISO(date) }]
-            : undefined
-        }
-        onSelect={(selectedDate) => {
-          const day = format(selectedDate, "yyyy-MM-dd");
-          if (operator === "range" && endpoint === "end") {
-            setEnd(day);
-          } else {
-            setDate(day);
-            if (operator === "range") {
-              if (end && end < day) setEnd("");
-              setEndpoint("end");
-            }
+      {operator === "range" ? (
+        <MonthGrid
+          mode="range"
+          value={
+            date
+              ? { from: parseISO(date), to: end ? parseISO(end) : undefined }
+              : undefined
           }
-        }}
-      />
+          autoFocus={false}
+          onSelect={(range) => {
+            setDate(range.from ? format(range.from, "yyyy-MM-dd") : "");
+            setEnd(range.to ? format(range.to, "yyyy-MM-dd") : "");
+          }}
+        />
+      ) : (
+        <MonthGrid
+          value={date ? parseISO(date) : null}
+          autoFocus={false}
+          onSelect={(selectedDate) =>
+            setDate(format(selectedDate, "yyyy-MM-dd"))
+          }
+        />
+      )}
       <Button
         type="button"
         size="sm"

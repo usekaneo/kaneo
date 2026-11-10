@@ -3637,8 +3637,6 @@
 			"range": "Zakres dat",
 			"before": "Przed",
 			"after": "Po",
-			"from": "Od",
-			"to": "Do",
 			"apply": "Zastosuj filtr daty",
 			"exactValue": "W dniu {{date}}",
 			"beforeValue": "Przed {{date}}",

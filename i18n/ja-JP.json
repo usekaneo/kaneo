@@ -3187,8 +3187,6 @@
 			"range": "日付範囲",
 			"before": "指定日より前",
 			"after": "指定日より後",
-			"from": "開始日",
-			"to": "終了日",
 			"apply": "日付フィルターを適用",
 			"exactValue": "{{date}}",
 			"beforeValue": "{{date}}より前",

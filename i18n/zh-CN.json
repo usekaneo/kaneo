@@ -3187,8 +3187,6 @@
 			"range": "日期范围",
 			"before": "早于",
 			"after": "晚于",
-			"from": "起始日期",
-			"to": "结束日期",
 			"apply": "应用日期筛选",
 			"exactValue": "在 {{date}}",
 			"beforeValue": "早于 {{date}}",

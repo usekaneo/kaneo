@@ -3295,8 +3295,6 @@
 			"range": "Plage de dates",
 			"before": "Avant",
 			"after": "Après",
-			"from": "Du",
-			"to": "Au",
 			"apply": "Appliquer le filtre de date",
 			"exactValue": "Le {{date}}",
 			"beforeValue": "Avant le {{date}}",

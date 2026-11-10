@@ -34,25 +34,6 @@ it("edits an exact date with the shared calendar", () => {
   expect(onApply).toHaveBeenCalledWith("exact:2026-10-15");
 });
 
-it("clears an invalid end date and selects a new range endpoint", () => {
-  const onApply = vi.fn();
-  render(
-    <DateFilterEditor
-      selected={["range:2026-10-01:2026-10-15"]}
-      onApply={onApply}
-    />,
-  );
-  fireEvent.click(screen.getByRole("button", { name: /October 20th, 2026/ }));
-  const apply = screen.getByRole("button", { name: "tasks:dateFilter.apply" });
-  expect(apply).toBeDisabled();
-  expect(
-    screen.getByRole("button", { name: /October 19th, 2026/ }),
-  ).toBeDisabled();
-  fireEvent.click(screen.getByRole("button", { name: /October 25th, 2026/ }));
-  fireEvent.click(apply);
-  expect(onApply).toHaveBeenCalledWith("range:2026-10-20:2026-10-25");
-});
-
 it("switches conditions without losing the selected date", async () => {
   const onApply = vi.fn();
   render(
@@ -78,7 +59,7 @@ it("switches conditions without losing the selected date", async () => {
   ).not.toBeInTheDocument();
 });
 
-it("shows endpoint controls only for a range and retains both dates", async () => {
+it("retains the range when switching conditions", async () => {
   const onApply = vi.fn();
   render(
     <DateFilterEditor
@@ -89,7 +70,6 @@ it("shows endpoint controls only for a range and retains both dates", async () =
   const condition = screen.getByRole("combobox", {
     name: "tasks:dateFilter.condition",
   });
-  expect(screen.getByRole("button", { name: "Oct 15, 2026" })).toBeVisible();
   fireEvent.click(condition);
   fireEvent.pointerDown(
     await screen.findByRole("option", { name: "tasks:dateFilter.after" }),
@@ -97,9 +77,6 @@ it("shows endpoint controls only for a range and retains both dates", async () =
   fireEvent.click(
     screen.getByRole("option", { name: "tasks:dateFilter.after" }),
   );
-  expect(
-    screen.queryByRole("button", { name: "Oct 15, 2026" }),
-  ).not.toBeInTheDocument();
   await waitFor(() => {
     expect(screen.queryByRole("listbox")).not.toBeInTheDocument();
   });
@@ -115,4 +92,53 @@ it("shows endpoint controls only for a range and retains both dates", async () =
   );
 
   expect(onApply).toHaveBeenCalledWith("range:2026-10-01:2026-10-15");
+});
+
+it("selects an inclusive range directly on the calendar", async () => {
+  const onApply = vi.fn();
+  render(
+    <DateFilterEditor selected={["exact:2026-10-01"]} onApply={onApply} />,
+  );
+  fireEvent.click(
+    screen.getByRole("combobox", { name: "tasks:dateFilter.condition" }),
+  );
+  const between = await screen.findByRole("option", {
+    name: "tasks:dateFilter.range",
+  });
+  fireEvent.pointerDown(between);
+  fireEvent.click(between);
+  fireEvent.click(screen.getByRole("button", { name: /October 15th, 2026/ }));
+  expect(
+    screen.getByRole("button", { name: /October 8th, 2026/ }).closest("td"),
+  ).toHaveClass("bg-accent");
+  fireEvent.click(
+    screen.getByRole("button", { name: "tasks:dateFilter.apply" }),
+  );
+  expect(onApply).toHaveBeenCalledWith("range:2026-10-01:2026-10-15");
+});
+
+it.each([
+  ["October 25th, 2026", "range:2026-10-20:2026-10-25"],
+  ["October 20th, 2026", "range:2026-10-20:2026-10-20"],
+  ["October 10th, 2026", "range:2026-10-10:2026-10-20"],
+])("starts a new range and completes it on %s", (lastDay, expected) => {
+  const onApply = vi.fn();
+  render(
+    <DateFilterEditor
+      selected={["range:2026-10-01:2026-10-15"]}
+      onApply={onApply}
+    />,
+  );
+  fireEvent.click(screen.getByRole("button", { name: /October 20th, 2026/ }));
+  expect(
+    screen.getByRole("button", { name: "tasks:dateFilter.apply" }),
+  ).toBeDisabled();
+  expect(
+    screen.getByRole("button", { name: /October 20th, 2026/ }).closest("td"),
+  ).toHaveClass("*:bg-foreground");
+  fireEvent.click(screen.getByRole("button", { name: new RegExp(lastDay) }));
+  fireEvent.click(
+    screen.getByRole("button", { name: "tasks:dateFilter.apply" }),
+  );
+  expect(onApply).toHaveBeenCalledWith(expected);
 });
