@@ -69,11 +69,45 @@ describe("getLocalizedDeliveryContent", () => {
     expect(body(300)).toMatch(/ 5 часов$/);
   });
 
-  it("returns null when a placeholder value is missing", () => {
+  it.each([null, undefined, "", "   "])(
+    "localizes an unnamed mention author (%j)",
+    (mentionerName) => {
+      expect(
+        getLocalizedDeliveryContent(
+          "task_mention",
+          { mentionerName, taskTitle: "A" },
+          "de-DE",
+        ),
+      ).toEqual({
+        title: "Jemand hat dich erwähnt",
+        body: "Jemand hat dich in „A“ erwähnt",
+      });
+    },
+  );
+
+  it("preserves named authors and uses the recipient's anonymous label", () => {
     expect(
       getLocalizedDeliveryContent(
         "task_mention",
-        { mentionerName: null, taskTitle: "A" },
+        { mentionerName: "Ada", taskTitle: "A" },
+        "de-DE",
+      )?.title,
+    ).toBe("Ada hat dich erwähnt");
+    expect(
+      getLocalizedDeliveryContent("task_mention", { taskTitle: "A" }, "ja-JP")
+        ?.title,
+    ).toBe("ユーザー さんがあなたをメンションしました");
+    expect(
+      getLocalizedDeliveryContent("task_mention", { taskTitle: "A" }, "xx")
+        ?.title,
+    ).toBe("Someone mentioned you");
+  });
+
+  it("returns null when another required placeholder is missing", () => {
+    expect(
+      getLocalizedDeliveryContent(
+        "task_mention",
+        { mentionerName: "Ada", taskTitle: null },
         "de-DE",
       ),
     ).toBeNull();

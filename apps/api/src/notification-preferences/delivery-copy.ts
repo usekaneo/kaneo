@@ -25,6 +25,7 @@ import {
 } from "../utils/supported-locales";
 
 type Bundle = {
+  common: { people: { someone: string } };
   notifications: {
     events: Record<string, Record<string, string>>;
     reminderLeadTime: Record<string, string>;
@@ -123,7 +124,16 @@ export function getLocalizedDeliveryContent(
 
   let vars: Vars = eventData;
   let content = copy.content;
-  if (type === "task_status_changed") {
+  if (type === "task_mention") {
+    const name = eventData.mentionerName;
+    vars = {
+      ...eventData,
+      mentionerName:
+        typeof name === "string" && name.trim()
+          ? name
+          : bundle.common.people.someone,
+    };
+  } else if (type === "task_status_changed") {
     vars = {
       ...eventData,
       oldStatus: statusLabel(bundle, eventData.oldStatus),
@@ -139,8 +149,7 @@ export function getLocalizedDeliveryContent(
 
   const title = copy.title ?? "";
   const body = content ?? "";
-  // Payloads can carry null names or titles; let the caller's English copy,
-  // which handles those, take over instead of sending " mentioned you".
+  // Keep the existing fallback for payloads still missing required values.
   const missing = [...`${title}${body}`.matchAll(PLACEHOLDER)].some(
     ([, key]) => vars[key as string] == null || vars[key as string] === "",
   );
