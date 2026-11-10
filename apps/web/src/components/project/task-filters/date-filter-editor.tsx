@@ -1,6 +1,13 @@
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
+import {
+  Select,
+  SelectItem,
+  SelectPopup,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { format, parseISO } from "date-fns";
 import { MonthGrid } from "@/components/common/date-picker/month-grid";
 import { formatDateMedium } from "@/lib/format";
@@ -36,43 +43,40 @@ export function DateFilterEditor({
 
   return (
     <div className="space-y-3 border-t p-3">
-      <div
-        role="group"
-        aria-label={t("tasks:dateFilter.condition")}
-        className="grid grid-cols-2 gap-1"
+      <Select
+        items={operators}
+        value={operator}
+        onValueChange={(value) => {
+          if (!value) return;
+          setOperator(value);
+          setEndpoint("date");
+        }}
       >
-        {operators.map((item) => (
+        <SelectTrigger size="sm" aria-label={t("tasks:dateFilter.condition")}>
+          <SelectValue />
+        </SelectTrigger>
+        <SelectPopup>
+          {operators.map((item) => (
+            <SelectItem key={item.value} value={item.value}>
+              {item.label}
+            </SelectItem>
+          ))}
+        </SelectPopup>
+      </Select>
+      {operator === "range" && (
+        <div className="flex gap-1">
           <Button
-            key={item.value}
             type="button"
             size="sm"
-            variant={operator === item.value ? "secondary" : "ghost"}
-            aria-pressed={operator === item.value}
-            onClick={() => {
-              setOperator(item.value);
-              setEndpoint("date");
-            }}
+            variant={endpoint === "date" ? "secondary" : "ghost"}
+            className="flex-1"
+            aria-pressed={endpoint === "date"}
+            onClick={() => setEndpoint("date")}
           >
-            {item.label}
+            {date
+              ? formatDateMedium(parseISO(date))
+              : t("tasks:dateFilter.from")}
           </Button>
-        ))}
-      </div>
-      <div className="flex gap-1">
-        <Button
-          type="button"
-          size="sm"
-          variant={endpoint === "date" ? "secondary" : "ghost"}
-          className="flex-1"
-          aria-pressed={endpoint === "date"}
-          onClick={() => setEndpoint("date")}
-        >
-          {date
-            ? formatDateMedium(parseISO(date))
-            : operator === "range"
-              ? t("tasks:dateFilter.from")
-              : t("tasks:dateFilter.date")}
-        </Button>
-        {operator === "range" && (
           <Button
             type="button"
             size="sm"
@@ -83,8 +87,8 @@ export function DateFilterEditor({
           >
             {end ? formatDateMedium(parseISO(end)) : t("tasks:dateFilter.to")}
           </Button>
-        )}
-      </div>
+        </div>
+      )}
       <MonthGrid
         key={`${operator}-${endpoint}`}
         value={activeDate ? parseISO(activeDate) : null}
