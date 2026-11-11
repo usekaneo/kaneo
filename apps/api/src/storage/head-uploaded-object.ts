@@ -3,13 +3,12 @@ import {
   type HeadObjectCommandOutput,
   type S3Client,
 } from "@aws-sdk/client-s3";
+import { describeStorageError } from "./describe-storage-error";
 
 export const UPLOAD_VISIBILITY_RETRY_DELAYS_MS = [250, 500, 1000, 2000, 4000];
 
 function storageStatus(error: unknown) {
-  return error instanceof Error && "$metadata" in error
-    ? (error.$metadata as { httpStatusCode?: number }).httpStatusCode
-    : undefined;
+  return describeStorageError(error).status;
 }
 
 export function isMissingObjectError(error: unknown) {

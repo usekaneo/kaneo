@@ -1,4 +1,5 @@
 import { headStorageBucket, isStorageConfigured } from "../../storage/s3";
+import { describeStorageError } from "../../storage/describe-storage-error";
 import { safeErrorCode } from "./safe-error-code";
 import type { ServiceStatus } from "./service-status";
 import { withTimeout } from "./with-timeout";
@@ -10,6 +11,9 @@ type StorageProbe = {
 };
 
 const STORAGE_ENV = [
+  "STORAGE_BACKEND",
+  "AZURE_STORAGE_ACCOUNT_URL",
+  "AZURE_STORAGE_CONTAINER",
   "S3_ENDPOINT",
   "S3_BUCKET",
   "S3_ACCESS_KEY_ID",
@@ -17,9 +21,7 @@ const STORAGE_ENV = [
 ];
 
 function httpStatus(error: unknown) {
-  const status = (error as { $metadata?: { httpStatusCode?: unknown } })
-    ?.$metadata?.httpStatusCode;
-  return typeof status === "number" ? status : undefined;
+  return describeStorageError(error).status;
 }
 
 /**

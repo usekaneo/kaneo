@@ -87,6 +87,23 @@ Name | Description | Default |
 | `S3_KEY_PREFIX` | Optional prefix prepended to all S3 object keys. Useful for sharing a single bucket across multiple environments (e.g. `staging/`, `prod/kaneo/`). Trailing slashes are trimmed automatically. |  |
 | `S3_PRESIGN_TTL_SECONDS` | How long presigned upload URLs remain valid. | `300` |
 
+### Azure Blob Storage
+
+Set `STORAGE_BACKEND=azure` to use native Azure Blob instead of S3. Leave it unset for existing S3 installations.
+
+| Name | Description |
+| --- | --- |
+| `STORAGE_BACKEND` | `s3` (default) or `azure`. Changing it does not migrate existing files. |
+| `AZURE_STORAGE_ACCOUNT_URL` | HTTPS account origin, for example `https://youraccount.blob.core.windows.net`. No container path, credentials, or SAS query. |
+| `AZURE_STORAGE_CONTAINER` | Existing private container for uploads. |
+| `AZURE_STORAGE_KEY_PREFIX` | Optional object prefix, equivalent to `S3_KEY_PREFIX`. |
+
+Azure uses `DefaultAzureCredential`, including managed identity, workload identity, and Azure CLI credentials for local development. Give the identity **Storage Blob Data Contributor** on its container and **Storage Blob Delegator** on its storage account to issue user-delegation SAS URLs. Do not enable anonymous container access or give account keys to the browser.
+
+The browser uploads directly to Azure. Configure Blob service CORS for the exact Kaneo origin, `PUT`, and the `Content-Type` and `x-ms-blob-type` headers. The browser and API must reach the account endpoint.
+
+The existing `S3_MAX_IMAGE_UPLOAD_BYTES` and `S3_PRESIGN_TTL_SECONDS` settings also apply to Azure. Upload URLs are HTTPS, short-lived, and create-only; they cannot read or overwrite a file. Kaneo checks uploaded size and content type before publishing an asset or background. Azure SAS cannot enforce a request's byte length: oversized objects can reach storage before that check, and uploads abandoned before finalization need separate cleanup. Keep access restricted to trusted users if this storage-cost risk is unacceptable.
+
 ### Access Control
 
 Browser WebSocket connections require an exact origin matching `KANEO_CLIENT_URL`,
