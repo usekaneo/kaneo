@@ -39,7 +39,7 @@ function SharedTaskPage() {
 
   if (taskQuery.isLoading) {
     return (
-      <div className="min-h-screen bg-background px-4 py-12">
+      <div className="h-svh w-full overflow-y-auto bg-background px-4 py-12">
         <PageTitle title={t("sharedTask:pageTitle")} />
         <main
           className="mx-auto max-w-4xl animate-pulse space-y-5"
@@ -56,7 +56,7 @@ function SharedTaskPage() {
 
   if (taskQuery.isError || !task) {
     return (
-      <div className="flex min-h-screen w-full flex-col bg-background">
+      <div className="flex h-svh w-full flex-col overflow-y-auto bg-background">
         <PageTitle title={t("sharedTask:error.title")} />
         <main className="flex flex-1 items-center justify-center px-4">
           <div className="space-y-6 text-center">
@@ -85,7 +85,7 @@ function SharedTaskPage() {
   const priorityLabel = getPriorityLabel(task.priority);
 
   return (
-    <div className="min-h-screen bg-background text-foreground">
+    <div className="h-svh w-full overflow-y-auto bg-background text-foreground">
       <PageTitle title={`${task.ticketKey}: ${task.title}`} />
       <header className="border-b border-border bg-background">
         <div className="mx-auto flex max-w-4xl items-center justify-between gap-4 px-4 py-4 sm:px-6">
