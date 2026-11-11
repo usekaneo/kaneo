@@ -150,8 +150,7 @@ export function resolveS3Credentials(
 function storageSecret(name: string) {
   try {
     return resolveFileSecret(name)?.trim() || "";
-  } catch (error) {
-    console.error(error);
+  } catch {
     throw new Error(`S3 uploads are not configured. ${name}_FILE is invalid.`);
   }
 }
@@ -159,14 +158,14 @@ function storageSecret(name: string) {
 function getStorageConfig(): StorageConfig {
   const endpoint = env("S3_ENDPOINT");
   const bucket = env("S3_BUCKET");
-  const accessKeyId = storageSecret("S3_ACCESS_KEY_ID");
-  const secretAccessKey = storageSecret("S3_SECRET_ACCESS_KEY");
-
   if (!endpoint || !bucket) {
     throw new Error(
       "S3 uploads are not configured. Set S3_ENDPOINT and S3_BUCKET (and either both S3_ACCESS_KEY_ID and S3_SECRET_ACCESS_KEY, or neither to use the default AWS credential provider chain / IAM role).",
     );
   }
+
+  const accessKeyId = storageSecret("S3_ACCESS_KEY_ID");
+  const secretAccessKey = storageSecret("S3_SECRET_ACCESS_KEY");
 
   // Validate the access key pair early so misconfiguration surfaces here rather
   // than as an opaque signing error later.

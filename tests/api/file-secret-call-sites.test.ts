@@ -2,6 +2,8 @@ import { mkdtempSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { afterEach, beforeEach, describe, expect, it } from "vite-plus/test";
+import { probeStorage } from "../../apps/api/src/admin/system/probe-storage";
+import { newSigningSecret } from "../../apps/api/src/admin/webhooks/new-signing-secret";
 import {
   creemApiKey,
   creemWebhookSecret,
@@ -127,6 +129,13 @@ describe("secrets read from _FILE variables", () => {
     expect(decryptSecret(encrypted)).toBe("webhook-token");
   });
 
+  it("creates instance webhook signing secrets with a file-backed encryption key", () => {
+    secretFile("NOTIFICATION_SECRET_ENCRYPTION_KEY", "encryption-key");
+    const { secret, encrypted } = newSigningSecret();
+    expect(encrypted).toMatch(/^enc:v1:/);
+    expect(decryptSecret(encrypted)).toBe(secret);
+  });
+
   it("reads S3 access keys from files", () => {
     process.env.S3_ENDPOINT = "https://s3.example.com";
     process.env.S3_BUCKET = "kaneo";
@@ -135,6 +144,15 @@ describe("secrets read from _FILE variables", () => {
     const config = assertStorageConfigured();
     expect(config.accessKeyId).toBe("access-key");
     expect(config.secretAccessKey).toBe("secret-key");
+  });
+
+  it("reports file-only partial storage configuration as a warning", async () => {
+    missingSecretFile("S3_ACCESS_KEY_ID");
+    expect(await probeStorage(100)).toEqual({
+      status: "warning",
+      configured: false,
+      errorCode: "INCOMPLETE_CONFIG",
+    });
   });
 
   it("reads Creem billing secrets from files", () => {

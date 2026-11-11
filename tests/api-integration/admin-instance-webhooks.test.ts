@@ -1,3 +1,6 @@
+import { mkdtempSync, rmSync, writeFileSync } from "node:fs";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
 import { lookup } from "node:dns/promises";
 import { createHmac } from "node:crypto";
 import { createServer, type Server, type IncomingHttpHeaders } from "node:http";
@@ -292,6 +295,32 @@ describe("instance webhook administration", () => {
           : {}),
       });
       expect(missing.status).toBe(404);
+    }
+  });
+
+  it("creates and rotates webhook secrets with a file-backed encryption key", async () => {
+    const directory = mkdtempSync(join(tmpdir(), "kaneo-admin-key-"));
+    try {
+      const keyFile = join(directory, "key");
+      writeFileSync(keyFile, "test-only-file-encryption-key\r\n");
+      vi.stubEnv("NOTIFICATION_SECRET_ENCRYPTION_KEY", "");
+      vi.stubEnv("NOTIFICATION_SECRET_ENCRYPTION_KEY_FILE", keyFile);
+      expect(await (await admin.api("/webhooks")).json()).toMatchObject({
+        signingConfigured: true,
+      });
+      const { webhook } = await create();
+      const rotated = await admin.api(`/webhooks/${webhook.id}/rotate-secret`, {
+        method: "POST",
+      });
+      expect(rotated.status).toBe(200);
+      const body = await rotated.json();
+      expect(body.secret).toEqual(expect.any(String));
+      const listed = await (await admin.api("/webhooks")).text();
+      expect(listed).not.toContain(body.secret);
+      expect(listed).not.toContain(keyFile);
+      expect(listed).not.toContain("test-only-file-encryption-key");
+    } finally {
+      rmSync(directory, { recursive: true, force: true });
     }
   });
 

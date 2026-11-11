@@ -6,6 +6,7 @@ type SmtpEnv = Record<string, string | undefined>;
 // Same rules as resolveFileSecret in apps/api, which this package cannot import.
 function resolveSmtpPassword(env: SmtpEnv): string | undefined {
   if (env.SMTP_PASSWORD) return env.SMTP_PASSWORD;
+  if (!isSmtpConfigured(env)) return undefined;
   const filePath = env.SMTP_PASSWORD_FILE;
   if (!filePath) return undefined;
 

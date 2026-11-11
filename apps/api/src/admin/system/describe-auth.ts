@@ -35,6 +35,25 @@ function customOAuthEndpoint() {
     : "";
 }
 
+function githubStatus(): ServiceStatus {
+  try {
+    const { clientId, clientSecret } = getGithubSsoOAuthCredentials();
+    if (clientId && clientSecret) return "ok";
+  } catch {
+    // An invalid secret file is a configuration warning, not a failed status page.
+  }
+  return [
+    "GITHUB_OAUTH_CLIENT_ID",
+    "GITHUB_OAUTH_CLIENT_SECRET",
+    "GITHUB_OAUTH_CLIENT_SECRET_FILE",
+    "GITHUB_CLIENT_ID",
+    "GITHUB_CLIENT_SECRET",
+    "GITHUB_CLIENT_SECRET_FILE",
+  ].some((name) => env(name))
+    ? "warning"
+    : "not_configured";
+}
+
 /**
  * Which sign-in paths this instance offers. Only booleans and display names
  * leave here: never client ids, secrets, or provider URLs.
@@ -48,13 +67,12 @@ export function describeAuth(
   const disableLoginForm = process.env.DISABLE_LOGIN_FORM === "true";
   const disableRegistration = !instance.registrationEnabled;
   const disablePasswordRegistration = !instance.passwordRegistrationEnabled;
-  const github = getGithubSsoOAuthCredentials();
   const providers: AuthProvider[] = [
     {
       id: "github",
       name: "GitHub",
       // Same resolution as sign-in, so a mixed pair isn't shown as usable.
-      status: credentialSetStatus([github.clientId, github.clientSecret]),
+      status: githubStatus(),
     },
     {
       id: "google",

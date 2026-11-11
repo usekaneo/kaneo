@@ -80,6 +80,27 @@ describe("getSmtpTransportOptions", () => {
 });
 
 describe("SMTP_PASSWORD_FILE", () => {
+  it.each([
+    { SMTP_FROM: "kaneo@example.test" },
+    { SMTP_HOST: "smtp.example.test" },
+  ])("ignores an unused password file when SMTP is disabled: %j", (env) => {
+    expect(
+      getSmtpTransportOptions({
+        ...env,
+        SMTP_USER: "me",
+        SMTP_PASSWORD_FILE: "/missing/kaneo-smtp-password",
+      }).auth,
+    ).toBeUndefined();
+    expect(
+      getSmtpTransportOptions({
+        ...env,
+        SMTP_USER: "me",
+        SMTP_PASSWORD: "direct",
+        SMTP_PASSWORD_FILE: "/missing/kaneo-smtp-password",
+      }).auth,
+    ).toEqual({ user: "me", pass: "direct" });
+  });
+
   it("reads the password from a file and prefers SMTP_PASSWORD", () => {
     const directory = mkdtempSync(path.join(tmpdir(), "kaneo-smtp-"));
     try {
@@ -87,6 +108,7 @@ describe("SMTP_PASSWORD_FILE", () => {
       writeFileSync(file, "file-secret\n");
       const env = {
         SMTP_HOST: "smtp.example.com",
+        SMTP_FROM: "kaneo@example.test",
         SMTP_USER: "me",
         SMTP_PASSWORD_FILE: file,
       };
@@ -108,7 +130,11 @@ describe("SMTP_PASSWORD_FILE", () => {
     try {
       const empty = path.join(directory, "empty");
       writeFileSync(empty, "\n");
-      const env = { SMTP_HOST: "smtp.example.com", SMTP_USER: "me" };
+      const env = {
+        SMTP_HOST: "smtp.example.com",
+        SMTP_FROM: "kaneo@example.test",
+        SMTP_USER: "me",
+      };
 
       expect(() =>
         getSmtpTransportOptions({
