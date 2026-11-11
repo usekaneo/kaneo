@@ -1,6 +1,6 @@
 import { startOfDay } from "date-fns";
 import { ChevronLeftIcon, ChevronRightIcon } from "lucide-react";
-import { DayPicker, type Matcher } from "react-day-picker";
+import { DayPicker, type DateRange, type Matcher } from "react-day-picker";
 import { cn } from "@/lib/cn";
 import { useUserPreferencesStore } from "@/store/user-preferences";
 
@@ -52,34 +52,62 @@ function Chevron({
 }
 
 type MonthGridProps = {
-  value: Date | null;
-  onSelect: (date: Date) => void;
   disabled?: Matcher[];
   marked?: Date;
   highlighted?: Date[];
   autoFocus?: boolean;
-};
+  defaultMonth?: Date;
+} & (
+  | { mode?: "single"; value: Date | null; onSelect: (date: Date) => void }
+  | {
+      mode: "range";
+      value: DateRange | undefined;
+      onSelect: (range: DateRange) => void;
+    }
+);
 
-export function MonthGrid({
-  value,
-  onSelect,
-  disabled,
-  marked,
-  highlighted,
-  autoFocus = true,
-}: MonthGridProps) {
+export function MonthGrid(props: MonthGridProps) {
+  const {
+    disabled,
+    marked,
+    highlighted,
+    autoFocus = true,
+    defaultMonth,
+  } = props;
   const weekStartsOn = useUserPreferencesStore((state) => state.weekStartsOn);
   const today = startOfDay(new Date());
 
+  const valueMonth = props.mode === "range" ? props.value?.from : props.value;
+  const selection =
+    props.mode === "range"
+      ? {
+          mode: "range" as const,
+          selected: props.value,
+          onSelect: (_range: DateRange | undefined, day: Date) => {
+            const start = props.value?.from;
+            props.onSelect(
+              start && !props.value?.to
+                ? {
+                    from: day < start ? day : start,
+                    to: day < start ? start : day,
+                  }
+                : { from: day, to: undefined },
+            );
+          },
+        }
+      : {
+          mode: "single" as const,
+          selected: props.value ?? undefined,
+          onSelect: props.onSelect,
+        };
+
   return (
     <DayPicker
-      mode="single"
+      {...selection}
       required
       autoFocus={autoFocus}
       showOutsideDays
-      selected={value ?? undefined}
-      defaultMonth={value ?? today}
-      onSelect={onSelect}
+      defaultMonth={defaultMonth ?? valueMonth ?? today}
       disabled={disabled}
       weekStartsOn={weekStartsOn}
       modifiers={{
@@ -88,7 +116,20 @@ export function MonthGrid({
         highlighted: highlighted ?? false,
       }}
       modifiersClassNames={modifiersClassNames}
-      classNames={classNames}
+      classNames={
+        props.mode === "range"
+          ? {
+              ...classNames,
+              selected: props.value?.to ? "" : classNames.selected,
+              range_start:
+                "*:bg-foreground *:font-medium *:text-background *:hover:bg-foreground",
+              range_end:
+                "*:bg-foreground *:font-medium *:text-background *:hover:bg-foreground",
+              range_middle:
+                "bg-accent *:w-full *:rounded-none *:bg-accent *:text-foreground",
+            }
+          : classNames
+      }
       components={{ Chevron }}
     />
   );

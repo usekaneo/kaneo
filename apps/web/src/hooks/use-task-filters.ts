@@ -1,30 +1,28 @@
-import { addWeeks, endOfWeek, isWithinInterval, startOfWeek } from "date-fns";
 import { useEffect, useState } from "react";
 import { useUserPreferencesStore } from "@/store/user-preferences";
 import type { ProjectWithTasks } from "@/types/project";
 import type Task from "@/types/task";
+import { taskMatchesFilters } from "@/lib/task-filters/task-matches-filters";
 
 export type BoardFilters = {
   status: string[] | null;
   priority: string[] | null;
   assignee: string[] | null;
   dueDate: string[] | null;
+  startDate?: string[] | null;
   labels: string[] | null;
   customFields: Record<string, string[]> | null;
   negated?: string[] | null;
 };
 
-export const DUE_DATE_FILTER_VALUES = {
-  dueNextWeek: "dueNextWeek",
-  dueThisWeek: "dueThisWeek",
-  noDueDate: "noDueDate",
-} as const;
+export { DUE_DATE_FILTER_VALUES } from "@/lib/task-filters/due-date-filter-values";
 
 const DEFAULT_FILTERS: BoardFilters = {
   status: null,
   priority: null,
   assignee: null,
   dueDate: null,
+  startDate: null,
   labels: null,
   customFields: null,
 };
@@ -34,6 +32,7 @@ const FILTER_KEYS: Array<keyof BoardFilters> = [
   "priority",
   "assignee",
   "dueDate",
+  "startDate",
   "labels",
   "customFields",
 ];
@@ -99,98 +98,13 @@ export function useTaskFilters(
   }, [filters, storageKey]);
 
   const filterTasks = (tasks: Task[]): Task[] => {
-    return tasks.filter((task) => {
-      if (
-        filters.status &&
-        filters.status.length > 0 &&
-        !filters.status.includes(task.status)
-      ) {
-        return false;
-      }
-
-      if (
-        filters.priority &&
-        filters.priority.length > 0 &&
-        !filters.priority.includes(task.priority ?? "")
-      ) {
-        return false;
-      }
-
-      if (
-        filters.assignee &&
-        filters.assignee.length > 0 &&
-        !filters.assignee.includes(task.userId ?? "")
-      ) {
-        return false;
-      }
-
-      if (filters.dueDate && filters.dueDate.length > 0) {
-        const today = new Date();
-        const taskDate = task.dueDate ? new Date(task.dueDate) : null;
-
-        const matchesAnyDueDate = filters.dueDate.some((dueDateFilter) => {
-          if (dueDateFilter === DUE_DATE_FILTER_VALUES.noDueDate) {
-            return !task.dueDate;
-          }
-
-          if (!taskDate) {
-            return false;
-          }
-
-          switch (dueDateFilter) {
-            case DUE_DATE_FILTER_VALUES.dueThisWeek: {
-              const weekStart = startOfWeek(today, { weekStartsOn });
-              const weekEnd = endOfWeek(today, { weekStartsOn });
-              return isWithinInterval(taskDate, {
-                start: weekStart,
-                end: weekEnd,
-              });
-            }
-            case DUE_DATE_FILTER_VALUES.dueNextWeek: {
-              const nextWeekStart = startOfWeek(addWeeks(today, 1), {
-                weekStartsOn,
-              });
-              const nextWeekEnd = endOfWeek(addWeeks(today, 1), {
-                weekStartsOn,
-              });
-              return isWithinInterval(taskDate, {
-                start: nextWeekStart,
-                end: nextWeekEnd,
-              });
-            }
-            default:
-              return false;
-          }
-        });
-
-        if (!matchesAnyDueDate) {
-          return false;
-        }
-      }
-
-      if (
-        filters.customFields &&
-        Object.keys(filters.customFields).length > 0
-      ) {
-        for (const [fieldId, values] of Object.entries(filters.customFields)) {
-          if (!values || values.length === 0) continue;
-
-          const taskValue =
-            task.customFieldValues?.find((v) => v.fieldId === fieldId)?.value ??
-            null;
-
-          if (taskValue == null || taskValue === "") {
-            return false;
-          }
-
-          if (!values.includes(taskValue)) {
-            return false;
-          }
-        }
-      }
-
-      return true;
-    });
+    return tasks.filter((task) =>
+      taskMatchesFilters(task, filters, {
+        today: new Date(),
+        weekStartsOn,
+        getCustomFieldValues: () => task.customFieldValues ?? [],
+      }),
+    );
   };
 
   const filteredProject = project

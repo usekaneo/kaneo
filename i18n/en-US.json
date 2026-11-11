@@ -3828,6 +3828,20 @@
 			"startsOn": "Starts {{date}}",
 			"beforeStart": "{{date}} is before the start date",
 			"afterDue": "{{date}} is after the due date"
+		},
+		"dateFilter": {
+			"startDate": "Start date",
+			"noDate": "No date",
+			"condition": "Date condition",
+			"exact": "On",
+			"range": "Between",
+			"before": "Before",
+			"after": "After",
+			"apply": "Apply date filter",
+			"exactValue": "On {{date}}",
+			"beforeValue": "Before {{date}}",
+			"afterValue": "After {{date}}",
+			"rangeValue": "{{date}} – {{end}}"
 		}
 	},
 	"invitations": {
