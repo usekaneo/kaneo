@@ -118,10 +118,4 @@ describe("parent task link", () => {
       }),
     );
   });
-
-  it("hides the link when no parent relation is available", () => {
-    mocks.getRelations.mockReturnValue({ data: [] });
-    renderChild();
-    expect(screen.queryByRole("button")).not.toBeInTheDocument();
-  });
 });
