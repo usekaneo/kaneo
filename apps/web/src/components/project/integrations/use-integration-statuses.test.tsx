@@ -19,6 +19,10 @@ const fetchers = vi.hoisted(() => ({
   mattermost: vi.fn(),
   telegram: vi.fn(),
   webhook: vi.fn(),
+  tangled: vi.fn(),
+}));
+vi.mock("@/fetchers/tangled-integration/connection", () => ({
+  getTangledConnection: fetchers.tangled,
 }));
 vi.mock("@/fetchers/github-integration/get-github-integration", () => ({
   default: fetchers.github,
@@ -60,6 +64,21 @@ afterEach(() => {
   client.clear();
 });
 describe("useIntegrationStatuses", () => {
+  it("reports the connected Tangled repository", async () => {
+    fetchers.tangled.mockResolvedValue({
+      repositoryUrl: "https://tangled.org/owner/repo",
+      isActive: true,
+    });
+    const { result } = renderHook(() => useIntegrationStatuses("p1"), {
+      wrapper,
+    });
+    await waitFor(() =>
+      expect(result.current.statuses.tangled).toEqual({
+        state: "connected",
+        detail: "https://tangled.org/owner/repo",
+      }),
+    );
+  });
   it("reads all integrations without a management permission gate", async () => {
     fetchers.slack.mockResolvedValue({
       webhookConfigured: true,

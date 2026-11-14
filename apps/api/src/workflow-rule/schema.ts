@@ -13,8 +13,21 @@ const workflowEventTypes = [
   "issue_reopened",
 ] as const;
 
-export const upsertWorkflowRuleBody = z.object({
-  integrationType: z.string(),
-  eventType: z.enum(workflowEventTypes),
-  columnId: z.string(),
-});
+export const upsertWorkflowRuleBody = z
+  .object({
+    integrationType: z.string(),
+    eventType: z
+      .enum(workflowEventTypes)
+      .describe(
+        "Tangled supports only branch_push; pull request and issue events are not available.",
+      ),
+    columnId: z.string(),
+  })
+  .refine(
+    (body) =>
+      body.integrationType !== "tangled" || body.eventType === "branch_push",
+    {
+      message: "Tangled supports only branch push workflow rules",
+      path: ["eventType"],
+    },
+  );
