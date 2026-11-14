@@ -1,4 +1,3 @@
-# Keep cloud-testing dependencies out of Kaneo's production build graph.
 packages:
   - .
 
@@ -8,7 +7,7 @@ minimumReleaseAgeExclude:
   - minimatch@11.0.4
   - glob@14.0.3
 overrides:
-  "get-uri>basic-ftp": 6.2.3
+  "get-uri>basic-ftp": 6.2.4
   minimatch: 11.0.4
   glob: 14.0.3
   follow-redirects: 1.16.2
