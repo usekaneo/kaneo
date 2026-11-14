@@ -30,6 +30,7 @@ let entries: Array<{
 }> = [];
 let canEdit = true;
 let isLoading = false;
+let isFetching = false;
 let isError = false;
 const refetch = vi.fn();
 
@@ -60,7 +61,7 @@ vi.mock("@/hooks/queries/time-entry/use-get-time-entries", () => ({
     data: entries,
     isLoading,
     isError,
-    isFetching: isLoading,
+    isFetching: isLoading || isFetching,
     refetch,
   }),
 }));
@@ -104,6 +105,7 @@ describe("TaskTimeTracking", () => {
     entries = [];
     canEdit = true;
     isLoading = false;
+    isFetching = false;
     isError = false;
     refetch.mockReset();
   });
@@ -244,6 +246,18 @@ describe("TaskTimeTracking", () => {
     entries = [closed("run1", "u1", 6)];
     rerender(<TaskTimeTracking taskId="t1" />);
     expect(vi.getTimerCount()).toBe(0);
+  });
+
+  it("allows stopping a cached running entry during a background refresh", async () => {
+    entries = [{ ...closed("run1", "u1", 0), endTime: null, duration: null }];
+    isFetching = true;
+    render(<TaskTimeTracking taskId="t1" />);
+    const stop = screen.getByRole("button", {
+      name: "tasks:timeTracking.stop",
+    });
+    expect(stop).toBeEnabled();
+    fireEvent.click(stop);
+    await waitFor(() => expect(updateEntry).toHaveBeenCalledTimes(1));
   });
 
   it("toasts an error when stopping fails", async () => {

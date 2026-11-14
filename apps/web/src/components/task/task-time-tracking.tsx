@@ -124,9 +124,7 @@ export function TaskTimeTracking({ taskId }: TaskTimeTrackingProps) {
               size="xs"
               className="text-muted-foreground gap-1"
               onClick={handleStop}
-              disabled={
-                isStarting || isStopping || isLoading || isFetching || isError
-              }
+              disabled={isStarting || isStopping || isLoading || isError}
             >
               {isStopping ? (
                 <Loader2 className="size-3.5 animate-spin" />
