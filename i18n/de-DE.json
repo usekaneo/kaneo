@@ -3270,6 +3270,20 @@
 		"movedFromOtherProject": "hat die Aufgabe aus einem anderen Projekt nach „{{to}}“ verschoben"
 	},
 	"tasks": {
+		"dateFilter": {
+			"startDate": "Startdatum",
+			"noDate": "Kein Datum",
+			"condition": "Datumsbedingung",
+			"exact": "Genaues Datum",
+			"range": "Datumsbereich",
+			"before": "Vor",
+			"after": "Nach",
+			"apply": "Datumsfilter anwenden",
+			"exactValue": "Am {{date}}",
+			"beforeValue": "Vor dem {{date}}",
+			"afterValue": "Nach dem {{date}}",
+			"rangeValue": "{{date}} – {{end}}"
+		},
 		"title": "Aufgaben",
 		"status": {
 			"label": "Status",
@@ -3819,7 +3833,9 @@
 			"showOnRows": "In Zeilen anzeigen",
 			"checklistProgress": "Checklisten-Fortschritt",
 			"projectBackground": "Projekthintergrund",
-			"layout": "Layout"
+			"layout": "Layout",
+			"includeSubtasks": "Unteraufgaben einbeziehen",
+			"useProjectDefault": "Projektstandard verwenden"
 		},
 		"filterBar": {
 			"label": "Aktive Filter",
@@ -4203,7 +4219,8 @@
 			"title": "Projektmanagement,",
 			"titleAccent": "das nicht selbst zum Projekt wird.",
 			"description": "Open-Source-Projektmanagement mit Boards, Gantt-Diagrammen und GitHub-Integration. Hoste Kaneo kostenlos selbst, inklusive SSO, oder überlasse das Hosting Kaneo Cloud.",
-			"pricingCta": "See pricing"
+			"pricingCta": "See pricing",
+			"appStore": "App Store"
 		},
 		"navigation": {
 			"product": "Produkt",
@@ -4333,6 +4350,11 @@
 				"question": "Können KI-Clients mit Kaneo arbeiten?",
 				"answer": "Ja. Kaneo stellt einen MCP-Server über das Paket @kaneo/mcp und einen HTTP-Endpunkt bereit. Kompatible KI-Clients können Aufgaben mit einem benutzergebundenen API-Schlüssel lesen und aktualisieren. Dabei gelten die Workspace-Berechtigungen.",
 				"link": "MCP-Anleitung lesen"
+			},
+			"mobile": {
+				"answer": "Yes. Kaneo is on the App Store for iPhone and iPad, and Android is coming soon. The app is free for Kaneo Cloud accounts. Connecting it to a self-hosted server is a one-time $9.99 unlock per person, and like the rest of Kaneo, the app is open source.",
+				"link": "Download on the App Store",
+				"question": "Is there a mobile app?"
 			}
 		},
 		"comparison": {

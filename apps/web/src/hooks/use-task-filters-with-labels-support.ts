@@ -22,6 +22,7 @@ const DEFAULT_FILTERS: BoardFilters = {
   priority: null,
   assignee: null,
   dueDate: null,
+  startDate: null,
   labels: null,
   customFields: null,
   negated: null,
@@ -34,6 +35,7 @@ const FILTER_KEYS: Array<keyof BoardFilters> = [
   "priority",
   "assignee",
   "dueDate",
+  "startDate",
   "labels",
   "customFields",
   "negated",
@@ -83,6 +85,15 @@ export function useTaskFiltersWithLabelsSupport(
   descriptionMatches?: ReadonlySet<string>,
   ignore: ReadonlyArray<keyof BoardFilters> = NO_IGNORED_FILTERS,
 ) {
+  const [includeSubtasksOverride, setIncludeSubtasks] = useStoredState<
+    boolean | null
+  >(
+    projectId ? `kaneo:include-subtasks:${projectId}` : null,
+    (raw) => (typeof raw === "boolean" ? raw : null),
+    null,
+  );
+  const includeSubtasks =
+    includeSubtasksOverride ?? project?.includeSubtasks ?? true;
   const weekStartsOn = useUserPreferencesStore((state) => state.weekStartsOn);
   const [filters, setFilters] = useStoredState(
     projectId ? `kaneo:board-filters:${projectId}` : null,
@@ -143,7 +154,9 @@ export function useTaskFiltersWithLabelsSupport(
     const readyFilters = !hasData
       ? { ...effectiveFilters, customFields: null }
       : effectiveFilters;
-    return (task: Task) => taskMatchesFilters(task, readyFilters, context);
+    return (task: Task) =>
+      (includeSubtasks || !task.isSubtask) &&
+      taskMatchesFilters(task, readyFilters, context);
   }, [
     effectiveFilters,
     project?.slug,
@@ -153,6 +166,7 @@ export function useTaskFiltersWithLabelsSupport(
     hasData,
     descriptionMatches,
     matchingLabelIds,
+    includeSubtasks,
   ]);
 
   const filterTasks = useCallback(
@@ -205,7 +219,13 @@ export function useTaskFiltersWithLabelsSupport(
   };
 
   const toggleFilter = (
-    key: "status" | "priority" | "assignee" | "dueDate" | "labels",
+    key:
+      | "status"
+      | "priority"
+      | "assignee"
+      | "dueDate"
+      | "startDate"
+      | "labels",
     value: string,
   ) => {
     setFilters((prev) => {
@@ -251,6 +271,9 @@ export function useTaskFiltersWithLabelsSupport(
   };
 
   return {
+    includeSubtasks,
+    hasIncludeSubtasksOverride: includeSubtasksOverride !== null,
+    setIncludeSubtasks,
     customFieldValues: {
       ...customFieldValues,
       isLoading: !!effectiveFilters.customFields && customFieldValues.isLoading,

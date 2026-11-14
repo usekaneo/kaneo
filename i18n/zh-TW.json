@@ -3216,6 +3216,20 @@
 		"movedFromOtherProject": "moved task from another project to \"{{to}}\""
 	},
 	"tasks": {
+		"dateFilter": {
+			"startDate": "開始日期",
+			"noDate": "無日期",
+			"condition": "日期條件",
+			"exact": "指定日期",
+			"range": "日期範圍",
+			"before": "早於",
+			"after": "晚於",
+			"apply": "套用日期篩選",
+			"exactValue": "在 {{date}}",
+			"beforeValue": "早於 {{date}}",
+			"afterValue": "晚於 {{date}}",
+			"rangeValue": "{{date}} – {{end}}"
+		},
 		"title": "任務",
 		"status": {
 			"label": "狀態",
@@ -3750,7 +3764,9 @@
 			"showOnRows": "在列中顯示",
 			"checklistProgress": "檢查清單進度",
 			"projectBackground": "專案背景",
-			"layout": "版面配置"
+			"layout": "版面配置",
+			"includeSubtasks": "包含子任務",
+			"useProjectDefault": "使用專案預設設定"
 		},
 		"filterBar": {
 			"label": "已套用的篩選",
@@ -4126,7 +4142,8 @@
 			"title": "專案管理，",
 			"titleAccent": "別讓它變成另一個專案。",
 			"description": "開源專案管理工具，提供看板、甘特圖與 GitHub 整合。可免費自行架設且內建 SSO，或交給 Kaneo Cloud 代管。",
-			"pricingCta": "See pricing"
+			"pricingCta": "See pricing",
+			"appStore": "App Store"
 		},
 		"navigation": {
 			"product": "產品",
@@ -4256,6 +4273,11 @@
 				"question": "AI 用戶端可以搭配 Kaneo 使用嗎？",
 				"answer": "可以。Kaneo 透過 @kaneo/mcp 套件與 HTTP 端點提供 MCP 伺服器。相容的 AI 用戶端可以使用綁定使用者的 API 金鑰讀取與更新任務，並受工作區權限限制。",
 				"link": "閱讀 MCP 指南"
+			},
+			"mobile": {
+				"answer": "Yes. Kaneo is on the App Store for iPhone and iPad, and Android is coming soon. The app is free for Kaneo Cloud accounts. Connecting it to a self-hosted server is a one-time $9.99 unlock per person, and like the rest of Kaneo, the app is open source.",
+				"link": "Download on the App Store",
+				"question": "Is there a mobile app?"
 			}
 		},
 		"comparison": {

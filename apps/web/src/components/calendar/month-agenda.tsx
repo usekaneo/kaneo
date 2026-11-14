@@ -1,3 +1,4 @@
+import CalendarSubtasks from "./calendar-subtasks";
 import { isBefore, isToday, startOfToday } from "date-fns";
 import { type JSX, useLayoutEffect, useMemo, useRef } from "react";
 import { useTranslation } from "react-i18next";
@@ -105,6 +106,7 @@ export default function MonthAgenda({
                       <span className="text-xs text-muted-foreground">
                         {taskKey ? `${taskKey} · ${range}` : range}
                       </span>
+                      <CalendarSubtasks subtasks={task.subtasks} />
                     </button>
                   </li>
                 );

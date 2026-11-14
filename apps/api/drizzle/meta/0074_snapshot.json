@@ -1,6 +1,6 @@
 {
-  "id": "d4ffbe9e-fbdf-4959-aa7c-d18ce9390666",
-  "prevId": "c805723e-50aa-4bff-9115-dcef7b07404b",
+  "id": "9c2b6e1f-29db-43f1-95f4-d0547fcd607f",
+  "prevId": "716e288c-d826-4603-92c2-f3dd3faf88d4",
   "version": "7",
   "dialect": "postgresql",
   "tables": {
@@ -3461,6 +3461,13 @@
           "primaryKey": false,
           "notNull": false,
           "default": false
+        },
+        "include_subtasks": {
+          "name": "include_subtasks",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true,
+          "default": true
         },
         "archived_at": {
           "name": "archived_at",

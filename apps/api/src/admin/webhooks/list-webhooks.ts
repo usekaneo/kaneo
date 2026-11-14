@@ -1,3 +1,4 @@
+import { resolveFileSecret } from "../../utils/file-secret";
 import { desc } from "drizzle-orm";
 import db, { schema } from "../../database";
 import { publicWebhook } from "./public-webhook";
@@ -10,7 +11,7 @@ export async function listWebhooks() {
   return {
     webhooks: rows.map(publicWebhook),
     signingConfigured: Boolean(
-      process.env.NOTIFICATION_SECRET_ENCRYPTION_KEY?.trim(),
+      resolveFileSecret("NOTIFICATION_SECRET_ENCRYPTION_KEY")?.trim(),
     ),
   };
 }

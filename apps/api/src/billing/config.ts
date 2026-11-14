@@ -1,3 +1,4 @@
+import { resolveFileSecret } from "../utils/file-secret";
 import { isCloud } from "../utils/is-cloud";
 
 export type Plan = "personal" | "team";
@@ -15,9 +16,7 @@ const PRODUCT_ENV_KEYS: Record<Plan, Record<BillingInterval, string>> = {
 };
 
 export function isBillingEnabled() {
-  return Boolean(
-    isCloud() && process.env.CREEM_API_KEY && process.env.CREEM_WEBHOOK_SECRET,
-  );
+  return Boolean(isCloud() && creemApiKey() && creemWebhookSecret());
 }
 
 export function creemApiBaseUrl() {
@@ -27,11 +26,11 @@ export function creemApiBaseUrl() {
 }
 
 export function creemApiKey() {
-  return process.env.CREEM_API_KEY ?? "";
+  return resolveFileSecret("CREEM_API_KEY") ?? "";
 }
 
 export function creemWebhookSecret() {
-  return process.env.CREEM_WEBHOOK_SECRET ?? "";
+  return resolveFileSecret("CREEM_WEBHOOK_SECRET") ?? "";
 }
 
 export function trialDays() {

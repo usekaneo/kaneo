@@ -3819,7 +3819,9 @@
 			"showOnRows": "Show on rows",
 			"checklistProgress": "Checklist progress",
 			"projectBackground": "Project background",
-			"layout": "Layout"
+			"layout": "Layout",
+			"includeSubtasks": "Include Sub Tasks",
+			"useProjectDefault": "Use project default"
 		},
 		"filterBar": {
 			"label": "Active filters",
@@ -3863,6 +3865,20 @@
 			"startsOn": "Starts {{date}}",
 			"beforeStart": "{{date}} is before the start date",
 			"afterDue": "{{date}} is after the due date"
+		},
+		"dateFilter": {
+			"startDate": "Start date",
+			"noDate": "No date",
+			"condition": "Date condition",
+			"exact": "On",
+			"range": "Between",
+			"before": "Before",
+			"after": "After",
+			"apply": "Apply date filter",
+			"exactValue": "On {{date}}",
+			"beforeValue": "Before {{date}}",
+			"afterValue": "After {{date}}",
+			"rangeValue": "{{date}} – {{end}}"
 		}
 	},
 	"invitations": {
@@ -4200,6 +4216,7 @@
 			"pricingCta": "See pricing",
 			"trialNote": "14-day cloud trial. No credit card required.",
 			"github": "GitHub",
+			"appStore": "App Store",
 			"productHunt": "Product Hunt",
 			"title": "Project management",
 			"titleAccent": "that doesn't become the project.",
@@ -4333,6 +4350,11 @@
 				"question": "Can AI clients work with Kaneo?",
 				"answer": "Yes. Kaneo provides an MCP server through the @kaneo/mcp package and an HTTP endpoint. Compatible AI clients can read and update tasks using an API key tied to a user, subject to workspace permissions.",
 				"link": "Read the MCP guide"
+			},
+			"mobile": {
+				"question": "Is there a mobile app?",
+				"answer": "Yes. Kaneo is on the App Store for iPhone and iPad, and Android is coming soon. The app is free for Kaneo Cloud accounts. Connecting it to a self-hosted server is a one-time $9.99 unlock per person, and like the rest of Kaneo, the app is open source.",
+				"link": "Download on the App Store"
 			}
 		},
 		"comparison": {

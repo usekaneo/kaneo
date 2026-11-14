@@ -1,5 +1,5 @@
 {
-  "id": "c805723e-50aa-4bff-9115-dcef7b07404b",
+  "id": "716e288c-d826-4603-92c2-f3dd3faf88d4",
   "prevId": "0f7e9c13-a40c-4c0a-8719-c5e314b2ccde",
   "version": "7",
   "dialect": "postgresql",
@@ -3462,6 +3462,13 @@
           "notNull": false,
           "default": false
         },
+        "include_subtasks": {
+          "name": "include_subtasks",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true,
+          "default": true
+        },
         "archived_at": {
           "name": "archived_at",
           "type": "timestamp",
@@ -3735,82 +3742,6 @@
       },
       "indexes": {},
       "foreignKeys": {},
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {},
-      "policies": {},
-      "checkConstraints": {},
-      "isRLSEnabled": false
-    },
-    "public.tangled_integration_state": {
-      "name": "tangled_integration_state",
-      "schema": "",
-      "columns": {
-        "integration_id": {
-          "name": "integration_id",
-          "type": "text",
-          "primaryKey": true,
-          "notNull": true
-        },
-        "event_type": {
-          "name": "event_type",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "outcome": {
-          "name": "outcome",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "code": {
-          "name": "code",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "ref": {
-          "name": "ref",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "checked_at": {
-          "name": "checked_at",
-          "type": "timestamp",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "last_scan_at": {
-          "name": "last_scan_at",
-          "type": "timestamp",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "scan_offset": {
-          "name": "scan_offset",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true,
-          "default": 0
-        }
-      },
-      "indexes": {},
-      "foreignKeys": {
-        "tangled_integration_state_integration_id_integration_id_fk": {
-          "name": "tangled_integration_state_integration_id_integration_id_fk",
-          "tableFrom": "tangled_integration_state",
-          "tableTo": "integration",
-          "columnsFrom": [
-            "integration_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "cascade",
-          "onUpdate": "cascade"
-        }
-      },
       "compositePrimaryKeys": {},
       "uniqueConstraints": {},
       "policies": {},

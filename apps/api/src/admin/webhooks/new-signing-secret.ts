@@ -1,9 +1,10 @@
+import { resolveFileSecret } from "../../utils/file-secret";
 import { randomBytes } from "node:crypto";
 import { HTTPException } from "hono/http-exception";
 import { encryptSecret } from "../../notification-preferences/secrets";
 
 export function newSigningSecret() {
-  if (!process.env.NOTIFICATION_SECRET_ENCRYPTION_KEY?.trim()) {
+  if (!resolveFileSecret("NOTIFICATION_SECRET_ENCRYPTION_KEY")?.trim()) {
     throw new HTTPException(409, {
       message:
         "Set NOTIFICATION_SECRET_ENCRYPTION_KEY to create or rotate webhook secrets.",

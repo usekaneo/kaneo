@@ -43,7 +43,7 @@
   "engines": {
     "node": "^24.15.0 || >=26.0.0"
   },
-  "packageManager": "pnpm@12.15.0",
+  "packageManager": "pnpm@12.18.0",
   "version": "2.49.0",
   "dependencies": {
     "dotenv-mono": "^1.5.1"

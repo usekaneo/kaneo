@@ -3324,6 +3324,20 @@
 		"movedFromOtherProject": "a déplacé la tâche depuis un autre projet vers « {{to}} »"
 	},
 	"tasks": {
+		"dateFilter": {
+			"startDate": "Date de début",
+			"noDate": "Aucune date",
+			"condition": "Condition de date",
+			"exact": "Date exacte",
+			"range": "Plage de dates",
+			"before": "Avant",
+			"after": "Après",
+			"apply": "Appliquer le filtre de date",
+			"exactValue": "Le {{date}}",
+			"beforeValue": "Avant le {{date}}",
+			"afterValue": "Après le {{date}}",
+			"rangeValue": "{{date}} – {{end}}"
+		},
 		"title": "Tâches",
 		"status": {
 			"label": "Statut",
@@ -3888,7 +3902,9 @@
 			"showOnRows": "Afficher sur les lignes",
 			"checklistProgress": "Progression de la liste",
 			"projectBackground": "Arrière-plan du projet",
-			"layout": "Disposition"
+			"layout": "Disposition",
+			"includeSubtasks": "Inclure les sous-tâches",
+			"useProjectDefault": "Utiliser le réglage par défaut du projet"
 		},
 		"filterBar": {
 			"label": "Filtres actifs",
@@ -4280,7 +4296,8 @@
 			"title": "Une gestion de projet",
 			"titleAccent": "qui ne devient pas un projet en soi.",
 			"description": "Une gestion de projet open source avec des tableaux, des diagrammes de Gantt et une intégration GitHub. Auto-hébergez gratuitement avec le SSO inclus, ou laissez Kaneo Cloud s'occuper de l'hébergement.",
-			"pricingCta": "See pricing"
+			"pricingCta": "See pricing",
+			"appStore": "App Store"
 		},
 		"navigation": {
 			"product": "Produit",
@@ -4410,6 +4427,11 @@
 				"question": "Les clients d'IA peuvent-ils utiliser Kaneo ?",
 				"answer": "Oui. Kaneo fournit un serveur MCP via le paquet @kaneo/mcp et un point d'accès HTTP. Les clients d'IA compatibles peuvent consulter et modifier les tâches avec une clé API liée à un utilisateur, dans la limite des permissions de l'espace de travail.",
 				"link": "Lire le guide MCP"
+			},
+			"mobile": {
+				"answer": "Yes. Kaneo is on the App Store for iPhone and iPad, and Android is coming soon. The app is free for Kaneo Cloud accounts. Connecting it to a self-hosted server is a one-time $9.99 unlock per person, and like the rest of Kaneo, the app is open source.",
+				"link": "Download on the App Store",
+				"question": "Is there a mobile app?"
 			}
 		},
 		"comparison": {

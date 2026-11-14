@@ -3270,6 +3270,20 @@
 		"movedFromOtherProject": "moved task from another project to \"{{to}}\""
 	},
 	"tasks": {
+		"dateFilter": {
+			"startDate": "Startdatum",
+			"noDate": "Geen datum",
+			"condition": "Datumvoorwaarde",
+			"exact": "Exacte datum",
+			"range": "Datumbereik",
+			"before": "Vóór",
+			"after": "Na",
+			"apply": "Datumfilter toepassen",
+			"exactValue": "Op {{date}}",
+			"beforeValue": "Vóór {{date}}",
+			"afterValue": "Na {{date}}",
+			"rangeValue": "{{date}} – {{end}}"
+		},
 		"title": "Taken",
 		"status": {
 			"label": "Status",
@@ -3819,7 +3833,9 @@
 			"showOnRows": "Tonen in rijen",
 			"checklistProgress": "Voortgang checklist",
 			"projectBackground": "Projectachtergrond",
-			"layout": "Indeling"
+			"layout": "Indeling",
+			"includeSubtasks": "Subtaken opnemen",
+			"useProjectDefault": "Projectstandaard gebruiken"
 		},
 		"filterBar": {
 			"label": "Actieve filters",
@@ -4203,7 +4219,8 @@
 			"title": "Project management",
 			"titleAccent": "that doesn't become the project.",
 			"description": "Open-source project management with boards, Gantt charts, and GitHub integration. Self-host for free with SSO included, or let Kaneo Cloud handle the hosting.",
-			"pricingCta": "See pricing"
+			"pricingCta": "See pricing",
+			"appStore": "App Store"
 		},
 		"navigation": {
 			"product": "Product",
@@ -4333,6 +4350,11 @@
 				"question": "Can AI clients work with Kaneo?",
 				"answer": "Yes. Kaneo provides an MCP server through the @kaneo/mcp package and an HTTP endpoint. Compatible AI clients can read and update tasks using an API key tied to a user, subject to workspace permissions.",
 				"link": "Read the MCP guide"
+			},
+			"mobile": {
+				"answer": "Yes. Kaneo is on the App Store for iPhone and iPad, and Android is coming soon. The app is free for Kaneo Cloud accounts. Connecting it to a self-hosted server is a one-time $9.99 unlock per person, and like the rest of Kaneo, the app is open source.",
+				"link": "Download on the App Store",
+				"question": "Is there a mobile app?"
 			}
 		},
 		"comparison": {
