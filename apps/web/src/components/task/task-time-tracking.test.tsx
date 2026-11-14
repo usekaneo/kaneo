@@ -34,7 +34,17 @@ let isError = false;
 const refetch = vi.fn();
 
 vi.mock("react-i18next", () => ({
-  useTranslation: () => ({ t: (key: string) => key }),
+  useTranslation: () => ({
+    t: (key: string, values?: Record<string, number>) => {
+      if (key === "tasks:timeTracking.durationSeconds")
+        return `${values?.seconds}s`;
+      if (key === "tasks:timeTracking.durationMinutes")
+        return `${values?.minutes}m`;
+      if (key === "tasks:timeTracking.durationHoursMinutes")
+        return `${values?.hours}h ${values?.minutes}m`;
+      return key;
+    },
+  }),
 }));
 
 vi.mock("@/components/providers/auth-provider/hooks/use-auth", () => ({

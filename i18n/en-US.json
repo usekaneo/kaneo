@@ -3853,7 +3853,10 @@
 			"startError": "Failed to start the timer.",
 			"stopError": "Failed to stop the timer.",
 			"loadError": "Failed to load time entries.",
-			"retry": "Retry"
+			"retry": "Retry",
+			"durationSeconds": "{{seconds, number}}s",
+			"durationMinutes": "{{minutes, number}}m",
+			"durationHoursMinutes": "{{hours, number}}h {{minutes, number}}m"
 		}
 	},
 	"invitations": {

@@ -3781,7 +3781,10 @@
 			"stop": "Stop timer",
 			"stopError": "Failed to stop the timer.",
 			"title": "Time tracking",
-			"unknownUser": "Unknown"
+			"unknownUser": "Unknown",
+			"durationSeconds": "{{seconds, number}}초",
+			"durationMinutes": "{{minutes, number}}분",
+			"durationHoursMinutes": "{{hours, number}}시간 {{minutes, number}}분"
 		}
 	},
 	"invitations": {

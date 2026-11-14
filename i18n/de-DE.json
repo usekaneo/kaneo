@@ -3853,7 +3853,10 @@
 			"startError": "Der Timer konnte nicht gestartet werden.",
 			"stopError": "Der Timer konnte nicht gestoppt werden.",
 			"loadError": "Die Zeiteinträge konnten nicht geladen werden.",
-			"retry": "Erneut versuchen"
+			"retry": "Erneut versuchen",
+			"durationSeconds": "{{seconds, number}} Sek.",
+			"durationMinutes": "{{minutes, number}} Min.",
+			"durationHoursMinutes": "{{hours, number}} Std. {{minutes, number}} Min."
 		}
 	},
 	"invitations": {

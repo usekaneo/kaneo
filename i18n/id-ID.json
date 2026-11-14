@@ -3781,7 +3781,10 @@
 			"stop": "Stop timer",
 			"stopError": "Failed to stop the timer.",
 			"title": "Time tracking",
-			"unknownUser": "Unknown"
+			"unknownUser": "Unknown",
+			"durationSeconds": "{{seconds, number}} dtk",
+			"durationMinutes": "{{minutes, number}} mnt",
+			"durationHoursMinutes": "{{hours, number}} j {{minutes, number}} mnt"
 		}
 	},
 	"invitations": {

@@ -4285,7 +4285,10 @@
 			"stop": "Stop timer",
 			"stopError": "Failed to stop the timer.",
 			"title": "Time tracking",
-			"unknownUser": "Unknown"
+			"unknownUser": "Unknown",
+			"durationSeconds": "{{seconds, number}} s",
+			"durationMinutes": "{{minutes, number}} min",
+			"durationHoursMinutes": "{{hours, number}} godz. {{minutes, number}} min"
 		}
 	},
 	"press": {

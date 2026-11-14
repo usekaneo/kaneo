@@ -13718,6 +13718,15 @@
 						},
 						"retry": {
 							"type": "string"
+						},
+						"durationSeconds": {
+							"type": "string"
+						},
+						"durationMinutes": {
+							"type": "string"
+						},
+						"durationHoursMinutes": {
+							"type": "string"
 						}
 					},
 					"required": [
@@ -13730,7 +13739,10 @@
 						"startError",
 						"stopError",
 						"loadError",
-						"retry"
+						"retry",
+						"durationSeconds",
+						"durationMinutes",
+						"durationHoursMinutes"
 					]
 				}
 			},

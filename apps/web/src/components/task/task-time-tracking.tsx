@@ -113,7 +113,7 @@ export function TaskTimeTracking({ taskId }: TaskTimeTrackingProps) {
           </CollapsibleTrigger>
           {totalSeconds > 0 && (
             <span className="text-xs text-muted-foreground tabular-nums">
-              {formatDuration(totalSeconds)}
+              {formatDuration(totalSeconds, t)}
             </span>
           )}
         </div>
@@ -192,10 +192,10 @@ export function TaskTimeTracking({ taskId }: TaskTimeTrackingProps) {
                   {entry.endTime === null ? (
                     <span className="text-primary">
                       {t("tasks:timeTracking.running")}{" "}
-                      {formatDuration(elapsedSeconds(entry))}
+                      {formatDuration(elapsedSeconds(entry), t)}
                     </span>
                   ) : (
-                    formatDuration(elapsedSeconds(entry))
+                    formatDuration(elapsedSeconds(entry), t)
                   )}
                 </span>
               </div>
