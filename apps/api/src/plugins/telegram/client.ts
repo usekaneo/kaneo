@@ -3,6 +3,7 @@ import {
   OutboundRequestError,
   sendOutboundRequest,
 } from "../../utils/outbound-request";
+import { assertTelegramTransport, TELEGRAM_API_URL } from "./config";
 
 type TelegramMessage = {
   chat_id: string;
@@ -15,19 +16,27 @@ type TelegramMessage = {
 export async function postToTelegram(
   botToken: string,
   message: TelegramMessage,
+  serverUrl?: string,
 ): Promise<void> {
   Sentry.addBreadcrumb({
     category: "integration",
     level: "info",
     data: { integration: "telegram" },
   });
+  if (serverUrl) {
+    try {
+      assertTelegramTransport(serverUrl);
+    } catch {
+      throw new OutboundRequestError("destination");
+    }
+  }
   const result = await sendOutboundRequest(
-    `https://api.telegram.org/bot${botToken}/sendMessage`,
+    `${serverUrl ?? TELEGRAM_API_URL}/bot${botToken}/sendMessage`,
     {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(message),
     },
-    { readJson: true },
+    { readJson: true, publicDestination: Boolean(serverUrl) },
   );
   if (
     !result ||

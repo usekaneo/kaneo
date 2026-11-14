@@ -164,13 +164,17 @@ async function sendTelegramMessage(
   ];
 
   try {
-    await postToTelegram(config.botToken, {
-      chat_id: config.chatId,
-      text: lines.join("\n"),
-      parse_mode: "HTML",
-      disable_web_page_preview: false,
-      message_thread_id: config.threadId,
-    });
+    await postToTelegram(
+      config.botToken,
+      {
+        chat_id: config.chatId,
+        text: lines.join("\n"),
+        parse_mode: "HTML",
+        disable_web_page_preview: false,
+        message_thread_id: config.threadId,
+      },
+      config.serverUrl,
+    );
   } catch (error) {
     console.error("sendTelegramMessage postToTelegram failed", {
       error: safeOutboundError(error),

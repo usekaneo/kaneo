@@ -18,7 +18,10 @@ import {
 } from "@/hooks/mutations/telegram-integration/use-telegram-integration";
 import useGetTelegramIntegration from "@/hooks/queries/telegram-integration/use-get-telegram-integration";
 import { toast } from "@/lib/toast";
-import { buildTelegramRequest } from "./build-telegram-request";
+import {
+  buildTelegramRequest,
+  normalizeServerUrl,
+} from "./build-telegram-request";
 import { TelegramFields } from "./telegram-fields";
 import {
   type TelegramFormValues,
@@ -74,7 +77,11 @@ export function TelegramIntegrationSettings({
   const isBusy = isCreating || isUpdating || isDeleting;
 
   const onSubmit = async (values: TelegramFormValues) => {
-    const request = buildTelegramRequest(values, isConnected);
+    const request = buildTelegramRequest(
+      values,
+      isConnected,
+      integration?.serverUrl,
+    );
 
     if (request.kind === "invalid") {
       form.setError(request.field, { message: t(request.messageKey) });
@@ -91,6 +98,7 @@ export function TelegramIntegrationSettings({
       form.reset({
         ...values,
         botToken: "",
+        serverUrl: normalizeServerUrl(values.serverUrl),
         chatId: values.chatId.trim(),
         threadId: values.threadId.trim(),
       });
