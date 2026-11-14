@@ -4274,6 +4274,18 @@
 			"startsOn": "Początek: {{date}}",
 			"beforeStart": "{{date}} jest przed datą rozpoczęcia",
 			"afterDue": "{{date}} jest po terminie"
+		},
+		"timeTracking": {
+			"empty": "No time logged yet.",
+			"loadError": "Failed to load time entries.",
+			"retry": "Retry",
+			"running": "Running",
+			"start": "Start timer",
+			"startError": "Failed to start the timer.",
+			"stop": "Stop timer",
+			"stopError": "Failed to stop the timer.",
+			"title": "Time tracking",
+			"unknownUser": "Unknown"
 		}
 	},
 	"press": {

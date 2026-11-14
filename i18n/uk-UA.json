@@ -3986,6 +3986,18 @@
 			"startsOn": "Початок: {{date}}",
 			"beforeStart": "{{date}} раніше за дату початку",
 			"afterDue": "{{date}} пізніше за термін"
+		},
+		"timeTracking": {
+			"empty": "No time logged yet.",
+			"loadError": "Failed to load time entries.",
+			"retry": "Retry",
+			"running": "Running",
+			"start": "Start timer",
+			"startError": "Failed to start the timer.",
+			"stop": "Stop timer",
+			"stopError": "Failed to stop the timer.",
+			"title": "Time tracking",
+			"unknownUser": "Unknown"
 		}
 	},
 	"invitations": {
