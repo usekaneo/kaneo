@@ -27,8 +27,7 @@ spec:
         {{- toYaml . | nindent 8 }}
       {{- end }}
       labels:
-        {{- include "kaneo.selectorLabels" . | nindent 8 }}
-        app.kubernetes.io/component: kaneo
+        {{- merge (dict "app.kubernetes.io/component" "kaneo") (include "kaneo.selectorLabels" . | fromYaml) .Values.podLabels | toYaml | nindent 8 }}
     spec:
       {{- with .Values.imagePullSecrets }}
       imagePullSecrets:
@@ -111,9 +110,15 @@ spec:
           volumeMounts:
             - name: runtime
               mountPath: /var/lib/kaneo
+            {{- with .Values.kaneo.extraVolumeMounts }}
+            {{- toYaml . | nindent 12 }}
+            {{- end }}
       volumes:
         - name: runtime
           emptyDir: {}
+        {{- with .Values.extraVolumes }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
 
       {{- with .Values.nodeSelector }}
       nodeSelector:
