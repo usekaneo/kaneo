@@ -19,4 +19,3 @@
 ^apps/api/src/plugins/gitlab/webhooks/issue-opened\.ts$
 ^apps/api/src/plugins/gitlab/webhooks/issue-updated\.ts$
 ^apps/web/src/components/project/gitlab-integration/gitlab-project-picker\.tsx$
-^apps/web/src/components/project/gitlab-integration/gitlab-integration-settings\.test\.tsx$
