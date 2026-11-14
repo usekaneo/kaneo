@@ -76,12 +76,9 @@ vi.mock(
     default: () => ({ mutateAsync: m.importIssues }),
   }),
 );
-vi.mock(
-  "@/components/project/gitlab-integration/gitlab-project-picker",
-  () => ({
-    GitlabProjectPicker: () => null,
-  }),
-);
+vi.mock("./gitlab-project-picker", () => ({
+  GitlabProjectPicker: () => null,
+}));
 vi.mock("@/components/project/sync-rules/sync-rules-section", () => ({
   SyncRulesSection: () => <p>Sync rules</p>,
 }));
