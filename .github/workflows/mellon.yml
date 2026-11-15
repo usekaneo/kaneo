@@ -23,8 +23,9 @@ jobs:
         id: app-token
         uses: actions/create-github-app-token@64ab729a6294000f5aa4a4bc0b73d1f32bc45510 # v3.3.0
         with:
-          client-id: ${{ vars.APP_CLIENT_ID }}
-          private-key: ${{ secrets.APP_PRIVATE_KEY }}
+          client-id: ${{ vars.MELLON_APP_CLIENT_ID }}
+          private-key: ${{ secrets.MELLON_APP_PRIVATE_KEY }}
+          # Requires installation-owner approval; see scripts/ui-review-bot/README.md.
           permission-issues: write
           permission-pull-requests: write
       - name: Review descriptions
