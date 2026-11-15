@@ -3914,6 +3914,21 @@
 			"startsOn": "Começa em {{date}}",
 			"beforeStart": "{{date}} é antes da data de início",
 			"afterDue": "{{date}} é depois do prazo"
+		},
+		"timeTracking": {
+			"empty": "Nenhum tempo registrado ainda.",
+			"loadError": "Não foi possível carregar os registros de tempo.",
+			"retry": "Tentar novamente",
+			"running": "Em andamento",
+			"start": "Iniciar cronômetro",
+			"startError": "Não foi possível iniciar o cronômetro.",
+			"stop": "Parar cronômetro",
+			"stopError": "Não foi possível parar o cronômetro.",
+			"title": "Controle de tempo",
+			"unknownUser": "Desconhecido",
+			"durationSeconds": "{{seconds, number}}s",
+			"durationMinutes": "{{minutes, number}}min",
+			"durationHoursMinutes": "{{hours, number}}h {{minutes, number}}min"
 		}
 	},
 	"invitations": {

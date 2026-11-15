@@ -3842,6 +3842,21 @@
 			"startsOn": "Başlangıç: {{date}}",
 			"beforeStart": "{{date}} başlangıç tarihinden önce",
 			"afterDue": "{{date}} bitiş tarihinden sonra"
+		},
+		"timeTracking": {
+			"empty": "Henüz zaman kaydedilmedi.",
+			"loadError": "Zaman kayıtları yüklenemedi.",
+			"retry": "Tekrar dene",
+			"running": "Çalışıyor",
+			"start": "Zamanlayıcıyı başlat",
+			"startError": "Zamanlayıcı başlatılamadı.",
+			"stop": "Zamanlayıcıyı durdur",
+			"stopError": "Zamanlayıcı durdurulamadı.",
+			"title": "Zaman takibi",
+			"unknownUser": "Bilinmiyor",
+			"durationSeconds": "{{seconds, number}} sn",
+			"durationMinutes": "{{minutes, number}} dk",
+			"durationHoursMinutes": "{{hours, number}} sa {{minutes, number}} dk"
 		}
 	},
 	"invitations": {
