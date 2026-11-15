@@ -106,7 +106,7 @@ function conflict() {
 }
 
 export async function importIssues(projectId: string, runId?: string) {
-  return withGithubImportLock(projectId, async () => {
+  return withGithubImportLock(projectId, async (lease) => {
     const project = await db.query.projectTable.findFirst({
       where: eq(projectTable.id, projectId),
     });
@@ -138,25 +138,28 @@ export async function importIssues(projectId: string, runId?: string) {
       run.state.phase === "complete" ||
       run.state.repositoryId !== repositoryId
     ) {
-      const [created] = await db
-        .insert(githubImportTable)
-        .values({
-          integrationId: integration.id,
-          state: initialImportState(repositoryId),
-        })
-        .onConflictDoUpdate({
-          target: githubImportTable.integrationId,
-          set: {
-            runId: createId(),
+      const [created] = await lease.transaction((tx) =>
+        tx
+          .insert(githubImportTable)
+          .values({
+            integrationId: integration.id,
             state: initialImportState(repositoryId),
-            updatedAt: new Date(),
-          },
-        })
-        .returning();
+          })
+          .onConflictDoUpdate({
+            target: githubImportTable.integrationId,
+            set: {
+              runId: createId(),
+              state: initialImportState(repositoryId),
+              updatedAt: new Date(),
+            },
+          })
+          .returning(),
+      );
       run = created;
     }
     if (!run) throw new Error("Failed to start import");
     let octokit: Awaited<ReturnType<typeof getVerifiedInstallationOctokit>>;
+    await lease.check();
     try {
       octokit = await getVerifiedInstallationOctokit(config, true);
     } catch {
@@ -171,6 +174,7 @@ export async function importIssues(projectId: string, runId?: string) {
       page++
     ) {
       let payload: unknown;
+      await lease.check();
       try {
         payload = await fetchImportPage(octokit, config, run.state);
       } catch {
@@ -190,6 +194,7 @@ export async function importIssues(projectId: string, runId?: string) {
           ? parsed.data.repository.issues.nodes[0]
           : undefined;
         if (issue) {
+          await lease.check();
           try {
             const remote = await octokit.rest.issues.get({
               owner: config.repositoryOwner,
@@ -212,7 +217,7 @@ export async function importIssues(projectId: string, runId?: string) {
         string,
         { type: ImportEvent; taskId: string }
       >();
-      run = await db.transaction(async (tx) => {
+      run = await lease.transaction(async (tx) => {
         const [currentProject] = await tx
           .select()
           .from(projectTable)
@@ -267,8 +272,11 @@ export async function importIssues(projectId: string, runId?: string) {
       });
       // Each bounded page is durable before other clients refresh, including
       // continuation pages that change labels, comments or linked resources.
-      for (const { type, taskId } of notifications.values())
+      for (const { type, taskId } of notifications.values()) {
+        await lease.check();
         await publishEvent(type, { projectId, taskId });
+      }
+      await lease.check();
       await publishEvent("project.updated", { projectId });
     }
     return importProgress(run.runId, run.state);
