@@ -3770,6 +3770,21 @@
 			"startsOn": "开始于 {{date}}",
 			"beforeStart": "{{date}} 早于开始日期",
 			"afterDue": "{{date}} 晚于截止日期"
+		},
+		"timeTracking": {
+			"empty": "尚未记录时间。",
+			"loadError": "无法加载时间记录。",
+			"retry": "重试",
+			"running": "计时中",
+			"start": "启动计时器",
+			"startError": "无法开始计时。",
+			"stop": "停止计时",
+			"stopError": "无法停止计时。",
+			"title": "时间跟踪",
+			"unknownUser": "未知",
+			"durationSeconds": "{{seconds, number}}秒",
+			"durationMinutes": "{{minutes, number}}分",
+			"durationHoursMinutes": "{{hours, number}}小时 {{minutes, number}}分"
 		}
 	},
 	"invitations": {

@@ -42,6 +42,7 @@ vi.mock("./task-description", () => ({ default: () => null }));
 vi.mock("./task-relations", () => ({ default: () => null }));
 vi.mock("./task-subtasks", () => ({ default: () => null }));
 vi.mock("./task-title", () => ({ default: () => null }));
+vi.mock("./task-time-tracking", () => ({ TaskTimeTracking: () => null }));
 
 beforeEach(() => {
   mocks.getRelations.mockReturnValue({
