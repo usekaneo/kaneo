@@ -1,6 +1,6 @@
 import { and, eq, sql } from "drizzle-orm";
 import { beforeEach, describe, expect, it, vi } from "vite-plus/test";
-import db, { getDatabasePool, schema } from "../../apps/api/src/database";
+import db, { schema } from "../../apps/api/src/database";
 import { importIssues } from "../../apps/api/src/github-integration/controllers/import-issues";
 import { withGithubImportLock } from "../../apps/api/src/github-integration/import-lock";
 import { IMPORT_PAGES_PER_REQUEST } from "../../apps/api/src/github-integration/import-pages";
@@ -885,9 +885,12 @@ describe("bounded resumable GitHub import", () => {
   });
 
   it("limits simultaneous imports across processes and releases slots after failure", async () => {
-    const client = await getDatabasePool().connect();
-    await client.query(
-      "SELECT pg_advisory_lock(773623, 0), pg_advisory_lock(773623, 1)",
+    await db.insert(schema.jobLeaseTable).values(
+      [0, 1].map((slot) => ({
+        name: `request:github-import:slot:${slot}`,
+        owner: "another-process",
+        expiresAt: sql`timezone('UTC', clock_timestamp()) + interval '1 minute'`,
+      })),
     );
     try {
       await expect(
@@ -896,8 +899,9 @@ describe("bounded resumable GitHub import", () => {
         status: 429,
       });
     } finally {
-      await client.query("SELECT pg_advisory_unlock_all()");
-      client.release();
+      await db
+        .delete(schema.jobLeaseTable)
+        .where(eq(schema.jobLeaseTable.owner, "another-process"));
     }
     await expect(
       withGithubImportLock("any", async () => {
@@ -929,6 +933,38 @@ describe("bounded resumable GitHub import", () => {
       gate.resolve();
     }
     expect(await first).toMatchObject({ pending: false, imported: 1 });
+  });
+
+  it("does not save a fetched page after its lease expires, and permits resumption", async () => {
+    const { project } = await setup();
+    serveIssues(1);
+    const gate = deferred();
+    const started = deferred();
+    const original = mocks.graphql.getMockImplementation();
+    if (!original) throw new Error("Expected provider mock");
+    mocks.graphql.mockImplementationOnce(async (query, vars) => {
+      started.resolve();
+      await gate.promise;
+      return original(query, vars);
+    });
+    const pending = importIssues(project.id);
+    const rejected = expect(pending).rejects.toMatchObject({ status: 429 });
+    await started.promise;
+    const progress = await saved();
+    try {
+      await db.execute(sql`UPDATE job_lease SET expires_at = timezone('UTC', clock_timestamp()) - interval '1 second'
+        WHERE name = ${`request:github-import:resource:${project.id}`}`);
+    } finally {
+      gate.resolve();
+    }
+    await rejected;
+    expect(await db.query.taskTable.findMany()).toEqual([]);
+    expect(await saved()).toEqual(progress);
+    expect(await db.query.jobLeaseTable.findMany()).toEqual([]);
+    expect(await importIssues(project.id, progress?.runId)).toMatchObject({
+      pending: false,
+      imported: 1,
+    });
   });
 
   it("coordinates webhook creation with imports so both paths create only one task and link", async () => {

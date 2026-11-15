@@ -1,6 +1,7 @@
 import { and, asc, eq, isNotNull, lte, sql } from "drizzle-orm";
 import { HTTPException } from "hono/http-exception";
 import db from "../../database";
+import type { RequestLease } from "../../database/request-lease";
 import { labelTable, projectTable, taskTable } from "../../database/schema";
 import { publishEvent } from "../../events";
 import { removeLabelFromGitea } from "../../plugins/gitea/utils/sync-label-to-gitea";
@@ -12,7 +13,11 @@ import { withLabelDeletionLock } from "../deletion-lock";
 export const LABEL_DELETE_BATCH_SIZE = 25;
 type Label = typeof labelTable.$inferSelect;
 
-async function notifyDeletion(label: Label, userId: string) {
+async function notifyDeletion(
+  label: Label,
+  userId: string,
+  lease: RequestLease,
+) {
   if (!label.taskId) return;
   const [task] = await db
     .select({
@@ -36,6 +41,7 @@ async function notifyDeletion(label: Label, userId: string) {
     removeLabelFromGitea,
     removeLabelFromGitlab,
   ]) {
+    await lease.check();
     try {
       await remove(task.id, label.name);
     } catch {
@@ -44,6 +50,7 @@ async function notifyDeletion(label: Label, userId: string) {
       );
     }
   }
+  await lease.check();
   await publishEvent(
     "task.label_deleted",
     {
@@ -62,7 +69,7 @@ async function deleteLabel(
   id: string,
   userId: string,
 ): Promise<Label & { pendingDeletion?: true }> {
-  return withLabelDeletionLock(id, async () => {
+  return withLabelDeletionLock(id, async (lease) => {
     const label = await db.query.labelTable.findFirst({
       where: eq(labelTable.id, id),
     });
@@ -77,28 +84,30 @@ async function deleteLabel(
         .limit(1);
       if (!task || task.workspaceId !== label.workspaceId)
         throw new HTTPException(404, { message: "Task not found" });
-      const [deleted] = await db
-        .delete(labelTable)
-        .where(eq(labelTable.id, id))
-        .returning();
+      const [deleted] = await lease.transaction((tx) =>
+        tx.delete(labelTable).where(eq(labelTable.id, id)).returning(),
+      );
       if (!deleted)
         throw new HTTPException(404, { message: "Label not found" });
-      await notifyDeletion(deleted, userId);
+      await notifyDeletion(deleted, userId, lease);
       return deleted;
     }
 
     // Persist the snapshot boundary before the first batch. A disconnect or
     // restart leaves this root available for the same DELETE request to resume.
-    const [root] = await db
-      .update(labelTable)
-      .set({
-        // UTC like every timezone-less column, whatever the session time zone.
-        deletionStartedAt: sql`coalesce(${labelTable.deletionStartedAt}, timezone('UTC', clock_timestamp()))`,
-      })
-      .where(eq(labelTable.id, id))
-      .returning();
+    const [root] = await lease.transaction((tx) =>
+      tx
+        .update(labelTable)
+        .set({
+          // UTC like every timezone-less column, whatever the session time zone.
+          deletionStartedAt: sql`coalesce(${labelTable.deletionStartedAt}, timezone('UTC', clock_timestamp()))`,
+        })
+        .where(eq(labelTable.id, id))
+        .returning(),
+    );
     if (!root) throw new HTTPException(404, { message: "Label not found" });
     if (root.workspaceId) {
+      await lease.check();
       await notifySyncWorkspaceLabelChanged(root.workspaceId, root.id);
       const predicate = and(
         eq(labelTable.workspaceId, root.workspaceId),
@@ -117,19 +126,20 @@ async function deleteLabel(
         .limit(LABEL_DELETE_BATCH_SIZE + 1);
       for (const row of rows.slice(0, LABEL_DELETE_BATCH_SIZE)) {
         // Recheck the snapshot/name if a concurrent edit changed this copy.
-        const [deleted] = await db
-          .delete(labelTable)
-          .where(and(eq(labelTable.id, row.id), predicate))
-          .returning();
-        if (deleted) await notifyDeletion(deleted, userId);
+        const [deleted] = await lease.transaction((tx) =>
+          tx
+            .delete(labelTable)
+            .where(and(eq(labelTable.id, row.id), predicate))
+            .returning(),
+        );
+        if (deleted) await notifyDeletion(deleted, userId, lease);
       }
       if (rows.length > LABEL_DELETE_BATCH_SIZE)
         return { ...root, pendingDeletion: true };
     }
-    const [deleted] = await db
-      .delete(labelTable)
-      .where(eq(labelTable.id, id))
-      .returning();
+    const [deleted] = await lease.transaction((tx) =>
+      tx.delete(labelTable).where(eq(labelTable.id, id)).returning(),
+    );
     if (!deleted) throw new HTTPException(404, { message: "Label not found" });
     return deleted;
   });

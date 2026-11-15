@@ -1,6 +1,6 @@
-import { and, eq } from "drizzle-orm";
+import { and, eq, sql } from "drizzle-orm";
 import { beforeEach, describe, expect, it, vi } from "vite-plus/test";
-import db, { getDatabasePool, schema } from "../../apps/api/src/database";
+import db, { schema } from "../../apps/api/src/database";
 import { subscribeToEvent } from "../../apps/api/src/events";
 import { createApp } from "../../apps/api/src/index";
 import deleteLabel, {
@@ -103,6 +103,46 @@ async function labelsFor(workspaceId: string) {
 }
 
 describe("bounded, resumable label deletion", () => {
+  it("leaves no leases or advisory locks after three rounds of 24 concurrent deletes", async () => {
+    for (let round = 0; round < 3; round++) {
+      const { app, member, root } = await fixture(0);
+      const labels = await db
+        .insert(schema.labelTable)
+        .values(
+          Array.from({ length: 23 }, (_, i) => ({
+            workspaceId: member.workspace.id,
+            name: `parallel-${i}`,
+            color: "red",
+          })),
+        )
+        .returning();
+      let remaining = [root, ...labels].map((label) => label.id);
+      // Retry only explicit contention, with a finite bound so a leaked lock
+      // fails the test instead of hanging. This also runs through PgBouncer.
+      for (let attempt = 0; attempt < 24 && remaining.length; attempt++) {
+        const results = await Promise.all(
+          remaining.map(async (id) => {
+            const response = await app.request(`/api/label/${id}`, {
+              method: "DELETE",
+            });
+            expect([200, 429]).toContain(response.status);
+            return { id, status: response.status };
+          }),
+        );
+        remaining = results
+          .filter((result) => result.status === 429)
+          .map((result) => result.id);
+      }
+      expect(remaining).toEqual([]);
+      expect(await labelsFor(member.workspace.id)).toEqual([]);
+      expect(await db.query.jobLeaseTable.findMany()).toEqual([]);
+      const locks =
+        await db.execute(sql`SELECT count(*)::int AS count FROM pg_locks
+        WHERE locktype = 'advisory' AND database = (SELECT oid FROM pg_database WHERE datname = current_database())`);
+      expect(locks.rows[0]?.count).toBe(0);
+    }
+  });
+
   it("finishes all copies through bounded HTTP steps and keeps the root until completion", async () => {
     const { app, member, root } = await fixture(
       LABEL_DELETE_BATCH_SIZE * 2 + 3,
@@ -177,6 +217,28 @@ describe("bounded, resumable label deletion", () => {
     }
     await pending;
     expect(eventCalls).toHaveLength(3);
+  });
+  it("stops after losing its lease during a provider call and resumes saved deletion progress", async () => {
+    const { member, root } = await fixture(3);
+    const gate = deferred();
+    github.mockImplementationOnce(() => gate.promise);
+    const pending = deleteLabel(root.id, member.user.id);
+    const rejected = expect(pending).rejects.toMatchObject({ status: 429 });
+    try {
+      await vi.waitFor(() => expect(github).toHaveBeenCalledTimes(1));
+      await db.execute(sql`UPDATE job_lease SET expires_at = timezone('UTC', clock_timestamp()) - interval '1 second'
+        WHERE name = ${`request:label-delete:resource:${root.id}`}`);
+    } finally {
+      gate.resolve();
+    }
+    await rejected;
+    expect(gitea).not.toHaveBeenCalled();
+    expect(gitlab).not.toHaveBeenCalled();
+    expect(await labelsFor(member.workspace.id)).toHaveLength(3);
+    expect(await db.query.jobLeaseTable.findMany()).toEqual([]);
+    await deleteLabel(root.id, member.user.id);
+    expect(await labelsFor(member.workspace.id)).toEqual([]);
+    expect(github).toHaveBeenCalledTimes(3);
   });
   it("preserves task labels created after the persisted deletion boundary", async () => {
     const { member, root, tasks } = await fixture(LABEL_DELETE_BATCH_SIZE + 1);
@@ -273,12 +335,16 @@ describe("bounded, resumable label deletion", () => {
       withLabelDeletionLock("failure", async () => "ok"),
     ).resolves.toBe("ok");
   });
-  it("honors the four-slot cap held by a separate database session", async () => {
+  it("honors the four-slot cap leased by another process", async () => {
     const { app, member, root } = await fixture(0);
-    const other = await getDatabasePool().connect();
+    await db.insert(schema.jobLeaseTable).values(
+      Array.from({ length: MAX_LABEL_DELETIONS_IN_FLIGHT }, (_, i) => ({
+        name: `request:label-delete:slot:${i}`,
+        owner: "another-process",
+        expiresAt: sql`timezone('UTC', clock_timestamp()) + interval '1 minute'`,
+      })),
+    );
     try {
-      for (let i = 0; i < MAX_LABEL_DELETIONS_IN_FLIGHT; i++)
-        await other.query("SELECT pg_advisory_lock(773622, $1::int)", [i]);
       await expect(
         withLabelDeletionLock("blocked", async () => "must not run"),
       ).rejects.toMatchObject({ status: 429 });
@@ -291,8 +357,9 @@ describe("bounded, resumable label deletion", () => {
         (await labelsFor(member.workspace.id))[0].deletionStartedAt,
       ).toBeNull();
     } finally {
-      await other.query("SELECT pg_advisory_unlock_all()");
-      other.release();
+      await db
+        .delete(schema.jobLeaseTable)
+        .where(eq(schema.jobLeaseTable.owner, "another-process"));
     }
     await expect(
       withLabelDeletionLock("available", async () => "ok"),
