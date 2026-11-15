@@ -977,6 +977,40 @@ export const labelTable = pgTable(
   ],
 );
 
+// Survives deleting a label so a later DELETE can finish its external effects.
+export const labelDeletionTable = pgTable(
+  "label_deletion",
+  {
+    id: text("id").primaryKey(),
+    deletionId: text("deletion_id").notNull(),
+    userId: text("user_id").notNull(),
+    pendingEffects: text("pending_effects", {
+      enum: ["github", "gitea", "gitlab", "event"],
+    })
+      .array()
+      .default(sql`ARRAY['github', 'gitea', 'gitlab', 'event']::text[]`)
+      .notNull(),
+    name: text("name").notNull(),
+    color: text("color").notNull(),
+    createdAt: timestamp("created_at", { mode: "date" }).notNull(),
+    updatedAt: timestamp("updated_at", { mode: "date" }).notNull(),
+    deletionStartedAt: timestamp("deletion_started_at", { mode: "date" }),
+    taskId: text("task_id").references(() => taskTable.id, {
+      onDelete: "cascade",
+      onUpdate: "cascade",
+    }),
+    workspaceId: text("workspace_id").references(() => workspaceTable.id, {
+      onDelete: "cascade",
+      onUpdate: "cascade",
+    }),
+  },
+  (table) => [
+    index("label_deletion_deletion_id_idx").on(table.deletionId),
+    index("label_deletion_task_id_idx").on(table.taskId),
+    index("label_deletion_workspace_id_idx").on(table.workspaceId),
+  ],
+);
+
 export const notificationTable = pgTable(
   "notification",
   {

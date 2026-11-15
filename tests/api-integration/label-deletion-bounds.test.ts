@@ -10,6 +10,8 @@ import {
   MAX_LABEL_DELETIONS_IN_FLIGHT,
   withLabelDeletionLock,
 } from "../../apps/api/src/label/deletion-lock";
+import { addWorkspaceMember } from "./helpers/project-access/add-workspace-member";
+import { restrictToProjects } from "./helpers/project-access/restrict-to-projects";
 import { mockAuthenticatedSession } from "./helpers/auth";
 import { resetTestDatabase } from "./helpers/database";
 import {
@@ -218,27 +220,227 @@ describe("bounded, resumable label deletion", () => {
     await pending;
     expect(eventCalls).toHaveLength(3);
   });
-  it("stops after losing its lease during a provider call and resumes saved deletion progress", async () => {
-    const { member, root } = await fixture(3);
+  it.each([0, 1, 2])(
+    "resumes every pending effect after losing its lease during provider %i",
+    async (providerIndex) => {
+      const { member, root, tasks } = await fixture(3);
+      const providers = [github, gitea, gitlab];
+      const provider = providers[providerIndex];
+      const gate = deferred();
+      provider.mockImplementationOnce(() => gate.promise);
+      const pending = deleteLabel(root.id, member.user.id);
+      const rejected = expect(pending).rejects.toMatchObject({ status: 429 });
+      try {
+        await vi.waitFor(() => expect(provider).toHaveBeenCalledTimes(1));
+        await db.execute(sql`UPDATE job_lease SET expires_at = timezone('UTC', clock_timestamp()) - interval '1 second'
+        WHERE name = ${`request:label-delete:resource:${root.id}`}`);
+      } finally {
+        gate.resolve();
+      }
+      await rejected;
+      for (const later of providers.slice(providerIndex + 1))
+        expect(later).not.toHaveBeenCalled();
+      expect(eventCalls).toEqual([]);
+      expect(await labelsFor(member.workspace.id)).toHaveLength(3);
+      expect(await db.query.labelDeletionTable.findMany()).toMatchObject([
+        {
+          deletionId: root.id,
+          userId: member.user.id,
+          pendingEffects: ["github", "gitea", "gitlab", "event"].slice(
+            providerIndex,
+          ),
+        },
+      ]);
+      expect(await db.query.jobLeaseTable.findMany()).toEqual([]);
+      // A fresh HTTP request recovers from database state, including the deleted copy.
+      const response = await createApp().app.request(`/api/label/${root.id}`, {
+        method: "DELETE",
+      });
+      expect(response.status).toBe(200);
+      expect(await labelsFor(member.workspace.id)).toEqual([]);
+      expect(await db.query.labelDeletionTable.findMany()).toEqual([]);
+      for (const [index, remove] of providers.entries()) {
+        // The in-flight operation cannot be acknowledged by the expired owner.
+        expect(remove).toHaveBeenCalledTimes(index === providerIndex ? 4 : 3);
+        expect(new Set(remove.mock.calls.map(([id]) => id))).toEqual(
+          new Set(tasks.map((task) => task.id)),
+        );
+      }
+      expect(new Set(eventCalls)).toEqual(
+        new Set(tasks.map((task) => task.id)),
+      );
+      expect(eventCalls).toHaveLength(3);
+    },
+  );
+
+  it("replays an unacknowledged event without repeating acknowledged providers", async () => {
+    const { member, root, tasks } = await fixture(1);
     const gate = deferred();
-    github.mockImplementationOnce(() => gate.promise);
+    eventGate = gate.promise;
     const pending = deleteLabel(root.id, member.user.id);
     const rejected = expect(pending).rejects.toMatchObject({ status: 429 });
     try {
-      await vi.waitFor(() => expect(github).toHaveBeenCalledTimes(1));
+      await vi.waitFor(() => expect(eventCalls).toEqual([tasks[0].id]));
       await db.execute(sql`UPDATE job_lease SET expires_at = timezone('UTC', clock_timestamp()) - interval '1 second'
         WHERE name = ${`request:label-delete:resource:${root.id}`}`);
     } finally {
       gate.resolve();
     }
     await rejected;
+    expect(await db.query.labelDeletionTable.findMany()).toMatchObject([
+      { pendingEffects: ["event"] },
+    ]);
+    await deleteLabel(root.id, member.user.id);
+    expect(github).toHaveBeenCalledTimes(1);
+    expect(gitea).toHaveBeenCalledTimes(1);
+    expect(gitlab).toHaveBeenCalledTimes(1);
+    expect(eventCalls).toEqual([tasks[0].id, tasks[0].id]);
+    expect(await db.query.labelDeletionTable.findMany()).toEqual([]);
+    expect(await labelsFor(member.workspace.id)).toEqual([]);
+  });
+
+  it("resumes named effects independently of provider order", async () => {
+    const { member, root, tasks } = await fixture(1);
+    const [copy] = await db
+      .delete(schema.labelTable)
+      .where(eq(schema.labelTable.taskId, tasks[0].id))
+      .returning();
+    await db.insert(schema.labelDeletionTable).values({
+      ...copy,
+      deletionId: root.id,
+      userId: member.user.id,
+      pendingEffects: ["gitlab", "github", "event"],
+    });
+
+    await deleteLabel(root.id, member.user.id);
+
+    expect(gitlab).toHaveBeenCalledExactlyOnceWith(tasks[0].id, copy.name);
+    expect(github).toHaveBeenCalledExactlyOnceWith(tasks[0].id, copy.name);
+    expect(gitea).not.toHaveBeenCalled();
+    expect(eventCalls).toEqual([tasks[0].id]);
+    expect(await db.query.labelDeletionTable.findMany()).toEqual([]);
+    expect(await labelsFor(member.workspace.id)).toEqual([]);
+  });
+
+  it("cleans up an acknowledged deletion without replaying effects", async () => {
+    const { member, root, tasks } = await fixture(1);
+    const [copy] = await db
+      .delete(schema.labelTable)
+      .where(eq(schema.labelTable.taskId, tasks[0].id))
+      .returning();
+    await db.insert(schema.labelDeletionTable).values({
+      ...copy,
+      deletionId: root.id,
+      userId: member.user.id,
+      pendingEffects: [],
+    });
+
+    await deleteLabel(root.id, member.user.id);
+
+    expect(github).not.toHaveBeenCalled();
     expect(gitea).not.toHaveBeenCalled();
     expect(gitlab).not.toHaveBeenCalled();
-    expect(await labelsFor(member.workspace.id)).toHaveLength(3);
-    expect(await db.query.jobLeaseTable.findMany()).toEqual([]);
-    await deleteLabel(root.id, member.user.id);
+    expect(eventCalls).toEqual([]);
+    expect(await db.query.labelDeletionTable.findMany()).toEqual([]);
     expect(await labelsFor(member.workspace.id)).toEqual([]);
-    expect(github).toHaveBeenCalledTimes(3);
+  });
+
+  it("counts recovered copies toward the per-request batch limit", async () => {
+    const { member, root } = await fixture(LABEL_DELETE_BATCH_SIZE + 1);
+    github.mockImplementationOnce(async () => {
+      await db.execute(sql`UPDATE job_lease SET expires_at = timezone('UTC', clock_timestamp()) - interval '1 second'
+        WHERE name = ${`request:label-delete:resource:${root.id}`}`);
+    });
+    await expect(deleteLabel(root.id, member.user.id)).rejects.toMatchObject({
+      status: 429,
+    });
+    expect((await deleteLabel(root.id, member.user.id)).pendingDeletion).toBe(
+      true,
+    );
+    expect(gitea).toHaveBeenCalledTimes(LABEL_DELETE_BATCH_SIZE);
+    expect(eventCalls).toHaveLength(LABEL_DELETE_BATCH_SIZE);
+    expect(await labelsFor(member.workspace.id)).toHaveLength(2);
+    expect(await db.query.labelDeletionTable.findMany()).toEqual([]);
+    await deleteLabel(root.id, member.user.id);
+    expect(eventCalls).toHaveLength(LABEL_DELETE_BATCH_SIZE + 1);
+    expect(await labelsFor(member.workspace.id)).toEqual([]);
+  });
+
+  it("resumes a deleted task label over HTTP while enforcing workspace and project access", async () => {
+    const { member, root, tasks, app } = await fixture(1);
+    const [copy] = (await labelsFor(member.workspace.id)).filter(
+      (label) => label.taskId,
+    );
+    github.mockImplementationOnce(async () => {
+      await db.execute(sql`UPDATE job_lease SET expires_at = timezone('UTC', clock_timestamp()) - interval '1 second'
+        WHERE name = ${`request:label-delete:resource:${copy.id}`}`);
+    });
+    const path = `/api/label/${copy.id}`;
+    expect((await app.request(path, { method: "DELETE" })).status).toBe(429);
+    expect(await labelsFor(member.workspace.id)).toEqual([root]);
+    expect(await db.query.labelDeletionTable.findMany()).toMatchObject([
+      {
+        id: copy.id,
+        deletionId: copy.id,
+        pendingEffects: ["github", "gitea", "gitlab", "event"],
+      },
+    ]);
+    // Only DELETE can look up the pending snapshot; other endpoints still see a deleted label.
+    expect((await app.request(path)).status).toBe(404);
+    expect(
+      (
+        await app.request(path, {
+          method: "PUT",
+          headers: { "content-type": "application/json" },
+          body: JSON.stringify({ name: "renamed", color: "blue" }),
+        })
+      ).status,
+    ).toBe(404);
+    const other = await createWorkspaceMember({ role: "admin" });
+    mockAuthenticatedSession(other.user);
+    expect((await app.request(path, { method: "DELETE" })).status).toBe(404);
+    const restricted = await addWorkspaceMember(member.workspace.id, "admin");
+    await restrictToProjects(member.workspace.id, restricted.id, []);
+    mockAuthenticatedSession(restricted);
+    expect((await app.request(path, { method: "DELETE" })).status).toBe(403);
+    expect(gitea).not.toHaveBeenCalled();
+    mockAuthenticatedSession(member.user);
+    const response = await createApp().app.request(path, { method: "DELETE" });
+    expect(response.status).toBe(200);
+    expect(await response.json()).toMatchObject({
+      id: copy.id,
+      taskId: tasks[0].id,
+    });
+    expect(github).toHaveBeenCalledTimes(2);
+    expect(gitea).toHaveBeenCalledTimes(1);
+    expect(gitlab).toHaveBeenCalledTimes(1);
+    expect(eventCalls).toEqual([tasks[0].id]);
+    expect(await db.query.labelDeletionTable.findMany()).toEqual([]);
+    expect((await app.request(path, { method: "DELETE" })).status).toBe(404);
+  });
+
+  it("rolls back a label deletion when its pending effects cannot be saved", async () => {
+    const { member, root } = await fixture(1);
+    await db.execute(
+      sql`CREATE FUNCTION reject_label_deletion() RETURNS trigger LANGUAGE plpgsql AS $$ BEGIN RAISE EXCEPTION 'pending effects unavailable'; END $$`,
+    );
+    await db.execute(
+      sql`CREATE TRIGGER reject_label_deletion BEFORE INSERT ON label_deletion FOR EACH ROW EXECUTE FUNCTION reject_label_deletion()`,
+    );
+    try {
+      await expect(deleteLabel(root.id, member.user.id)).rejects.toThrow();
+      expect(await labelsFor(member.workspace.id)).toHaveLength(2);
+      expect(await db.query.labelDeletionTable.findMany()).toEqual([]);
+      expect(github).not.toHaveBeenCalled();
+    } finally {
+      await db.execute(
+        sql`DROP TRIGGER reject_label_deletion ON label_deletion`,
+      );
+      await db.execute(sql`DROP FUNCTION reject_label_deletion()`);
+    }
+    await deleteLabel(root.id, member.user.id);
+    expect(eventCalls).toHaveLength(1);
+    expect(await labelsFor(member.workspace.id)).toEqual([]);
   });
   it("preserves task labels created after the persisted deletion boundary", async () => {
     const { member, root, tasks } = await fixture(LABEL_DELETE_BATCH_SIZE + 1);
@@ -391,6 +593,7 @@ describe("bounded, resumable label deletion", () => {
     try {
       await deleteLabel(root.id, member.user.id);
       expect(await labelsFor(member.workspace.id)).toHaveLength(0);
+      expect(await db.query.labelDeletionTable.findMany()).toEqual([]);
       expect(github).toHaveBeenCalledTimes(3);
       expect(gitea).toHaveBeenCalledTimes(3);
       expect(gitlab).toHaveBeenCalledTimes(3);

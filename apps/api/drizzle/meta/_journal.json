@@ -519,6 +519,13 @@
       "when": 1793798733016,
       "tag": "0073_thick_talisman",
       "breakpoints": true
+    },
+    {
+      "idx": 74,
+      "version": "7",
+      "when": 1794746780686,
+      "tag": "0074_durable_label_deletion_effects",
+      "breakpoints": true
     }
   ]
 }

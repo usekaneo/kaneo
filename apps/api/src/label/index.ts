@@ -200,7 +200,7 @@ const deleteLabelRoute = createRoute({
   description:
     "Delete a label by ID. Large workspace cascades remove at most 25 task copies per request. Repeat DELETE with the same ID after HTTP 202 until HTTP 200 completes the operation. The persisted start boundary allows safe resumption after a disconnect. HTTP 429 asks the caller to retry later.",
   middleware: [
-    workspaceAccess.fromLabel(),
+    workspaceAccess.fromLabelDeletion(),
     requireWorkspacePermission({ label: ["delete"] }),
   ] as const,
   request: { params: labelParam },
