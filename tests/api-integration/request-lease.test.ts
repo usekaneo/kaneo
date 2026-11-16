@@ -8,7 +8,10 @@ import {
   vi,
 } from "vite-plus/test";
 import db, { getDatabasePool, schema } from "../../apps/api/src/database";
-import { REQUEST_LEASE_RENEWAL_MS } from "../../apps/api/src/database/request-lease";
+import {
+  REQUEST_LEASE_MS,
+  REQUEST_LEASE_RENEWAL_MS,
+} from "../../apps/api/src/database/request-lease";
 import { withRequestLease } from "../../apps/api/src/database/with-request-lease";
 import { withGithubImportLock } from "../../apps/api/src/github-integration/import-lock";
 import { withLabelDeletionLock } from "../../apps/api/src/label/deletion-lock";
@@ -147,7 +150,7 @@ describe.each([
       await vi.waitFor(async () => {
         const result =
           await db.execute(sql`SELECT count(*)::int AS count FROM job_lease
-          WHERE expires_at > timezone('UTC', clock_timestamp()) + interval '10 minutes'`);
+          WHERE expires_at > timezone('UTC', clock_timestamp()) + ${REQUEST_LEASE_MS - REQUEST_LEASE_RENEWAL_MS} * interval '1 millisecond'`);
         expect(result.rows[0]?.count).toBe(2);
       });
     });

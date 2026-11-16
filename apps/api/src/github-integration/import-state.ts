@@ -1,3 +1,10 @@
+export type GitHubImportNotification =
+  | {
+      type: "task.updated" | "task.labels_updated" | "comment.updated";
+      taskId: string;
+    }
+  | { type: "project.updated" };
+
 export type GitHubImportState = {
   phase: "issues" | "labels" | "comments" | "pulls" | "complete";
   repositoryId: number;
@@ -20,6 +27,8 @@ export type GitHubImportState = {
   imported: number;
   updated: number;
   skipped: number;
+  // Optional for runs saved before notification delivery became durable.
+  pendingNotifications?: GitHubImportNotification[];
 };
 
 export function initialImportState(repositoryId: number): GitHubImportState {
@@ -40,7 +49,8 @@ export function initialImportState(repositoryId: number): GitHubImportState {
 export function importProgress(runId: string, state: GitHubImportState) {
   return {
     runId,
-    pending: state.phase !== "complete",
+    pending:
+      state.phase !== "complete" || Boolean(state.pendingNotifications?.length),
     imported: state.imported,
     updated: state.updated,
     skipped: state.skipped,

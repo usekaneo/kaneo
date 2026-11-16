@@ -515,23 +515,29 @@ describe("bounded, resumable label deletion", () => {
     expect(eventCalls).toHaveLength(1);
     expect(await labelsFor(member.workspace.id)).toEqual([]);
   });
-  it("preserves task labels created after the persisted deletion boundary", async () => {
+  it("blocks direct assignment throughout a workspace deletion and permits it after completion", async () => {
     const { member, root, tasks } = await fixture(LABEL_DELETE_BATCH_SIZE + 1);
     expect((await deleteLabel(root.id, member.user.id)).pendingDeletion).toBe(
       true,
     );
     const deletedTask = github.mock.calls[0][0];
-    const [newLabel] = await db
-      .insert(schema.labelTable)
-      .values({
-        workspaceId: member.workspace.id,
-        taskId: deletedTask,
-        name: "bug",
-        color: "blue",
-        createdAt: new Date(Date.now() + 1000),
-      })
-      .returning();
+    const assign = () =>
+      db
+        .insert(schema.labelTable)
+        .values({
+          workspaceId: member.workspace.id,
+          taskId: deletedTask,
+          name: "bug",
+          color: "blue",
+          createdAt: new Date(Date.now() + 1000),
+        })
+        .returning();
+    await expect(assign()).rejects.toMatchObject({
+      cause: { constraint: "label_assignment_pending_deletion" },
+    });
     await deleteLabel(root.id, member.user.id);
+    expect(await labelsFor(member.workspace.id)).toEqual([]);
+    const [newLabel] = await assign();
     expect(await labelsFor(member.workspace.id)).toEqual([newLabel]);
     expect(github).toHaveBeenCalledTimes(tasks.length);
   });

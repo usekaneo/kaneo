@@ -7,7 +7,6 @@ import { createId } from "@paralleldrive/cuid2";
 import { and, asc, eq, isNull } from "drizzle-orm";
 import { HTTPException } from "hono/http-exception";
 import db from "../../database";
-import { publishEvent } from "../../events";
 import {
   activityTable,
   columnTable,
@@ -32,6 +31,7 @@ import { getVerifiedInstallationOctokit } from "../../plugins/github/utils/githu
 import { claimTaskNumber } from "../../task/controllers/claim-task-numbers";
 import { VIRTUAL_STATUSES } from "../../task/validate-task-fields";
 import { withGithubImportLock } from "../import-lock";
+import { publishImportNotifications } from "../publish-import-notifications";
 import {
   commentsPageSchema,
   fetchImportPage,
@@ -131,6 +131,8 @@ export async function importIssues(projectId: string, runId?: string) {
       (!run || run.runId !== runId || run.state.repositoryId !== repositoryId)
     )
       throw conflict();
+    if (run && run.state.repositoryId === repositoryId)
+      run = await publishImportNotifications(run, projectId, lease);
     if (runId && run?.state.phase === "complete")
       return importProgress(run.runId, run.state);
     if (
@@ -257,6 +259,10 @@ export async function importIssues(projectId: string, runId?: string) {
           admitted,
           scopeLabels,
         );
+        state.pendingNotifications = [
+          ...notifications.values(),
+          { type: "project.updated" },
+        ];
         const [saved] = await tx
           .update(githubImportTable)
           .set({ state })
@@ -270,14 +276,7 @@ export async function importIssues(projectId: string, runId?: string) {
         if (!saved) throw conflict();
         return saved;
       });
-      // Each bounded page is durable before other clients refresh, including
-      // continuation pages that change labels, comments or linked resources.
-      for (const { type, taskId } of notifications.values()) {
-        await lease.check();
-        await publishEvent(type, { projectId, taskId });
-      }
-      await lease.check();
-      await publishEvent("project.updated", { projectId });
+      run = await publishImportNotifications(run, projectId, lease);
     }
     return importProgress(run.runId, run.state);
   });

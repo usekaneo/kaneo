@@ -12365,7 +12365,7 @@
             }
           },
           "409": {
-            "description": "Tasks changed projects, or a label assignment is being deleted; retry the operation",
+            "description": "Tasks changed projects or labels changed concurrently; retry the operation. If a label is being deleted, finish its deletion before assigning it again",
             "content": {
               "application/json": {
                 "schema": {

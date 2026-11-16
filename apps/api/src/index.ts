@@ -57,6 +57,7 @@ import gitlabIntegration, {
 } from "./gitlab-integration";
 import importRoutes from "./import";
 import { stopActiveImports } from "./import/runs/stop-active-imports";
+import { stopActiveRequestLeases } from "./database/with-request-lease";
 import getInstanceStatus from "./instance/controllers/get-instance-status";
 import invitation from "./invitation";
 import label from "./label";
@@ -1098,17 +1099,24 @@ export async function startServer(
     shuttingDown = true;
 
     console.log("🛑 Shutting down gracefully...");
+    server.close();
+    const requestLeasesStopped = stopActiveRequestLeases();
     shutdownScheduler();
     await stopWebhookWorker();
     await shutdownWebSocketAdapter();
-    server.close();
-    const [, signInEmailsDrained] = await Promise.all([
+    const [, signInEmailsDrained, , requestLeasesReleased] = await Promise.all([
       drainPasswordResetDeliveries(),
       drainSignInEmails(),
       stopActiveImports(),
+      requestLeasesStopped,
     ]);
     if (!signInEmailsDrained) {
       console.warn("Timed out waiting for pending sign-in emails");
+    }
+    if (!requestLeasesReleased) {
+      console.warn(
+        "Request leases could not be released before shutdown; expiry will recover them",
+      );
     }
     process.exit(0);
   };
