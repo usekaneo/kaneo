@@ -3842,6 +3842,21 @@
 			"startsOn": "Başlayır: {{date}}",
 			"beforeStart": "{{date}} başlama tarixindən əvvəldir",
 			"afterDue": "{{date}} son tarixdən sonradır"
+		},
+		"timeTracking": {
+			"empty": "Hələ vaxt qeydə alınmayıb.",
+			"loadError": "Vaxt qeydlərini yükləmək mümkün olmadı.",
+			"retry": "Yenidən cəhd et",
+			"running": "İşləyir",
+			"start": "Taymeri başlat",
+			"startError": "Taymeri başlatmaq mümkün olmadı.",
+			"stop": "Taymeri dayandır",
+			"stopError": "Taymeri dayandırmaq mümkün olmadı.",
+			"title": "Vaxtın izlənməsi",
+			"unknownUser": "Naməlum",
+			"durationSeconds": "{{seconds, number}} san",
+			"durationMinutes": "{{minutes, number}} dəq",
+			"durationHoursMinutes": "{{hours, number}} saat {{minutes, number}} dəq"
 		}
 	},
 	"invitations": {

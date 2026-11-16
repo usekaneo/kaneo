@@ -8,9 +8,7 @@ on:
   pull_request_target:
     types: [opened]
 
-permissions:
-  issues: write
-  pull-requests: write
+permissions: {}
 
 concurrency:
   group: mellon-${{ github.event.issue.number || github.event.pull_request.number }}
@@ -21,10 +19,20 @@ jobs:
     runs-on: blacksmith-4vcpu-ubuntu-2404
     timeout-minutes: 5
     steps:
-      - name: Review descriptions
-        uses: randoneering/mellon@56602b97480d91b9afcb4630230573284a86ef56 # v0.1.5
+      - name: Create moderation App token
+        id: app-token
+        uses: actions/create-github-app-token@64ab729a6294000f5aa4a4bc0b73d1f32bc45510 # v3.3.0
         with:
-          token: ${{ github.token }}
+          client-id: ${{ vars.MELLON_APP_CLIENT_ID }}
+          private-key: ${{ secrets.MELLON_APP_PRIVATE_KEY }}
+          # Requires installation-owner approval; see scripts/ui-review-bot/README.md.
+          permission-issues: write
+          permission-pull-requests: write
+      - name: Review descriptions
+        uses: randoneering/mellon@a381a74bfa5b2429285d55315a02faff267809d4 # v0.1.6
+        with:
+          token: ${{ steps.app-token.outputs.token }}
+          moderation-bot-login: '${{ steps.app-token.outputs.app-slug }}[bot]'
           mode: enforce
           review-label: 'true'
           auto-close: 'false'

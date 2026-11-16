@@ -3770,6 +3770,21 @@
 			"startsOn": "Bắt đầu {{date}}",
 			"beforeStart": "{{date}} trước ngày bắt đầu",
 			"afterDue": "{{date}} sau hạn chót"
+		},
+		"timeTracking": {
+			"empty": "Chưa có thời gian nào được ghi lại.",
+			"loadError": "Không thể tải các mục thời gian.",
+			"retry": "Thử lại",
+			"running": "Đang chạy",
+			"start": "Bắt đầu hẹn giờ",
+			"startError": "Không thể bắt đầu bộ hẹn giờ.",
+			"stop": "Dừng bộ hẹn giờ",
+			"stopError": "Không thể dừng bộ hẹn giờ.",
+			"title": "Theo dõi thời gian",
+			"unknownUser": "Không xác định",
+			"durationSeconds": "{{seconds, number}} giây",
+			"durationMinutes": "{{minutes, number}} phút",
+			"durationHoursMinutes": "{{hours, number}} giờ {{minutes, number}} phút"
 		}
 	},
 	"invitations": {

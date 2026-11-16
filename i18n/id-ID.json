@@ -3770,6 +3770,21 @@
 			"startsOn": "Mulai {{date}}",
 			"beforeStart": "{{date}} sebelum tanggal mulai",
 			"afterDue": "{{date}} setelah tenggat"
+		},
+		"timeTracking": {
+			"empty": "Belum ada waktu yang dicatat.",
+			"loadError": "Gagal memuat catatan waktu.",
+			"retry": "Coba lagi",
+			"running": "Berjalan",
+			"start": "Mulai timer",
+			"startError": "Gagal memulai pengatur waktu.",
+			"stop": "Hentikan pengatur waktu",
+			"stopError": "Gagal menghentikan pengatur waktu.",
+			"title": "Pelacakan waktu",
+			"unknownUser": "Tidak diketahui",
+			"durationSeconds": "{{seconds, number}} dtk",
+			"durationMinutes": "{{minutes, number}} mnt",
+			"durationHoursMinutes": "{{hours, number}} j {{minutes, number}} mnt"
 		}
 	},
 	"invitations": {

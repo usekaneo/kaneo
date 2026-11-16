@@ -3842,6 +3842,21 @@
 			"startsOn": "Begint {{date}}",
 			"beforeStart": "{{date}} ligt vóór de startdatum",
 			"afterDue": "{{date}} ligt na de vervaldatum"
+		},
+		"timeTracking": {
+			"empty": "Nog geen tijd geregistreerd.",
+			"loadError": "Kan de tijdregistraties niet laden.",
+			"retry": "Opnieuw proberen",
+			"running": "Actief",
+			"start": "Timer starten",
+			"startError": "Kan de timer niet starten.",
+			"stop": "Timer stoppen",
+			"stopError": "Kan de timer niet stoppen.",
+			"title": "Tijdregistratie",
+			"unknownUser": "Onbekend",
+			"durationSeconds": "{{seconds, number}} s",
+			"durationMinutes": "{{minutes, number}} min",
+			"durationHoursMinutes": "{{hours, number}} u {{minutes, number}} min"
 		}
 	},
 	"invitations": {

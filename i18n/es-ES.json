@@ -3914,6 +3914,21 @@
 			"startsOn": "Empieza: {{date}}",
 			"beforeStart": "{{date}} es anterior a la fecha de inicio",
 			"afterDue": "{{date}} es posterior a la fecha límite"
+		},
+		"timeTracking": {
+			"empty": "Aún no se ha registrado tiempo.",
+			"loadError": "No se pudieron cargar los registros de tiempo.",
+			"retry": "Reintentar",
+			"running": "En marcha",
+			"start": "Iniciar temporizador",
+			"startError": "No se pudo iniciar el temporizador.",
+			"stop": "Detener temporizador",
+			"stopError": "No se pudo detener el temporizador.",
+			"title": "Seguimiento del tiempo",
+			"unknownUser": "Desconocido",
+			"durationSeconds": "{{seconds, number}} s",
+			"durationMinutes": "{{minutes, number}} min",
+			"durationHoursMinutes": "{{hours, number}} h {{minutes, number}} min"
 		}
 	},
 	"invitations": {

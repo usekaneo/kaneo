@@ -3842,6 +3842,21 @@
 			"startsOn": "शुरुआत: {{date}}",
 			"beforeStart": "{{date}} प्रारंभ तारीख से पहले है",
 			"afterDue": "{{date}} नियत तारीख के बाद है"
+		},
+		"timeTracking": {
+			"empty": "अभी तक कोई समय दर्ज नहीं किया गया है।",
+			"loadError": "समय प्रविष्टियाँ लोड नहीं हो सकीं।",
+			"retry": "फिर से प्रयास करें",
+			"running": "चल रहा है",
+			"start": "टाइमर शुरू करें",
+			"startError": "टाइमर शुरू नहीं हो सका।",
+			"stop": "टाइमर रोकें",
+			"stopError": "टाइमर रोका नहीं जा सका।",
+			"title": "समय ट्रैकिंग",
+			"unknownUser": "अज्ञात",
+			"durationSeconds": "{{seconds, number}} से",
+			"durationMinutes": "{{minutes, number}} मि",
+			"durationHoursMinutes": "{{hours, number}} घं {{minutes, number}} मि"
 		}
 	},
 	"invitations": {

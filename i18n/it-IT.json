@@ -3914,6 +3914,21 @@
 			"startsOn": "Inizia {{date}}",
 			"beforeStart": "{{date}} è prima della data di inizio",
 			"afterDue": "{{date}} è dopo la scadenza"
+		},
+		"timeTracking": {
+			"empty": "Nessun tempo ancora registrato.",
+			"loadError": "Impossibile caricare le registrazioni di tempo.",
+			"retry": "Riprova",
+			"running": "In corso",
+			"start": "Avvia timer",
+			"startError": "Impossibile avviare il timer.",
+			"stop": "Ferma timer",
+			"stopError": "Impossibile fermare il timer.",
+			"title": "Monitoraggio del tempo",
+			"unknownUser": "Sconosciuto",
+			"durationSeconds": "{{seconds, number}} s",
+			"durationMinutes": "{{minutes, number}} min",
+			"durationHoursMinutes": "{{hours, number}} h {{minutes, number}} min"
 		}
 	},
 	"invitations": {

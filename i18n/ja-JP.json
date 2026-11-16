@@ -3770,6 +3770,21 @@
 			"startsOn": "開始: {{date}}",
 			"beforeStart": "{{date}} は開始日より前です",
 			"afterDue": "{{date}} は期日より後です"
+		},
+		"timeTracking": {
+			"empty": "まだ時間が記録されていません。",
+			"loadError": "時間の記録を読み込めませんでした。",
+			"retry": "再試行",
+			"running": "計測中",
+			"start": "タイマーを開始",
+			"startError": "タイマーを開始できませんでした。",
+			"stop": "タイマーを停止",
+			"stopError": "タイマーを停止できませんでした。",
+			"title": "時間の記録",
+			"unknownUser": "不明なユーザー",
+			"durationSeconds": "{{seconds, number}}秒",
+			"durationMinutes": "{{minutes, number}}分",
+			"durationHoursMinutes": "{{hours, number}}時間 {{minutes, number}}分"
 		}
 	},
 	"invitations": {

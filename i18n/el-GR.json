@@ -3842,6 +3842,21 @@
 			"startsOn": "Ξεκινά {{date}}",
 			"beforeStart": "Η {{date}} είναι πριν από την ημερομηνία έναρξης",
 			"afterDue": "Η {{date}} είναι μετά την προθεσμία"
+		},
+		"timeTracking": {
+			"empty": "Δεν έχει καταγραφεί χρόνος ακόμη.",
+			"loadError": "Αποτυχία φόρτωσης των καταχωρίσεων χρόνου.",
+			"retry": "Δοκιμή ξανά",
+			"running": "Σε εξέλιξη",
+			"start": "Έναρξη χρονομέτρου",
+			"startError": "Αποτυχία εκκίνησης του χρονομέτρου.",
+			"stop": "Διακοπή χρονομέτρου",
+			"stopError": "Αποτυχία διακοπής του χρονομέτρου.",
+			"title": "Παρακολούθηση χρόνου",
+			"unknownUser": "Άγνωστος",
+			"durationSeconds": "{{seconds, number}} δ",
+			"durationMinutes": "{{minutes, number}} λ",
+			"durationHoursMinutes": "{{hours, number}} ώ {{minutes, number}} λ"
 		}
 	},
 	"invitations": {

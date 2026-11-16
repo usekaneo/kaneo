@@ -3986,6 +3986,21 @@
 			"startsOn": "Початок: {{date}}",
 			"beforeStart": "{{date}} раніше за дату початку",
 			"afterDue": "{{date}} пізніше за термін"
+		},
+		"timeTracking": {
+			"empty": "Час ще не записано.",
+			"loadError": "Не вдалося завантажити записи часу.",
+			"retry": "Спробувати ще раз",
+			"running": "Триває відлік",
+			"start": "Запустити таймер",
+			"startError": "Не вдалося запустити таймер.",
+			"stop": "Зупинити таймер",
+			"stopError": "Не вдалося зупинити таймер.",
+			"title": "Облік часу",
+			"unknownUser": "Невідомо",
+			"durationSeconds": "{{seconds, number}} с",
+			"durationMinutes": "{{minutes, number}} хв",
+			"durationHoursMinutes": "{{hours, number}} год {{minutes, number}} хв"
 		}
 	},
 	"invitations": {

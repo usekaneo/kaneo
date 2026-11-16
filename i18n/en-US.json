@@ -3842,6 +3842,21 @@
 			"beforeValue": "Before {{date}}",
 			"afterValue": "After {{date}}",
 			"rangeValue": "{{date}} – {{end}}"
+		},
+		"timeTracking": {
+			"title": "Time tracking",
+			"start": "Start timer",
+			"stop": "Stop timer",
+			"running": "Running",
+			"empty": "No time logged yet.",
+			"unknownUser": "Unknown",
+			"startError": "Failed to start the timer.",
+			"stopError": "Failed to stop the timer.",
+			"loadError": "Failed to load time entries.",
+			"retry": "Retry",
+			"durationSeconds": "{{seconds, number}}s",
+			"durationMinutes": "{{minutes, number}}m",
+			"durationHoursMinutes": "{{hours, number}}h {{minutes, number}}m"
 		}
 	},
 	"invitations": {
