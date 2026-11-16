@@ -11,5 +11,5 @@ export interface RequestLease {
   transaction<T>(run: (tx: LeaseTransaction) => Promise<T>): Promise<T>;
 }
 
-export const REQUEST_LEASE_MS = 15 * 60_000;
-export const REQUEST_LEASE_RENEWAL_MS = 60_000;
+export const REQUEST_LEASE_MS = 2 * 60_000;
+export const REQUEST_LEASE_RENEWAL_MS = 30_000;

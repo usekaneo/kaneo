@@ -158,6 +158,56 @@ async function saved() {
 }
 
 describe("bounded resumable GitHub import", () => {
+  it.each(["issues", "complete"])(
+    "replays durable notifications after lease loss in the %s phase",
+    async (phase) => {
+      const { project, app } = await setup();
+      serveIssues(1);
+      let interrupted = false;
+      mocks.publish.mockImplementation(async () => {
+        if (
+          !interrupted &&
+          (await saved())?.state.phase ===
+            (phase === "complete" ? "complete" : "pulls")
+        ) {
+          interrupted = true;
+          await db.execute(sql`UPDATE job_lease SET expires_at = timezone('UTC', clock_timestamp()) - interval '1 second'
+          WHERE name = ${`request:github-import:resource:${project.id}`}`);
+        }
+      });
+      await expect(importIssues(project.id)).rejects.toMatchObject({
+        status: 429,
+      });
+      const run = await saved();
+      expect(run?.state.pendingNotifications?.length).toBeGreaterThan(0);
+      const info = await app.request(
+        `/api/github-integration/project/${project.id}`,
+      );
+      expect((await info.json()).importProgress).toMatchObject({
+        runId: run!.runId,
+        pending: true,
+      });
+      mocks.publish.mockClear();
+      expect(await importIssues(project.id, run!.runId)).toMatchObject({
+        pending: false,
+        imported: 1,
+      });
+      expect((await saved())?.state.pendingNotifications).toEqual([]);
+      expect(mocks.publish).toHaveBeenCalledWith("project.updated", {
+        projectId: project.id,
+      });
+      if (phase === "issues") {
+        const [task] = await db.query.taskTable.findMany();
+        for (const type of ["task.updated", "task.labels_updated"]) {
+          expect(mocks.publish).toHaveBeenCalledWith(type, {
+            projectId: project.id,
+            taskId: task.id,
+          });
+        }
+      }
+    },
+  );
+
   it("keeps a conflicting label page resumable until its pending deletion finishes", async () => {
     const { member, project, integration, request, app } = await setup();
     const [task] = await db

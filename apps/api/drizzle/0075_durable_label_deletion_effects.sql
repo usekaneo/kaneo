@@ -23,6 +23,8 @@ CREATE INDEX "label_deletion_workspace_id_idx" ON "label_deletion" USING btree (
 -- edits, renames, imports and webhooks. The lock is transaction scoped and no
 -- connection is retained while the deletion's remote effects are processed.
 CREATE FUNCTION guard_pending_label_deletion() RETURNS trigger AS $$
+DECLARE
+  root_deletion_started_at timestamp;
 BEGIN
   IF NEW.task_id IS NULL THEN
     RETURN NEW;
@@ -33,6 +35,16 @@ BEGIN
   PERFORM id FROM task WHERE id = NEW.task_id FOR NO KEY UPDATE;
 
   IF TG_TABLE_NAME = 'label' THEN
+    -- Hold the root through assignment commit. A deletion transition must wait
+    -- for this assignment, or the assignment must observe the marked root.
+    SELECT deletion_started_at INTO root_deletion_started_at
+      FROM label
+      WHERE workspace_id = NEW.workspace_id AND name = NEW.name AND task_id IS NULL
+      FOR SHARE;
+    IF root_deletion_started_at IS NOT NULL THEN
+      RAISE EXCEPTION 'This workspace label is being deleted; finish its deletion before assigning it again'
+        USING ERRCODE = '23514', CONSTRAINT = 'label_assignment_pending_deletion';
+    END IF;
     IF EXISTS (
       SELECT 1 FROM label_deletion
       WHERE task_id = NEW.task_id AND name = NEW.name
@@ -53,7 +65,7 @@ END;
 $$ LANGUAGE plpgsql;
 --> statement-breakpoint
 CREATE TRIGGER label_pending_deletion_guard
-  BEFORE INSERT OR UPDATE OF task_id, name ON label
+  BEFORE INSERT OR UPDATE OF task_id, name, workspace_id ON label
   FOR EACH ROW EXECUTE FUNCTION guard_pending_label_deletion();
 --> statement-breakpoint
 CREATE TRIGGER label_deletion_assignment_guard

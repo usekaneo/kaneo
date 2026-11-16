@@ -2,6 +2,7 @@ import { eq, sql } from "drizzle-orm";
 import { Client } from "pg";
 import { beforeEach, describe, expect, it, vi } from "vite-plus/test";
 import db, { schema } from "../../apps/api/src/database";
+import * as events from "../../apps/api/src/events";
 import { createApp } from "../../apps/api/src/index";
 import { isPendingLabelDeletionError } from "../../apps/api/src/label/is-pending-label-deletion-error";
 import { handleIssueLabeled } from "../../apps/api/src/plugins/github/webhooks/issue-labeled";
@@ -41,7 +42,7 @@ beforeEach(async () => {
   remove.mockReset().mockResolvedValue();
 });
 
-async function fixture() {
+async function fixture(taskIds?: [string, string]) {
   const member = await createWorkspaceMember({ role: "admin" });
   const { project } = await createProjectFixture({
     workspaceId: member.workspace.id,
@@ -50,6 +51,7 @@ async function fixture() {
     .insert(schema.taskTable)
     .values(
       [1, 2].map((number) => ({
+        id: taskIds?.[number - 1],
         projectId: project.id,
         title: `Task ${number}`,
         number,
@@ -94,6 +96,83 @@ async function fixture() {
 }
 
 describe("pending label deletion reserves the assignment", () => {
+  it("rejects an assignment that races the workspace deletion transition", async () => {
+    const { member, tasks, root, request } = await fixture();
+    const control = new Client({ connectionString: process.env.DATABASE_URL });
+    await control.connect();
+    await control.query("BEGIN");
+    let assigning: Promise<Response> | undefined;
+    try {
+      await control.query(
+        "UPDATE label SET deletion_started_at = timezone('UTC', clock_timestamp()) WHERE id = $1",
+        [root.id],
+      );
+      // The controller sees the old root; its INSERT must recheck under a lock.
+      assigning = request("/api/label", "POST", {
+        workspaceId: member.workspace.id,
+        taskId: tasks[1].id,
+        name: "bug",
+        color: "red",
+      });
+      await vi.waitFor(async () => {
+        await control.query("SELECT pg_stat_clear_snapshot()");
+        const waiting = await control.query(
+          "SELECT 1 FROM pg_stat_activity WHERE wait_event_type = 'Lock' AND query LIKE 'insert into \"label\"%'",
+        );
+        expect(waiting.rowCount).toBe(1);
+      });
+      await control.query("COMMIT");
+      expect((await assigning).status).toBe(409);
+      expect((await request(`/api/label/${root.id}`, "DELETE")).status).toBe(
+        200,
+      );
+      expect(
+        await db.query.labelTable.findMany({
+          where: eq(schema.labelTable.name, "bug"),
+        }),
+      ).toEqual([]);
+    } finally {
+      await control.query("ROLLBACK");
+      await assigning;
+      await control.end();
+    }
+  });
+
+  it("rolls back the whole bulk assignment when one task has a pending deletion", async () => {
+    const { tasks, root, copy, request, interrupt } = await fixture([
+      "bulk-2",
+      "bulk-1",
+    ]);
+    await interrupt();
+    const publish = vi.spyOn(events, "publishEvent").mockResolvedValue();
+    const assign = () =>
+      request("/api/task/bulk", "PATCH", {
+        taskIds: [tasks[0].id, tasks[1].id],
+        operation: "addLabel",
+        value: root.id,
+      });
+    expect((await assign()).status).toBe(409);
+    expect(publish).not.toHaveBeenCalled();
+    expect(
+      await db.query.labelTable.findMany({
+        where: (label, { and, isNotNull, eq }) =>
+          and(isNotNull(label.taskId), eq(label.name, "bug")),
+      }),
+    ).toEqual([]);
+    expect((await request(`/api/label/${copy.id}`, "DELETE")).status).toBe(200);
+    publish.mockClear();
+    expect((await assign()).status).toBe(200);
+    expect(
+      publish.mock.calls.filter(([type]) => type === "task.label_assigned"),
+    ).toHaveLength(2);
+    expect(
+      await db.query.labelTable.findMany({
+        where: (label, { and, isNotNull, eq }) =>
+          and(isNotNull(label.taskId), eq(label.name, "bug")),
+      }),
+    ).toHaveLength(2);
+  });
+
   it.each([
     { scope: "assignment", name: "bug", victim: "delete" },
     { scope: "workspace", name: "renamed", victim: "update" },
@@ -178,13 +257,86 @@ describe("pending label deletion reserves the assignment", () => {
     },
   );
 
-  it.each(["update", "delete"] as const)(
+  it("retries bulk assignment after a deadlock with a workspace color edit", async () => {
+    const { tasks, root, request } = await fixture(["bulk-1", "bulk-2"]);
+    const publish = vi.spyOn(events, "publishEvent").mockResolvedValue();
+    const control = new Client({ connectionString: process.env.DATABASE_URL });
+    await control.connect();
+    await control.query("BEGIN");
+    await control.query("SELECT pg_advisory_xact_lock(2167, 77)");
+    let assigning: Promise<Response> | undefined;
+    let updating: Promise<Response> | undefined;
+    await db.execute(sql`CREATE FUNCTION pause_bulk_assignment() RETURNS trigger LANGUAGE plpgsql AS $$
+      BEGIN
+        PERFORM id FROM task WHERE id = NEW.task_id FOR NO KEY UPDATE;
+        PERFORM pg_advisory_xact_lock(2167, 77);
+        RETURN NEW;
+      END $$`);
+    await db.execute(sql`CREATE TRIGGER aaa_pause_bulk_assignment BEFORE INSERT ON label
+      FOR EACH ROW WHEN (NEW.task_id IS NOT NULL) EXECUTE FUNCTION pause_bulk_assignment()`);
+    try {
+      assigning = request("/api/task/bulk", "PATCH", {
+        taskIds: tasks.map((task) => task.id),
+        operation: "addLabel",
+        value: root.id,
+      });
+      await vi.waitFor(async () => {
+        await control.query("SELECT pg_stat_clear_snapshot()");
+        const waiting = await control.query(
+          "SELECT 1 FROM pg_stat_activity WHERE wait_event = 'advisory' AND query LIKE 'insert into \"label\"%'",
+        );
+        expect(waiting.rowCount).toBe(1);
+      });
+      updating = request(`/api/label/${root.id}`, "PUT", {
+        name: "bug",
+        color: "green",
+      });
+      await vi.waitFor(async () => {
+        await control.query("SELECT pg_stat_clear_snapshot()");
+        const waiting = await control.query(
+          "SELECT 1 FROM pg_stat_activity WHERE wait_event_type = 'Lock' AND query LIKE 'update \"label\"%'",
+        );
+        expect(waiting.rowCount).toBe(1);
+      });
+      // Let UPDATE's deadlock check run before the cycle exists. On release,
+      // bulk INSERT waits for the root, detects the cycle, and is rolled back.
+      const timeout = await control.query(
+        "SELECT setting::int AS milliseconds FROM pg_settings WHERE name = 'deadlock_timeout'",
+      );
+      await new Promise((resolve) =>
+        setTimeout(resolve, timeout.rows[0].milliseconds + 100),
+      );
+      await control.query("COMMIT");
+      const [assigned, updated] = await Promise.all([assigning, updating]);
+      expect(assigned.status).toBe(200);
+      expect(updated.status).toBe(200);
+      const labels = await db.query.labelTable.findMany({
+        where: eq(schema.labelTable.name, "bug"),
+      });
+      expect(labels).toHaveLength(3);
+      expect(labels.every((label) => label.color === "green")).toBe(true);
+      const assignedEvents = publish.mock.calls.filter(
+        ([type]) => type === "task.label_assigned",
+      );
+      expect(assignedEvents).toHaveLength(1);
+      expect(assignedEvents[0]?.[1]).toMatchObject({ taskId: tasks[1].id });
+    } finally {
+      await control.query("ROLLBACK");
+      await Promise.allSettled([assigning, updating]);
+      await db.execute(sql`DROP TRIGGER aaa_pause_bulk_assignment ON label`);
+      await db.execute(sql`DROP FUNCTION pause_bulk_assignment()`);
+      await control.end();
+    }
+  });
+
+  it.each(["update", "delete", "bulk"] as const)(
     "bounds persistent %s deadlocks without leaking effects",
     async (operation) => {
-      const { copy, request } = await fixture();
+      const { copy, root, tasks, request } = await fixture();
+      const publish = vi.spyOn(events, "publishEvent").mockResolvedValue();
       await db.execute(sql`CREATE FUNCTION reject_label_write() RETURNS trigger LANGUAGE plpgsql AS $$
       BEGIN RAISE EXCEPTION 'forced deadlock' USING ERRCODE = '40P01'; END $$`);
-      await db.execute(sql`CREATE TRIGGER reject_label_write BEFORE UPDATE OR DELETE ON label
+      await db.execute(sql`CREATE TRIGGER reject_label_write BEFORE INSERT OR UPDATE OR DELETE ON label
       FOR EACH ROW EXECUTE FUNCTION reject_label_write()`);
       try {
         const response =
@@ -193,8 +345,14 @@ describe("pending label deletion reserves the assignment", () => {
                 name: "bug",
                 color: "green",
               })
-            : await request(`/api/label/${copy.id}`, "DELETE");
-        expect(response.status).toBe(operation === "update" ? 409 : 429);
+            : operation === "bulk"
+              ? await request("/api/task/bulk", "PATCH", {
+                  taskIds: tasks.map((task) => task.id),
+                  operation: "addLabel",
+                  value: root.id,
+                })
+              : await request(`/api/label/${copy.id}`, "DELETE");
+        expect(response.status).toBe(operation === "delete" ? 429 : 409);
         if (operation === "delete")
           expect(response.headers.get("Retry-After")).toBe("1");
         expect(
@@ -205,6 +363,7 @@ describe("pending label deletion reserves the assignment", () => {
         expect(await db.query.labelDeletionTable.findMany()).toEqual([]);
         expect(await db.query.jobLeaseTable.findMany()).toEqual([]);
         expect(remove).not.toHaveBeenCalled();
+        expect(publish).not.toHaveBeenCalled();
       } finally {
         await db.execute(sql`DROP TRIGGER reject_label_write ON label`);
         await db.execute(sql`DROP FUNCTION reject_label_write()`);

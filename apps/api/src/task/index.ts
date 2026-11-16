@@ -185,7 +185,7 @@ const bulkUpdateTasksRoute = createRoute({
     ),
     404: errorResponse("No tasks found"),
     409: errorResponse(
-      "Tasks changed projects, or a label assignment is being deleted; retry the operation",
+      "Tasks changed projects or labels changed concurrently; retry the operation. If a label is being deleted, finish its deletion before assigning it again",
     ),
   },
 });

@@ -9,6 +9,26 @@ import {
   REQUEST_LEASE_RENEWAL_MS,
 } from "./request-lease";
 
+const active = new Set<() => Promise<boolean>>();
+let shuttingDown = false;
+
+export async function stopActiveRequestLeases(timeoutMs = 5_000) {
+  shuttingDown = true;
+  let timer: ReturnType<typeof setTimeout> | undefined;
+  try {
+    return await Promise.race([
+      Promise.all([...active].map((stop) => stop())).then((results) =>
+        results.every(Boolean),
+      ),
+      new Promise<boolean>((resolve) => {
+        timer = setTimeout(() => resolve(false), timeoutMs);
+      }),
+    ]);
+  } finally {
+    clearTimeout(timer);
+  }
+}
+
 /** Short transactions keep resource exclusion and slot limits pooler-safe. */
 export async function withRequestLease<T>(
   scope: string,
@@ -17,6 +37,7 @@ export async function withRequestLease<T>(
   busy: () => Error,
   run: (lease: RequestLease) => Promise<T>,
 ): Promise<T> {
+  if (shuttingDown) throw busy();
   const owner = randomUUID();
   const resource = `request:${scope}:resource:${id}`;
   const slots = Array.from(
@@ -114,30 +135,47 @@ export async function withRequestLease<T>(
     timer.unref();
   };
 
+  const acquisition = claimRequestLease(resource, slots, owner, busy);
+  let releasing: Promise<boolean> | undefined;
+  const release = () => {
+    stopped = true;
+    clearTimeout(timer);
+    return (releasing ??= (async () => {
+      // Acquisition may have committed even if its reply was lost. Wait for it
+      // and any renewal before releasing; DELETE also waits for fenced writes.
+      await acquisition.catch(() => {});
+      await renewal?.catch(() => {});
+      try {
+        await db.execute(sql`
+          DELETE FROM job_lease WHERE owner = ${owner}
+            AND name IN (${sql.join(
+              possibleNames.map((name) => sql`${name}`),
+              sql`, `,
+            )})
+        `);
+        return true;
+      } catch {
+        console.error("Failed to release request leases", { scope });
+        return false;
+      }
+    })());
+  };
+  const stop = () => {
+    // A remote call cannot be recalled, but its completion must not start more
+    // effects or acknowledge progress after shutdown releases ownership.
+    failure ??= busy();
+    return release();
+  };
+  active.add(stop);
   try {
-    names = await claimRequestLease(resource, slots, owner, busy);
+    names = await acquisition;
     assertLive();
     scheduleRenewal();
     const result = await run(lease);
     await lease.check();
     return result;
   } finally {
-    stopped = true;
-    clearTimeout(timer);
-    await renewal?.catch(() => {});
-    // Also clean up an acquisition whose COMMIT reply was lost. A unique owner
-    // prevents a delayed cleanup from deleting a successor's leases.
-    await db
-      .execute(sql`
-      DELETE FROM job_lease WHERE owner = ${owner}
-        AND name IN (${sql.join(
-          possibleNames.map((name) => sql`${name}`),
-          sql`, `,
-        )})
-    `)
-      .catch(() => {
-        // Expiration recovers capacity if the database is temporarily unavailable.
-        console.error("Failed to release request leases", { scope });
-      });
+    await release();
+    active.delete(stop);
   }
 }
