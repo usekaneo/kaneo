@@ -8,7 +8,11 @@ import useGetTask from "@/hooks/queries/task/use-get-task";
 import { useAutoGrowTextarea } from "@/hooks/use-auto-grow-textarea";
 import { useWorkspacePermission } from "@/hooks/use-workspace-permission";
 import { cn } from "@/lib/cn";
+import { createDescriptionSaveQueue } from "@/lib/description-save-queue";
 import { stripLineBreaks } from "@/lib/strip-line-breaks";
+import { toast } from "@/lib/toast";
+
+const titleSaveQueue = createDescriptionSaveQueue(0);
 
 type TaskTitleProps = {
   taskId: string;
@@ -23,13 +27,14 @@ export default function TaskTitle({ taskId, size = "md" }: TaskTitleProps) {
   const canEdit = canUpdateTasks();
   const taskRef = useRef(task);
   const updateTaskRef = useRef(updateTaskTitle);
-  // Save on Enter/blur instead of while typing, so one edit = one history entry.
+  const tRef = useRef(t);
   const pendingTitleRef = useRef<string | null>(null);
 
   useEffect(() => {
     taskRef.current = task;
     updateTaskRef.current = updateTaskTitle;
-  }, [task, updateTaskTitle]);
+    tRef.current = t;
+  }, [task, updateTaskTitle, t]);
 
   const form = useForm<{
     title: string;
@@ -39,25 +44,47 @@ export default function TaskTitle({ taskId, size = "md" }: TaskTitleProps) {
     },
   });
 
-  const commitTitle = useCallback(async () => {
+  const commitTitle = useCallback(() => {
     const title = pendingTitleRef.current;
     const currentTask = taskRef.current;
+    if (title === null || !currentTask) return;
     pendingTitleRef.current = null;
 
-    if (title === null || !currentTask || title === currentTask.title) return;
+    const queued = titleSaveQueue.get(currentTask.id);
+    const lastTitle =
+      queued && queued.state !== "failed" ? queued.value : currentTask.title;
+    if (title === lastTitle) return;
 
-    try {
-      await updateTaskRef.current({
-        ...currentTask,
-        title,
-      });
-    } catch (error) {
-      console.error("Failed to update title:", error);
-    }
+    titleSaveQueue.schedule(currentTask.id, title, async (value) => {
+      try {
+        await updateTaskRef.current({ ...currentTask, title: value });
+      } catch (error) {
+        toast.error(tRef.current("tasks:detail.editor.saveFailed"));
+        // Retry on the next blur, unless a newer edit replaced it.
+        if (titleSaveQueue.get(currentTask.id)?.value === value)
+          pendingTitleRef.current ??= value;
+        throw error;
+      }
+    });
+  }, []);
+
+  useEffect(() => {
+    const warnIfUnsaved = (event: BeforeUnloadEvent) => {
+      const currentTask = taskRef.current;
+      if (!currentTask) return;
+      const pending = pendingTitleRef.current;
+      if (
+        (pending !== null && pending !== currentTask.title) ||
+        titleSaveQueue.get(currentTask.id)
+      )
+        event.preventDefault();
+    };
+    window.addEventListener("beforeunload", warnIfUnsaved);
+    return () => window.removeEventListener("beforeunload", warnIfUnsaved);
   }, []);
 
   // Closing or switching tasks doesn't always fire blur, so save here too.
-  useEffect(() => () => void commitTitle(), [taskId, commitTitle]);
+  useEffect(() => () => commitTitle(), [taskId, commitTitle]);
 
   const title = form.watch("title");
   const textareaRef = useAutoGrowTextarea(title);
@@ -96,7 +123,7 @@ export default function TaskTitle({ taskId, size = "md" }: TaskTitleProps) {
             }}
             onBlur={() => {
               field.onBlur();
-              void commitTitle();
+              commitTitle();
             }}
           />
         )}
