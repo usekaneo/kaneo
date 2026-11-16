@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useRef } from "react";
+import { useCallback, useEffect, useRef } from "react";
 import { useForm } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 
@@ -8,7 +8,6 @@ import useGetTask from "@/hooks/queries/task/use-get-task";
 import { useAutoGrowTextarea } from "@/hooks/use-auto-grow-textarea";
 import { useWorkspacePermission } from "@/hooks/use-workspace-permission";
 import { cn } from "@/lib/cn";
-import debounce from "@/lib/debounce";
 import { stripLineBreaks } from "@/lib/strip-line-breaks";
 
 type TaskTitleProps = {
@@ -22,19 +21,15 @@ export default function TaskTitle({ taskId, size = "md" }: TaskTitleProps) {
   const { mutateAsync: updateTaskTitle } = useUpdateTaskTitle();
   const { canUpdateTasks } = useWorkspacePermission();
   const canEdit = canUpdateTasks();
-  const isInitializedRef = useRef(false);
   const taskRef = useRef(task);
   const updateTaskRef = useRef(updateTaskTitle);
+  // Save on Enter/blur instead of while typing, so one edit = one history entry.
+  const pendingTitleRef = useRef<string | null>(null);
 
   useEffect(() => {
     taskRef.current = task;
     updateTaskRef.current = updateTaskTitle;
   }, [task, updateTaskTitle]);
-
-  // eslint-disable-next-line react-hooks/exhaustive-deps -- taskId is not needed here
-  useEffect(() => {
-    isInitializedRef.current = false;
-  }, [taskId]);
 
   const form = useForm<{
     title: string;
@@ -44,43 +39,28 @@ export default function TaskTitle({ taskId, size = "md" }: TaskTitleProps) {
     },
   });
 
-  useEffect(() => {
-    if (task?.title !== undefined) isInitializedRef.current = true;
-  }, [task?.title]);
+  const commitTitle = useCallback(async () => {
+    const title = pendingTitleRef.current;
+    const currentTask = taskRef.current;
+    pendingTitleRef.current = null;
 
-  const debouncedUpdate = useMemo(
-    () =>
-      debounce(async (title: string) => {
-        if (!isInitializedRef.current) return;
+    if (title === null || !currentTask || title === currentTask.title) return;
 
-        const currentTask = taskRef.current;
-        const updateTaskFn = updateTaskRef.current;
+    try {
+      await updateTaskRef.current({
+        ...currentTask,
+        title,
+      });
+    } catch (error) {
+      console.error("Failed to update title:", error);
+    }
+  }, []);
 
-        if (!currentTask || !updateTaskFn) return;
-
-        try {
-          await updateTaskFn({
-            ...currentTask,
-            title,
-          });
-        } catch (error) {
-          console.error("Failed to update title:", error);
-        }
-      }, 800),
-    [],
-  );
+  // Closing or switching tasks doesn't always fire blur, so save here too.
+  useEffect(() => () => void commitTitle(), [taskId, commitTitle]);
 
   const title = form.watch("title");
   const textareaRef = useAutoGrowTextarea(title);
-
-  const handleTitleChange = useCallback(
-    (value: string) => {
-      if (!isInitializedRef.current) return;
-
-      debouncedUpdate(value);
-    },
-    [debouncedUpdate],
-  );
 
   return (
     <Form {...form}>
@@ -112,7 +92,11 @@ export default function TaskTitle({ taskId, size = "md" }: TaskTitleProps) {
             onChange={(e) => {
               const value = stripLineBreaks(e.target.value);
               field.onChange(value);
-              handleTitleChange(value);
+              pendingTitleRef.current = value;
+            }}
+            onBlur={() => {
+              field.onBlur();
+              void commitTitle();
             }}
           />
         )}
