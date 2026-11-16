@@ -184,7 +184,9 @@ const bulkUpdateTasksRoute = createRoute({
       "No access to the project, or missing the permission the operation needs",
     ),
     404: errorResponse("No tasks found"),
-    409: errorResponse("Tasks changed projects; retry the operation"),
+    409: errorResponse(
+      "Tasks changed projects, or a label assignment is being deleted; retry the operation",
+    ),
   },
 });
 

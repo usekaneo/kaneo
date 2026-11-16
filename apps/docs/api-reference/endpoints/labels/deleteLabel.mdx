@@ -17,3 +17,20 @@ task return `409 Conflict`.
 Concurrent deletion work is limited across API replicas. A `429` response includes
 `Retry-After`; retry after that interval. Each request still requires label-delete
 permission. Single task-label deletion completes with `200 OK`.
+
+Deletion also saves pending provider updates and the deletion event, so a retry
+can finish them even after the local assignment has been removed. Repeat the
+original `DELETE` with the same ID to resume an interrupted task-label deletion.
+While its pending deletion record remains, assigning the same label name to the
+same task returns `409 Conflict`. This also covers direct creation, bulk
+assignment, and renaming another assignment to that name. Imports and webhooks
+cannot recreate the assignment during that interval. Once the pending deletion
+finishes, reassignment is allowed.
+
+This guarantee applies to local assignment changes while deletion is pending.
+Provider synchronization remains best effort: a completed deletion does not
+guarantee successful delivery to every provider. An effect can repeat if it
+succeeds before its acknowledgement is saved, and a provider request already in
+flight can complete after its worker loses the lease, even after reassignment.
+The deletion outbox does not periodically reconcile current label state or
+guarantee eventual remote convergence.

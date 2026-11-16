@@ -88,7 +88,7 @@ const createLabelRoute = createRoute({
     400: errorResponse("Invalid body, or workspace ID could not be determined"),
     403: errorResponse("Missing label:create permission"),
     404: errorResponse("Workspace or task not found"),
-    409: errorResponse("The workspace label is being deleted"),
+    409: errorResponse("The label or its task assignment is being deleted"),
   },
 });
 
@@ -136,7 +136,7 @@ const attachLabelToTaskRoute = createRoute({
       "No access to the project, or missing label:update permission",
     ),
     404: errorResponse("Label or task not found"),
-    409: errorResponse("The workspace label is being deleted"),
+    409: errorResponse("The label or its task assignment is being deleted"),
   },
 });
 
@@ -182,7 +182,9 @@ const updateLabelRoute = createRoute({
   },
   responses: {
     200: jsonResponse("Label updated successfully", labelSchema),
-    409: errorResponse("The workspace label is being deleted"),
+    409: errorResponse(
+      "The label is being deleted or changed concurrently; retry the update",
+    ),
     400: errorResponse("Invalid body"),
     403: errorResponse(
       "No access to the project, or missing label:update permission",
@@ -210,7 +212,7 @@ const deleteLabelRoute = createRoute({
       "Deletion has more batches; repeat the same request",
       pendingLabelDeletionSchema,
     ),
-    429: errorResponse("Deletion capacity is busy; retry after Retry-After"),
+    429: errorResponse("Deletion is busy; retry after Retry-After"),
     403: errorResponse(
       "No access to the project, or missing label:delete permission",
     ),

@@ -44,6 +44,13 @@ async function deleteLabel(
       if (!task || task.workspaceId !== label.workspaceId)
         throw new HTTPException(404, { message: "Task not found" });
       const pending = await lease.transaction(async (tx) => {
+        // Match the assignment trigger's lock before removing the row. The
+        // outbox then reserves its task/name until all effects finish.
+        await tx
+          .select({ id: taskTable.id })
+          .from(taskTable)
+          .where(eq(taskTable.id, label.taskId!))
+          .for("no key update");
         const [deleted] = await tx
           .delete(labelTable)
           .where(eq(labelTable.id, id))
@@ -99,7 +106,7 @@ async function deleteLabel(
         ),
       );
       const rows = await db
-        .select({ id: labelTable.id })
+        .select({ id: labelTable.id, taskId: labelTable.taskId })
         .from(labelTable)
         .where(predicate)
         .orderBy(asc(labelTable.createdAt), asc(labelTable.id))
@@ -107,6 +114,11 @@ async function deleteLabel(
       for (const row of rows.slice(0, remaining)) {
         // Recheck the snapshot/name if a concurrent edit changed this copy.
         const pending = await lease.transaction(async (tx) => {
+          await tx
+            .select({ id: taskTable.id })
+            .from(taskTable)
+            .where(eq(taskTable.id, row.taskId!))
+            .for("no key update");
           const [deleted] = await tx
             .delete(labelTable)
             .where(and(eq(labelTable.id, row.id), predicate))

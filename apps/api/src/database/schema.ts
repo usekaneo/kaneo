@@ -978,6 +978,8 @@ export const labelTable = pgTable(
 );
 
 // Survives deleting a label so a later DELETE can finish its external effects.
+// Migration 0074 also reserves (task_id, name) against label writes using
+// database triggers, including writers outside the label controllers.
 export const labelDeletionTable = pgTable(
   "label_deletion",
   {

@@ -1,4 +1,5 @@
 import { resumeLabelChanges } from "../../sync/resume-label-changes";
+import { isPendingLabelDeletionError } from "../../../label/is-pending-label-deletion-error";
 import { acceptsIssue, readSyncRules } from "../../sync/rules";
 import { handleGitlabIssueOpened } from "./issue-opened";
 import { withIntegrationLink } from "../../github/services/with-integration-link";
@@ -341,6 +342,8 @@ export async function handleGitlabIssueUpdated(
         },
       );
     } catch (error) {
+      // A rejected assignment must not acknowledge the webhook as successful.
+      if (isPendingLabelDeletionError(error)) throw error;
       console.error("GitLab issue update handler failed for integration", {
         integrationId: integration.id,
         issueIid: issue.iid,

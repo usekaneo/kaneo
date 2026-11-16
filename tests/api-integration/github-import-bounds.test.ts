@@ -158,6 +158,76 @@ async function saved() {
 }
 
 describe("bounded resumable GitHub import", () => {
+  it("keeps a conflicting label page resumable until its pending deletion finishes", async () => {
+    const { member, project, integration, request, app } = await setup();
+    const [task] = await db
+      .insert(schema.taskTable)
+      .values({
+        projectId: project.id,
+        title: "Before import",
+        number: 1,
+        status: "to-do",
+      })
+      .returning();
+    await db.insert(schema.externalLinkTable).values({
+      taskId: task.id,
+      integrationId: integration.id,
+      resourceType: "issue",
+      externalId: "1",
+      url: "https://github.com/example/repo/issues/1",
+    });
+    const [pending] = await db
+      .insert(schema.labelDeletionTable)
+      .values({
+        id: "pending-label",
+        deletionId: "pending-label",
+        userId: member.user.id,
+        workspaceId: member.workspace.id,
+        taskId: task.id,
+        name: "label-1",
+        color: "red",
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      })
+      .returning();
+    mocks.graphql.mockImplementation(async (query: string) =>
+      query.includes("query ImportPullRequests(")
+        ? emptyPulls()
+        : issuePage([issue(1, { labels: connection([label(1)]) })]),
+    );
+
+    expect((await request()).status).toBe(409);
+    const run = await saved();
+    expect(run?.state).toMatchObject({
+      phase: "issues",
+      issueCursor: null,
+      updated: 0,
+    });
+    expect(
+      await db.query.taskTable.findFirst({
+        where: eq(schema.taskTable.id, task.id),
+      }),
+    ).toMatchObject({ title: "Before import" });
+    expect(await db.query.labelTable.findMany()).toEqual([]);
+    expect(mocks.publish).not.toHaveBeenCalled();
+
+    // All effects have been acknowledged; the next DELETE clears the durable barrier.
+    await db
+      .update(schema.labelDeletionTable)
+      .set({ pendingEffects: [] })
+      .where(eq(schema.labelDeletionTable.id, pending.id));
+    expect(
+      (await app.request(`/api/label/${pending.id}`, { method: "DELETE" }))
+        .status,
+    ).toBe(200);
+    expect((await request(run!.runId)).status).toBe(200);
+    expect((await saved())?.state).toMatchObject({ updated: 1 });
+    expect(await db.query.labelTable.findMany()).toMatchObject([
+      { taskId: task.id, name: "label-1" },
+    ]);
+    expect(await db.query.taskTable.findMany()).toHaveLength(1);
+  });
+
   it.each([false, true])(
     "fails closed for invalid stored rules (linked=%s)",
     async (linked) => {
