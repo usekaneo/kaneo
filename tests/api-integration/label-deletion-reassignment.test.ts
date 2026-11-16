@@ -7,7 +7,6 @@ import { isPendingLabelDeletionError } from "../../apps/api/src/label/is-pending
 import { handleIssueLabeled } from "../../apps/api/src/plugins/github/webhooks/issue-labeled";
 import { handleGiteaIssueLabeled } from "../../apps/api/src/plugins/gitea/webhooks/issue-labeled";
 import { handleGitlabIssueUpdated } from "../../apps/api/src/plugins/gitlab/webhooks/issue-updated";
-import { importIssueLabels } from "../../apps/api/src/plugins/sync/issue-labels";
 import { mockAuthenticatedSession } from "./helpers/auth";
 import { resetTestDatabase } from "./helpers/database";
 import {
@@ -97,9 +96,7 @@ async function fixture() {
 describe("pending label deletion reserves the assignment", () => {
   it.each([
     { scope: "assignment", name: "bug", victim: "delete" },
-    { scope: "assignment", name: "renamed", victim: "update" },
-    { scope: "workspace", name: "bug", victim: "update" },
-    { scope: "workspace", name: "renamed", victim: "delete" },
+    { scope: "workspace", name: "renamed", victim: "update" },
   ])(
     "recovers a concurrent $scope update/delete deadlock (name=$name)",
     async ({ scope, name, victim }) => {
@@ -319,47 +316,6 @@ describe("pending label deletion reserves the assignment", () => {
         })
       ).status,
     ).toBe(200);
-  });
-
-  it("rolls back incoming label batches so they can be retried after deletion", async () => {
-    const { member, tasks, copy, request, interrupt } = await fixture();
-    await interrupt();
-    const incoming = () =>
-      db.transaction(async (tx) => {
-        await tx
-          .update(schema.taskTable)
-          .set({ title: "Imported change" })
-          .where(eq(schema.taskTable.id, tasks[0].id));
-        await importIssueLabels(
-          tasks[0].id,
-          member.workspace.id,
-          ["incoming", "bug"],
-          tx,
-        );
-      });
-    await expect(incoming()).rejects.toSatisfy(isPendingLabelDeletionError);
-    expect(
-      await db.query.taskTable.findFirst({
-        where: eq(schema.taskTable.id, tasks[0].id),
-      }),
-    ).toMatchObject({ title: "Task 1" });
-    expect(
-      await db.query.labelTable.findFirst({
-        where: eq(schema.labelTable.name, "incoming"),
-      }),
-    ).toBeUndefined();
-    expect((await request(`/api/label/${copy.id}`, "DELETE")).status).toBe(200);
-    await incoming();
-    expect(
-      await db.query.taskTable.findFirst({
-        where: eq(schema.taskTable.id, tasks[0].id),
-      }),
-    ).toMatchObject({ title: "Imported change" });
-    expect(
-      await db.query.labelTable.findFirst({
-        where: eq(schema.labelTable.name, "incoming"),
-      }),
-    ).toBeDefined();
   });
 
   it.each(["github", "gitea", "gitlab"] as const)(

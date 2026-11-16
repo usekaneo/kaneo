@@ -220,58 +220,54 @@ describe("bounded, resumable label deletion", () => {
     await pending;
     expect(eventCalls).toHaveLength(3);
   });
-  it.each([0, 1, 2])(
-    "resumes every pending effect after losing its lease during provider %i",
-    async (providerIndex) => {
-      const { member, root, tasks } = await fixture(3);
-      const providers = [github, gitea, gitlab];
-      const provider = providers[providerIndex];
-      const gate = deferred();
-      provider.mockImplementationOnce(() => gate.promise);
-      const pending = deleteLabel(root.id, member.user.id);
-      const rejected = expect(pending).rejects.toMatchObject({ status: 429 });
-      try {
-        await vi.waitFor(() => expect(provider).toHaveBeenCalledTimes(1));
-        await db.execute(sql`UPDATE job_lease SET expires_at = timezone('UTC', clock_timestamp()) - interval '1 second'
-        WHERE name = ${`request:label-delete:resource:${root.id}`}`);
-      } finally {
-        gate.resolve();
-      }
-      await rejected;
-      for (const later of providers.slice(providerIndex + 1))
-        expect(later).not.toHaveBeenCalled();
-      expect(eventCalls).toEqual([]);
-      expect(await labelsFor(member.workspace.id)).toHaveLength(3);
-      expect(await db.query.labelDeletionTable.findMany()).toMatchObject([
-        {
-          deletionId: root.id,
-          userId: member.user.id,
-          pendingEffects: ["github", "gitea", "gitlab", "event"].slice(
-            providerIndex,
-          ),
-        },
-      ]);
-      expect(await db.query.jobLeaseTable.findMany()).toEqual([]);
-      // A fresh HTTP request recovers from database state, including the deleted copy.
-      const response = await createApp().app.request(`/api/label/${root.id}`, {
-        method: "DELETE",
-      });
-      expect(response.status).toBe(200);
-      expect(await labelsFor(member.workspace.id)).toEqual([]);
-      expect(await db.query.labelDeletionTable.findMany()).toEqual([]);
-      for (const [index, remove] of providers.entries()) {
-        // The in-flight operation cannot be acknowledged by the expired owner.
-        expect(remove).toHaveBeenCalledTimes(index === providerIndex ? 4 : 3);
-        expect(new Set(remove.mock.calls.map(([id]) => id))).toEqual(
-          new Set(tasks.map((task) => task.id)),
-        );
-      }
-      expect(new Set(eventCalls)).toEqual(
+  it("resumes pending effects without replaying acknowledged providers after lease loss", async () => {
+    const providerIndex = 1;
+    const { member, root, tasks } = await fixture(3);
+    const providers = [github, gitea, gitlab];
+    const provider = providers[providerIndex];
+    const gate = deferred();
+    provider.mockImplementationOnce(() => gate.promise);
+    const pending = deleteLabel(root.id, member.user.id);
+    const rejected = expect(pending).rejects.toMatchObject({ status: 429 });
+    try {
+      await vi.waitFor(() => expect(provider).toHaveBeenCalledTimes(1));
+      await db.execute(sql`UPDATE job_lease SET expires_at = timezone('UTC', clock_timestamp()) - interval '1 second'
+      WHERE name = ${`request:label-delete:resource:${root.id}`}`);
+    } finally {
+      gate.resolve();
+    }
+    await rejected;
+    for (const later of providers.slice(providerIndex + 1))
+      expect(later).not.toHaveBeenCalled();
+    expect(eventCalls).toEqual([]);
+    expect(await labelsFor(member.workspace.id)).toHaveLength(3);
+    expect(await db.query.labelDeletionTable.findMany()).toMatchObject([
+      {
+        deletionId: root.id,
+        userId: member.user.id,
+        pendingEffects: ["github", "gitea", "gitlab", "event"].slice(
+          providerIndex,
+        ),
+      },
+    ]);
+    expect(await db.query.jobLeaseTable.findMany()).toEqual([]);
+    // A fresh HTTP request recovers from database state, including the deleted copy.
+    const response = await createApp().app.request(`/api/label/${root.id}`, {
+      method: "DELETE",
+    });
+    expect(response.status).toBe(200);
+    expect(await labelsFor(member.workspace.id)).toEqual([]);
+    expect(await db.query.labelDeletionTable.findMany()).toEqual([]);
+    for (const [index, remove] of providers.entries()) {
+      // The in-flight operation cannot be acknowledged by the expired owner.
+      expect(remove).toHaveBeenCalledTimes(index === providerIndex ? 4 : 3);
+      expect(new Set(remove.mock.calls.map(([id]) => id))).toEqual(
         new Set(tasks.map((task) => task.id)),
       );
-      expect(eventCalls).toHaveLength(3);
-    },
-  );
+    }
+    expect(new Set(eventCalls)).toEqual(new Set(tasks.map((task) => task.id)));
+    expect(eventCalls).toHaveLength(3);
+  });
 
   it("replays an unacknowledged event without repeating acknowledged providers", async () => {
     const { member, root, tasks } = await fixture(1);

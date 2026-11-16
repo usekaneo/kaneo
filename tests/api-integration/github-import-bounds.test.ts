@@ -193,7 +193,7 @@ describe("bounded resumable GitHub import", () => {
     mocks.graphql.mockImplementation(async (query: string) =>
       query.includes("query ImportPullRequests(")
         ? emptyPulls()
-        : issuePage([issue(1, { labels: connection([label(1)]) })]),
+        : issuePage([issue(1, { labels: connection([label(2), label(1)]) })]),
     );
 
     expect((await request()).status).toBe(409);
@@ -222,10 +222,15 @@ describe("bounded resumable GitHub import", () => {
     ).toBe(200);
     expect((await request(run!.runId)).status).toBe(200);
     expect((await saved())?.state).toMatchObject({ updated: 1 });
-    expect(await db.query.labelTable.findMany()).toMatchObject([
-      { taskId: task.id, name: "label-1" },
+    expect(await db.query.labelTable.findMany()).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({ taskId: task.id, name: "label-1" }),
+        expect.objectContaining({ taskId: task.id, name: "label-2" }),
+      ]),
+    );
+    expect(await db.query.taskTable.findMany()).toMatchObject([
+      { id: task.id, title: "Issue 1" },
     ]);
-    expect(await db.query.taskTable.findMany()).toHaveLength(1);
   });
 
   it.each([false, true])(
