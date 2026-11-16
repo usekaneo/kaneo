@@ -1,5 +1,11 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { addMonths, isSameDay, parseISO, startOfMonth, subMonths } from "date-fns";
+import {
+  addMonths,
+  isSameDay,
+  parseISO,
+  startOfMonth,
+  subMonths,
+} from "date-fns";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import CalendarToolbar from "@/components/calendar/calendar-toolbar";
@@ -60,8 +66,12 @@ function RouteComponent() {
     ? NO_RELATIONS
     : (relationData ?? NO_RELATIONS);
   const weekStartsOn = useUserPreferencesStore((state) => state.weekStartsOn);
-  const wrapTaskTitles = useUserPreferencesStore((state) => state.calendarWrapTaskTitles);
-  const showAllTasks = useUserPreferencesStore((state) => state.calendarShowAllTasks);
+  const wrapTaskTitles = useUserPreferencesStore(
+    (state) => state.calendarWrapTaskTitles,
+  );
+  const showAllTasks = useUserPreferencesStore(
+    (state) => state.calendarShowAllTasks,
+  );
   const isMobile = useIsMobile();
   const { mutateAsync: updateTask } = useUpdateTask();
   const moveInProgress = useRef(false);

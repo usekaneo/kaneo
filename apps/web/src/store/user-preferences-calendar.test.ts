@@ -10,7 +10,9 @@ describe("calendar display preferences", () => {
   it("stores both options independently and persists them", () => {
     const store = useUserPreferencesStore.getState();
     store.setCalendarWrapTaskTitles(true);
-    expect(useUserPreferencesStore.getState().calendarWrapTaskTitles).toBe(true);
+    expect(useUserPreferencesStore.getState().calendarWrapTaskTitles).toBe(
+      true,
+    );
     expect(useUserPreferencesStore.getState().calendarShowAllTasks).toBe(false);
     store.setCalendarShowAllTasks(true);
     expect(useUserPreferencesStore.getState().calendarShowAllTasks).toBe(true);
