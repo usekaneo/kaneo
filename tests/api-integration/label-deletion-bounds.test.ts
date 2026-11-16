@@ -26,16 +26,16 @@ const { github, gitea, gitlab } = vi.hoisted(() => ({
 }));
 vi.mock("../../apps/api/src/plugins/github/utils/sync-label-to-github", () => ({
   removeLabelFromGitHub: github,
-  syncLabelToGitHub: vi.fn(),
+  syncLabelToGitHub: vi.fn(async () => {}),
 }));
 vi.mock("../../apps/api/src/plugins/gitea/utils/sync-label-to-gitea", () => ({
   removeLabelFromGitea: gitea,
-  syncLabelToGitea: vi.fn(),
+  syncLabelToGitea: vi.fn(async () => {}),
 }));
 
 vi.mock("../../apps/api/src/plugins/gitlab/utils/sync-label-to-gitlab", () => ({
   removeLabelFromGitlab: gitlab,
-  syncLabelToGitlab: vi.fn(),
+  syncLabelToGitlab: vi.fn(async () => {}),
 }));
 
 let eventGate: Promise<void> | undefined;
@@ -417,6 +417,83 @@ describe("bounded, resumable label deletion", () => {
     expect(eventCalls).toEqual([tasks[0].id]);
     expect(await db.query.labelDeletionTable.findMany()).toEqual([]);
     expect((await app.request(path, { method: "DELETE" })).status).toBe(404);
+  });
+
+  it("blocks reassignment until an interrupted task-label deletion finishes", async () => {
+    const { member, root, tasks, app } = await fixture(1);
+    const [copy] = (await labelsFor(member.workspace.id)).filter(
+      (label) => label.taskId,
+    );
+    github.mockImplementationOnce(async () => {
+      await db.execute(sql`UPDATE job_lease SET expires_at = timezone('UTC', clock_timestamp()) - interval '1 second'
+        WHERE name = ${`request:label-delete:resource:${copy.id}`}`);
+    });
+    expect(
+      (await app.request(`/api/label/${copy.id}`, { method: "DELETE" })).status,
+    ).toBe(429);
+
+    const assign = () =>
+      app.request(`/api/label/${root.id}/task`, {
+        method: "PUT",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ taskId: tasks[0].id }),
+      });
+    expect((await assign()).status).toBe(409);
+    expect(await labelsFor(member.workspace.id)).toEqual([root]);
+
+    expect(
+      (await app.request(`/api/label/${copy.id}`, { method: "DELETE" })).status,
+    ).toBe(200);
+    expect(await db.query.labelDeletionTable.findMany()).toEqual([]);
+    expect((await assign()).status).toBe(200);
+    expect(await labelsFor(member.workspace.id)).toHaveLength(2);
+    expect(github).toHaveBeenCalledTimes(2);
+    expect(gitea).toHaveBeenCalledTimes(1);
+    expect(gitlab).toHaveBeenCalledTimes(1);
+    expect(eventCalls).toEqual([tasks[0].id]);
+  });
+
+  it("preserves a replacement assigned before the pending-deletion guard was installed", async () => {
+    const { member, root, tasks } = await fixture(1);
+    const [copy] = (await labelsFor(member.workspace.id)).filter(
+      (label) => label.taskId,
+    );
+    github.mockImplementationOnce(async () => {
+      await db.execute(sql`UPDATE job_lease SET expires_at = timezone('UTC', clock_timestamp()) - interval '1 second'
+        WHERE name = ${`request:label-delete:resource:${copy.id}`}`);
+    });
+    await expect(deleteLabel(copy.id, member.user.id)).rejects.toMatchObject({
+      status: 429,
+    });
+    // Model persisted data from before the reservation guard. Keep the trigger disabled
+    // only within this transaction, including on rollback if insertion fails.
+    const replacement = await db.transaction(async (tx) => {
+      await tx.execute(
+        sql`ALTER TABLE label DISABLE TRIGGER label_pending_deletion_guard`,
+      );
+      const [inserted] = await tx
+        .insert(schema.labelTable)
+        .values({
+          workspaceId: member.workspace.id,
+          taskId: tasks[0].id,
+          name: "bug",
+          color: "blue",
+        })
+        .returning();
+      await tx.execute(
+        sql`ALTER TABLE label ENABLE TRIGGER label_pending_deletion_guard`,
+      );
+      return inserted;
+    });
+    await deleteLabel(copy.id, member.user.id);
+    expect(github).toHaveBeenCalledTimes(1);
+    expect(gitea).not.toHaveBeenCalled();
+    expect(gitlab).not.toHaveBeenCalled();
+    expect(eventCalls).toEqual([tasks[0].id]);
+    expect(await db.query.labelDeletionTable.findMany()).toEqual([]);
+    expect(await labelsFor(member.workspace.id)).toEqual(
+      expect.arrayContaining([root, replacement]),
+    );
   });
 
   it("rolls back a label deletion when its pending effects cannot be saved", async () => {

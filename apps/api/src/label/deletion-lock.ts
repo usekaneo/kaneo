@@ -1,6 +1,7 @@
 import { HTTPException } from "hono/http-exception";
 import type { RequestLease } from "../database/request-lease";
 import { withRequestLease } from "../database/with-request-lease";
+import { retryLabelTransaction } from "./retry-label-transaction";
 
 export const MAX_LABEL_DELETIONS_IN_FLIGHT = 4;
 let active = 0;
@@ -26,7 +27,12 @@ export async function withLabelDeletionLock<T>(
       id,
       MAX_LABEL_DELETIONS_IN_FLIGHT,
       busy,
-      run,
+      (lease) =>
+        run({
+          check: () => lease.check(),
+          transaction: (transaction) =>
+            retryLabelTransaction(() => lease.transaction(transaction), busy),
+        }),
     );
   } finally {
     active--;

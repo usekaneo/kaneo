@@ -3,6 +3,7 @@ import db from "../database";
 import type { RequestLease } from "../database/request-lease";
 import {
   labelDeletionTable,
+  labelTable,
   projectTable,
   taskTable,
 } from "../database/schema";
@@ -33,6 +34,16 @@ export async function completeLabelDeletion(
     .limit(1);
   // Legacy inconsistent rows may be cleaned up, but never emit foreign events.
   if (task) {
+    // Before the reservation guard was installed, a replacement could be
+    // assigned while this deletion was pending. Do not replay its obsolete
+    // removals. The guard prevents a new replacement after this read.
+    const replacement = await db.query.labelTable.findFirst({
+      columns: { id: true },
+      where: and(
+        eq(labelTable.taskId, task.id),
+        eq(labelTable.name, label.name),
+      ),
+    });
     const providers = {
       github: removeLabelFromGitHub,
       gitea: removeLabelFromGitea,
@@ -53,7 +64,7 @@ export async function completeLabelDeletion(
           },
           { waitForHandlers: true },
         );
-      } else {
+      } else if (!replacement) {
         try {
           await providers[effect](task.id, label.name);
         } catch {
@@ -64,8 +75,8 @@ export async function completeLabelDeletion(
           );
         }
       }
-      // An operation whose acknowledgement is lost may be replayed. Never
-      // discard an unattempted effect, or let an expired owner acknowledge.
+      // An operation whose acknowledgement is lost may be replayed. Only an
+      // active owner can acknowledge a completed attempt or obsolete removal.
       await lease.transaction((tx) =>
         tx
           .update(labelDeletionTable)
@@ -76,6 +87,9 @@ export async function completeLabelDeletion(
       );
     }
   }
+  // Removing this entry releases the assignment barrier. Lease fencing protects
+  // local acknowledgements, but cannot stop an older in-flight provider call
+  // from completing later. This outbox does not provide remote reconciliation.
   await lease.transaction((tx) =>
     tx.delete(labelDeletionTable).where(eq(labelDeletionTable.id, label.id)),
   );
