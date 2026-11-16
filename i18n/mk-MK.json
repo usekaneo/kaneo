@@ -3727,6 +3727,8 @@
 			}
 		},
 		"calendar": {
+			"wrapTaskTitles": "Wrap task titles",
+			"showAllTasks": "Show all tasks per day",
 			"dayTasksAriaLabel": "Прикажи ги сите задачи за {{date}}",
 			"moreTasks": "+{{count}} повеќе",
 			"nextMonth": "Следен месец",

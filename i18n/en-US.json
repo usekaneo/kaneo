@@ -3576,6 +3576,8 @@
 			}
 		},
 		"calendar": {
+			"wrapTaskTitles": "Wrap task titles",
+			"showAllTasks": "Show all tasks per day",
 			"pageTitle": "{{name}} / Calendar",
 			"title": "Calendar",
 			"previousMonth": "Previous month",

@@ -3788,6 +3788,8 @@
 			}
 		},
 		"calendar": {
+			"wrapTaskTitles": "Wrap task titles",
+			"showAllTasks": "Show all tasks per day",
 			"dayTasksAriaLabel": "Mostra tutte le attività del {{date}}",
 			"moreTasks": "+{{count}} altre",
 			"nextMonth": "Mese successivo",

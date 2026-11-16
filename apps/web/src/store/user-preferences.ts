@@ -60,6 +60,10 @@ type UserPreferencesStore = {
 
   weekStartsOn: WeekStartDay;
   setWeekStartsOn: (weekStartsOn: WeekStartDay) => void;
+  calendarWrapTaskTitles: boolean;
+  setCalendarWrapTaskTitles: (enabled: boolean) => void;
+  calendarShowAllTasks: boolean;
+  setCalendarShowAllTasks: (enabled: boolean) => void;
 
   priorityIconStyle: PriorityIconStyle;
   setPriorityIconStyle: (style: PriorityIconStyle) => void;
@@ -157,6 +161,12 @@ export const useUserPreferencesStore = create<UserPreferencesStore>()(
 
       weekStartsOn: 0,
       setWeekStartsOn: (weekStartsOn) => set({ weekStartsOn }),
+      calendarWrapTaskTitles: false,
+      setCalendarWrapTaskTitles: (enabled) =>
+        set({ calendarWrapTaskTitles: enabled }),
+      calendarShowAllTasks: false,
+      setCalendarShowAllTasks: (enabled) =>
+        set({ calendarShowAllTasks: enabled }),
 
       priorityIconStyle: "marks",
       setPriorityIconStyle: (priorityIconStyle) => set({ priorityIconStyle }),

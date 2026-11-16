@@ -3666,6 +3666,8 @@
 			}
 		},
 		"calendar": {
+			"wrapTaskTitles": "Wrap task titles",
+			"showAllTasks": "Show all tasks per day",
 			"dayTasksAriaLabel": "Hiện tất cả công việc cho ngày {{date}}",
 			"moreTasks": "+{{count}} công việc khác",
 			"nextMonth": "Tháng sau",

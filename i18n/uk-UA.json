@@ -3849,6 +3849,8 @@
 			}
 		},
 		"calendar": {
+			"wrapTaskTitles": "Wrap task titles",
+			"showAllTasks": "Show all tasks per day",
 			"dayTasksAriaLabel": "Показати всі завдання на {{date}}",
 			"moreTasks": "Ще {{count}}",
 			"nextMonth": "Наступний місяць",

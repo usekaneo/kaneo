@@ -3589,6 +3589,8 @@
 			"noValuesUsedYet": "No values used yet"
 		},
 		"calendar": {
+			"wrapTaskTitles": "Wrap task titles",
+			"showAllTasks": "Show all tasks per day",
 			"pageTitle": "{{name}} / Təqvim",
 			"title": "Təqvim",
 			"previousMonth": "Əvvəlki ay",

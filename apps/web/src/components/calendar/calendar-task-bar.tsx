@@ -1,5 +1,5 @@
 import CalendarSubtasks from "./calendar-subtasks";
-import type { JSX } from "react";
+import type { DragEvent, JSX } from "react";
 import { useTranslation } from "react-i18next";
 import { cn } from "@/lib/cn";
 import { formatDateShort } from "@/lib/format";
@@ -32,12 +32,22 @@ export function getCalendarTaskStatusClass(status: string): string {
 type CalendarTaskBarProps = {
   segment: WeekSegment<CalendarTask>;
   projectSlug?: string;
+  wrapTitle?: boolean;
+  withinDay?: boolean;
+  isDragging?: boolean;
+  onStartDrag?: (taskId: string, event: DragEvent<HTMLButtonElement>) => void;
+  onEndDrag?: () => void;
   onOpenTask: (taskId: string) => void;
 };
 
 export default function CalendarTaskBar({
   segment,
   projectSlug,
+  wrapTitle = false,
+  withinDay = false,
+  isDragging = false,
+  onStartDrag,
+  onEndDrag,
   onOpenTask,
 }: CalendarTaskBarProps): JSX.Element {
   const { t } = useTranslation();
@@ -59,14 +69,21 @@ export default function CalendarTaskBar({
     task.scheduleEnd,
   )}`;
 
+  // Grouped cards include child schedules; moving only the parent would misdate the group.
+  const canDrag = Boolean(onStartDrag) && !task.subtasks?.length;
+
   return (
     <button
       type="button"
-      style={{
-        gridColumn: `${columnStart} / ${columnEnd}`,
-        // Row 1 holds the date numbers, so lanes start at row 2.
-        gridRow: lane + 2,
-      }}
+      style={
+        withinDay
+          ? undefined
+          : {
+              gridColumn: `${columnStart} / ${columnEnd}`,
+              // Row 1 holds the date numbers, so lanes start at row 2.
+              gridRow: lane + 2,
+            }
+      }
       title={
         taskKey
           ? `${taskKey} · ${task.title} · ${range}`
@@ -77,19 +94,45 @@ export default function CalendarTaskBar({
         range,
       })}
       data-task-status={task.status}
+      draggable={canDrag}
+      onDragStart={
+        canDrag ? (event) => onStartDrag?.(task.id, event) : undefined
+      }
+      onDragEnd={onEndDrag}
       onClick={() => onOpenTask(task.id)}
       className={cn(
-        "z-10 mb-0.5 flex h-6 min-w-0 items-center overflow-hidden border px-1.5 text-left text-[11px] font-medium leading-none text-foreground transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring sm:h-5",
+        "z-10 mb-0.5 flex min-w-0 border px-1.5 text-left text-[11px] font-medium text-foreground transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
+        wrapTitle
+          ? cn(
+              "h-auto min-h-5 items-start py-0.5 leading-tight whitespace-normal break-words",
+              withinDay ? "self-stretch" : "self-start",
+            )
+          : "h-6 items-center overflow-hidden leading-none sm:h-5",
         task.subtasks?.length &&
           "h-auto flex-col items-start gap-1 py-1 sm:h-auto",
         getCalendarTaskStatusClass(task.status),
+        canDrag && "cursor-grab active:cursor-grabbing",
+        isDragging && "opacity-40",
         // Bars that run past a week edge lose their cap there so the two halves
         // read as one continuous span across rows.
-        continuesBefore ? "rounded-l-none border-l-0" : "ml-1 rounded-l-md",
-        continuesAfter ? "rounded-r-none border-r-0" : "mr-1 rounded-r-md",
+        withinDay
+          ? "mx-1 rounded-md"
+          : continuesBefore
+            ? "rounded-l-none border-l-0"
+            : "ml-1 rounded-l-md",
+        !withinDay &&
+          (continuesAfter ? "rounded-r-none border-r-0" : "mr-1 rounded-r-md"),
       )}
     >
-      <span className="w-full truncate">{task.title}</span>
+      <span
+        className={
+          wrapTitle
+            ? "min-w-0 w-full whitespace-normal break-words"
+            : "w-full truncate"
+        }
+      >
+        {task.title}
+      </span>
       <CalendarSubtasks subtasks={task.subtasks} />
     </button>
   );

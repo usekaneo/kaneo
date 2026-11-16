@@ -3727,6 +3727,8 @@
 			}
 		},
 		"calendar": {
+			"wrapTaskTitles": "Wrap task titles",
+			"showAllTasks": "Show all tasks per day",
 			"dayTasksAriaLabel": "Alle taken voor {{date}} weergeven",
 			"moreTasks": "+{{count}} meer",
 			"nextMonth": "Volgende maand",
