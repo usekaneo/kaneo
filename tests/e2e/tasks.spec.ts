@@ -80,6 +80,7 @@ async function editTask(page: Page, title: string, updated: string) {
   // Task data and edit permissions load independently when the detail panel opens.
   await expect(input).toHaveValue(title);
   await expect(input).toBeEditable();
+  await input.fill(updated);
   const [saved] = await Promise.all([
     page.waitForResponse(
       (response) =>
@@ -87,7 +88,7 @@ async function editTask(page: Page, title: string, updated: string) {
         response.request().method() === "PUT" &&
         response.request().postDataJSON().title === updated,
     ),
-    input.fill(updated),
+    input.press("Enter"),
   ]);
   expect(saved.ok()).toBe(true);
 }
