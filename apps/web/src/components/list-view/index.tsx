@@ -40,12 +40,15 @@ import ListColumnSection from "./list-column-section";
 
 type ListViewProps = {
   project: ProjectWithTasks;
+  /** Where nested subtasks are looked up; defaults to `project`. */
+  subtaskSource?: ProjectWithTasks | null;
   disableDragDrop?: boolean;
   disableCollectionActions?: boolean;
 };
 
 function ListView({
   project,
+  subtaskSource,
   disableDragDrop = false,
   disableCollectionActions = false,
 }: ListViewProps) {
@@ -90,13 +93,13 @@ function ListView({
       string,
       ProjectWithTasks["columns"][number]["tasks"][number]
     >();
-    for (const column of project?.columns ?? []) {
+    for (const column of (subtaskSource ?? project)?.columns ?? []) {
       for (const task of column.tasks) {
         index.set(task.id, task);
       }
     }
     return index;
-  }, [project?.columns]);
+  }, [subtaskSource, project]);
 
   // Per browser and per project, and only a convenience: a row that cannot be
   // restored simply starts collapsed.
