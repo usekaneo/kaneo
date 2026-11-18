@@ -9,6 +9,7 @@
     "i18n:check:fix": "node ./scripts/i18n/check.mjs --fix",
     "openapi:check": "node ./scripts/openapi/check.mjs",
     "openapi:check:fix": "node ./scripts/openapi/check.mjs --fix",
+    "migrations:check": "node ./scripts/drizzle/check-journal.mjs",
     "i18n:report": "node ./scripts/i18n/report.mjs",
     "i18n:report:fix": "node ./scripts/i18n/report.mjs --fix",
     "i18n:schema": "node ./scripts/i18n/schema.mjs && vp fmt i18n/schema.json",

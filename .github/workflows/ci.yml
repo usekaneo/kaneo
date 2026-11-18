@@ -170,6 +170,11 @@ jobs:
         if: ${{ !cancelled() && steps.install.outcome == 'success' }}
         run: pnpm openapi:check
 
+      - name: Check drizzle migration journal ordering
+        timeout-minutes: 15
+        if: ${{ !cancelled() && steps.install.outcome == 'success' }}
+        run: pnpm migrations:check
+
       - name: Run typecheck
         timeout-minutes: 15
         if: ${{ !cancelled() && steps.install.outcome == 'success' }}
