@@ -1,5 +1,4 @@
 import { Link } from "@tanstack/react-router";
-import useGetConfig from "@/hooks/queries/config/use-get-config";
 import useProjectStore from "@/store/project";
 
 type LogoProps = {

@@ -4,7 +4,6 @@ import { writeImportSprints } from "./write-import-sprints";
 
 type Transaction = Parameters<typeof writeImportSprints>[0];
 
-const now = new Date("2026-10-11T12:00:00.000Z");
 
 type SprintRow = {
   id: string;

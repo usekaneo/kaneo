@@ -17,14 +17,6 @@ import { isCloud } from "./is-cloud";
 
 config();
 
-// Billing configuration must not prevent the login screen from loading.
-function isBillingAvailable() {
-  try {
-    return isBillingEnabled();
-  } catch {
-    return false;
-  }
-}
 
 function getSettings(
   instance: InstanceSettings = resolveInstanceSettings(
