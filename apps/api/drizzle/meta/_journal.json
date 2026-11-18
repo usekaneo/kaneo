@@ -516,22 +516,22 @@
     {
       "idx": 73,
       "version": "7",
-      "when": 1793132500000,
-      "tag": "0073_sprint_planning",
+      "when": 1793798733016,
+      "tag": "0073_thick_talisman",
       "breakpoints": true
     },
     {
       "idx": 74,
       "version": "7",
-      "when": 1793132600000,
-      "tag": "0074_sprint_carry_over",
+      "when": 1793800000000,
+      "tag": "0074_sprint_planning",
       "breakpoints": true
     },
     {
       "idx": 75,
       "version": "7",
-      "when": 1793132700000,
-      "tag": "0075_multi_repo_integrations",
+      "when": 1793800001000,
+      "tag": "0075_sprint_carry_over",
       "breakpoints": true
     }
   ]

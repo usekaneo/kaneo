@@ -1,6 +1,6 @@
 {
-  "id": "be64e564-7d98-451f-98b7-09a1ab47549f",
-  "prevId": "3e35e627-9ea6-44c9-9e91-a98643132370",
+  "id": "3e35e627-9ea6-44c9-9e91-a98643132370",
+  "prevId": "716e288c-d826-4603-92c2-f3dd3faf88d4",
   "version": "7",
   "dialect": "postgresql",
   "tables": {
@@ -3462,6 +3462,13 @@
           "notNull": false,
           "default": false
         },
+        "include_subtasks": {
+          "name": "include_subtasks",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true,
+          "default": true
+        },
         "archived_at": {
           "name": "archived_at",
           "type": "timestamp",
@@ -6069,12 +6076,6 @@
           "primaryKey": false,
           "notNull": true,
           "default": "(now() AT TIME ZONE 'utc')"
-        },
-        "carry_over_tasks": {
-          "name": "carry_over_tasks",
-          "type": "jsonb",
-          "primaryKey": false,
-          "notNull": false
         }
       },
       "indexes": {

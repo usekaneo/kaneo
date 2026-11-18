@@ -1,5 +1,5 @@
 {
-  "id": "3e35e627-9ea6-44c9-9e91-a98643132370",
+  "id": "716e288c-d826-4603-92c2-f3dd3faf88d4",
   "prevId": "0f7e9c13-a40c-4c0a-8719-c5e314b2ccde",
   "version": "7",
   "dialect": "postgresql",
@@ -3506,13 +3506,6 @@
           "type": "text",
           "primaryKey": false,
           "notNull": false
-        },
-        "default_sprint_length_days": {
-          "name": "default_sprint_length_days",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "14"
         }
       },
       "indexes": {
@@ -4040,18 +4033,6 @@
           "primaryKey": false,
           "notNull": true,
           "default": "(now() AT TIME ZONE 'utc')"
-        },
-        "sprint_id": {
-          "name": "sprint_id",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "type": {
-          "name": "type",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
         }
       },
       "indexes": {
@@ -4136,21 +4117,6 @@
           "concurrently": false,
           "method": "btree",
           "with": {}
-        },
-        "task_sprintId_idx": {
-          "name": "task_sprintId_idx",
-          "columns": [
-            {
-              "expression": "sprint_id",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last"
-            }
-          ],
-          "isUnique": false,
-          "concurrently": false,
-          "method": "btree",
-          "with": {}
         }
       },
       "foreignKeys": {
@@ -4186,19 +4152,6 @@
           "tableTo": "column",
           "columnsFrom": [
             "column_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "set null",
-          "onUpdate": "cascade"
-        },
-        "task_sprint_id_sprint_id_fk": {
-          "name": "task_sprint_id_sprint_id_fk",
-          "tableFrom": "task",
-          "tableTo": "sprint",
-          "columnsFrom": [
-            "sprint_id"
           ],
           "columnsTo": [
             "id"
@@ -6005,159 +5958,6 @@
       },
       "compositePrimaryKeys": {},
       "uniqueConstraints": {},
-      "policies": {},
-      "checkConstraints": {},
-      "isRLSEnabled": false
-    },
-    "public.sprint": {
-      "name": "sprint",
-      "schema": "",
-      "columns": {
-        "id": {
-          "name": "id",
-          "type": "text",
-          "primaryKey": true,
-          "notNull": true
-        },
-        "project_id": {
-          "name": "project_id",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "name": {
-          "name": "name",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "goal": {
-          "name": "goal",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "status": {
-          "name": "status",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "'future'"
-        },
-        "start_date": {
-          "name": "start_date",
-          "type": "timestamp",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "end_date": {
-          "name": "end_date",
-          "type": "timestamp",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "position": {
-          "name": "position",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "0"
-        },
-        "created_at": {
-          "name": "created_at",
-          "type": "timestamp",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "(now() AT TIME ZONE 'utc')"
-        },
-        "updated_at": {
-          "name": "updated_at",
-          "type": "timestamp",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "(now() AT TIME ZONE 'utc')"
-        }
-      },
-      "indexes": {
-        "sprint_projectId_idx": {
-          "name": "sprint_projectId_idx",
-          "columns": [
-            {
-              "expression": "project_id",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last"
-            }
-          ],
-          "isUnique": false,
-          "concurrently": false,
-          "method": "btree",
-          "with": {}
-        },
-        "sprint_projectId_position_idx": {
-          "name": "sprint_projectId_position_idx",
-          "columns": [
-            {
-              "expression": "project_id",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last"
-            },
-            {
-              "expression": "position",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last"
-            }
-          ],
-          "isUnique": false,
-          "concurrently": false,
-          "method": "btree",
-          "with": {}
-        },
-        "sprint_project_active_unique": {
-          "name": "sprint_project_active_unique",
-          "columns": [
-            {
-              "expression": "project_id",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last"
-            }
-          ],
-          "isUnique": true,
-          "concurrently": false,
-          "method": "btree",
-          "with": {},
-          "where": "\"sprint\".\"status\" = 'active'"
-        }
-      },
-      "foreignKeys": {
-        "sprint_project_id_project_id_fk": {
-          "name": "sprint_project_id_project_id_fk",
-          "tableFrom": "sprint",
-          "tableTo": "project",
-          "columnsFrom": [
-            "project_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "cascade",
-          "onUpdate": "cascade"
-        }
-      },
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {
-        "sprint_project_name_unique": {
-          "name": "sprint_project_name_unique",
-          "nullsNotDistinct": false,
-          "columns": [
-            "project_id",
-            "name"
-          ]
-        }
-      },
       "policies": {},
       "checkConstraints": {},
       "isRLSEnabled": false
