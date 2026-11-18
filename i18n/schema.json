@@ -13683,9 +13683,9 @@
 						"loadErrorDescription",
 						"refreshError",
 						"tryAgain",
-            "bug", 
-            "label", 
-            "task"
+						"bug",
+						"label",
+						"task"
 					]
 				}
 			},
