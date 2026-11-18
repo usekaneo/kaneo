@@ -1,7 +1,10 @@
--- Manual rollback for 0066_multi_repo_integrations.
+-- Manual rollback for 0076_multi_repo_integrations.
 -- drizzle-kit does not track this file; apply it with psql if a downgrade
--- is required. The guard refuses the downgrade once a project has more than
--- one binding of the same integration type (WP0 step 5).
+-- is required. The guards refuse the downgrade once a project has more than
+-- one binding of the same integration type (WP0 step 5), or once any
+-- workflow rule is scoped to a single binding: dropping workflow_rule.
+-- integration_id would silently turn those repository-specific rules back
+-- into type-wide rules that also apply to repositories linked later.
 DO $rollback_guard$
 BEGIN
 	IF EXISTS (
@@ -13,9 +16,19 @@ BEGIN
 		) per_project
 		WHERE per_project.bindings > 1
 	) THEN
-		RAISE EXCEPTION 'cannot downgrade 0066_multi_repo_integrations: a project already has multiple repository bindings of one integration type; resolve the duplicates first'
+		RAISE EXCEPTION 'cannot downgrade 0076_multi_repo_integrations: a project already has multiple repository bindings of one integration type; resolve the duplicates first'
 		USING ERRCODE = '55000';
 	END IF;
+	BEGIN
+		IF EXISTS (SELECT 1 FROM workflow_rule WHERE integration_id IS NOT NULL) THEN
+			RAISE EXCEPTION 'cannot downgrade 0076_multi_repo_integrations: rewriting workflow rules to repository-specific scope is not automatic; convert the % repository-scoped rules to type-wide rules first', (SELECT count(*) FROM workflow_rule WHERE integration_id IS NOT NULL)
+			USING ERRCODE = '55000';
+		END IF;
+	EXCEPTION WHEN undefined_column THEN
+		-- The downgrade is already applied (or partially applied); nothing
+		-- repository-specific can be left to protect.
+		NULL;
+	END;
 END
 $rollback_guard$;--> statement-breakpoint
 DROP INDEX IF EXISTS "workflow_rule_resolution_idx";--> statement-breakpoint
