@@ -946,7 +946,8 @@
           "isPublic",
           "archivedAt",
           "position",
-          "lastTaskNumber"
+          "lastTaskNumber",
+          "defaultSprintLengthDays"
         ]
       },
       "ProjectListItem": {
@@ -13043,6 +13044,18 @@
                     "type": "string",
                     "description": "The target column's slug."
                   },
+                  "type": {
+                    "type": "string",
+                    "enum": [
+                      "task",
+                      "bug"
+                    ],
+                    "description": "Bugs default to the project's active sprint; every other type defaults to the backlog."
+                  },
+                  "sprintId": {
+                    "type": "string",
+                    "description": "Active or future sprint of the project. Omit to apply the type-based default: bugs go to the active sprint, everything else to the backlog."
+                  },
                   "userId": {
                     "type": "string",
                     "description": "Assignee, if any."
@@ -13081,18 +13094,6 @@
                         "value"
                       ]
                     }
-                  },
-                  "type": {
-                    "type": "string",
-                    "enum": [
-                      "task",
-                      "bug"
-                    ],
-                    "description": "Bugs default to the project's active sprint; every other type defaults to the backlog."
-                  },
-                  "sprintId": {
-                    "type": "string",
-                    "description": "Active or future sprint of the project. Omit to apply the type-based default: bugs go to the active sprint, everything else to the backlog."
                   }
                 },
                 "required": [
