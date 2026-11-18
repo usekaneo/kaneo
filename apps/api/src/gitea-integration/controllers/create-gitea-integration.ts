@@ -5,7 +5,10 @@ import type { ContentfulStatusCode } from "hono/utils/http-status";
 import db from "../../database";
 import { integrationTable, projectTable } from "../../database/schema";
 import { mapIntegrationUniqueViolation } from "../../integrations/map-unique-violation";
-import { assertRepositoryBindingQuota } from "../../plan-limits/repository-binding-quota";
+import {
+  assertRepositoryBindingQuota,
+  withRepositoryBindingQuotaLock,
+} from "../../plan-limits/repository-binding-quota";
 import {
   type GiteaConfig,
   getDefaultGiteaConfig,
@@ -87,9 +90,6 @@ async function createGiteaIntegration({
     throw error;
   }
 
-  // WP10: enforce the per-project repository binding quota after repository
-  // verification and before the insert. 402 propagates unchanged.
-  await assertRepositoryBindingQuota(projectId, project.workspaceId);
 
   const webhookSecret = randomBytes(24).toString("hex");
 
@@ -108,45 +108,56 @@ async function createGiteaIntegration({
     });
   }
 
-  try {
-    const [newIntegration] = await db
-      .insert(integrationTable)
-      .values({
-        projectId,
-        type: "gitea",
-        config: JSON.stringify(config),
-        repositoryKey: giteaRepositoryKey(
-          normalizedBase,
+  // WP10: the quota guard and the insert run in one transaction under the
+  // project's advisory lock, so two concurrent creates or reactivations for
+  // the same project cannot both pass the quota check. Token verification
+  // and config validation above stay outside the transaction because they
+  // talk to Gitea over HTTP.
+  return withRepositoryBindingQuotaLock(projectId, async (tx) => {
+    // WP10: enforce the per-project repository binding quota before the
+    // insert. 402 propagates unchanged.
+    await assertRepositoryBindingQuota(projectId, project.workspaceId, tx);
+
+    try {
+      const [newIntegration] = await tx
+        .insert(integrationTable)
+        .values({
+          projectId,
+          type: "gitea",
+          config: JSON.stringify(config),
+          repositoryKey: giteaRepositoryKey(
+            normalizedBase,
+            repositoryOwner,
+            repositoryName,
+          ),
           repositoryOwner,
           repositoryName,
-        ),
+          baseUrl: normalizedBase,
+          isActive: true,
+        })
+        .returning();
+
+      if (!newIntegration) {
+        throw new HTTPException(500, {
+          message: "Failed to create Gitea integration",
+        });
+      }
+
+      return {
+        id: newIntegration.id,
+        projectId: newIntegration.projectId,
+        baseUrl: normalizedBase,
         repositoryOwner,
         repositoryName,
-        baseUrl: normalizedBase,
-        isActive: true,
-      })
-      .returning();
-
-    if (!newIntegration) {
-      throw new HTTPException(500, {
-        message: "Failed to create Gitea integration",
-      });
+        webhookSecret,
+        isActive: newIntegration.isActive,
+        createdAt: newIntegration.createdAt,
+        updatedAt: newIntegration.updatedAt,
+      };
+    } catch (error) {
+      mapIntegrationUniqueViolation(error, { projectId, type: "gitea" });
     }
-
-    return {
-      id: newIntegration.id,
-      projectId: newIntegration.projectId,
-      baseUrl: normalizedBase,
-      repositoryOwner,
-      repositoryName,
-      webhookSecret,
-      isActive: newIntegration.isActive,
-      createdAt: newIntegration.createdAt,
-      updatedAt: newIntegration.updatedAt,
-    };
-  } catch (error) {
-    mapIntegrationUniqueViolation(error, { projectId, type: "gitea" });
-  }
+  });
 }
 
 export default createGiteaIntegration;

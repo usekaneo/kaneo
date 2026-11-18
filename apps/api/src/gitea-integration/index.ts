@@ -2,7 +2,6 @@ import { and, eq } from "drizzle-orm";
 import type { Context } from "hono";
 import type { ContentfulStatusCode } from "hono/utils/http-status";
 import { HTTPException } from "hono/http-exception";
-import db from "../database";
 import { publishEvent } from "../events";
 import { integrationTable } from "../database/schema";
 import { findIntegrationByIdAndType } from "../integrations/find-integration-by-id";
@@ -10,6 +9,7 @@ import { integrationIdParam, projectIdParam } from "../integrations/schema";
 import {
   getRepositoryBindingUsage,
   assertRepositoryBindingQuota,
+  withRepositoryBindingQuotaLock,
 } from "../plan-limits/repository-binding-quota";
 import {
   apiRouter,
@@ -378,12 +378,6 @@ const giteaIntegration = apiRouter<BaseVariables & { workspaceId: string }>()
       throw new HTTPException(404, { message: "Integration not found" });
     }
 
-    // WP10: reactivation re-enters the binding count, so the quota guard
-    // runs before the update writes isActive=true.
-    if (body.isActive === true && !row.isActive) {
-      await assertRepositoryBindingQuota(row.projectId, c.get("workspaceId"));
-    }
-
     let config: GiteaConfig;
     try {
       config = JSON.parse(row.config) as GiteaConfig;
@@ -440,21 +434,43 @@ const giteaIntegration = apiRouter<BaseVariables & { workspaceId: string }>()
       });
     }
 
-    const [saved] = await db
-      .update(integrationTable)
-      .set({
-        config: JSON.stringify(config),
-        isActive:
-          body.isActive !== undefined ? body.isActive : (row.isActive ?? true),
-        updatedAt: new Date(),
-      })
-      .where(
-        and(
-          eq(integrationTable.id, row.id),
-          eq(integrationTable.config, row.config),
-        ),
-      )
-      .returning({ id: integrationTable.id });
+    // WP10: the reactivation quota guard and the write run in one transaction
+    // under the project's advisory lock, so a reactivating PATCH cannot race
+    // a concurrent binding creation past the quota check. Token verification
+    // above stays outside the transaction because it talks to Gitea over HTTP.
+    const saved = await withRepositoryBindingQuotaLock(
+      row.projectId,
+      async (tx) => {
+        // Reactivation re-enters the binding count: check the quota right
+        // before the update writes isActive=true.
+        if (body.isActive === true && !row.isActive) {
+          await assertRepositoryBindingQuota(
+            row.projectId,
+            c.get("workspaceId"),
+            tx,
+          );
+        }
+
+        const [savedRow] = await tx
+          .update(integrationTable)
+          .set({
+            config: JSON.stringify(config),
+            isActive:
+              body.isActive !== undefined
+                ? body.isActive
+                : (row.isActive ?? true),
+            updatedAt: new Date(),
+          })
+          .where(
+            and(
+              eq(integrationTable.id, row.id),
+              eq(integrationTable.config, row.config),
+            ),
+          )
+          .returning({ id: integrationTable.id });
+        return savedRow;
+      },
+    );
     if (!saved)
       throw new HTTPException(409, {
         message: "Integration changed; refresh before updating settings",

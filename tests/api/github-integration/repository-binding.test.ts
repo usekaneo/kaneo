@@ -19,7 +19,9 @@ vi.mock("../../../apps/api/src/database", () => ({
   default: {
     query: {
       accountTable: { findFirst: m.account },
-      projectTable: { findFirst: async () => ({ id: "project" }) },
+      projectTable: {
+        findFirst: async () => ({ id: "project", workspaceId: "workspace" }),
+      },
       integrationTable: {
         findFirst: m.integrationFindFirst,
         findMany: m.integrations,
@@ -42,11 +44,37 @@ vi.mock("../../../apps/api/src/database", () => ({
   },
 }));
 // RFC 0001 WP10: the create controller enforces the repository binding quota
-// before the insert; the wiring itself is covered by the plan-limits tests.
+// and writes the binding inside the project's advisory-lock transaction; the
+// serialization wiring itself is covered by the plan-limits tests.
 vi.mock("../../../apps/api/src/plan-limits/repository-binding-quota", () => ({
   assertRepositoryBindingQuota: vi.fn(async () => {}),
   countActiveRepositoryBindings: vi.fn(async () => 0),
   getRepositoryBindingUsage: vi.fn(async () => ({ used: 0, limit: null })),
+  // The create controller runs its reconcile lookup, quota guard, and write
+  // inside the lock; the mocked lock passes a drizzle-shaped transaction
+  // stub wired to the same recording fns as the database mock above.
+  withRepositoryBindingQuotaLock: vi.fn(
+    async (_projectId: string, work: (tx: unknown) => Promise<unknown>) =>
+      work({
+        query: {
+          integrationTable: { findFirst: m.integrationFindFirst },
+        },
+        insert: () => ({
+          values: (data: unknown) => {
+            m.insert(data);
+            return { returning: m.insertReturning };
+          },
+        }),
+        update: () => ({
+          set: (data: unknown) => {
+            m.updateSet(data);
+            return {
+              where: () => ({ returning: m.updateReturn }),
+            };
+          },
+        }),
+      }),
+  ),
 }));
 vi.mock("../../../apps/api/src/plugins/github/utils/github-app", () => ({
   getGithubApp: () => ({
@@ -73,9 +101,10 @@ const { default: createIntegration } =
   await import("../../../apps/api/src/github-integration/controllers/create-github-integration");
 const { findAllIntegrationsByRepo } =
   await import("../../../apps/api/src/plugins/github/services/task-service");
-const { assertRepositoryBindingQuota } = await import(
-  "../../../apps/api/src/plan-limits/repository-binding-quota"
-);
+const { assertRepositoryBindingQuota, withRepositoryBindingQuotaLock } =
+  await import(
+    "../../../apps/api/src/plan-limits/repository-binding-quota"
+  );
 const binding = {
   repositoryOwner: "Victim",
   repositoryName: "Private",
@@ -326,6 +355,44 @@ describe("GitHub repository linking", () => {
         repositoryName: "private",
       }),
     ).rejects.toMatchObject({ status: 409 });
+  });
+
+  it("runs quota guard and write inside the project's advisory lock", async () => {
+    m.integrationFindFirst.mockResolvedValue(null);
+    m.insertReturning.mockResolvedValue([
+      {
+        id: "fresh",
+        projectId: "project",
+        isActive: true,
+        createdAt: new Date("2026-01-01T00:00:00Z"),
+        updatedAt: new Date("2026-01-02T00:00:00Z"),
+      },
+    ]);
+
+    await createIntegration({
+      userId: "user",
+      projectId: "project",
+      repositoryOwner: "victim",
+      repositoryName: "private",
+    });
+
+    // The lookup, the quota guard, and the insert must all run inside the
+    // per-project lock transaction (WP10), with its handle passed on.
+    expect(withRepositoryBindingQuotaLock).toHaveBeenCalledWith(
+      "project",
+      expect.any(Function),
+    );
+    expect(assertRepositoryBindingQuota).toHaveBeenCalledWith(
+      "project",
+      "workspace",
+      expect.objectContaining({
+        insert: expect.any(Function),
+        query: expect.any(Object),
+      }),
+    );
+    expect(m.insert).toHaveBeenCalledWith(
+      expect.objectContaining({ projectId: "project", type: "github" }),
+    );
   });
 });
 

@@ -5,7 +5,10 @@ import type { ContentfulStatusCode } from "hono/utils/http-status";
 import db from "../../database";
 import { integrationTable, projectTable } from "../../database/schema";
 import { mapIntegrationUniqueViolation } from "../../integrations/map-unique-violation";
-import { assertRepositoryBindingQuota } from "../../plan-limits/repository-binding-quota";
+import {
+  assertRepositoryBindingQuota,
+  withRepositoryBindingQuotaLock,
+} from "../../plan-limits/repository-binding-quota";
 import {
   type GitlabConfig,
   type GitlabTokenType,
@@ -130,10 +133,6 @@ async function createGitlabIntegration({
     throw error;
   }
 
-  // WP10: enforce the per-project repository binding quota after project
-  // verification and before the insert. 402 propagates unchanged.
-  await assertRepositoryBindingQuota(projectId, project.workspaceId);
-
   const webhookSecret = randomBytes(24).toString("hex");
 
   const config: GitlabConfig = {
@@ -160,41 +159,52 @@ async function createGitlabIntegration({
     pathSegments[pathSegments.length - 1] ?? normalizedPath;
   const repositoryOwner = pathSegments[0] ?? "";
 
-  try {
-    const [newIntegration] = await db
-      .insert(integrationTable)
-      .values({
-        projectId,
-        type: "gitlab",
-        config: JSON.stringify(config),
-        repositoryKey: gitlabRepositoryKey(normalizedBase, normalizedPath),
-        repositoryOwner,
-        repositoryName,
+  // WP10: the quota guard and the insert run in one transaction under the
+  // project's advisory lock, so two concurrent creates or reactivations for
+  // the same project cannot both pass the quota check. Token verification
+  // and config validation above stay outside the transaction because they
+  // talk to GitLab over HTTP.
+  return withRepositoryBindingQuotaLock(projectId, async (tx) => {
+    // WP10: enforce the per-project repository binding quota before the
+    // insert. 402 propagates unchanged.
+    await assertRepositoryBindingQuota(projectId, project.workspaceId, tx);
+
+    try {
+      const [newIntegration] = await tx
+        .insert(integrationTable)
+        .values({
+          projectId,
+          type: "gitlab",
+          config: JSON.stringify(config),
+          repositoryKey: gitlabRepositoryKey(normalizedBase, normalizedPath),
+          repositoryOwner,
+          repositoryName,
+          baseUrl: normalizedBase,
+          isActive: true,
+        })
+        .returning();
+
+      if (!newIntegration) {
+        throw new HTTPException(500, {
+          message: "Failed to create GitLab integration",
+        });
+      }
+
+      return {
+        id: newIntegration.id,
+        projectId: newIntegration.projectId,
         baseUrl: normalizedBase,
-        isActive: true,
-      })
-      .returning();
-
-    if (!newIntegration) {
-      throw new HTTPException(500, {
-        message: "Failed to create GitLab integration",
-      });
+        projectPath: normalizedPath,
+        tokenType,
+        webhookSecret,
+        isActive: newIntegration.isActive,
+        createdAt: newIntegration.createdAt,
+        updatedAt: newIntegration.updatedAt,
+      };
+    } catch (error) {
+      mapIntegrationUniqueViolation(error, { projectId, type: "gitlab" });
     }
-
-    return {
-      id: newIntegration.id,
-      projectId: newIntegration.projectId,
-      baseUrl: normalizedBase,
-      projectPath: normalizedPath,
-      tokenType,
-      webhookSecret,
-      isActive: newIntegration.isActive,
-      createdAt: newIntegration.createdAt,
-      updatedAt: newIntegration.updatedAt,
-    };
-  } catch (error) {
-    mapIntegrationUniqueViolation(error, { projectId, type: "gitlab" });
-  }
+  });
 }
 
 export default createGitlabIntegration;

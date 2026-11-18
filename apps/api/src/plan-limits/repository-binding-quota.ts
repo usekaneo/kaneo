@@ -77,10 +77,10 @@ export async function getRepositoryBindingUsage(
 
 // Called by the create controllers (WP2-WP4) after repository verification and
 // before the insert, and by the update controllers when isActive transitions
-// false to true. Race note: two concurrent creates can both pass the count
-// check; this is an accepted transient overshoot for a billing guard. Strict
-// serialization via SELECT ... FOR UPDATE on the project row is a deliberate
-// future option and is documented in the plan.
+// false to true. The count and the write must share one transaction guarded
+// by the project's per-project advisory lock
+// ({@link withRepositoryBindingQuotaLock}), so two concurrent creates or
+// reactivations on the same project cannot both pass the count check.
 export async function assertRepositoryBindingQuota(
   projectId: string,
   workspaceId: string,
@@ -107,4 +107,41 @@ export async function assertRepositoryBindingQuota(
       `Repository binding limit reached: this project already uses ${used} of ${maxPerProject} repository bindings included in the current plan.`,
     );
   }
+}
+
+/** The transaction handle {@link withRepositoryBindingQuotaLock} passes on. */
+export type RepositoryBindingQuotaTransaction = Parameters<
+  Parameters<typeof db.transaction>[0]
+>[0];
+
+/**
+ * Serialize a quota check together with the binding write that follows it,
+ * per project.
+ *
+ * The count-then-write pair in a create or reactivation used to be two
+ * separate statements, so two concurrent requests could both pass the count
+ * check and transiently overshoot the plan limit. Running both inside one
+ * transaction under the project's advisory lock closes the race: whoever
+ * holds the lock sees every binding committed before it.
+ *
+ * The lock is taken with pg_advisory_xact_lock, so it is released
+ * automatically when the transaction ends, including on rollback. Provider
+ * verification (which talks to GitHub, Gitea, or GitLab over HTTP) must stay
+ * outside the callback.
+ */
+export async function withRepositoryBindingQuotaLock<T>(
+  projectId: string,
+  work: (tx: RepositoryBindingQuotaTransaction) => Promise<T>,
+): Promise<T> {
+  return db.transaction(async (tx) => {
+    await tx.execute(
+      sql`
+        SELECT pg_advisory_xact_lock(
+          hashtext('repo-binding-quota'),
+          hashtext(${projectId})
+        )
+      `,
+    );
+    return work(tx);
+  });
 }
