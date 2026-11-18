@@ -11,15 +11,18 @@ import { readSyncRules } from "../../plugins/sync/rules";
 import { getSyncIntegration } from "./get-integration";
 import { getAuthorizedSyncProject } from "./authorized-project";
 
+// RFC 0001 WP5: keyed by integration id; the lock scope derives from the
+// addressed binding, so concurrent resumes of two different bindings never
+// contend on one lock.
 export async function lockResumeScope(
-  projectId: string,
-  provider: string,
+  integrationId: string,
   linkId: string,
   authorizedWorkspaceId: string,
   tx: IntegrationDatabase,
 ) {
+  const integration = await getSyncIntegration(integrationId, tx);
+  const projectId = integration.projectId;
   await getAuthorizedSyncProject(projectId, authorizedWorkspaceId, tx, true);
-  const integration = await getSyncIntegration(projectId, provider, tx);
   const [binding] = await tx
     .select()
     .from(integrationTable)

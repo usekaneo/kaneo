@@ -153,6 +153,7 @@ export async function handleGitlabPush(
           "branch_push",
           config.statusTransitions?.onBranchPush || "in-progress",
           database,
+          integration,
         );
 
         const canMove =

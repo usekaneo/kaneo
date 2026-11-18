@@ -35,6 +35,10 @@ export const repositoryPageQuery = z.object({
 });
 
 export const importGitHubBody = z.object({
-  projectId: z.string().min(1).max(128),
+  // RFC 0001 WP2: imports are keyed by the integration id of the binding.
+  integrationId: z.string().min(1).max(128),
+  // Compat: the old project-keyed body sent projectId; when present it must
+  // match the binding's project (404 otherwise).
+  projectId: z.string().min(1).max(128).optional(),
   runId: z.string().min(1).max(128).optional(),
 });

@@ -105,21 +105,37 @@ function conflict() {
   });
 }
 
-export async function importIssues(projectId: string, runId?: string) {
-  return withGithubImportLock(projectId, async () => {
-    const project = await db.query.projectTable.findFirst({
-      where: eq(projectTable.id, projectId),
-    });
-    if (!project)
-      throw new HTTPException(404, { message: "Project not found" });
+// RFC 0001 WP2: imports are keyed by integration id, so every binding keeps
+// its own resumable github_import run. When a projectId is also provided
+// (compat with the old project-keyed body), it must match the binding's
+// project; a mismatch is a 404, never a 403, so the endpoint does not confirm
+// the existence of a foreign binding.
+export async function importIssues({
+  integrationId,
+  projectId: expectedProjectId,
+  runId,
+}: {
+  integrationId: string;
+  projectId?: string;
+  runId?: string;
+}) {
+  return withGithubImportLock(integrationId, async () => {
     const integration = await db.query.integrationTable.findFirst({
       where: and(
-        eq(integrationTable.projectId, projectId),
+        eq(integrationTable.id, integrationId),
         eq(integrationTable.type, "github"),
       ),
     });
     if (!integration)
       throw new HTTPException(404, { message: "GitHub integration not found" });
+    const projectId = integration.projectId;
+    if (expectedProjectId && expectedProjectId !== projectId)
+      throw new HTTPException(404, { message: "GitHub integration not found" });
+    const project = await db.query.projectTable.findFirst({
+      where: eq(projectTable.id, projectId),
+    });
+    if (!project)
+      throw new HTTPException(404, { message: "Project not found" });
     const config = readConfig(integration);
     const repositoryId = config.repositoryId;
     if (!repositoryId) throw conflict();

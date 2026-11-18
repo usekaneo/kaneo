@@ -384,6 +384,24 @@ export const workspaceBillingTable = pgTable(
   (table) => [index("workspace_billing_workspaceId_idx").on(table.workspaceId)],
 );
 
+// RFC 0001 WP0 (for WP10): per-workspace plan limit overrides written by the
+// billing system. The API only reads this table; a NULL
+// max_repositories_per_project means "no workspace override; fall back to the
+// instance default (KANEO_MAX_REPOSITORIES_PER_PROJECT)".
+export const workspaceLimitTable = pgTable("workspace_limit", {
+  workspaceId: text("workspace_id")
+    .primaryKey()
+    .references(() => workspaceTable.id, {
+      onDelete: "cascade",
+      onUpdate: "cascade",
+    }),
+  maxRepositoriesPerProject: integer("max_repositories_per_project"),
+  updatedAt: timestamp("updated_at", { mode: "date" })
+    .defaultNow()
+    .$onUpdate(() => new Date())
+    .notNull(),
+});
+
 export const trialGrantTable = pgTable("trial_grant", {
   emailHash: text("email_hash").primaryKey(),
   trialEndsAt: timestamp("trial_ends_at", { mode: "date" }).notNull(),
@@ -640,6 +658,16 @@ export const workflowRuleTable = pgTable(
         onUpdate: "cascade",
       }),
     integrationType: text("integration_type").notNull(),
+    // RFC 0001: optional binding to a specific integration row; null keeps
+    // the legacy type-wide semantics (the rule applies to every repository
+    // of that type in the project).
+    integrationId: text("integration_id").references(
+      () => integrationTable.id,
+      {
+        onDelete: "cascade",
+        onUpdate: "cascade",
+      },
+    ),
     eventType: text("event_type").notNull(),
     columnId: text("column_id")
       .notNull()
@@ -658,6 +686,16 @@ export const workflowRuleTable = pgTable(
   (table) => [
     index("workflow_rule_projectId_idx").on(table.projectId),
     index("workflow_rule_columnId_idx").on(table.columnId),
+    index("workflow_rule_integrationId_idx").on(table.integrationId),
+    // RFC 0001 WP6: keeps repository-specific rule resolution a single
+    // indexed lookup: (project, type, event, integration), where
+    // integration_id is NULL for type-wide rules.
+    index("workflow_rule_resolution_idx").on(
+      table.projectId,
+      table.integrationType,
+      table.eventType,
+      table.integrationId,
+    ),
   ],
 );
 
@@ -1163,29 +1201,8 @@ export const userNotificationWorkspaceProjectTable = pgTable(
   ],
 );
 
-// Legacy table: the GitHub plugin migration drops it at startup on existing
-// installs, so SQL migrations must not touch it.
-export const githubIntegrationTable = pgTable("github_integration", {
-  id: text("id")
-    .$defaultFn(() => createId())
-    .primaryKey(),
-  projectId: text("project_id")
-    .notNull()
-    .references(() => projectTable.id, {
-      onDelete: "cascade",
-      onUpdate: "cascade",
-    })
-    .unique(),
-  repositoryOwner: text("repository_owner").notNull(),
-  repositoryName: text("repository_name").notNull(),
-  installationId: integer("installation_id"),
-  isActive: boolean("is_active").default(true),
-  createdAt: timestamp("created_at", { mode: "date" }).defaultNow().notNull(),
-  updatedAt: timestamp("updated_at", { mode: "date" })
-    .defaultNow()
-    .$onUpdate(() => new Date())
-    .notNull(),
-});
+// RFC 0001 (cleanup): the legacy github_integration table is retired from
+// the schema; the startup migration reads and drops it through raw SQL.
 
 export const integrationTable = pgTable(
   "integration",
@@ -1201,6 +1218,17 @@ export const integrationTable = pgTable(
       }),
     type: text("type").notNull(),
     config: text("config").notNull(),
+    // RFC 0001: repository identity for multi-repository projects. The key
+    // is provider-scoped (github:<repositoryId>, gitea:<baseUrl>/<owner>/<name>,
+    // gitlab:<baseUrl>/<projectPath>); owner/name/id are denormalized from the
+    // config so list views do not parse JSON.
+    repositoryKey: text("repository_key"),
+    repositoryOwner: text("repository_owner"),
+    repositoryName: text("repository_name"),
+    repositoryId: integer("repository_id"),
+    // RFC 0001: baseUrl for self-hosted Gitea/GitLab instances; null for
+    // github.com and default installs.
+    baseUrl: text("base_url"),
     isActive: boolean("is_active").default(true),
     createdAt: timestamp("created_at", { mode: "date" })
       .default(utcNow)
@@ -1213,7 +1241,26 @@ export const integrationTable = pgTable(
   (table) => [
     index("integration_projectId_idx").on(table.projectId),
     index("integration_type_idx").on(table.type),
-    unique("integration_project_type_unique").on(table.projectId, table.type),
+    index("integration_type_repository_key_idx").on(
+      table.type,
+      table.repositoryKey,
+    ),
+    // RFC 0001 WP0: one binding per repository per project. Cross-project
+    // repository sharing is allowed, so there is deliberately no instance-wide
+    // unique. Legacy rows have a NULL repository_key; unique constraints treat
+    // NULLs as distinct, so they coexist until backfill.
+    unique("integration_project_type_repo_unique").on(
+      table.projectId,
+      table.type,
+      table.repositoryKey,
+    ),
+    // RFC 0001 WP0: preserves the one-row-per-project guarantee for
+    // integrations without repository identity (Slack, Discord, Mattermost,
+    // Telegram, generic webhook) after integration_project_type_unique was
+    // dropped.
+    uniqueIndex("integration_project_type_null_repo_unique")
+      .on(table.projectId, table.type)
+      .where(sql`repository_key IS NULL`),
   ],
 );
 

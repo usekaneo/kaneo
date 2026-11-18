@@ -1,13 +1,22 @@
-import { and, eq } from "drizzle-orm";
+import { eq } from "drizzle-orm";
 import { HTTPException } from "hono/http-exception";
-import * as v from "valibot";
 import db from "../../database";
 import { integrationTable, projectTable } from "../../database/schema";
-import {
-  defaultGitHubConfig,
-  githubConfigSchema,
-} from "../../plugins/github/config";
+import { mapIntegrationUniqueViolation } from "../../integrations/map-unique-violation";
+import { defaultGitHubConfig } from "../../plugins/github/config";
+import { assertRepositoryBindingQuota } from "../../plan-limits/repository-binding-quota";
 import { verifyRepositoryOwner } from "./verify-repository-owner";
+
+// RFC 0001 WP2: one integration row per GitHub repository. The
+// disconnect-before-switching rule is gone: linking another repository
+// inserts a new binding instead of mutating the single existing row. Per
+// governing decision D1 there is deliberately no cross-project check; the
+// per-project unique constraint decides same-project duplicates (409).
+
+/** Repository identity key: `github:<numeric repository id>` (verified bindings). */
+export function githubRepositoryKey(repositoryId: number): string {
+  return `github:${repositoryId}`;
+}
 
 async function createGithubIntegration({
   userId,
@@ -35,97 +44,47 @@ async function createGithubIntegration({
   );
   const { installationId } = binding;
 
-  const existingIntegration = await db.query.integrationTable.findFirst({
-    where: and(
-      eq(integrationTable.projectId, projectId),
-      eq(integrationTable.type, "github"),
-    ),
-  });
+  // WP10: enforce the per-project repository binding quota after repository
+  // verification and before the insert. 402 propagates unchanged.
+  await assertRepositoryBindingQuota(projectId, project.workspaceId);
 
-  let previousConfig = {};
-  if (existingIntegration) {
-    let previous: unknown;
-    try {
-      previous = JSON.parse(existingIntegration.config);
-    } catch {
-      previous = null;
-    }
-    const parsed = v.safeParse(githubConfigSchema, previous);
-    const sameRepository =
-      parsed.success &&
-      (parsed.output.repositoryId !== undefined
-        ? parsed.output.repositoryId === binding.repositoryId
-        : parsed.output.repositoryOwner.toLowerCase() ===
-            binding.repositoryOwner.toLowerCase() &&
-          parsed.output.repositoryName.toLowerCase() ===
-            binding.repositoryName.toLowerCase());
-    if (!sameRepository) {
-      // External issue/PR numbers are scoped to a repository. Reusing this
-      // integration ID would reinterpret its existing links in another repo.
-      throw new HTTPException(409, {
-        message:
-          "Disconnect the current GitHub integration before connecting a different repository",
-      });
-    }
-    if (parsed.success) previousConfig = parsed.output;
-  }
-  const config = { ...defaultGitHubConfig, ...previousConfig, ...binding };
+  const config = { ...defaultGitHubConfig, ...binding };
 
-  if (existingIntegration) {
-    const [updatedIntegration] = await db
-      .update(integrationTable)
-      .set({
+  try {
+    const [newIntegration] = await db
+      .insert(integrationTable)
+      .values({
+        projectId,
+        type: "github",
         config: JSON.stringify(config),
+        repositoryKey: githubRepositoryKey(binding.repositoryId),
+        repositoryOwner: binding.repositoryOwner,
+        repositoryName: binding.repositoryName,
+        repositoryId: binding.repositoryId,
         isActive: true,
-        updatedAt: new Date(),
       })
-      .where(
-        and(
-          eq(integrationTable.id, existingIntegration.id),
-          eq(integrationTable.config, existingIntegration.config),
-        ),
-      )
       .returning();
 
-    if (!updatedIntegration)
-      throw new HTTPException(409, {
-        message: "GitHub integration changed; refresh before reconnecting",
+    if (!newIntegration) {
+      throw new HTTPException(500, {
+        message: "Failed to create GitHub integration",
       });
+    }
 
     return {
-      id: updatedIntegration.id,
-      projectId: updatedIntegration?.projectId,
+      id: newIntegration.id,
+      projectId: newIntegration.projectId,
       repositoryOwner: binding.repositoryOwner,
       repositoryName: binding.repositoryName,
       installationId,
       requiresVerification: false,
-      isActive: updatedIntegration?.isActive,
-      createdAt: updatedIntegration?.createdAt,
-      updatedAt: updatedIntegration?.updatedAt,
+      isActive: newIntegration.isActive,
+      createdAt: newIntegration.createdAt,
+      updatedAt: newIntegration.updatedAt,
     };
+  } catch (error) {
+    mapIntegrationUniqueViolation(error, { projectId, type: "github" });
   }
-
-  const [newIntegration] = await db
-    .insert(integrationTable)
-    .values({
-      projectId,
-      type: "github",
-      config: JSON.stringify(config),
-      isActive: true,
-    })
-    .returning();
-
-  return {
-    id: newIntegration?.id,
-    projectId: newIntegration?.projectId,
-    repositoryOwner: binding.repositoryOwner,
-    repositoryName: binding.repositoryName,
-    installationId,
-    requiresVerification: false,
-    isActive: newIntegration?.isActive,
-    createdAt: newIntegration?.createdAt,
-    updatedAt: newIntegration?.updatedAt,
-  };
 }
 
 export default createGithubIntegration;

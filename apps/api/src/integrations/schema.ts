@@ -2,6 +2,12 @@ import { z } from "../openapi";
 
 export const projectIdParam = z.object({ projectId: z.string() });
 
+// RFC 0001 WP2: integration-id-keyed route params (detail/update/delete and
+// the provider sync surfaces).
+export const integrationIdParam = z.object({
+  integrationId: z.string().min(1).max(128),
+});
+
 export const integrationEventToggles = z.object({
   taskCreated: z.boolean().optional(),
   taskStatusChanged: z.boolean().optional(),

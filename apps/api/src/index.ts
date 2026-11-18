@@ -1007,6 +1007,7 @@ export function createApp() {
     slackIntegrationApi,
     taskApi,
     taskRelationApi,
+    sprintApi,
     telegramIntegrationApi,
     timeEntryApi,
     userApi,
@@ -1047,6 +1048,7 @@ export async function runStartupTasks() {
   await migrateApiKeyReferenceId();
 
   await migrateNotificationPreferencesSchema();
+  await migrateBrandingSchema();
   await migrateGitHubIntegration();
   await migrateColumns();
   await seedDefaultWorkspaceRoles();
@@ -1142,6 +1144,7 @@ const {
   slackIntegrationApi,
   taskApi,
   taskRelationApi,
+  sprintApi,
   telegramIntegrationApi,
   timeEntryApi,
   userApi,

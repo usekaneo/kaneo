@@ -124,6 +124,7 @@ export async function handleIssueReopened(payload: IssueReopenedPayload) {
               "issue_reopened",
               "to-do",
               db,
+              integration,
             );
 
             const statusResult = await updateTaskStatus(

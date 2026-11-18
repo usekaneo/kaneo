@@ -165,6 +165,7 @@ export async function handleGiteaPush(
           "branch_push",
           config.statusTransitions?.onBranchPush || "in-progress",
           database,
+          integration,
         );
 
         const canMove =

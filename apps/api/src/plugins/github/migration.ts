@@ -7,6 +7,20 @@ import {
 } from "../../database/schema";
 import { defaultGitHubConfig } from "./config";
 
+// RFC 0001 (cleanup): the legacy github_integration table is no longer
+// part of the Drizzle schema; this startup migration reads and drops
+// it through raw SQL.
+type LegacyGitHubIntegrationRow = {
+  id: string;
+  projectId: string;
+  repositoryOwner: string;
+  repositoryName: string;
+  installationId: number | null;
+  isActive: boolean | null;
+  createdAt: Date;
+  updatedAt: Date;
+};
+
 async function tableExists(tableName: string): Promise<boolean> {
   try {
     const result = await db.execute(sql`
@@ -30,10 +44,23 @@ export async function migrateGitHubIntegration() {
     return;
   }
 
-  console.log("🔄 Starting GitHub integration migration...");
+  console.log("Starting GitHub integration migration...");
 
   try {
-    const oldIntegrations = await db.query.githubIntegrationTable.findMany();
+    const legacyResult = await db.execute<LegacyGitHubIntegrationRow>(sql`
+      SELECT
+        id,
+        project_id AS "projectId",
+        repository_owner AS "repositoryOwner",
+        repository_name AS "repositoryName",
+        installation_id AS "installationId",
+        is_active AS "isActive",
+        created_at AS "createdAt",
+        updated_at AS "updatedAt"
+      FROM github_integration
+      ORDER BY created_at ASC
+    `);
+    const oldIntegrations = legacyResult.rows;
 
     if (oldIntegrations.length === 0) {
       console.log("No old integrations to migrate");
@@ -64,6 +91,9 @@ export async function migrateGitHubIntegration() {
           installationId: old.installationId,
           ...defaultGitHubConfig,
         }),
+        repositoryKey: `github:${old.repositoryOwner.toLowerCase()}/${old.repositoryName.toLowerCase()}`,
+        repositoryOwner: old.repositoryOwner,
+        repositoryName: old.repositoryName,
         isActive: old.isActive ?? true,
         createdAt: old.createdAt,
         updatedAt: old.updatedAt,
@@ -72,13 +102,13 @@ export async function migrateGitHubIntegration() {
       migratedCount++;
     }
 
-    console.log(`✓ Migrated ${migratedCount} integrations`);
+    console.log(`Migrated ${migratedCount} integrations`);
 
     await migrateTaskLinks();
 
     await dropOldTable();
 
-    console.log("✅ GitHub integration migration complete!");
+    console.log("GitHub integration migration complete!");
   } catch (error) {
     console.error("Failed to migrate GitHub integration:", error);
     throw error;
@@ -86,7 +116,7 @@ export async function migrateGitHubIntegration() {
 }
 
 async function migrateTaskLinks() {
-  console.log("🔄 Migrating task links from descriptions...");
+  console.log("Migrating task links from descriptions...");
 
   const tasks = await db.query.taskTable.findMany();
 
@@ -162,12 +192,12 @@ async function migrateTaskLinks() {
     }
   }
 
-  console.log(`✓ Created ${linksCreated} external links`);
-  console.log(`✓ Cleaned ${descriptionsUpdated} task descriptions`);
+  console.log(`Created ${linksCreated} external links`);
+  console.log(`Cleaned ${descriptionsUpdated} task descriptions`);
 }
 
 async function dropOldTable() {
-  console.log("🗑️ Dropping old github_integration table...");
+  console.log("Dropping old github_integration table...");
   await db.execute(sql`DROP TABLE IF EXISTS github_integration CASCADE`);
-  console.log("✓ Dropped github_integration table");
+  console.log("Dropped github_integration table");
 }
