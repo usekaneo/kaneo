@@ -4289,6 +4289,11 @@
 			"durationSeconds": "{{seconds, number}} s",
 			"durationMinutes": "{{minutes, number}} min",
 			"durationHoursMinutes": "{{hours, number}} godz. {{minutes, number}} min"
+		},
+		"type": {
+			"label": "Typ",
+			"bug": "Błąd",
+			"task": "Zadanie"
 		}
 	},
 	"press": {
