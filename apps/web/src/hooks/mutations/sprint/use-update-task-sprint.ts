@@ -7,7 +7,6 @@ export function useUpdateTaskSprint() {
   return useMutation({
     mutationFn: ({
       taskId,
-      projectId,
       sprintId,
     }: {
       taskId: string;

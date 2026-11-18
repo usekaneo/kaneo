@@ -7,7 +7,6 @@ export function useUpdateSprint() {
   return useMutation({
     mutationFn: ({
       id,
-      projectId,
       data,
     }: {
       id: string;

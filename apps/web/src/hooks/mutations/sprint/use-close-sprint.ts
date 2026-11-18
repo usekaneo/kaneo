@@ -7,7 +7,6 @@ export function useCloseSprint() {
   return useMutation({
     mutationFn: ({
       id,
-      projectId,
       targetSprintId,
     }: {
       id: string;
