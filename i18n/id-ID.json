@@ -3020,37 +3020,6 @@
 			"then": "lalu",
 			"or": "atau",
 			"thenEllipsis": "lalu…"
-		},
-		"keyboardShortcuts": {
-			"categories": {
-				"create": "Buat",
-				"general": "Umum",
-				"navigation": "Navigasi",
-				"quickSelect": "Pilih Cepat (di popover)",
-				"views": "Tampilan"
-			},
-			"footer": "Tekan <kbd>Escape</kbd> untuk menutup",
-			"items": {
-				"backlogView": "Beralih ke tampilan backlog",
-				"boardView": "Beralih ke tampilan papan",
-				"calendarView": "Beralih ke tampilan kalender",
-				"closeModal": "Tutup modal/popover",
-				"createProject": "Buat proyek",
-				"createTask": "Buat tugas",
-				"createWorkspace": "Buat ruang kerja",
-				"globalSearch": "Pencarian global",
-				"listView": "Beralih ke tampilan daftar",
-				"nextTask": "Tugas berikutnya",
-				"openCommandPalette": "Buka palet perintah",
-				"openTask": "Buka tugas terpilih",
-				"prevTask": "Tugas sebelumnya",
-				"quickSelectNumber": "Pilih opsi berdasarkan nomor",
-				"showShortcuts": "Tampilkan pintasan keyboard",
-				"toggleSidebar": "Tampilkan/sembunyikan panel samping"
-			},
-			"searchPlaceholder": "Cari pintasan...",
-			"subtitle": "Percepat alur kerja Anda dengan pintasan keyboard",
-			"title": "Pintasan Keyboard"
 		}
 	},
 	"notifications": {
@@ -3242,6 +3211,20 @@
 		"movedFromOtherProject": "moved task from another project to \"{{to}}\""
 	},
 	"tasks": {
+		"dateFilter": {
+			"startDate": "Tanggal mulai",
+			"noDate": "Tanpa tanggal",
+			"condition": "Kondisi tanggal",
+			"exact": "Tanggal tertentu",
+			"range": "Rentang tanggal",
+			"before": "Sebelum",
+			"after": "Setelah",
+			"apply": "Terapkan filter tanggal",
+			"exactValue": "Pada {{date}}",
+			"beforeValue": "Sebelum {{date}}",
+			"afterValue": "Setelah {{date}}",
+			"rangeValue": "{{date}} – {{end}}"
+		},
 		"title": "Tugas",
 		"status": {
 			"label": "Status",
@@ -3781,7 +3764,9 @@
 			"showOnRows": "Tampilkan di baris",
 			"checklistProgress": "Progres daftar periksa",
 			"projectBackground": "Latar belakang proyek",
-			"layout": "Tata letak"
+			"layout": "Tata letak",
+			"includeSubtasks": "Sertakan subtugas",
+			"useProjectDefault": "Gunakan pengaturan bawaan proyek"
 		},
 		"filterBar": {
 			"label": "Filter aktif",
@@ -3822,6 +3807,21 @@
 			"startsOn": "Mulai {{date}}",
 			"beforeStart": "{{date}} sebelum tanggal mulai",
 			"afterDue": "{{date}} setelah tenggat"
+		},
+		"timeTracking": {
+			"empty": "Belum ada waktu yang dicatat.",
+			"loadError": "Gagal memuat catatan waktu.",
+			"retry": "Coba lagi",
+			"running": "Berjalan",
+			"start": "Mulai timer",
+			"startError": "Gagal memulai pengatur waktu.",
+			"stop": "Hentikan pengatur waktu",
+			"stopError": "Gagal menghentikan pengatur waktu.",
+			"title": "Pelacakan waktu",
+			"unknownUser": "Tidak diketahui",
+			"durationSeconds": "{{seconds, number}} dtk",
+			"durationMinutes": "{{minutes, number}} mnt",
+			"durationHoursMinutes": "{{hours, number}} j {{minutes, number}} mnt"
 		},
 		"sprints": {
 			"activeBadge": "Aktif",

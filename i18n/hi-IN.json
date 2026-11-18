@@ -3071,37 +3071,6 @@
 			"then": "फिर",
 			"or": "या",
 			"thenEllipsis": "फिर…"
-		},
-		"keyboardShortcuts": {
-			"categories": {
-				"create": "बनाएँ",
-				"general": "सामान्य",
-				"navigation": "नेविगेशन",
-				"quickSelect": "त्वरित चयन (पॉपओवर में)",
-				"views": "दृश्य"
-			},
-			"footer": "बंद करने के लिए <kbd>Escape</kbd> दबाएँ",
-			"items": {
-				"backlogView": "बैकलॉग दृश्य पर स्विच करें",
-				"boardView": "बोर्ड दृश्य पर स्विच करें",
-				"calendarView": "कैलेंडर दृश्य पर जाएँ",
-				"closeModal": "मोडल/पॉपओवर बंद करें",
-				"createProject": "प्रोजेक्ट बनाएँ",
-				"createTask": "कार्य बनाएँ",
-				"createWorkspace": "वर्कस्पेस बनाएँ",
-				"globalSearch": "वैश्विक खोज",
-				"listView": "सूची दृश्य पर स्विच करें",
-				"nextTask": "अगला कार्य",
-				"openCommandPalette": "कमांड पैलेट खोलें",
-				"openTask": "चयनित कार्य खोलें",
-				"prevTask": "पिछला कार्य",
-				"quickSelectNumber": "संख्या द्वारा विकल्प चुनें",
-				"showShortcuts": "कीबोर्ड शॉर्टकट दिखाएँ",
-				"toggleSidebar": "साइडबार टॉगल करें"
-			},
-			"searchPlaceholder": "शॉर्टकट खोजें...",
-			"subtitle": "कीबोर्ड शॉर्टकट से अपने कार्यप्रवाह को तेज़ करें",
-			"title": "कीबोर्ड शॉर्टकट"
 		}
 	},
 	"notifications": {
@@ -3297,6 +3266,20 @@
 		"movedFromOtherProject": "moved task from another project to \"{{to}}\""
 	},
 	"tasks": {
+		"dateFilter": {
+			"startDate": "आरंभ तिथि",
+			"noDate": "कोई तिथि नहीं",
+			"condition": "तिथि की शर्त",
+			"exact": "निश्चित तिथि",
+			"range": "तिथि सीमा",
+			"before": "से पहले",
+			"after": "के बाद",
+			"apply": "तिथि फ़िल्टर लागू करें",
+			"exactValue": "{{date}} को",
+			"beforeValue": "{{date}} से पहले",
+			"afterValue": "{{date}} के बाद",
+			"rangeValue": "{{date}} – {{end}}"
+		},
 		"title": "कार्य",
 		"status": {
 			"label": "स्थिति",
@@ -3851,7 +3834,9 @@
 			"showOnRows": "पंक्तियों में दिखाएँ",
 			"checklistProgress": "चेकलिस्ट प्रगति",
 			"projectBackground": "प्रोजेक्ट पृष्ठभूमि",
-			"layout": "लेआउट"
+			"layout": "लेआउट",
+			"includeSubtasks": "उपकार्य शामिल करें",
+			"useProjectDefault": "प्रोजेक्ट का डिफ़ॉल्ट इस्तेमाल करें"
 		},
 		"filterBar": {
 			"label": "सक्रिय फ़िल्टर",
@@ -3895,6 +3880,21 @@
 			"startsOn": "शुरुआत: {{date}}",
 			"beforeStart": "{{date}} प्रारंभ तारीख से पहले है",
 			"afterDue": "{{date}} नियत तारीख के बाद है"
+		},
+		"timeTracking": {
+			"empty": "अभी तक कोई समय दर्ज नहीं किया गया है।",
+			"loadError": "समय प्रविष्टियाँ लोड नहीं हो सकीं।",
+			"retry": "फिर से प्रयास करें",
+			"running": "चल रहा है",
+			"start": "टाइमर शुरू करें",
+			"startError": "टाइमर शुरू नहीं हो सका।",
+			"stop": "टाइमर रोकें",
+			"stopError": "टाइमर रोका नहीं जा सका।",
+			"title": "समय ट्रैकिंग",
+			"unknownUser": "अज्ञात",
+			"durationSeconds": "{{seconds, number}} से",
+			"durationMinutes": "{{minutes, number}} मि",
+			"durationHoursMinutes": "{{hours, number}} घं {{minutes, number}} मि"
 		},
 		"sprints": {
 			"activeBadge": "सक्रिय",
