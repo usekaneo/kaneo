@@ -1,10 +1,12 @@
 import { useLocation, useParams } from "@tanstack/react-router";
 import { produce } from "immer";
 import {
+  Bug,
   CalendarIcon,
   CircleAlert,
   Check,
   FolderKanban,
+  ListChecks,
   Plus,
   Search,
   Tag,
@@ -240,15 +242,15 @@ function CreateTaskModalContent({
   const titleRef = useAutoGrowTextarea(title);
   const [description, setDescription] = useState("");
   const [priority, setPriority] = useState<Priority>("no-priority");
+  // Bugs route to the active sprint on creation; every other type starts in
+  // the backlog (docs/sprints, FR-12/FR-13).
+  const [taskType, setTaskType] = useState<"task" | "bug">("task");
   const [assigneeId, setAssigneeId] = useState("");
   const [startDate, setStartDate] = useState<Date | undefined>(undefined);
   const [dueDate, setDueDate] = useState<Date | undefined>(undefined);
   const [recurrence, setRecurrence] = useState<TaskRecurrence | null>(null);
   const [startDateOpen, setStartDateOpen] = useState(false);
   const [dueDateOpen, setDueDateOpen] = useState(false);
-  const [projectOpen, setProjectOpen] = useState(false);
-  const [priorityOpen, setPriorityOpen] = useState(false);
-  const [assigneeOpen, setAssigneeOpen] = useState(false);
   const [createMore, setCreateMore] = useState(false);
   const [labels, setLabels] = useState<Label[]>([]);
   const [discardConfirmationOpen, setDiscardConfirmationOpen] = useState(false);
@@ -567,6 +569,7 @@ function CreateTaskModalContent({
           description: description.trim() || "",
           userId: selectedUser?.id ?? "",
           priority,
+          type: taskType,
           projectId: resolvedProjectId,
           startDate: startDate ? startDate.toISOString() : undefined,
           dueDate: dueDate ? dueDate.toISOString() : undefined,
@@ -614,6 +617,7 @@ function CreateTaskModalContent({
         setTitle("");
         setDescription("");
         setPriority("no-priority");
+        setTaskType("task");
         setAssigneeId("");
         setStartDate(undefined);
         setDueDate(undefined);
@@ -863,7 +867,7 @@ function CreateTaskModalContent({
 
             <div className="flex flex-wrap items-center gap-2 py-2">
               {!explicitProjectId && (
-                <Popover open={projectOpen} onOpenChange={setProjectOpen}>
+                <Popover>
                   <PopoverTrigger asChild>
                     <button
                       type="button"
@@ -900,7 +904,6 @@ function CreateTaskModalContent({
                               !submittingRef.current
                             ) {
                               setSelectedProjectId(workspaceProject.id);
-                              setProjectOpen(false);
                             }
                           }}
                         >
@@ -960,7 +963,7 @@ function CreateTaskModalContent({
                 </PopoverContent>
               </Popover>
 
-              <Popover open={priorityOpen} onOpenChange={setPriorityOpen}>
+              <Popover>
                 <PopoverTrigger asChild>
                   <button
                     type="button"
@@ -986,10 +989,7 @@ function CreateTaskModalContent({
                         key={option.value}
                         type="button"
                         className="w-full flex items-center gap-2 px-2 py-1.5 text-sm hover:bg-accent/50 text-left transition-colors h-8"
-                        onClick={() => {
-                          setPriority(option.value as Priority);
-                          setPriorityOpen(false);
-                        }}
+                        onClick={() => setPriority(option.value as Priority)}
                       >
                         {getPriorityIcon(option.value)}
                         <span className="text-sm">{option.label}</span>
@@ -1002,7 +1002,37 @@ function CreateTaskModalContent({
                 </PopoverContent>
               </Popover>
 
-              <Popover open={assigneeOpen} onOpenChange={setAssigneeOpen}>
+              <button
+                type="button"
+                role="switch"
+                aria-checked={taskType === "bug"}
+                aria-label={t("tasks:type.label")}
+                title={t("tasks:type.label")}
+                className={cn(
+                  "flex items-center gap-1.5 px-2.5 py-1.5 text-xs font-medium rounded-md transition-colors border border-border hover:bg-accent/50",
+                  taskType === "bug"
+                    ? "bg-accent/30 text-foreground"
+                    : "text-muted-foreground",
+                )}
+                onClick={() =>
+                  setTaskType((previous) =>
+                    previous === "bug" ? "task" : "bug",
+                  )
+                }
+              >
+                {taskType === "bug" ? (
+                  <Bug className="w-3.5 h-3.5" />
+                ) : (
+                  <ListChecks className="w-3.5 h-3.5" />
+                )}
+                <span>
+                  {taskType === "bug"
+                    ? t("tasks:type.bug")
+                    : t("tasks:type.task")}
+                </span>
+              </button>
+
+              <Popover>
                 <PopoverTrigger asChild>
                   <button
                     type="button"
@@ -1039,10 +1069,7 @@ function CreateTaskModalContent({
                     <button
                       type="button"
                       className="w-full flex items-center gap-2 px-2 py-1.5 text-sm hover:bg-accent/50 text-left transition-colors h-8"
-                      onClick={() => {
-                        setAssigneeId("");
-                        setAssigneeOpen(false);
-                      }}
+                      onClick={() => setAssigneeId("")}
                     >
                       <div
                         className="w-6 h-6 rounded-full bg-muted border border-border flex items-center justify-center"
@@ -1064,10 +1091,7 @@ function CreateTaskModalContent({
                         key={member.id}
                         type="button"
                         className="w-full flex items-center gap-2 px-2 py-1.5 text-sm hover:bg-accent/50 text-left transition-colors h-8"
-                        onClick={() => {
-                          setAssigneeId(member.id);
-                          setAssigneeOpen(false);
-                        }}
+                        onClick={() => setAssigneeId(member.id)}
                       >
                         <Avatar className="h-6 w-6">
                           <AvatarImage
