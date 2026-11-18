@@ -110,9 +110,56 @@ sit in a sprint stay planned. The backlog counters follow the same rule.
 `apps/docs/openapi.json` documents `includeSubtasks` on the project
 schemas and the update body, `isSubtask` on the task schema, and the sprint
 additions (task `sprintId`/`type`, project `defaultSprintLengthDays`,
-sprint endpoints, and the import progress stage), matching the restored
-code. `pnpm openapi:check` remains the source of truth; regenerate after
-route changes.
+the sprint endpoints, and the `sprints` count in the import report),
+matching the branch sources. `pnpm openapi:check` remains the source of
+truth; regenerate after route changes.
+
+The committed file was rebuilt for this branch because an earlier copy
+carried entries from a different tree: an `/admin/branding` path and
+`Branding` schema with no matching route, an import `stage` field, and
+`attachments`/`users` import counters that the branch's import pipeline
+does not track. The sprint paths now sit where the branch registers its
+routes (after the column endpoints), the sprint schemas are emitted where
+those paths are first referenced, and every property order follows the
+zod definitions: `sprintId`/`type` after `priority` on tasks,
+`type`/`sprintId` after `status` in the create-task body, and
+`includeSubtasks` first on the project schema, as on main.
+
+## CI alignment
+
+The first CI run on the branch after the review round failed in the
+typecheck, unit, and quality steps. Each failure is fixed without removing
+sprint behaviour:
+
+- **Missing module.** The sprint controllers import
+  `integrations/map-unique-violation`, but the module itself was missing.
+  It now exists, maps PostgreSQL unique-violation errors (`23505`,
+  including `error.constraint`) to the documented `409` responses, and is
+  covered by unit tests.
+- **Import writer contract.** `planImportSprints` is the single source of
+  planning: only the first active sprint stays active, later active
+  sprints are planned as future so a source's overlapping history does not
+  create two active sprints. The writer tests now build `PlannedImportSprint`
+  fixtures instead of raw `ImportedSprint` objects, and `planImportTasks`
+  accepts the sprint id map as an optional argument with a default, so
+  callers from main-level tests keep compiling.
+- **Sprint id mapping.** `planImportTasks` resolves each task's
+  `sprintKey` against the planned sprint ids; the map is optional so tasks
+  without sprints still import. The Jira mapper treats `issueSprint` as
+  optional with an empty-map default, which keeps the main-level Jira
+  tests valid while the sprint-aware path stays on.
+- **Import progress report.** `ImportCounts` gains a `sprints` field, set
+  from the written sprint plan, matching the documented schema and the
+  claim above; there is deliberately no `stage`, `attachments`, or
+  `users` counter because this branch does not track them.
+- **Subtask fields.** The task detail response selects `isSubtask` again,
+  the board task schema carries it, the project schema lists
+  `includeSubtasks` first like main, and the project settings autosave and
+  form-value tests match the restored behaviour.
+- **Web test isolation.** The board, Gantt, and project task view tests
+  mock the sprint query hook so the sprint components render in isolation;
+  the relations test covers the `TASK_MOVED` invalidation again, and the
+  date filter bar test restores its lost coverage.
 
 ## Changelog
 
