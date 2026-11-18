@@ -1,6 +1,6 @@
 import { eq } from "drizzle-orm";
 import { beforeEach, describe, expect, it, vi } from "vite-plus/test";
-import db, { schema } from "../../apps/api/src/database";
+import db, { getDatabase, schema } from "../../apps/api/src/database";
 import createIntegration from "../../apps/api/src/github-integration/controllers/create-github-integration";
 import deleteIntegration from "../../apps/api/src/github-integration/controllers/delete-github-integration";
 import { initialImportState } from "../../apps/api/src/github-integration/import-state";
@@ -259,8 +259,11 @@ describe("GitHub repository changes preserve link ownership", () => {
       // the transaction handle the controller passes around. The settings
       // route still resolves the row through db.query.findFirst before the
       // guarded write, so the plain spy covers that branch.
-      const runOriginalTransaction = db.transaction.bind(db);
-      const transactionSpy = vi.spyOn(db, "transaction");
+      // The default export forwards through a proxy, so the spy needs the
+      // real drizzle instance underneath it.
+      const database = getDatabase();
+      const runOriginalTransaction = database.transaction.bind(database);
+      const transactionSpy = vi.spyOn(database, "transaction");
       if (operation === "reconnect") {
         // The implementation runs the real transaction, but wraps its
         // reconcile lookup so the row changes on another connection
