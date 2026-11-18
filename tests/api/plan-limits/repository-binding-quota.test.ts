@@ -13,9 +13,13 @@ const {
 } = await import("../../../apps/api/src/plan-limits/repository-binding-quota");
 const { publishEvent } = await import("../../../apps/api/src/events");
 
-// Minimal drizzle-shaped stubs. The helpers run, in order:
+// Minimal drizzle-shaped stubs. The helpers chain the same builder two ways:
 //   resolveRepositoryBindingLimits -> select().from().where().limit() (awaited)
 //   countActiveRepositoryBindings  -> select().from().where()         (awaited)
+// The where() stub therefore returns an object that is both chainable
+// (a limit() method) and awaitable (a then() that resolves to the count rows),
+// in any order and any number of times, so tests that call only one helper
+// cannot leave a call-order "stage" behind.
 function fakeDatabase({
   limitRow,
   countRow,
@@ -23,21 +27,16 @@ function fakeDatabase({
   limitRow: unknown[];
   countRow: { count: number };
 }) {
-  let stage: "limit" | "count" = "limit";
   return {
-    select: () =>
-      stage === "limit"
-        ? {
-            from: () => ({
-              where: () => ({
-                limit: async () => {
-                  stage = "count";
-                  return limitRow;
-                },
-              }),
-            }),
-          }
-        : { from: () => ({ where: async () => [countRow] }) },
+    select: () => ({
+      from: () => ({
+        where: () => ({
+          limit: async () => limitRow,
+          then: (resolve: never, reject: never) =>
+            Promise.resolve([countRow]).then(resolve, reject),
+        }),
+      }),
+    }),
   } as never;
 }
 
