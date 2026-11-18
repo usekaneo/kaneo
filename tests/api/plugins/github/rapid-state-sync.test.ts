@@ -1,12 +1,7 @@
 import { beforeEach, expect, it, vi } from "vite-plus/test";
 import { handleTaskStatusChanged as github } from "../../../../apps/api/src/plugins/github/events/task-status-changed";
 import { handleTaskStatusChanged as gitea } from "../../../../apps/api/src/plugins/gitea/events/task-status-changed";
-const m = vi.hoisted(() => ({
-  status: "",
-  remote: "",
-  write: vi.fn(),
-  save: vi.fn(),
-}));
+const m = vi.hoisted(() => ({ status: "", write: vi.fn(), save: vi.fn() }));
 vi.mock("../../../../apps/api/src/database", () => ({
   default: {
     query: {
@@ -35,7 +30,6 @@ vi.mock("../../../../apps/api/src/plugins/github/utils/github-app", () => ({
   getVerifiedInstallationOctokit: async () => ({
     rest: {
       issues: {
-        get: async () => ({ data: { state: m.remote } }),
         update: async ({ state }: { state: string }) => ({
           data: await m.write(state),
         }),
@@ -45,7 +39,6 @@ vi.mock("../../../../apps/api/src/plugins/github/utils/github-app", () => ({
 }));
 vi.mock("../../../../apps/api/src/plugins/gitea/utils/gitea-api", () => ({
   createGiteaClient: () => ({
-    getIssue: async () => ({ state: m.remote }),
     updateIssue: async (
       _owner: string,
       _repo: string,
@@ -97,14 +90,14 @@ it.each([
     const started = deferred();
     const release = deferred();
     let first = true;
-    m.remote = finalState;
+    let remote = finalState;
     m.write.mockImplementation(async (state: string) => {
       if (first) {
         first = false;
         started.resolve();
         await release.promise;
       }
-      m.remote = state;
+      remote = state;
       return { updated_at: `${state}-stamp` };
     });
     m.status = firstState === "closed" ? "done" : "in-progress";
@@ -122,14 +115,13 @@ it.each([
       { ...event, oldStatus: event.newStatus, newStatus: m.status },
       context,
     );
-    expect(m.remote).toBe(finalState);
+    expect(remote).toBe(finalState);
     release.resolve();
     await older;
-    expect(m.remote).toBe(finalState);
-    // The second move sees the issue already in its state and sends nothing;
-    // the late first response is repaired back to the current task state.
+    expect(remote).toBe(finalState);
     expect(m.write.mock.calls.map(([state]) => state)).toEqual([
       firstState,
+      finalState,
       finalState,
     ]);
     expect(m.save.mock.calls.at(-1)?.[1]).toMatchObject({

@@ -92,12 +92,11 @@ it.each(["gitea", "gitlab"] as const)(
     try {
       await vi.waitFor(() => expect(verify).toHaveBeenCalledOnce());
       const preview = await previewSyncRules(
-        await getSyncIntegration(project.id, type),
+        await getSyncIntegration(integration.id),
         rules,
       );
       await saveSyncRules(
-        project.id,
-        type,
+        integration.id,
         rules,
         preview.previewToken,
         workspace.id,

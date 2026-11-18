@@ -54,7 +54,7 @@ it.each(["gitea", "gitlab"] as const)(
         ? "commentTaskLinkOnGiteaIssue"
         : "commentTaskLinkOnGitlabIssue";
     const patch = () =>
-      app.request(`/api/${type}-integration/project/${project.id}`, {
+      app.request(`/api/${type}-integration/integration/${integration.id}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ [property]: false }),
@@ -79,12 +79,11 @@ it.each(["gitea", "gitlab"] as const)(
     try {
       await vi.waitFor(() => expect(validation).toHaveBeenCalledOnce());
       const preview = await previewSyncRules(
-        await getSyncIntegration(project.id, type),
+        await getSyncIntegration(integration.id),
         rules,
       );
       await saveSyncRules(
-        project.id,
-        type,
+        integration.id,
         rules,
         preview.previewToken,
         member.workspace.id,

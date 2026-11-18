@@ -22,19 +22,19 @@ vi.mock("../../../apps/api/src/database", () => ({
   },
 }));
 
-const { default: getGitlabIntegration } =
+const { getGitlabIntegrationById } =
   await import("../../../apps/api/src/gitlab-integration/controllers/get-gitlab-integration");
 
-describe("getGitlabIntegration secrets", () => {
+describe("getGitlabIntegrationById secrets", () => {
   it("returns no token hint or webhook secret to other members", async () => {
-    const integration = await getGitlabIntegration("project-1");
+    const integration = await getGitlabIntegrationById("integration-1");
 
     expect(integration?.maskedAccessToken).toBe("");
     expect(integration?.webhookSecret).toBe("");
   });
 
   it("returns the token hint and webhook secret to settings managers", async () => {
-    const integration = await getGitlabIntegration("project-1", true);
+    const integration = await getGitlabIntegrationById("integration-1", true);
 
     expect(integration?.maskedAccessToken).toBe("glpa••••••mnop");
     expect(integration?.webhookSecret).toBe("webhook-secret");

@@ -38,6 +38,33 @@ describe("github and gitea import permissions", () => {
       const { project } = await createProjectFixture({
         workspaceId: member.workspace.id,
       });
+      // The github import route is keyed by integration id (RFC 0001 WP2);
+      // gitea keeps the project-keyed body until WP3.
+      const [integration] = await db
+        .insert(schema.integrationTable)
+        .values({
+          projectId: project.id,
+          type,
+          isActive: true,
+          config: JSON.stringify(
+            type === "github"
+              ? {
+                  repositoryOwner: "example",
+                  repositoryName: "repo",
+                  installationId: 1,
+                  repositoryId: 2,
+                  verifiedGithubAccountId: "3",
+                  verifiedByUserId: member.user.id,
+                }
+              : {
+                  baseUrl: "https://gitea.example",
+                  accessToken: "fake-test-token",
+                  repositoryOwner: "owner",
+                  repositoryName: "repo",
+                },
+          ),
+        })
+        .returning();
       mockAuthenticatedSession(member.user);
       const { app } = createApp();
       const response = await app.request(
@@ -45,7 +72,11 @@ describe("github and gitea import permissions", () => {
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ projectId: project.id }),
+          body: JSON.stringify(
+            type === "github"
+              ? { integrationId: integration!.id }
+              : { projectId: project.id },
+          ),
         },
       );
       expect(response.status).toBe(403);

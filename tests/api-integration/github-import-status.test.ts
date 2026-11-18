@@ -89,9 +89,11 @@ async function storedTask() {
 
 describe("GitHub import project workflow validation", () => {
   it("maps arbitrary external statuses to a real local column for new tasks", async () => {
-    const { project, columns } = await setup();
+    const { integration, columns } = await setup();
     m.labels = ["status:hidden"];
-    expect(await importIssues(project.id)).toMatchObject({ imported: 1 });
+    expect(await importIssues({ integrationId: integration.id })).toMatchObject(
+      { imported: 1 },
+    );
     expect(await storedTask()).toMatchObject({
       status: "to-do",
       columnId: columns.todo.id,
@@ -99,11 +101,13 @@ describe("GitHub import project workflow validation", () => {
   });
 
   it("preserves an existing valid status when reimport has an unknown label", async () => {
-    const { project, columns } = await setup();
+    const { integration, columns } = await setup();
     m.labels = ["status:in-progress"];
-    await importIssues(project.id);
+    await importIssues({ integrationId: integration.id });
     m.labels = ["status:hidden"];
-    expect(await importIssues(project.id)).toMatchObject({ updated: 1 });
+    expect(await importIssues({ integrationId: integration.id })).toMatchObject(
+      { updated: 1 },
+    );
     expect(await storedTask()).toMatchObject({
       status: "in-progress",
       columnId: columns.inProgress.id,
@@ -111,19 +115,19 @@ describe("GitHub import project workflow validation", () => {
   });
 
   it("uses custom columns belonging to the imported project and updates columnId together", async () => {
-    const { project, columns } = await setup();
+    const { integration, columns } = await setup();
     await db
       .update(schema.columnTable)
       .set({ slug: "ready", name: "Ready" })
       .where(eq(schema.columnTable.id, columns.todo.id));
     m.labels = ["status:hidden"];
-    await importIssues(project.id);
+    await importIssues({ integrationId: integration.id });
     expect(await storedTask()).toMatchObject({
       status: "ready",
       columnId: columns.todo.id,
     });
     m.labels = ["status:in-review"];
-    await importIssues(project.id);
+    await importIssues({ integrationId: integration.id });
     expect(await storedTask()).toMatchObject({
       status: "in-review",
       columnId: columns.inReview.id,
@@ -133,20 +137,20 @@ describe("GitHub import project workflow validation", () => {
   it.each(["planned", "archived"])(
     "allows virtual status %s and clears the old column",
     async (status) => {
-      const { project } = await setup();
-      await importIssues(project.id);
+      const { integration } = await setup();
+      await importIssues({ integrationId: integration.id });
       m.labels = [`status:${status}`];
-      await importIssues(project.id);
+      await importIssues({ integrationId: integration.id });
       expect(await storedTask()).toMatchObject({ status, columnId: null });
     },
   );
 
   it("uses planned without workflow columns and repairs an invalid legacy status on reimport", async () => {
-    const { project } = await setup();
+    const { project, integration } = await setup();
     await db
       .delete(schema.columnTable)
       .where(eq(schema.columnTable.projectId, project.id));
-    await importIssues(project.id);
+    await importIssues({ integrationId: integration.id });
     expect(await storedTask()).toMatchObject({
       status: "planned",
       columnId: null,
@@ -158,7 +162,7 @@ describe("GitHub import project workflow validation", () => {
       .set({ status: "hidden" })
       .where(eq(schema.taskTable.id, task.id));
     m.labels = ["status:hidden"];
-    await importIssues(project.id);
+    await importIssues({ integrationId: integration.id });
     expect(await storedTask()).toMatchObject({
       status: "planned",
       columnId: null,
@@ -166,7 +170,7 @@ describe("GitHub import project workflow validation", () => {
   });
 
   it("does not mutate another project's task through a legacy external link", async () => {
-    const { project, integration, workspace } = await setup();
+    const { integration, workspace } = await setup();
     const { project: other } = await createProjectFixture({
       workspaceId: workspace.id,
     });
@@ -182,11 +186,13 @@ describe("GitHub import project workflow validation", () => {
       url: "https://github.com/example/repo/issues/1",
     });
     m.labels = ["status:archived"];
-    expect(await importIssues(project.id)).toMatchObject({
-      imported: 0,
-      updated: 0,
-      skipped: 1,
-    });
+    expect(await importIssues({ integrationId: integration.id })).toMatchObject(
+      {
+        imported: 0,
+        updated: 0,
+        skipped: 1,
+      },
+    );
     expect(await storedTask()).toMatchObject({
       title: "Untouched",
       status: "to-do",

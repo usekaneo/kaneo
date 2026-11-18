@@ -8,6 +8,7 @@ const m = vi.hoisted(() => ({
   permission: vi.fn(),
   repo: vi.fn(),
   insert: vi.fn(),
+  insertReturning: vi.fn(),
   listInstallations: vi.fn(),
   listRepos: vi.fn(),
 }));
@@ -24,12 +25,17 @@ vi.mock("../../../apps/api/src/database", () => ({
     insert: () => ({
       values: (data: unknown) => {
         m.insert(data);
-        return {
-          returning: async () => [{ id: "integration", projectId: "project" }],
-        };
+        return { returning: m.insertReturning };
       },
     }),
   },
+}));
+// RFC 0001 WP10: the create controller enforces the repository binding quota
+// before the insert; the wiring itself is covered by the plan-limits tests.
+vi.mock("../../../apps/api/src/plan-limits/repository-binding-quota", () => ({
+  assertRepositoryBindingQuota: vi.fn(async () => {}),
+  countActiveRepositoryBindings: vi.fn(async () => 0),
+  getRepositoryBindingUsage: vi.fn(async () => ({ used: 0, limit: null })),
 }));
 vi.mock("../../../apps/api/src/plugins/github/utils/github-app", () => ({
   getGithubApp: () => ({
@@ -74,6 +80,10 @@ beforeEach(() => {
   m.repo.mockResolvedValue({
     data: { id: 20, owner: { login: "Victim" }, name: "Private" },
   });
+  m.integrations.mockReset().mockResolvedValue([]);
+  m.insertReturning
+    .mockReset()
+    .mockResolvedValue([{ id: "integration", projectId: "project" }]);
 });
 
 describe("GitHub repository linking", () => {
@@ -123,7 +133,7 @@ describe("GitHub repository linking", () => {
     ).rejects.toMatchObject({ status: 403 });
     expect(m.insert).not.toHaveBeenCalled();
   });
-  it("does not consult another tenant's integrations when linking", async () => {
+  it("inserts one binding row keyed by the numeric repository id", async () => {
     await createIntegration({
       userId: "user",
       projectId: "project",
@@ -131,6 +141,15 @@ describe("GitHub repository linking", () => {
       repositoryName: "private",
     });
     expect(m.integrations).not.toHaveBeenCalled();
+    expect(m.insert.mock.calls[0][0]).toMatchObject({
+      projectId: "project",
+      type: "github",
+      repositoryKey: "github:20",
+      repositoryOwner: "Victim",
+      repositoryName: "Private",
+      repositoryId: 20,
+      isActive: true,
+    });
     expect(JSON.parse(m.insert.mock.calls[0][0].config)).toMatchObject(binding);
   });
   it("rejects an unexpected identity response", async () => {
@@ -142,30 +161,75 @@ describe("GitHub repository linking", () => {
     });
     expect(m.permission).not.toHaveBeenCalled();
   });
+  it("maps a same-project duplicate insert to a 409 with the documented code", async () => {
+    m.insertReturning.mockRejectedValueOnce({
+      code: "23505",
+      constraint: "integration_project_type_repo_unique",
+    });
+    const error = await createIntegration({
+      userId: "user",
+      projectId: "project",
+      repositoryOwner: "victim",
+      repositoryName: "private",
+    }).then(
+      () => {
+        throw new Error("expected the duplicate insert to be rejected");
+      },
+      (rejected) => rejected,
+    );
+    expect(error.status).toBe(409);
+    expect(JSON.parse(await error.getResponse().text())).toMatchObject({
+      code: "repository_already_linked",
+      projectId: "project",
+      type: "github",
+    });
+  });
+  it("rethrows unique violations of other constraints unchanged", async () => {
+    const otherConstraint = {
+      code: "23505",
+      constraint: "integration_project_type_null_repo_unique",
+    };
+    m.insertReturning.mockRejectedValueOnce(otherConstraint);
+    const error = await createIntegration({
+      userId: "user",
+      projectId: "project",
+      repositoryOwner: "victim",
+      repositoryName: "private",
+    }).then(
+      () => {
+        throw new Error("expected the insert failure to propagate");
+      },
+      (rejected) => rejected,
+    );
+    expect(error).toBe(otherConstraint);
+  });
 });
 
-describe("GitHub webhook binding", () => {
-  const source = { repository: { id: 20 }, installation: { id: 10 } };
-  it("delivers only to verified bindings for both immutable identifiers", async () => {
+describe("GitHub webhook binding (repository_key lookup)", () => {
+  const source = {
+    repository: { id: 20, name: "private", owner: { login: "victim" } },
+    installation: { id: 10 },
+  };
+  it("delivers to every verified binding of the repository through the same installation", async () => {
     const entries = [
-      { id: "legitimate", config: JSON.stringify(binding) },
+      {
+        id: "legitimate",
+        config: JSON.stringify(binding),
+        project: { id: "a" },
+      },
+      {
+        // Decision D1: the same repository may be bound in several projects.
+        id: "fan-out-second-project",
+        config: JSON.stringify(binding),
+        project: { id: "b" },
+      },
       {
         id: "different-installation",
         config: JSON.stringify({ ...binding, installationId: 11 }),
+        project: { id: "c" },
       },
       {
-        id: "same-name-different-repo",
-        config: JSON.stringify({ ...binding, repositoryId: 21 }),
-      },
-      {
-        id: "legacy-name-only",
-        config: JSON.stringify({
-          repositoryOwner: "Victim",
-          repositoryName: "Private",
-          installationId: 10,
-        }),
-      },
-      {
+        // Unverified legacy binding: no verified account coordinates.
         id: "unverified-ids",
         config: JSON.stringify({
           repositoryOwner: "Victim",
@@ -173,11 +237,31 @@ describe("GitHub webhook binding", () => {
           installationId: 10,
           repositoryId: 20,
         }),
+        project: { id: "d" },
       },
-      { id: "malformed", config: "invalid" },
+      { id: "malformed", config: "invalid", project: { id: "e" } },
     ];
     m.integrations.mockResolvedValue(entries);
-    expect(await findAllIntegrationsByRepo(source)).toEqual([entries[0]]);
+    expect(await findAllIntegrationsByRepo(source)).toEqual([
+      entries[0],
+      entries[1],
+    ]);
+  });
+  it("falls back to the legacy owner/name key when the numeric key has no bindings", async () => {
+    const legacy = { id: "legacy", config: JSON.stringify(binding) };
+    m.integrations.mockResolvedValueOnce([]).mockResolvedValueOnce([legacy]);
+    expect(await findAllIntegrationsByRepo(source)).toEqual([legacy]);
+    expect(m.integrations).toHaveBeenCalledTimes(2);
+  });
+  it("skips the legacy fallback when the event lacks repository coordinates", async () => {
+    m.integrations.mockResolvedValueOnce([]);
+    expect(
+      await findAllIntegrationsByRepo({
+        repository: { id: 20 },
+        installation: { id: 10 },
+      }),
+    ).toEqual([]);
+    expect(m.integrations).toHaveBeenCalledTimes(1);
   });
   it("ignores events without an installation before querying tenant data", async () => {
     expect(await findAllIntegrationsByRepo({ repository: { id: 20 } })).toEqual(
@@ -189,6 +273,8 @@ describe("GitHub webhook binding", () => {
 
 const { default: listUserRepositories } =
   await import("../../../apps/api/src/github-integration/controllers/list-user-repositories");
+const { annotateLinkedState } =
+  await import("../../../apps/api/src/github-integration/controllers/annotate-linked-state");
 describe("authorized bounded repository listing", () => {
   const candidate = (id: number) => ({
     id,
@@ -224,6 +310,28 @@ describe("authorized bounded repository listing", () => {
     expect(m.listRepos).toHaveBeenCalledWith(
       expect.objectContaining({ per_page: 20, page: 1 }),
     );
+  });
+  it("annotates each listed repository with its linked state in one query", async () => {
+    m.integrations.mockResolvedValue([
+      {
+        id: "integration",
+        projectId: "project",
+        repositoryKey: "github:20",
+        project: { name: "Kaneo" },
+      },
+    ]);
+    const page = await listUserRepositories("user", {
+      installationPage: 1,
+      repositoryPage: 1,
+    });
+    const annotated = await annotateLinkedState(page.repositories);
+    expect(m.integrations).toHaveBeenCalledTimes(1);
+    expect(annotated[0].linkedTo).toEqual({
+      integrationId: "integration",
+      projectId: "project",
+      projectName: "Kaneo",
+    });
+    expect(annotated[1].linkedTo).toBeNull();
   });
   it("does not expose an unauthorized installation's metadata", async () => {
     m.permission.mockResolvedValue({ data: { permission: "read" } });

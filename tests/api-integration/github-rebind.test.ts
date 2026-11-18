@@ -148,7 +148,7 @@ describe("GitHub repository changes preserve link ownership", () => {
   });
   it("permits switching after disconnect without reusing old links or import cursors", async () => {
     const { project, config, integration, task, connect } = await setup();
-    await deleteIntegration(project.id);
+    await deleteIntegration(integration.id);
     verify.mockResolvedValue({
       ...config,
       repositoryId: 99,
@@ -187,7 +187,7 @@ describe("GitHub repository changes preserve link ownership", () => {
           await expect(connect()).rejects.toMatchObject({ status: 409 });
         else {
           const response = await app.request(
-            `/api/github-integration/project/${project.id}`,
+            `/api/github-integration/integration/${integration.id}`,
             {
               method: "PATCH",
               headers: { "Content-Type": "application/json" },
