@@ -4,7 +4,7 @@
   "type": "module",
   "scripts": {
     "build": "vp run -r build",
-    "dev": "vp run build:dependencies && vp run -r --parallel dev",
+    "dev": "vp run build:dependencies && vp run --filter \"@kaneo/*\" --filter \"!@kaneo/cli\" --parallel dev",
     "i18n:check": "node ./scripts/i18n/check.mjs",
     "i18n:check:fix": "node ./scripts/i18n/check.mjs --fix",
     "openapi:check": "node ./scripts/openapi/check.mjs",
@@ -21,7 +21,7 @@
     "typecheck": "vp run -r typecheck",
     "prepare": "husky",
     "format": "vp fmt",
-    "build:dependencies": "vp run --filter \"@kaneo/*^...\" build"
+    "build:dependencies": "vp run --fail-if-no-match --filter \"./packages/*\" build"
   },
   "devDependencies": {
     "@commitlint/cli": "^21.2.4",
