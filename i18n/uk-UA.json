@@ -3177,37 +3177,6 @@
 			"then": "потім",
 			"or": "або",
 			"thenEllipsis": "потім…"
-		},
-		"keyboardShortcuts": {
-			"categories": {
-				"create": "Створення",
-				"general": "Загальні",
-				"navigation": "Навігація",
-				"quickSelect": "Швидкий вибір (у спливаючих вікнах)",
-				"views": "Перегляди"
-			},
-			"footer": "Натисніть <kbd>Escape</kbd>, щоб закрити",
-			"items": {
-				"backlogView": "Перемкнути на вигляд беклогу",
-				"boardView": "Перемкнути на вигляд дошки",
-				"calendarView": "Перемкнути на вигляд календаря",
-				"closeModal": "Закрити модальне/спливаюче вікно",
-				"createProject": "Створити проєкт",
-				"createTask": "Створити завдання",
-				"createWorkspace": "Створити робочий простір",
-				"globalSearch": "Глобальний пошук",
-				"listView": "Перемкнути на вигляд списку",
-				"nextTask": "Наступне завдання",
-				"openCommandPalette": "Відкрити командну палітру",
-				"openTask": "Відкрити обране завдання",
-				"prevTask": "Попереднє завдання",
-				"quickSelectNumber": "Обрати варіант за номером",
-				"showShortcuts": "Показати гарячі клавіші",
-				"toggleSidebar": "Перемикач бічної панелі"
-			},
-			"searchPlaceholder": "Пошук гарячих клавіш...",
-			"subtitle": "Прискорте роботу за допомогою гарячих клавіш",
-			"title": "Гарячі клавіші"
 		}
 	},
 	"notifications": {
@@ -3411,6 +3380,20 @@
 		"movedFromOtherProject": "moved task from another project to \"{{to}}\""
 	},
 	"tasks": {
+		"dateFilter": {
+			"startDate": "Дата початку",
+			"noDate": "Без дати",
+			"condition": "Умова за датою",
+			"exact": "Точна дата",
+			"range": "Діапазон дат",
+			"before": "До",
+			"after": "Після",
+			"apply": "Застосувати фільтр за датою",
+			"exactValue": "На {{date}}",
+			"beforeValue": "До {{date}}",
+			"afterValue": "Після {{date}}",
+			"rangeValue": "{{date}} – {{end}}"
+		},
 		"title": "Завдання",
 		"status": {
 			"label": "Статус",
@@ -3995,7 +3978,9 @@
 			"showOnRows": "Показувати в рядках",
 			"checklistProgress": "Прогрес чек-листа",
 			"projectBackground": "Фон проєкту",
-			"layout": "Макет"
+			"layout": "Макет",
+			"includeSubtasks": "Включати підзавдання",
+			"useProjectDefault": "Використовувати типове налаштування проєкту"
 		},
 		"filterBar": {
 			"label": "Активні фільтри",
@@ -4045,6 +4030,21 @@
 			"startsOn": "Початок: {{date}}",
 			"beforeStart": "{{date}} раніше за дату початку",
 			"afterDue": "{{date}} пізніше за термін"
+		},
+		"timeTracking": {
+			"empty": "Час ще не записано.",
+			"loadError": "Не вдалося завантажити записи часу.",
+			"retry": "Спробувати ще раз",
+			"running": "Триває відлік",
+			"start": "Запустити таймер",
+			"startError": "Не вдалося запустити таймер.",
+			"stop": "Зупинити таймер",
+			"stopError": "Не вдалося зупинити таймер.",
+			"title": "Облік часу",
+			"unknownUser": "Невідомо",
+			"durationSeconds": "{{seconds, number}} с",
+			"durationMinutes": "{{minutes, number}} хв",
+			"durationHoursMinutes": "{{hours, number}} год {{minutes, number}} хв"
 		},
 		"sprints": {
 			"activeBadge": "Активний",

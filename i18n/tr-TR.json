@@ -3071,37 +3071,6 @@
 			"then": "sonra",
 			"or": "veya",
 			"thenEllipsis": "sonra…"
-		},
-		"keyboardShortcuts": {
-			"categories": {
-				"create": "Oluştur",
-				"general": "Genel",
-				"navigation": "Gezinme",
-				"quickSelect": "Hızlı Seçim (açılır pencerelerde)",
-				"views": "Görünümler"
-			},
-			"footer": "Kapatmak için <kbd>Escape</kbd> tuşuna basın",
-			"items": {
-				"backlogView": "Backlog görünümüne geç",
-				"boardView": "Pano görünümüne geç",
-				"calendarView": "Takvim görünümüne geç",
-				"closeModal": "Modal/açılır pencereyi kapat",
-				"createProject": "Proje oluştur",
-				"createTask": "Talep oluştur",
-				"createWorkspace": "Çalışma alanı oluştur",
-				"globalSearch": "Genel arama",
-				"listView": "Liste görünümüne geç",
-				"nextTask": "Sonraki talep",
-				"openCommandPalette": "Komut paletini aç",
-				"openTask": "Seçili talebi aç",
-				"prevTask": "Önceki talep",
-				"quickSelectNumber": "Numarayla seçenek seç",
-				"showShortcuts": "Klavye kısayollarını göster",
-				"toggleSidebar": "Kenar çubuğunu aç/kapat"
-			},
-			"searchPlaceholder": "Kısayol ara...",
-			"subtitle": "Klavye kısayollarıyla iş akışınızı hızlandırın",
-			"title": "Klavye Kısayolları"
 		}
 	},
 	"notifications": {
@@ -3297,6 +3266,20 @@
 		"movedFromOtherProject": "moved task from another project to \"{{to}}\""
 	},
 	"tasks": {
+		"dateFilter": {
+			"startDate": "Başlangıç tarihi",
+			"noDate": "Tarih yok",
+			"condition": "Tarih koşulu",
+			"exact": "Belirli tarih",
+			"range": "Tarih aralığı",
+			"before": "Önce",
+			"after": "Sonra",
+			"apply": "Tarih filtresini uygula",
+			"exactValue": "{{date}} tarihinde",
+			"beforeValue": "{{date}} tarihinden önce",
+			"afterValue": "{{date}} tarihinden sonra",
+			"rangeValue": "{{date}} – {{end}}"
+		},
 		"title": "Görevler",
 		"status": {
 			"label": "Durum",
@@ -3851,7 +3834,9 @@
 			"showOnRows": "Satırlarda göster",
 			"checklistProgress": "Kontrol listesi ilerlemesi",
 			"projectBackground": "Proje arka planı",
-			"layout": "Düzen"
+			"layout": "Düzen",
+			"includeSubtasks": "Alt görevleri dahil et",
+			"useProjectDefault": "Proje varsayılanını kullan"
 		},
 		"filterBar": {
 			"label": "Etkin filtreler",
@@ -3895,6 +3880,21 @@
 			"startsOn": "Başlangıç: {{date}}",
 			"beforeStart": "{{date}} başlangıç tarihinden önce",
 			"afterDue": "{{date}} bitiş tarihinden sonra"
+		},
+		"timeTracking": {
+			"empty": "Henüz zaman kaydedilmedi.",
+			"loadError": "Zaman kayıtları yüklenemedi.",
+			"retry": "Tekrar dene",
+			"running": "Çalışıyor",
+			"start": "Zamanlayıcıyı başlat",
+			"startError": "Zamanlayıcı başlatılamadı.",
+			"stop": "Zamanlayıcıyı durdur",
+			"stopError": "Zamanlayıcı durdurulamadı.",
+			"title": "Zaman takibi",
+			"unknownUser": "Bilinmiyor",
+			"durationSeconds": "{{seconds, number}} sn",
+			"durationMinutes": "{{minutes, number}} dk",
+			"durationHoursMinutes": "{{hours, number}} sa {{minutes, number}} dk"
 		},
 		"sprints": {
 			"activeBadge": "Aktif",

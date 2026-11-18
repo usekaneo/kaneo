@@ -3185,37 +3185,6 @@
 			"then": "затем",
 			"or": "или",
 			"thenEllipsis": "затем…"
-		},
-		"keyboardShortcuts": {
-			"categories": {
-				"create": "Создание",
-				"general": "Основные",
-				"navigation": "Навигация",
-				"quickSelect": "Быстрый выбор (в выпадающих списках)",
-				"views": "Представления"
-			},
-			"footer": "Нажмите <kbd>Escape</kbd>, чтобы закрыть",
-			"items": {
-				"backlogView": "Переключиться на бэклог",
-				"boardView": "Переключиться на доску",
-				"calendarView": "Переключиться на календарь",
-				"closeModal": "Закрыть модальное окно/всплывающее меню",
-				"createProject": "Создать проект",
-				"createTask": "Создать задачу",
-				"createWorkspace": "Создать рабочую область",
-				"globalSearch": "Глобальный поиск",
-				"listView": "Переключиться на список",
-				"nextTask": "Следующая задача",
-				"openCommandPalette": "Открыть палитру команд",
-				"openTask": "Открыть выбранную задачу",
-				"prevTask": "Предыдущая задача",
-				"quickSelectNumber": "Выбрать вариант по номеру",
-				"showShortcuts": "Показать сочетания клавиш",
-				"toggleSidebar": "Переключить боковую панель"
-			},
-			"searchPlaceholder": "Поиск сочетаний...",
-			"subtitle": "Ускорьте работу с помощью сочетаний клавиш",
-			"title": "Сочетания клавиш"
 		}
 	},
 	"notifications": {
@@ -3419,6 +3388,20 @@
 		"movedFromOtherProject": "moved task from another project to \"{{to}}\""
 	},
 	"tasks": {
+		"dateFilter": {
+			"startDate": "Дата начала",
+			"noDate": "Без даты",
+			"condition": "Условие по дате",
+			"exact": "Точная дата",
+			"range": "Диапазон дат",
+			"before": "До",
+			"after": "После",
+			"apply": "Применить фильтр по дате",
+			"exactValue": "На {{date}}",
+			"beforeValue": "До {{date}}",
+			"afterValue": "После {{date}}",
+			"rangeValue": "{{date}} – {{end}}"
+		},
 		"title": "Задачи",
 		"status": {
 			"label": "Статус",
@@ -4047,7 +4030,9 @@
 			"showOnRows": "Показывать в строках",
 			"checklistProgress": "Прогресс чек-листа",
 			"projectBackground": "Фон проекта",
-			"layout": "Макет"
+			"layout": "Макет",
+			"includeSubtasks": "Включать подзадачи",
+			"useProjectDefault": "Использовать настройку проекта по умолчанию"
 		},
 		"filterBar": {
 			"label": "Активные фильтры",
@@ -4097,6 +4082,21 @@
 			"startsOn": "Начало: {{date}}",
 			"beforeStart": "{{date}} раньше даты начала",
 			"afterDue": "{{date}} позже срока"
+		},
+		"timeTracking": {
+			"empty": "Время ещё не записано.",
+			"loadError": "Не удалось загрузить записи времени.",
+			"retry": "Повторить",
+			"running": "Идёт отсчёт",
+			"start": "Запустить таймер",
+			"startError": "Не удалось запустить таймер.",
+			"stop": "Остановить таймер",
+			"stopError": "Не удалось остановить таймер.",
+			"title": "Учёт времени",
+			"unknownUser": "Неизвестно",
+			"durationSeconds": "{{seconds, number}} с",
+			"durationMinutes": "{{minutes, number}} мин",
+			"durationHoursMinutes": "{{hours, number}} ч {{minutes, number}} мин"
 		},
 		"sprints": {
 			"activeBadge": "Активен",
