@@ -3124,37 +3124,6 @@
 			"then": "puis",
 			"or": "ou",
 			"thenEllipsis": "puis…"
-		},
-		"keyboardShortcuts": {
-			"categories": {
-				"create": "Créer",
-				"general": "Général",
-				"navigation": "Navigation",
-				"quickSelect": "Sélection rapide (dans les popovers)",
-				"views": "Vues"
-			},
-			"footer": "Appuyez sur <kbd>Echap</kbd> pour fermer",
-			"items": {
-				"backlogView": "Passer à la vue backlog",
-				"boardView": "Passer à la vue tableau",
-				"calendarView": "Passer à la vue calendrier",
-				"closeModal": "Fermer la modale/popover",
-				"createProject": "Créer un projet",
-				"createTask": "Créer une tâche",
-				"createWorkspace": "Créer un espace de travail",
-				"globalSearch": "Recherche globale",
-				"listView": "Passer à la vue de liste",
-				"nextTask": "Tâche suivante",
-				"openCommandPalette": "Ouvrir la palette de commandes",
-				"openTask": "Ouvrir la tâche sélectionnée",
-				"prevTask": "Tâche précédente",
-				"quickSelectNumber": "Sélectionner une option par numéro",
-				"showShortcuts": "Afficher les raccourcis clavier",
-				"toggleSidebar": "Basculer la barre latérale"
-			},
-			"searchPlaceholder": "Rechercher des raccourcis...",
-			"subtitle": "Accélérez votre flux de travail avec les raccourcis clavier",
-			"title": "Raccourcis clavier"
 		}
 	},
 	"notifications": {
@@ -3354,6 +3323,20 @@
 		"movedFromOtherProject": "a déplacé la tâche depuis un autre projet vers « {{to}} »"
 	},
 	"tasks": {
+		"dateFilter": {
+			"startDate": "Date de début",
+			"noDate": "Aucune date",
+			"condition": "Condition de date",
+			"exact": "Date exacte",
+			"range": "Plage de dates",
+			"before": "Avant",
+			"after": "Après",
+			"apply": "Appliquer le filtre de date",
+			"exactValue": "Le {{date}}",
+			"beforeValue": "Avant le {{date}}",
+			"afterValue": "Après le {{date}}",
+			"rangeValue": "{{date}} – {{end}}"
+		},
 		"title": "Tâches",
 		"status": {
 			"label": "Statut",
@@ -3923,7 +3906,9 @@
 			"showOnRows": "Afficher sur les lignes",
 			"checklistProgress": "Progression de la liste",
 			"projectBackground": "Arrière-plan du projet",
-			"layout": "Disposition"
+			"layout": "Disposition",
+			"includeSubtasks": "Inclure les sous-tâches",
+			"useProjectDefault": "Utiliser le réglage par défaut du projet"
 		},
 		"filterBar": {
 			"label": "Filtres actifs",
@@ -3970,6 +3955,21 @@
 			"startsOn": "Commence le {{date}}",
 			"beforeStart": "{{date}} est avant la date de début",
 			"afterDue": "{{date}} est après l’échéance"
+		},
+		"timeTracking": {
+			"empty": "Aucun temps enregistré pour le moment.",
+			"loadError": "Impossible de charger les entrées de temps.",
+			"retry": "Réessayer",
+			"running": "En cours",
+			"start": "Démarrer le minuteur",
+			"startError": "Impossible de démarrer le minuteur.",
+			"stop": "Arrêter le minuteur",
+			"stopError": "Impossible d’arrêter le minuteur.",
+			"title": "Suivi du temps",
+			"unknownUser": "Inconnu",
+			"durationSeconds": "{{seconds, number}} s",
+			"durationMinutes": "{{minutes, number}} min",
+			"durationHoursMinutes": "{{hours, number}} h {{minutes, number}} min"
 		},
 		"sprints": {
 			"activeBadge": "Actif",

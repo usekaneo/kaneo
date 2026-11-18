@@ -3820,7 +3820,9 @@
 			"showOnRows": "Show on rows",
 			"checklistProgress": "Checklist progress",
 			"projectBackground": "Project background",
-			"layout": "Layout"
+			"layout": "Layout",
+			"includeSubtasks": "Include Sub Tasks",
+			"useProjectDefault": "Use project default"
 		},
 		"filterBar": {
 			"label": "Active filters",
@@ -3864,6 +3866,35 @@
 			"startsOn": "Starts {{date}}",
 			"beforeStart": "{{date}} is before the start date",
 			"afterDue": "{{date}} is after the due date"
+		},
+		"dateFilter": {
+			"startDate": "Start date",
+			"noDate": "No date",
+			"condition": "Date condition",
+			"exact": "On",
+			"range": "Between",
+			"before": "Before",
+			"after": "After",
+			"apply": "Apply date filter",
+			"exactValue": "On {{date}}",
+			"beforeValue": "Before {{date}}",
+			"afterValue": "After {{date}}",
+			"rangeValue": "{{date}} – {{end}}"
+		},
+		"timeTracking": {
+			"title": "Time tracking",
+			"start": "Start timer",
+			"stop": "Stop timer",
+			"running": "Running",
+			"empty": "No time logged yet.",
+			"unknownUser": "Unknown",
+			"startError": "Failed to start the timer.",
+			"stopError": "Failed to stop the timer.",
+			"loadError": "Failed to load time entries.",
+			"retry": "Retry",
+			"durationSeconds": "{{seconds, number}}s",
+			"durationMinutes": "{{minutes, number}}m",
+			"durationHoursMinutes": "{{hours, number}}h {{minutes, number}}m"
 		},
 		"sprints": {
 			"activeBadge": "Active",
