@@ -83,21 +83,23 @@ async function updateTaskSprint({
       });
   });
 
-  if (!updated.length) {
+  const [updatedTask] = updated;
+
+  if (!updatedTask) {
     throw new HTTPException(500, {
       message: "Failed to update the task's sprint",
     });
   }
 
   await publishEvent("task.sprint_changed", {
-    taskId: updated[0].id,
-    projectId: updated[0].projectId,
+    taskId: updatedTask.id,
+    projectId: updatedTask.projectId,
     userId: currentUserId,
   });
 
-  await publishEvent("sprint.updated", { projectId: updated[0].projectId });
+  await publishEvent("sprint.updated", { projectId: updatedTask.projectId });
 
-  return updated[0];
+  return updatedTask;
 }
 
 export default updateTaskSprint;

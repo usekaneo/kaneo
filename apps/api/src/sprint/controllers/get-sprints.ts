@@ -7,8 +7,10 @@ import { taskIsCompleted } from "../../task/task-is-completed";
 // Counts live in the list response: the sprint board and the close-sprint
 // wizard both need to know how many tasks a sprint holds and how many of them
 // are already done.
+export type SprintStatus = "future" | "active" | "closed";
+
 export async function getSprintList(projectId: string) {
-  return db
+  const sprints = await db
     .select({
       id: sprintTable.id,
       projectId: sprintTable.projectId,
@@ -32,6 +34,13 @@ export async function getSprintList(projectId: string) {
     .where(eq(sprintTable.projectId, projectId))
     .groupBy(sprintTable.id)
     .orderBy(asc(sprintTable.position));
+
+  // The table stores statuses as plain text, so the row type widens them to
+  // string; the API contract narrows them to the three lifecycle states.
+  return sprints.map((sprint) => ({
+    ...sprint,
+    status: sprint.status as SprintStatus,
+  }));
 }
 
 /** Loads one sprint from the list view, so every sprint response carries counts. */

@@ -229,6 +229,10 @@ export const VALID_PRIORITIES = [
   "urgent",
 ] as const;
 
+// The task type domain: a plain task and a bug. Bugs default to the project's
+// active sprint on creation; every other type starts in the backlog.
+export const TASK_TYPES = ["task", "bug"] as const;
+
 export const VIRTUAL_STATUSES = ["planned", "archived"] as const;
 
 export function assertValidPriority(priority: string): void {
