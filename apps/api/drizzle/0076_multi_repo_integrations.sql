@@ -32,7 +32,7 @@ DECLARE
 	name text;
 	path text;
 	repo_id text;
-	base_url text;
+	v_base_url text;
 	scheme text;
 	rest text;
 	slash integer;
@@ -65,24 +65,24 @@ BEGIN
 				WHERE id = binding.id;
 
 			ELSIF binding.type = 'gitea' THEN
-				base_url := NULLIF(btrim(coalesce(cfg ->> 'baseUrl', '')), '');
-				IF base_url IS NOT NULL AND position('://' in base_url) > 0 THEN
-					scheme := lower(split_part(base_url, '://', 1));
-					rest := substring(base_url from position('://' in base_url) + 3);
+				v_base_url := NULLIF(btrim(coalesce(cfg ->> 'baseUrl', '')), '');
+				IF v_base_url IS NOT NULL AND position('://' in v_base_url) > 0 THEN
+					scheme := lower(split_part(v_base_url, '://', 1));
+					rest := substring(v_base_url from position('://' in v_base_url) + 3);
 					slash := position('/' in rest);
 					IF slash = 0 THEN
 						rest := lower(rest);
 					ELSE
 						rest := lower(left(rest, slash - 1)) || substring(rest from slash);
 					END IF;
-					base_url := rtrim(scheme || '://' || rest, '/');
+					v_base_url := rtrim(scheme || '://' || rest, '/');
 				END IF;
 				owner := NULLIF(btrim(coalesce(cfg ->> 'repositoryOwner', '')), '');
 				name := NULLIF(btrim(coalesce(cfg ->> 'repositoryName', '')), '');
-				IF base_url IS NULL OR owner IS NULL OR name IS NULL THEN
+				IF v_base_url IS NULL OR owner IS NULL OR name IS NULL THEN
 					RAISE WARNING 'RFC 0001 backfill: gitea integration % has incomplete identity (baseUrl/repositoryOwner/repositoryName); repository_key left NULL', binding.id;
 				ELSE
-					key := 'gitea:' || base_url || '/'
+					key := 'gitea:' || v_base_url || '/'
 						|| array_to_string(array_remove(string_to_array(lower(owner), '/'), ''), '/')
 						|| '/'
 						|| array_to_string(array_remove(string_to_array(lower(name), '/'), ''), '/');
@@ -90,31 +90,31 @@ BEGIN
 						repository_key = key,
 						repository_owner = owner,
 						repository_name = name,
-						base_url = base_url
+						base_url = v_base_url
 					WHERE id = binding.id;
 				END IF;
 
 			ELSIF binding.type = 'gitlab' THEN
-				base_url := NULLIF(btrim(coalesce(cfg ->> 'baseUrl', '')), '');
-				IF base_url IS NOT NULL AND position('://' in base_url) > 0 THEN
-					scheme := lower(split_part(base_url, '://', 1));
-					rest := substring(base_url from position('://' in base_url) + 3);
+				v_base_url := NULLIF(btrim(coalesce(cfg ->> 'baseUrl', '')), '');
+				IF v_base_url IS NOT NULL AND position('://' in v_base_url) > 0 THEN
+					scheme := lower(split_part(v_base_url, '://', 1));
+					rest := substring(v_base_url from position('://' in v_base_url) + 3);
 					slash := position('/' in rest);
 					IF slash = 0 THEN
 						rest := lower(rest);
 					ELSE
 						rest := lower(left(rest, slash - 1)) || substring(rest from slash);
 					END IF;
-					base_url := rtrim(scheme || '://' || rest, '/');
+					v_base_url := rtrim(scheme || '://' || rest, '/');
 				END IF;
 				path := NULLIF(array_to_string(array_remove(string_to_array(lower(btrim(coalesce(cfg ->> 'projectPath', ''))), '/'), ''), '/'), '');
-				IF base_url IS NULL OR path IS NULL THEN
+				IF v_base_url IS NULL OR path IS NULL THEN
 					RAISE WARNING 'RFC 0001 backfill: gitlab integration % has incomplete identity (baseUrl/projectPath); repository_key left NULL', binding.id;
 				ELSE
-					key := 'gitlab:' || base_url || '/' || path;
+					key := 'gitlab:' || v_base_url || '/' || path;
 					UPDATE integration SET
 						repository_key = key,
-						base_url = base_url
+						base_url = v_base_url
 					WHERE id = binding.id;
 				END IF;
 			END IF;
