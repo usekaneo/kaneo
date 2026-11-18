@@ -42,23 +42,31 @@ beforeEach(async () => {
 async function setup() {
   const { user, workspace } = await createWorkspaceMember();
   const { project } = await createProjectFixture({ workspaceId: workspace.id });
-  await db.insert(schema.integrationTable).values({
-    projectId: project.id,
-    type: "gitea",
-    config: JSON.stringify({
-      baseUrl: "https://gitea.example",
-      accessToken: "fake-local-token",
-      repositoryOwner: "owner",
-      repositoryName: "repo",
-    }),
-  });
-  return { user, project };
+  const [integration] = await db
+    .insert(schema.integrationTable)
+    .values({
+      projectId: project.id,
+      type: "gitea",
+      config: JSON.stringify({
+        baseUrl: "https://gitea.example",
+        accessToken: "fake-local-token",
+        repositoryOwner: "owner",
+        repositoryName: "repo",
+      }),
+    })
+    .returning();
+  return { user, project, integration };
 }
 
 describe("Gitea import task numbers", () => {
   it("advances the shared counter before a normal task is created", async () => {
-    const { user, project } = await setup();
-    expect(await importGiteaIssues(project.id)).toMatchObject({ imported: 1 });
+    const { user, project, integration } = await setup();
+    expect(
+      await importGiteaIssues({
+        integrationId: integration.id,
+        projectId: project.id,
+      }),
+    ).toMatchObject({ imported: 1 });
     const task = await createTask({
       projectId: project.id,
       currentUserId: user.id,
@@ -74,9 +82,12 @@ describe("Gitea import task numbers", () => {
   });
 
   it("serializes import and concurrent ordinary creation through one counter", async () => {
-    const { user, project } = await setup();
+    const { user, project, integration } = await setup();
     const [imported] = await Promise.all([
-      importGiteaIssues(project.id),
+      importGiteaIssues({
+        integrationId: integration.id,
+        projectId: project.id,
+      }),
       ...Array.from({ length: 3 }, (_, index) =>
         createTask({
           projectId: project.id,
@@ -111,7 +122,7 @@ describe("Gitea import task numbers", () => {
   });
 
   it("never lowers a high-water counter when the highest task was deleted", async () => {
-    const { project } = await setup();
+    const { project, integration } = await setup();
     await db
       .update(schema.projectTable)
       .set({ lastTaskNumber: 100 })
@@ -120,7 +131,12 @@ describe("Gitea import task numbers", () => {
       .insert(schema.taskTable)
       .values({ projectId: project.id, title: "Older task", number: 1 });
     await db.execute(sql.raw(repair));
-    expect(await importGiteaIssues(project.id)).toMatchObject({ imported: 1 });
+    expect(
+      await importGiteaIssues({
+        integrationId: integration.id,
+        projectId: project.id,
+      }),
+    ).toMatchObject({ imported: 1 });
     expect(
       await db.query.projectTable.findFirst({
         where: eq(schema.projectTable.id, project.id),
