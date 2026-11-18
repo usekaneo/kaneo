@@ -130,9 +130,10 @@ it.each(["gitea", "gitlab"] as const)(
       );
     });
     expect(
-      await (provider === "gitea" ? importGiteaIssues : importGitlabIssues)(
-        project.id,
-      ),
+      await (provider === "gitea" ? importGiteaIssues : importGitlabIssues)({
+        integrationId: integration.id,
+        projectId: project.id,
+      }),
     ).toMatchObject({ updated: 1 });
     expect(pausedAtPublish).toEqual(Array(3).fill(provider === "gitea"));
     const labels = await db.query.labelTable.findMany({
@@ -228,9 +229,10 @@ it.each(
             },
       ]);
       expect(
-        await (provider === "gitea" ? importGiteaIssues : importGitlabIssues)(
-          project.id,
-        ),
+        await (provider === "gitea" ? importGiteaIssues : importGitlabIssues)({
+          integrationId: integration.id,
+          projectId: project.id,
+        }),
       ).toMatchObject({ imported: 1 });
     } else if (provider === "github")
       await handleIssueOpened(
