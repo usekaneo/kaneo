@@ -281,6 +281,9 @@
           "projectId": {
             "type": "string"
           },
+          "isSubtask": {
+            "type": "boolean"
+          },
           "subtaskCounts": {
             "type": "object",
             "properties": {
@@ -547,6 +550,9 @@
               "boolean",
               "null"
             ]
+          },
+          "includeSubtasks": {
+            "type": "boolean"
           },
           "workspaceId": {
             "type": "string"
@@ -862,6 +868,9 @@
       "Project": {
         "type": "object",
         "properties": {
+          "includeSubtasks": {
+            "type": "boolean"
+          },
           "id": {
             "type": "string"
           },
@@ -11013,7 +11022,7 @@
           "Projects"
         ],
         "summary": "Update project",
-        "description": "Replace a project's name, icon, slug, description, and visibility. Optionally set the default sprint length in days.",
+        "description": "Replace a project's name, icon, slug, description, and visibility. Optionally set whether subtasks are included in views, or the default sprint length in days.",
         "parameters": [
           {
             "schema": {
@@ -11044,6 +11053,9 @@
                     "type": "string"
                   },
                   "isPublic": {
+                    "type": "boolean"
+                  },
+                  "includeSubtasks": {
                     "type": "boolean"
                   },
                   "defaultSprintLengthDays": {
