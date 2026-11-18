@@ -96,6 +96,16 @@ async function createFixture(
         baseUrl: "https://git.example.com",
         branchPattern: "{slug}-{number}",
       }),
+      // GitHub webhook resolution matches rows by the numeric repository
+      // key, so the fixture carries the repository identity columns.
+      ...(provider === "github"
+        ? {
+            repositoryKey: `github:${repo === "repo" ? 2 : 3}`,
+            repositoryOwner: "acme",
+            repositoryName: repo,
+            repositoryId: repo === "repo" ? 2 : 3,
+          }
+        : {}),
     })
     .returning();
   const tasks = await db
@@ -156,7 +166,10 @@ describe.each(["github", "gitea"] as const)(
     });
     const runImport = async () => {
       if (provider === "gitea") {
-        const result = await importGiteaIssues(fixture.project.id);
+        const result = await importGiteaIssues({
+          integrationId: fixture.integration.id,
+          projectId: fixture.project.id,
+        });
         expect(result.errors).toBeUndefined();
         return;
       }
