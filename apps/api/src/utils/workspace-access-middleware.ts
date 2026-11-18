@@ -13,6 +13,7 @@ type LookupResource =
   | "activity"
   | "comment"
   | "column"
+  | "sprint"
   | "workflowRule"
   | "customField";
 
@@ -42,6 +43,7 @@ const RESOURCE_NOT_FOUND: Record<LookupResource, string> = {
   activity: "Activity not found",
   comment: "Comment not found",
   column: "Column not found",
+  sprint: "Sprint not found",
   workflowRule: "Workflow rule not found",
   customField: "Custom field not found",
 };
