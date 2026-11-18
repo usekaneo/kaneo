@@ -1,4 +1,4 @@
-import { and, eq } from "drizzle-orm";
+import { and, eq, sql } from "drizzle-orm";
 import { HTTPException } from "hono/http-exception";
 import db from "../database";
 import { integrationTable } from "../database/schema";
@@ -194,6 +194,11 @@ const telegramIntegration = apiRouter<BaseVariables & { workspaceId: string }>()
       })
       .onConflictDoUpdate({
         target: [integrationTable.projectId, integrationTable.type],
+        // RFC 0001: the (project_id, type) uniqueness for non-repository
+        // integrations is a partial unique index (repository_key IS NULL),
+        // so the statement must repeat the predicate for PostgreSQL to
+        // infer it as the ON CONFLICT arbiter.
+        targetWhere: sql`${integrationTable.repositoryKey} IS NULL`,
         set: {
           config: JSON.stringify(config),
           updatedAt: new Date(),
