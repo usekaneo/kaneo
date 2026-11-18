@@ -126,9 +126,11 @@ export function SprintTaskItem({
           }
         }}
       >
+        {/* eslint-disable-next-line jsx-a11y/no-static-element-interactions, jsx-a11y/click-events-have-key-events -- the focusable row owns keyboard access */}
         <div
           ref={setNodeRef}
           data-task-id={task.id}
+
           data-shortcut-surface
           role="button"
           tabIndex={0}
@@ -198,6 +200,7 @@ export function SprintTaskItem({
               )}
             </span>
           )}
+          {/* eslint-disable-next-line jsx-a11y/no-static-element-interactions, jsx-a11y/click-events-have-key-events -- the contained menu button owns keyboard access */}
           <span
             className="shrink-0"
             onClick={(event) => event.stopPropagation()}

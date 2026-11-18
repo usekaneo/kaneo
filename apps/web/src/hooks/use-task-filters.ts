@@ -35,16 +35,6 @@ const DEFAULT_FILTERS: BoardFilters = {
   customFields: null,
 };
 
-const FILTER_KEYS: Array<keyof BoardFilters> = [
-  "status",
-  "priority",
-  "assignee",
-  "dueDate",
-  "startDate",
-  "labels",
-  "sprint",
-  "customFields",
-];
 export function useTaskFilters(
   project: ProjectWithTasks | null | undefined,
   projectId?: string,

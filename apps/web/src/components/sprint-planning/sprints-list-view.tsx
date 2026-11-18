@@ -168,7 +168,11 @@ export default function SprintsListView({ projectId }: SprintsListViewProps) {
     const ids: string[] = [];
     for (const sprint of [activeSprint, ...futureSprints]) {
       if (!sprint) continue;
-      for (const task of tasksForSprint(sprint.id)) ids.push(task.id);
+      for (const task of sprintTasks.filter(
+        (candidate) => candidate.sprintId === sprint.id,
+      )) {
+        ids.push(task.id);
+      }
     }
     for (const task of backlogTasks) ids.push(task.id);
     return ids;
