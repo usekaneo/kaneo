@@ -4001,6 +4001,11 @@
 			"durationSeconds": "{{seconds, number}} с",
 			"durationMinutes": "{{minutes, number}} хв",
 			"durationHoursMinutes": "{{hours, number}} год {{minutes, number}} хв"
+		},
+		"type": {
+			"label": "Тип",
+			"bug": "Помилка",
+			"task": "Завдання"
 		}
 	},
 	"invitations": {
