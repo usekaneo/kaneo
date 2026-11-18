@@ -1,6 +1,7 @@
 import { and, eq } from "drizzle-orm";
 import db from "../../database";
 import { githubImportTable, integrationTable } from "../../database/schema";
+import { findIntegrationByIdAndType } from "../../integrations/find-integration-by-id";
 import {
   defaultGitHubConfig,
   type GitHubConfig,
@@ -73,9 +74,10 @@ async function listGithubIntegrations(projectId: string) {
 
 /** Single lookup by primary key (id-keyed routes). */
 async function getGithubIntegrationById(integrationId: string) {
-  const integration = await db.query.integrationTable.findFirst({
-    where: eq(integrationTable.id, integrationId),
-  });
+  const integration = await findIntegrationByIdAndType(
+    integrationId,
+    "github",
+  );
   if (!integration) {
     return null;
   }

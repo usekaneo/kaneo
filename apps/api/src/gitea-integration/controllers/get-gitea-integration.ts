@@ -1,6 +1,7 @@
 import { and, eq } from "drizzle-orm";
 import db from "../../database";
 import { integrationTable } from "../../database/schema";
+import { findIntegrationByIdAndType } from "../../integrations/find-integration-by-id";
 import {
   defaultGiteaConfig,
   type GiteaConfig,
@@ -77,9 +78,10 @@ async function getGiteaIntegrationById(
   integrationId: string,
   includeWebhookSecret = false,
 ) {
-  const integration = await db.query.integrationTable.findFirst({
-    where: eq(integrationTable.id, integrationId),
-  });
+  const integration = await findIntegrationByIdAndType(
+    integrationId,
+    "gitea",
+  );
   if (!integration) {
     return null;
   }

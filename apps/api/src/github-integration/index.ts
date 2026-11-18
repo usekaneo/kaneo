@@ -4,6 +4,7 @@ import { HTTPException } from "hono/http-exception";
 import db from "../database";
 import { publishEvent } from "../events";
 import { accountTable, integrationTable } from "../database/schema";
+import { findIntegrationByIdAndType } from "../integrations/find-integration-by-id";
 import { scopeToProjectFromBody } from "../integrations/middleware";
 import { integrationIdParam, projectIdParam } from "../integrations/schema";
 import {
@@ -409,9 +410,10 @@ const githubIntegration = apiRouter<BaseVariables & { workspaceId: string }>()
     const { integrationId } = c.req.valid("param");
     const body = c.req.valid("json");
 
-    const row = await db.query.integrationTable.findFirst({
-      where: eq(integrationTable.id, integrationId),
-    });
+    const row = await findIntegrationByIdAndType(
+      integrationId,
+      "github",
+    );
 
     if (!row) {
       throw new HTTPException(404, { message: "Integration not found" });
