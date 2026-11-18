@@ -1796,8 +1796,10 @@ describe("reviewed sync resume", () => {
         expect(log).toHaveBeenCalledWith(
           `Sync resume provider ${stage} failed`,
           {
+            // RFC 0001 WP5: the resume surface logs the addressed binding id
+            // alongside the project and link instead of a provider name.
+            integrationId: f.integration.id,
             projectId: f.project.id,
-            provider: "gitea",
             linkId: f.link.id,
           },
         );
