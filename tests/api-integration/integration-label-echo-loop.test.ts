@@ -153,6 +153,17 @@ async function setup(
       type: provider,
       isActive: true,
       config: JSON.stringify(config),
+      // RFC 0001 WP2: the github webhook delivery path resolves bindings by
+      // the numeric repository key plus the installation id from the event,
+      // so the fixture mirrors the denormalized identity columns.
+      ...(provider === "github"
+        ? {
+            repositoryKey: "github:2",
+            repositoryOwner: "team",
+            repositoryName: "repo",
+            repositoryId: 2,
+          }
+        : {}),
     })
     .returning();
   const [link] = await db
