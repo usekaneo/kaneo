@@ -2,6 +2,7 @@ import * as Sentry from "@sentry/node";
 import { config } from "dotenv-mono";
 import { App, Octokit } from "octokit";
 import { boundedGithubFetch } from "../../../utils/bounded-github-fetch";
+import { resolveFileSecret } from "../../../utils/file-secret";
 import { type GitHubConfig, hasVerifiedGitHubBinding } from "../config";
 
 config();
@@ -20,11 +21,13 @@ let githubImportAppInstance: App | null = null;
 //
 // Returns "" when nothing is set; the caller's existence check handles that.
 export function resolveGithubPrivateKey(): string {
-  const base64 = process.env.GITHUB_PRIVATE_KEY_BASE64;
+  // _FILE variants win over plain env vars through resolveFileSecret, so
+  // orchestrators can mount the PEM as a docker/compose secret file.
+  const base64 = resolveFileSecret("GITHUB_PRIVATE_KEY_BASE64");
   if (base64 && base64.trim() !== "") {
     return Buffer.from(base64.trim(), "base64").toString("utf8");
   }
-  const raw = process.env.GITHUB_PRIVATE_KEY ?? "";
+  const raw = resolveFileSecret("GITHUB_PRIVATE_KEY") ?? "";
   if (raw.includes("\\n") && !raw.includes("\n")) {
     return raw.replace(/\\n/g, "\n");
   }
@@ -37,12 +40,16 @@ export function getGithubApp(boundedImport = false): App | null {
     return existing;
   }
 
+  // Check GITHUB_APP_ID before touching the secret sources so an instance
+  // without the GitHub App configured never reads (or trips over) a
+  // broken/missing secret file.
+  if (!process.env.GITHUB_APP_ID?.trim()) {
+    return null;
+  }
+
   const privateKey = resolveGithubPrivateKey();
-  if (
-    !process.env.GITHUB_WEBHOOK_SECRET ||
-    !process.env.GITHUB_APP_ID ||
-    !privateKey
-  ) {
+  const webhookSecret = resolveFileSecret("GITHUB_WEBHOOK_SECRET");
+  if (!webhookSecret || !privateKey) {
     return null;
   }
 
@@ -59,7 +66,7 @@ export function getGithubApp(boundedImport = false): App | null {
     appId: process.env.GITHUB_APP_ID ?? "",
     privateKey,
     webhooks: {
-      secret: process.env.GITHUB_WEBHOOK_SECRET ?? "",
+      secret: webhookSecret,
     },
   });
 
