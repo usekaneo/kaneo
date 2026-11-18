@@ -521,6 +521,7 @@ describe("readProject on Jira Cloud", () => {
         createdAt: "2024-01-01T10:00:00.000Z",
         labelKeys: [],
         comments: [],
+        sprintKey: null,
       },
       {
         key: "101",
@@ -545,6 +546,7 @@ describe("readProject on Jira Cloud", () => {
             createdAt: "2024-02-02T10:00:00.000Z",
           },
         ],
+        sprintKey: null,
       },
       {
         key: "103",
@@ -556,6 +558,7 @@ describe("readProject on Jira Cloud", () => {
         createdAt: "2024-01-01T10:00:00.000Z",
         labelKeys: [],
         comments: [],
+        sprintKey: null,
       },
     ]);
     expect(project.relations).toEqual([
