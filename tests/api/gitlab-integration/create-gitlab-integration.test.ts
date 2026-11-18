@@ -4,17 +4,19 @@ const mocks = vi.hoisted(() => ({
   existingIntegration: vi.fn(),
   verifyToken: vi.fn(),
   insertValues: vi.fn(),
+  updateSet: vi.fn(),
 }));
 
-// RFC 0001 WP4/WP10: the create controller links a fresh binding row instead
-// of mutating an existing one, and it enforces the repository binding quota
-// and inserts inside the project's advisory-lock transaction on the
+// RFC 0001 WP4/WP10: the create controller enforces the repository binding
+// quota and writes inside the project's advisory-lock transaction on the
 // transaction handle. The stub mirrors that: db.transaction passes the same
 // handle through, and the quota's select stub answers both chain shapes
 // with "no row" (workspace override) and a zero count, so the quota is
 // effectively unlimited in these tests. A saved credential authorizes reuse
-// only for the destination it belongs to; per-binding settings are not
-// carried over to the new row.
+// only for the destination it belongs to. Re-linking the destination an
+// existing same-project binding already owns reconciles that row in place:
+// the verified token and destination win, prior per-binding settings and
+// the webhook secret survive the merge, and no second row is inserted.
 vi.mock("../../../apps/api/src/database", () => {
   const handle = {
     query: {
@@ -63,6 +65,26 @@ vi.mock("../../../apps/api/src/database", () => {
         };
       },
     }),
+    // The reconcile-in-place branch writes through update().set(); the
+    // returning row models the snapshotted row after the guarded update.
+    update: () => ({
+      set: (data: Record<string, unknown>) => {
+        mocks.updateSet(data);
+        return {
+          where: () => ({
+            returning: async () => [
+              {
+                id: "integration-1",
+                projectId: "project-1",
+                isActive: true,
+                createdAt: new Date("2026-01-01T00:00:00Z"),
+                updatedAt: new Date("2026-01-01T00:00:00Z"),
+              },
+            ],
+          }),
+        };
+      },
+    }),
     // tx.execute runs the pg_advisory_xact_lock statement; a no-op result is
     // enough because the stub transaction never commits or rolls back.
     execute: async () => ({ rows: [] }),
@@ -83,6 +105,14 @@ const { default: createGitlabIntegration } =
 function insertedConfig() {
   const values = mocks.insertValues.mock.calls[0]?.[0] as { config: string };
   return JSON.parse(values.config);
+}
+
+function updatedSet() {
+  return mocks.updateSet.mock.calls[0]?.[0] as Record<string, unknown>;
+}
+
+function updatedConfig() {
+  return JSON.parse(updatedSet().config as string);
 }
 
 beforeEach(() => {
@@ -124,12 +154,20 @@ describe("createGitlabIntegration with a saved credential", () => {
       "old-token",
       "private",
     );
-    expect(insertedConfig()).toMatchObject({
+    // The same destination reconciles the snapshotted row in place; no
+    // second binding row is inserted for it.
+    expect(mocks.insertValues).not.toHaveBeenCalled();
+    expect(updatedSet()).toMatchObject({
+      repositoryKey: "gitlab:https://gitlab.com/acme/web",
+      baseUrl: "https://gitlab.com",
+    });
+    expect(updatedConfig()).toMatchObject({
       accessToken: "old-token",
+      webhookSecret: "existing-secret",
     });
   });
 
-  it("links a fresh binding with default settings and a new secret", async () => {
+  it("re-links the saved binding in place without resetting its settings", async () => {
     await createGitlabIntegration({
       projectId: "project-1",
       baseUrl: "https://gitlab.com",
@@ -138,18 +176,19 @@ describe("createGitlabIntegration with a saved credential", () => {
       projectPath: "acme/web",
     });
 
-    // WP4: settings belong to their own binding; the new row starts from
-    // the defaults with its own webhook secret, never the saved one.
-    expect(insertedConfig()).toMatchObject({
+    // The freshly verified token wins over the stored one, while the
+    // per-binding settings and the webhook secret survive the merge.
+    expect(mocks.insertValues).not.toHaveBeenCalled();
+    expect(updatedConfig()).toMatchObject({
       accessToken: "new-token",
-      branchPattern: "{slug}-{number}",
-      commentTaskLinkOnGitlabIssue: true,
-      statusTransitions: { onPROpen: "in-review" },
+      branchPattern: "custom",
+      commentTaskLinkOnGitlabIssue: false,
+      statusTransitions: { onPROpen: "review", onPRMerge: "shipped" },
+      webhookSecret: "existing-secret",
     });
-    expect(insertedConfig().webhookSecret).not.toBe("existing-secret");
   });
 
-  it("keys the new binding row by base URL and lowercased project path", async () => {
+  it("re-keys the reconciled row by base URL and lowercased project path", async () => {
     await createGitlabIntegration({
       projectId: "project-1",
       baseUrl: "https://gitlab.com",
@@ -158,10 +197,9 @@ describe("createGitlabIntegration with a saved credential", () => {
       projectPath: "Acme/Web",
     });
 
-    expect(mocks.insertValues).toHaveBeenCalledWith(
+    expect(mocks.insertValues).not.toHaveBeenCalled();
+    expect(mocks.updateSet).toHaveBeenCalledWith(
       expect.objectContaining({
-        projectId: "project-1",
-        type: "gitlab",
         repositoryKey: "gitlab:https://gitlab.com/acme/web",
         isActive: true,
       }),
@@ -241,5 +279,16 @@ describe("saved GitLab credential destination", () => {
       "new-token",
       "private",
     );
+    // A changed destination owns no same-project binding, so it links a
+    // fresh row instead of reconciling one.
+    expect(mocks.insertValues).toHaveBeenCalledWith(
+      expect.objectContaining({
+        projectId: "project-1",
+        type: "gitlab",
+        repositoryKey: "gitlab:https://other.example/acme/web",
+        isActive: true,
+      }),
+    );
+    expect(mocks.updateSet).not.toHaveBeenCalled();
   });
 });
