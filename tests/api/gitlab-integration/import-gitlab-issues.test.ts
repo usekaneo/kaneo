@@ -28,6 +28,8 @@ vi.mock("../../../apps/api/src/database", () => ({
       integrationTable: {
         findFirst: async () => ({
           id: "integration-1",
+          type: "gitlab",
+          projectId: "project-1",
           isActive: true,
           config: JSON.stringify({
             baseUrl: "https://gitlab.com",
@@ -90,7 +92,10 @@ describe("importGitlabIssues labels on an already linked task", () => {
   it("keeps task labels when the GitLab issue has none", async () => {
     mocks.listIssues.mockResolvedValueOnce([linkedIssue([])]);
 
-    const result = await importGitlabIssues("project-1");
+    const result = await importGitlabIssues({
+      integrationId: "integration-1",
+      projectId: "project-1",
+    });
 
     expect(result.updated).toBe(1);
     expect(mocks.deleteLabels).not.toHaveBeenCalled();
@@ -101,7 +106,7 @@ describe("importGitlabIssues labels on an already linked task", () => {
       linkedIssue(["bug", "priority:high"]),
     ]);
 
-    await importGitlabIssues("project-1");
+    await importGitlabIssues({ integrationId: "integration-1", projectId: "project-1" });
 
     expect(mocks.deleteLabels).not.toHaveBeenCalled();
     expect(mocks.insertValues).toHaveBeenCalledWith(

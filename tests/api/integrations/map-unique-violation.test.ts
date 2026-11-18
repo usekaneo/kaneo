@@ -73,14 +73,21 @@ describe("mapIntegrationUniqueViolation", () => {
     ).toThrow(otherConstraint);
   });
 
-  it("re-throws errors that are not unique violations", () => {
+  it("re-throws errors that are not unique violations unchanged", () => {
     const failure = new Error("connection refused");
-    expect(() =>
-      mapIntegrationUniqueViolation(drizzleWrapped(failure), {
+    const wrapped = drizzleWrapped(failure);
+    let thrown: unknown;
+    try {
+      mapIntegrationUniqueViolation(wrapped, {
         projectId: "project-1",
         type: "gitlab",
-      }),
-    ).toThrow(failure);
+      });
+    } catch (caught) {
+      thrown = caught;
+    }
+    // The mapper must hand back the exact error it received (the drizzle
+    // wrapper, not its cause) so genuine failures stay 500s.
+    expect(thrown).toBe(wrapped);
   });
 
   it("stops the cause walk before an infinite cycle", () => {

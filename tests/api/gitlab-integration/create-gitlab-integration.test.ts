@@ -64,6 +64,9 @@ vi.mock("../../../apps/api/src/database", () => {
         };
       },
     }),
+    // tx.execute runs the pg_advisory_xact_lock statement; a no-op result is
+    // enough because the stub transaction never commits or rolls back.
+    execute: async () => ({ rows: [] }),
   };
   handle.transaction = (fn: (tx: unknown) => Promise<unknown>) => fn(handle);
   return { default: handle };
