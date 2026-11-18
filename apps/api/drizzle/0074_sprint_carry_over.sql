@@ -1,1 +1,0 @@
-ALTER TABLE "sprint" ADD COLUMN IF NOT EXISTS "carry_over_tasks" jsonb;
