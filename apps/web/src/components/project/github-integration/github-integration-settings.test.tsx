@@ -23,6 +23,7 @@ const m = vi.hoisted(() => ({
   verify: vi.fn(),
   create: vi.fn(),
   remove: vi.fn(),
+  update: vi.fn(),
   integration: { current: null as null | Record<string, unknown> },
 }));
 vi.mock("@/fetchers/github-integration/get-app-info", () => ({
@@ -35,7 +36,7 @@ vi.mock("@/lib/auth-client", () => ({
   },
 }));
 vi.mock(
-  "@/hooks/queries/github-integration/use-get-github-integration",
+  "@/hooks/queries/github-integration/use-get-github-integrations",
   () => ({
     default: () => ({ data: m.integration.current, isLoading: false }),
   }),
@@ -67,7 +68,7 @@ vi.mock(
   "@/hooks/mutations/github-integration/use-update-github-integration",
   () => ({
     useUpdateGithubIntegration: () => ({
-      mutateAsync: vi.fn(),
+      mutateAsync: m.update,
       isPending: false,
     }),
   }),
@@ -120,6 +121,10 @@ const readyVerification = {
   message: "Installed",
 };
 
+function setIntegrations(...integrations: Record<string, unknown>[]) {
+  m.integration.current = { integrations, usage: {} };
+}
+
 function show() {
   const client = new QueryClient({
     defaultOptions: { queries: { retry: false } },
@@ -138,6 +143,8 @@ beforeEach(() => {
   permissions.update = true;
   m.link.mockResolvedValue({ error: null });
   m.verify.mockResolvedValue(readyVerification);
+  m.update.mockResolvedValue(undefined);
+  m.remove.mockResolvedValue(undefined);
 });
 
 describe("GitHub account step", () => {
@@ -272,13 +279,13 @@ describe("GitHub repository step", () => {
 describe("connected GitHub repository", () => {
   it("asks to reconnect legacy integrations and still permits removal after confirmation", async () => {
     m.appInfo.mockResolvedValue(linkedAccount);
-    m.remove.mockResolvedValue(undefined);
-    m.integration.current = {
+    setIntegrations({
+      id: "integration-1",
       repositoryOwner: "owner",
       repositoryName: "repo",
       requiresVerification: true,
       isActive: false,
-    };
+    });
     show();
     expect(
       await screen.findByText("settings:githubIntegration.reverifyHint"),
@@ -301,17 +308,23 @@ describe("connected GitHub repository", () => {
         name: "settings:codeHosting.disconnect",
       }),
     );
-    await waitFor(() => expect(m.remove).toHaveBeenCalledWith("project"));
+    await waitFor(() =>
+      expect(m.remove).toHaveBeenCalledWith({
+        projectId: "project",
+        integrationId: "integration-1",
+      }),
+    );
   });
 
-  it("reconnects the saved repository through verification", async () => {
+  it("reconnects the saved repository by reactivating its binding", async () => {
     m.appInfo.mockResolvedValue(linkedAccount);
-    m.integration.current = {
+    setIntegrations({
+      id: "integration-1",
       repositoryOwner: "owner",
       repositoryName: "repo",
       requiresVerification: true,
       isActive: false,
-    };
+    });
     show();
     fireEvent.click(
       await screen.findByRole("button", {
@@ -319,16 +332,18 @@ describe("connected GitHub repository", () => {
       }),
     );
     await waitFor(() =>
-      expect(m.create).toHaveBeenCalledWith({
+      expect(m.update).toHaveBeenCalledWith({
         projectId: "project",
-        data: { repositoryOwner: "owner", repositoryName: "repo" },
+        integrationId: "integration-1",
+        json: { isActive: true },
       }),
     );
   });
 
   it("offers resume after refresh and forwards the persisted run ID", async () => {
     m.appInfo.mockResolvedValue(linkedAccount);
-    m.integration.current = {
+    setIntegrations({
+      id: "integration-1",
       repositoryOwner: "owner",
       repositoryName: "repo",
       installationId: 1,
@@ -341,7 +356,7 @@ describe("connected GitHub repository", () => {
         updated: 0,
         skipped: 0,
       },
-    };
+    });
     let complete!: (result: unknown) => void;
     m.importIssues.mockImplementation(
       () =>
@@ -362,6 +377,7 @@ describe("connected GitHub repository", () => {
     await waitFor(() =>
       expect(m.importIssues).toHaveBeenCalledWith({
         projectId: "project",
+        integrationId: "integration-1",
         runId: "saved-run",
       }),
     );
@@ -386,12 +402,13 @@ describe("connected GitHub repository", () => {
 
   it("shows the App status for an active repository", async () => {
     m.appInfo.mockResolvedValue(linkedAccount);
-    m.integration.current = {
+    setIntegrations({
+      id: "integration-1",
       repositoryOwner: "owner",
       repositoryName: "repo",
       isActive: true,
       requiresVerification: false,
-    };
+    });
     show();
     expect(
       await screen.findByText(
@@ -413,12 +430,13 @@ it.each(["create", "update"] as const)(
   async (permission) => {
     permissions[permission] = false;
     m.appInfo.mockResolvedValue(linkedAccount);
-    m.integration.current = {
+    setIntegrations({
+      id: "integration-1",
       repositoryOwner: "owner",
       repositoryName: "repo",
       isActive: true,
       requiresVerification: false,
-    };
+    });
     show();
     const button = await screen.findByRole("button", {
       name: "settings:codeHosting.importIssues",

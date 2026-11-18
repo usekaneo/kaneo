@@ -21,11 +21,13 @@ import type { GitHubAppInfo } from "@/fetchers/github-integration/get-app-info";
 type GithubSetupPanelProps = {
   projectId: string;
   appInfo: GitHubAppInfo | undefined;
+  onConnected?: () => void;
 };
 
 export function GithubSetupPanel({
   projectId,
   appInfo,
+  onConnected,
 }: GithubSetupPanelProps) {
   const { t } = useTranslation();
   const [value, setValue] = useState("");
@@ -77,7 +79,10 @@ export function GithubSetupPanel({
             loading={connecting}
             disabled={!linked || !repository || blocked}
             onClick={() => {
-              if (repository) void connect(repository);
+              if (repository)
+                void connect(repository).then((ok) => {
+                  if (ok) onConnected?.();
+                });
             }}
           >
             {t("settings:codeHosting.connectRepository")}

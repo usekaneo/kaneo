@@ -9,13 +9,15 @@ export function useUpdateGitlabIntegration() {
   return useMutation({
     mutationFn: ({
       projectId,
+      integrationId,
       json,
     }: {
       projectId: string;
+      integrationId: string;
       json: UpdateGitlabIntegrationRequest;
-    }) => updateGitlabIntegration(projectId, json),
+    }) => updateGitlabIntegration(integrationId, json),
     onSuccess: (_, { projectId }) => {
-      queryClient.invalidateQueries({
+      void queryClient.invalidateQueries({
         queryKey: ["gitlab-integration", projectId],
       });
     },

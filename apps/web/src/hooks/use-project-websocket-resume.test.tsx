@@ -60,7 +60,11 @@ it("refreshes only the affected open comparison before accepting its new token",
     () => {
       useProjectWebSocket("project");
       const preview = useResumePreview(
-        { projectId: "project", provider: "github" },
+        {
+          projectId: "project",
+          provider: "github",
+          integrationId: "integration-1",
+        },
         "link",
         "task",
       );
@@ -79,15 +83,30 @@ it("refreshes only the affected open comparison before accepting its new token",
       type: "active",
     }),
   ).toEqual([
-    [["integration-sync-review", "project", "github", "link"], initial],
+    [
+      ["integration-sync-review", "project", "github", "integration-1", "link"],
+      initial,
+    ],
   ]);
   const invalidation = vi.spyOn(client, "invalidateQueries");
   client.setQueryData(
-    ["integration-sync-review", "project", "github", "inactive"],
+    [
+      "integration-sync-review",
+      "project",
+      "github",
+      "integration-1",
+      "inactive",
+    ],
     initial,
   );
   client.setQueryData(
-    ["integration-sync-review", "other-project", "github", "link"],
+    [
+      "integration-sync-review",
+      "other-project",
+      "github",
+      "integration-1",
+      "link",
+    ],
     initial,
   );
   act(() => Socket.current.message("unrelated-task"));
@@ -102,7 +121,13 @@ it("refreshes only the affected open comparison before accepting its new token",
   });
   act(() => Socket.current.message("task"));
   expect(invalidation).toHaveBeenCalledWith({
-    queryKey: ["integration-sync-review", "project", "github", "link"],
+    queryKey: [
+      "integration-sync-review",
+      "project",
+      "github",
+      "integration-1",
+      "link",
+    ],
     exact: true,
   });
   await waitFor(() => expect(result.current.isFetching).toBe(true));
@@ -112,6 +137,7 @@ it("refreshes only the affected open comparison before accepting its new token",
       "integration-sync-review",
       "project",
       "github",
+      "integration-1",
       "inactive",
     ])?.isInvalidated,
   ).toBe(false);
@@ -120,6 +146,7 @@ it("refreshes only the affected open comparison before accepting its new token",
       "integration-sync-review",
       "other-project",
       "github",
+      "integration-1",
       "link",
     ])?.isInvalidated,
   ).toBe(false);
@@ -172,7 +199,11 @@ it("replaces a pre-edit initial review fetch and ignores its late response", asy
     () => {
       useProjectWebSocket("project");
       const preview = useResumePreview(
-        { projectId: "project", provider: "github" },
+        {
+          projectId: "project",
+          provider: "github",
+          integrationId: "integration-1",
+        },
         "link",
         "task",
       );

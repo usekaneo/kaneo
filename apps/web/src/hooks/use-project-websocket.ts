@@ -16,7 +16,6 @@ import getExternalLinks from "@/fetchers/external-link/get-external-links";
 import type { ResumePreview } from "@/fetchers/integration-sync/types";
 import { patchBoardTask } from "@/lib/patch-board-task";
 import { isPerTaskRelationQuery } from "@/lib/relation-query-keys";
-import { invalidateTaskRelations } from "@/lib/invalidate-task-relations";
 import type { ProjectWithTasks } from "@/types/project";
 import {
   hasSyncTaskSample,

@@ -24,6 +24,7 @@ export function useResumeSync(param: SyncParams, linkId: string) {
           "integration-sync-review",
           param.projectId,
           param.provider,
+          param.integrationId,
           linkId,
         ],
       });

@@ -8,10 +8,10 @@ export default async function resumeSync(
   token: string,
   source: "kaneo" | "provider",
 ) {
-  const response = await client["integration-sync"].project[":projectId"][
-    ":provider"
+  const response = await client["integration-sync"].integration[
+    ":integrationId"
   ].links[":linkId"].resume.$post({
-    param: { ...param, linkId },
+    param: { integrationId: param.integrationId, linkId },
     json: { token, source },
   });
   if (!response.ok) throw await HttpError.fromResponse(response);

@@ -4,14 +4,14 @@ import { DisconnectIntegrationButton } from "@/components/project/code-hosting/d
 import { GithubIssuesSection } from "@/components/project/github-integration/github-issues-section";
 import { GithubRepositorySection } from "@/components/project/github-integration/github-repository-section";
 import { GithubWorkflowHint } from "@/components/project/github-integration/github-workflow-hint";
-import { useConnectGithubRepository } from "@/components/project/github-integration/use-connect-github-repository";
 import { useGithubVerification } from "@/components/project/github-integration/use-github-verification";
 import { IntegrationPanel } from "@/components/project/integrations/panel/integration-panel";
 import { IntegrationPanelFooter } from "@/components/project/integrations/panel/integration-panel-footer";
 import { SyncRulesSection } from "@/components/project/sync-rules/sync-rules-section";
 import type { GitHubAppInfo } from "@/fetchers/github-integration/get-app-info";
-import type { GithubIntegration } from "@/fetchers/github-integration/get-github-integration";
+import type { GithubIntegration } from "@/fetchers/github-integration/get-github-integrations";
 import { useDeleteGithubIntegration } from "@/hooks/mutations/github-integration/use-create-github-integration";
+import { useUpdateGithubIntegration } from "@/hooks/mutations/github-integration/use-update-github-integration";
 import { toast } from "@/lib/toast";
 
 type GithubConnectedPanelProps = {
@@ -34,13 +34,31 @@ export function GithubConnectedPanel({
     projectId,
     integration.isActive && appInfo?.accountConnected ? repository : null,
   );
-  const { connect, connecting } = useConnectGithubRepository(projectId);
+  const { mutateAsync: update, isPending: isReconnecting } =
+    useUpdateGithubIntegration();
   const { mutateAsync: remove, isPending: isDeleting } =
     useDeleteGithubIntegration();
 
+  const reconnect = async () => {
+    try {
+      await update({
+        projectId,
+        integrationId: integration.id,
+        json: { isActive: true },
+      });
+      toast.success(t("settings:githubIntegration.toast.updated"));
+    } catch (error) {
+      toast.error(
+        error instanceof Error
+          ? error.message
+          : t("settings:githubIntegration.toast.updateError"),
+      );
+    }
+  };
+
   const disconnect = async () => {
     try {
-      await remove(projectId);
+      await remove({ projectId, integrationId: integration.id });
       toast.success(t("settings:githubIntegration.toast.removed"), {
         icon: UnplugIcon,
       });
@@ -59,17 +77,19 @@ export function GithubConnectedPanel({
     <IntegrationPanel>
       <GithubRepositorySection
         projectId={projectId}
+        integrationId={integration.id}
         integration={integration}
         appInfo={appInfo}
         verification={verification.result}
-        reconnecting={connecting}
-        onReconnect={() => void connect(repository)}
+        reconnecting={isReconnecting}
+        onReconnect={() => void reconnect()}
       />
       <GithubIssuesSection projectId={projectId} integration={integration} />
       <SyncRulesSection
-        key={`${projectId}:github`}
+        key={integration.id}
         projectId={projectId}
         provider="github"
+        integrationId={integration.id}
       />
       <IntegrationPanelFooter
         start={<GithubWorkflowHint projectId={projectId} />}
@@ -77,7 +97,7 @@ export function GithubConnectedPanel({
         <DisconnectIntegrationButton
           provider="GitHub"
           target={`${repository.owner}/${repository.name}`}
-          pending={isDeleting || connecting}
+          pending={isDeleting || isReconnecting}
           onConfirm={disconnect}
         />
       </IntegrationPanelFooter>

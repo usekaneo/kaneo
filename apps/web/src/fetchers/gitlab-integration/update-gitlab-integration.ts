@@ -3,17 +3,17 @@ import type { InferRequestType } from "hono";
 import { HttpError } from "@/lib/http-error";
 
 export type UpdateGitlabIntegrationRequest = InferRequestType<
-  (typeof client)["gitlab-integration"]["project"][":projectId"]["$patch"]
+  (typeof client)["gitlab-integration"]["integration"][":integrationId"]["$patch"]
 >["json"];
 
 async function updateGitlabIntegration(
-  projectId: string,
+  integrationId: string,
   json: UpdateGitlabIntegrationRequest,
 ) {
-  const response = await client["gitlab-integration"].project[
-    ":projectId"
+  const response = await client["gitlab-integration"].integration[
+    ":integrationId"
   ].$patch({
-    param: { projectId },
+    param: { integrationId },
     json,
   });
 

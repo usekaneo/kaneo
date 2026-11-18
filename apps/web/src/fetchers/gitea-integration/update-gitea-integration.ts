@@ -3,17 +3,17 @@ import type { InferRequestType } from "hono";
 import { HttpError } from "@/lib/http-error";
 
 export type UpdateGiteaIntegrationRequest = InferRequestType<
-  (typeof client)["gitea-integration"]["project"][":projectId"]["$patch"]
+  (typeof client)["gitea-integration"]["integration"][":integrationId"]["$patch"]
 >["json"];
 
 async function updateGiteaIntegration(
-  projectId: string,
+  integrationId: string,
   json: UpdateGiteaIntegrationRequest,
 ) {
-  const response = await client["gitea-integration"].project[
-    ":projectId"
+  const response = await client["gitea-integration"].integration[
+    ":integrationId"
   ].$patch({
-    param: { projectId },
+    param: { integrationId },
     json,
   });
 

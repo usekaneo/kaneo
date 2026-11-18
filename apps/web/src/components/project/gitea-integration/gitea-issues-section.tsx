@@ -7,6 +7,7 @@ import { toast } from "@/lib/toast";
 
 type GiteaIssuesSectionProps = {
   projectId: string;
+  integrationId: string;
   isConnected: boolean;
   verified: boolean;
   checking: boolean;
@@ -14,6 +15,7 @@ type GiteaIssuesSectionProps = {
 
 export function GiteaIssuesSection({
   projectId,
+  integrationId,
   isConnected,
   verified,
   checking,
@@ -27,7 +29,7 @@ export function GiteaIssuesSection({
   const handleImport = async () => {
     if (!canImport) return;
     try {
-      await importIssues(projectId);
+      await importIssues({ projectId, integrationId });
       toast.success(t("settings:giteaIntegration.toast.issuesImported"), {
         icon: ImportIcon,
       });

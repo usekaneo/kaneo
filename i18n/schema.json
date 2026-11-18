@@ -2495,7 +2495,18 @@
 						"useRepository",
 						"useKaneo",
 						"exportPending",
-						"inactiveHint"
+						"inactiveHint",
+						"allIssues",
+						"allTasks",
+						"edit",
+						"hidePaused",
+						"issuesLabelled",
+						"joinAnd",
+						"joinOr",
+						"kaneoToProvider",
+						"providerToKaneo",
+						"reviewPaused",
+						"tasksLabelled"
 					]
 				},
 				"account": {
@@ -7127,55 +7138,13 @@
 						"namePlaceholder": {
 							"type": "string"
 						},
-						"typePlaceholder": {
-							"type": "string"
-						},
-						"noOptionsPlaceholder": {
-							"type": "string"
-						},
-						"defaultValuePlaceholder": {
-							"type": "string"
-						},
-						"optionsPlaceholder": {
-							"type": "string"
-						},
 						"selectPlaceholder": {
-							"type": "string"
-						},
-						"defaultValues": {
-							"type": "string"
-						},
-						"defaultValues_zero": {
-							"type": "string"
-						},
-						"defaultValues_one": {
-							"type": "string"
-						},
-						"defaultValues_two": {
-							"type": "string"
-						},
-						"defaultValues_few": {
-							"type": "string"
-						},
-						"defaultValues_many": {
-							"type": "string"
-						},
-						"defaultValues_other": {
 							"type": "string"
 						},
 						"required": {
 							"type": "string"
 						},
-						"addButton": {
-							"type": "string"
-						},
 						"creating": {
-							"type": "string"
-						},
-						"loading": {
-							"type": "string"
-						},
-						"empty": {
 							"type": "string"
 						},
 						"defaultLabel": {
@@ -7185,9 +7154,6 @@
 							"type": "string"
 						},
 						"createError": {
-							"type": "string"
-						},
-						"deleteButton": {
 							"type": "string"
 						},
 						"deleting": {
@@ -7206,30 +7172,6 @@
 							"type": "string"
 						},
 						"clearDefault": {
-							"type": "string"
-						},
-						"options": {
-							"type": "string"
-						},
-						"options_zero": {
-							"type": "string"
-						},
-						"options_one": {
-							"type": "string"
-						},
-						"options_two": {
-							"type": "string"
-						},
-						"options_few": {
-							"type": "string"
-						},
-						"options_many": {
-							"type": "string"
-						},
-						"options_other": {
-							"type": "string"
-						},
-						"availableOptions": {
 							"type": "string"
 						},
 						"types": {
@@ -7264,81 +7206,209 @@
 								"multiselect"
 							]
 						},
-						"multiple": {
+						"startsAs": {
+							"type": "string"
+						},
+						"startsAt": {
+							"type": "string"
+						},
+						"startsOn": {
+							"type": "string"
+						},
+						"startsChecked": {
+							"type": "string"
+						},
+						"startsUnchecked": {
+							"type": "string"
+						},
+						"dragAria": {
+							"type": "string"
+						},
+						"actionsAria": {
+							"type": "string"
+						},
+						"edit": {
+							"type": "string"
+						},
+						"emptyTitle": {
+							"type": "string"
+						},
+						"emptyDescription": {
+							"type": "string"
+						},
+						"deleteTitle": {
+							"type": "string"
+						},
+						"deleteDescription": {
+							"type": "string"
+						},
+						"deleteConfirm": {
+							"type": "string"
+						},
+						"newTitle": {
+							"type": "string"
+						},
+						"editTitle": {
+							"type": "string"
+						},
+						"dialogDescription": {
+							"type": "string"
+						},
+						"dialogDescriptionFallback": {
+							"type": "string"
+						},
+						"typeLabel": {
+							"type": "string"
+						},
+						"typeLocked": {
+							"type": "string"
+						},
+						"nameLabel": {
+							"type": "string"
+						},
+						"optionsLabel": {
+							"type": "string"
+						},
+						"addOption": {
+							"type": "string"
+						},
+						"dragOptionAria": {
+							"type": "string"
+						},
+						"renameOptionAria": {
+							"type": "string"
+						},
+						"removeOptionAria": {
+							"type": "string"
+						},
+						"hideOptionAria": {
+							"type": "string"
+						},
+						"showOptionAria": {
+							"type": "string"
+						},
+						"allowSeveral": {
+							"type": "string"
+						},
+						"allowSeveralDescription": {
+							"type": "string"
+						},
+						"requiredDescription": {
+							"type": "string"
+						},
+						"defaultDescription": {
+							"type": "string"
+						},
+						"noDefault": {
+							"type": "string"
+						},
+						"checked": {
+							"type": "string"
+						},
+						"unchecked": {
+							"type": "string"
+						},
+						"issues": {
+							"type": "object",
+							"additionalProperties": false,
+							"properties": {
+								"optionsRequired": {
+									"type": "string"
+								},
+								"moreOptionsRequired": {
+									"type": "string"
+								},
+								"defaultRequired": {
+									"type": "string"
+								}
+							},
+							"required": [
+								"optionsRequired",
+								"moreOptionsRequired",
+								"defaultRequired"
+							]
+						},
+						"createField": {
+							"type": "string"
+						},
+						"save": {
+							"type": "string"
+						},
+						"saving": {
+							"type": "string"
+						},
+						"updateSuccess": {
+							"type": "string"
+						},
+						"updateError": {
 							"type": "string"
 						}
 					},
 					"required": [
 						"namePlaceholder",
-						"typePlaceholder",
-						"noOptionsPlaceholder",
-						"defaultValuePlaceholder",
-						"optionsPlaceholder",
 						"selectPlaceholder",
 						"required",
-						"addButton",
 						"creating",
-						"loading",
-						"empty",
 						"defaultLabel",
 						"createSuccess",
 						"createError",
-						"deleteButton",
 						"deleting",
 						"deleteSuccess",
 						"deleteError",
 						"reorderError",
 						"moreOptions",
 						"clearDefault",
-						"availableOptions",
 						"types",
-						"multiple"
+						"startsAs",
+						"startsAt",
+						"startsOn",
+						"startsChecked",
+						"startsUnchecked",
+						"dragAria",
+						"actionsAria",
+						"edit",
+						"emptyTitle",
+						"emptyDescription",
+						"deleteTitle",
+						"deleteDescription",
+						"deleteConfirm",
+						"newTitle",
+						"editTitle",
+						"dialogDescription",
+						"dialogDescriptionFallback",
+						"typeLabel",
+						"typeLocked",
+						"nameLabel",
+						"optionsLabel",
+						"addOption",
+						"dragOptionAria",
+						"renameOptionAria",
+						"removeOptionAria",
+						"hideOptionAria",
+						"showOptionAria",
+						"allowSeveral",
+						"allowSeveralDescription",
+						"requiredDescription",
+						"defaultDescription",
+						"noDefault",
+						"checked",
+						"unchecked",
+						"issues",
+						"createField",
+						"save",
+						"saving",
+						"updateSuccess",
+						"updateError"
 					]
 				},
 				"githubIntegration": {
 					"type": "object",
 					"additionalProperties": false,
 					"properties": {
-						"validation": {
-							"type": "object",
-							"additionalProperties": false,
-							"properties": {
-								"ownerRequired": {
-									"type": "string"
-								},
-								"ownerInvalid": {
-									"type": "string"
-								},
-								"nameRequired": {
-									"type": "string"
-								},
-								"nameInvalid": {
-									"type": "string"
-								}
-							},
-							"required": [
-								"ownerRequired",
-								"ownerInvalid",
-								"nameRequired",
-								"nameInvalid"
-							]
-						},
 						"toast": {
 							"type": "object",
 							"additionalProperties": false,
 							"properties": {
-								"installedOk": {
-									"type": "string"
-								},
-								"installedMissingPerms": {
-									"type": "string"
-								},
-								"needsInstallOnRepo": {
-									"type": "string"
-								},
-								"repoNotFound": {
-									"type": "string"
-								},
 								"verifyError": {
 									"type": "string"
 								},
@@ -7395,88 +7465,10 @@
 								"settingsUpdateError"
 							]
 						},
-						"connectionStatus": {
-							"type": "string"
-						},
-						"connectedActive": {
-							"type": "string"
-						},
-						"notConnectedHint": {
-							"type": "string"
-						},
-						"badgeConnected": {
-							"type": "string"
-						},
-						"badgeNotConnected": {
-							"type": "string"
-						},
-						"repository": {
-							"type": "string"
-						},
-						"repositoryHint": {
-							"type": "string"
-						},
 						"commentTaskLinkTitle": {
 							"type": "string"
 						},
 						"commentTaskLinkHint": {
-							"type": "string"
-						},
-						"appStatusTitle": {
-							"type": "string"
-						},
-						"appStatusHint": {
-							"type": "string"
-						},
-						"statusProperlyConfigured": {
-							"type": "string"
-						},
-						"statusMissingPermissions": {
-							"type": "string"
-						},
-						"statusNotInstalled": {
-							"type": "string"
-						},
-						"ownerLabel": {
-							"type": "string"
-						},
-						"ownerHint": {
-							"type": "string"
-						},
-						"ownerPlaceholder": {
-							"type": "string"
-						},
-						"repoNameLabel": {
-							"type": "string"
-						},
-						"repoNameHint": {
-							"type": "string"
-						},
-						"repoNamePlaceholder": {
-							"type": "string"
-						},
-						"actionsTitle": {
-							"type": "string"
-						},
-						"actionsHint": {
-							"type": "string"
-						},
-						"browse": {
-							"type": "string"
-						},
-						"verify": {
-							"type": "string"
-						},
-						"update": {
-							"type": "string"
-						},
-						"connect": {
-							"type": "string"
-						},
-						"disconnect": {
-							"type": "string"
-						},
-						"missingPermissionsLabel": {
 							"type": "string"
 						},
 						"updatePermissions": {
@@ -7485,16 +7477,7 @@
 						"installGithubApp": {
 							"type": "string"
 						},
-						"importSectionTitle": {
-							"type": "string"
-						},
 						"importSectionHint": {
-							"type": "string"
-						},
-						"importing": {
-							"type": "string"
-						},
-						"importIssues": {
 							"type": "string"
 						},
 						"importDisabledHint": {
@@ -7517,52 +7500,62 @@
 						},
 						"importSummary": {
 							"type": "string"
+						},
+						"chooseRepositoryDescription": {
+							"type": "string"
+						},
+						"linkAccountDescription": {
+							"type": "string"
+						},
+						"linkAccountTitle": {
+							"type": "string"
+						},
+						"linkGithub": {
+							"type": "string"
+						},
+						"linked": {
+							"type": "string"
+						},
+						"verifyMissingPermissions": {
+							"type": "string"
+						},
+						"verifyNotInstalled": {
+							"type": "string"
+						},
+						"verifyReady": {
+							"type": "string"
+						},
+						"workflowHint": {
+							"type": "string"
+						},
+						"workflowLink": {
+							"type": "string"
 						}
 					},
 					"required": [
-						"validation",
 						"toast",
-						"connectionStatus",
-						"connectedActive",
-						"notConnectedHint",
-						"badgeConnected",
-						"badgeNotConnected",
-						"repository",
-						"repositoryHint",
 						"commentTaskLinkTitle",
 						"commentTaskLinkHint",
-						"appStatusTitle",
-						"appStatusHint",
-						"statusProperlyConfigured",
-						"statusMissingPermissions",
-						"statusNotInstalled",
-						"ownerLabel",
-						"ownerHint",
-						"ownerPlaceholder",
-						"repoNameLabel",
-						"repoNameHint",
-						"repoNamePlaceholder",
-						"actionsTitle",
-						"actionsHint",
-						"browse",
-						"verify",
-						"update",
-						"connect",
-						"disconnect",
-						"missingPermissionsLabel",
 						"updatePermissions",
 						"installGithubApp",
-						"importSectionTitle",
 						"importSectionHint",
-						"importing",
-						"importIssues",
 						"importDisabledHint",
 						"accountVerificationHint",
 						"enableGithubSignInHint",
 						"reverifyHint",
 						"resumeImport",
 						"importPaused",
-						"importSummary"
+						"importSummary",
+						"chooseRepositoryDescription",
+						"linkAccountDescription",
+						"linkAccountTitle",
+						"linkGithub",
+						"linked",
+						"verifyMissingPermissions",
+						"verifyNotInstalled",
+						"verifyReady",
+						"workflowHint",
+						"workflowLink"
 					]
 				},
 				"giteaIntegration": {
@@ -7578,55 +7571,15 @@
 								},
 								"baseUrlInvalid": {
 									"type": "string"
-								},
-								"ownerRequired": {
-									"type": "string"
-								},
-								"ownerInvalid": {
-									"type": "string"
-								},
-								"nameRequired": {
-									"type": "string"
-								},
-								"nameInvalid": {
-									"type": "string"
 								}
 							},
-							"required": [
-								"baseUrlRequired",
-								"baseUrlInvalid",
-								"ownerRequired",
-								"ownerInvalid",
-								"nameRequired",
-								"nameInvalid"
-							]
+							"required": ["baseUrlRequired", "baseUrlInvalid"]
 						},
 						"toast": {
 							"type": "object",
 							"additionalProperties": false,
 							"properties": {
-								"verifyOk": {
-									"type": "string"
-								},
-								"verifyWarning": {
-									"type": "string"
-								},
-								"repoNotFound": {
-									"type": "string"
-								},
-								"redirected": {
-									"type": "string"
-								},
-								"notGiteaInstance": {
-									"type": "string"
-								},
 								"verifyError": {
-									"type": "string"
-								},
-								"tokenRequired": {
-									"type": "string"
-								},
-								"tokenRequiredVerify": {
 									"type": "string"
 								},
 								"verifyFirst": {
@@ -7658,23 +7611,10 @@
 								},
 								"settingsUpdateError": {
 									"type": "string"
-								},
-								"secretCopied": {
-									"type": "string"
-								},
-								"unableToCopySecret": {
-									"type": "string"
 								}
 							},
 							"required": [
-								"verifyOk",
-								"verifyWarning",
-								"repoNotFound",
-								"redirected",
-								"notGiteaInstance",
 								"verifyError",
-								"tokenRequired",
-								"tokenRequiredVerify",
 								"verifyFirst",
 								"updated",
 								"updateError",
@@ -7885,46 +7825,17 @@
 								"baseUrlInvalid": {
 									"type": "string"
 								},
-								"pathRequired": {
-									"type": "string"
-								},
 								"pathInvalid": {
 									"type": "string"
 								}
 							},
-							"required": [
-								"baseUrlRequired",
-								"baseUrlInvalid",
-								"pathRequired",
-								"pathInvalid"
-							]
+							"required": ["baseUrlRequired", "baseUrlInvalid", "pathInvalid"]
 						},
 						"toast": {
 							"type": "object",
 							"additionalProperties": false,
 							"properties": {
-								"verifyOk": {
-									"type": "string"
-								},
-								"verifyWarning": {
-									"type": "string"
-								},
-								"projectNotFound": {
-									"type": "string"
-								},
-								"redirected": {
-									"type": "string"
-								},
-								"notGitlabInstance": {
-									"type": "string"
-								},
 								"verifyError": {
-									"type": "string"
-								},
-								"tokenRequired": {
-									"type": "string"
-								},
-								"tokenRequiredVerify": {
 									"type": "string"
 								},
 								"verifyFirst": {
@@ -7956,23 +7867,10 @@
 								},
 								"settingsUpdateError": {
 									"type": "string"
-								},
-								"secretCopied": {
-									"type": "string"
-								},
-								"unableToCopySecret": {
-									"type": "string"
 								}
 							},
 							"required": [
-								"verifyOk",
-								"verifyWarning",
-								"projectNotFound",
-								"redirected",
-								"notGitlabInstance",
 								"verifyError",
-								"tokenRequired",
-								"tokenRequiredVerify",
 								"verifyFirst",
 								"updated",
 								"updateError",
@@ -8821,12 +8719,14 @@
 						"secretHint",
 						"secretHintConfigured",
 						"eventsTitle",
-						"eventsHint",
 						"events",
 						"reminderLeadTimeLabel",
 						"connect",
-						"saveChanges",
-						"disconnect"
+						"activeTitle",
+						"reminderLeadTimeBefore",
+						"reminderLeadTimeAfter",
+						"disconnectTitle",
+						"disconnectDescription"
 					]
 				},
 				"telegramIntegration": {
@@ -8919,16 +8819,10 @@
 						"chatIdPlaceholder": {
 							"type": "string"
 						},
-						"chatIdHint": {
-							"type": "string"
-						},
 						"threadIdLabel": {
 							"type": "string"
 						},
 						"threadIdPlaceholder": {
-							"type": "string"
-						},
-						"threadIdHint": {
 							"type": "string"
 						},
 						"chatLabelLabel": {
@@ -8937,83 +8831,32 @@
 						"chatLabelPlaceholder": {
 							"type": "string"
 						},
-						"chatLabelHint": {
-							"type": "string"
-						},
-						"eventsTitle": {
-							"type": "string"
-						},
-						"eventsHint": {
-							"type": "string"
-						},
-						"events": {
-							"type": "object",
-							"additionalProperties": false,
-							"properties": {
-								"taskCreated": {
-									"type": "string"
-								},
-								"taskStatusChanged": {
-									"type": "string"
-								},
-								"taskPriorityChanged": {
-									"type": "string"
-								},
-								"taskTitleChanged": {
-									"type": "string"
-								},
-								"taskDescriptionChanged": {
-									"type": "string"
-								},
-								"taskCommentCreated": {
-									"type": "string"
-								}
-							},
-							"required": [
-								"taskCreated",
-								"taskStatusChanged",
-								"taskPriorityChanged",
-								"taskTitleChanged",
-								"taskDescriptionChanged",
-								"taskCommentCreated"
-							]
-						},
 						"connect": {
 							"type": "string"
 						},
-						"saveChanges": {
+						"loadError": {
 							"type": "string"
 						},
-						"disconnect": {
+						"botTokenSavedPlaceholder": {
 							"type": "string"
 						}
 					},
 					"required": [
 						"validation",
 						"toast",
-						"connectionTitle",
-						"connectionHint",
-						"connected",
-						"paused",
 						"botTokenLabel",
 						"botTokenPlaceholder",
 						"botTokenHint",
 						"botTokenHintConfigured",
 						"chatIdLabel",
 						"chatIdPlaceholder",
-						"chatIdHint",
 						"threadIdLabel",
 						"threadIdPlaceholder",
-						"threadIdHint",
 						"chatLabelLabel",
 						"chatLabelPlaceholder",
-						"chatLabelHint",
-						"eventsTitle",
-						"eventsHint",
-						"events",
 						"connect",
-						"saveChanges",
-						"disconnect"
+						"loadError",
+						"botTokenSavedPlaceholder"
 					]
 				},
 				"repositoryBrowser": {
@@ -9050,79 +8893,25 @@
 						"noSearchMatchHint": {
 							"type": "string"
 						},
-						"footerSummary": {
+						"emptyPageHint": {
 							"type": "string"
 						},
-						"manageInstallations": {
+						"loadMore": {
 							"type": "string"
 						},
-						"updatedPrefix": {
+						"manageAccess": {
 							"type": "string"
 						},
-						"relativeJustNow": {
+						"missingOne": {
 							"type": "string"
 						},
-						"relativeMinutesAgo": {
+						"searching": {
 							"type": "string"
 						},
-						"relativeMinutesAgo_zero": {
+						"updated": {
 							"type": "string"
 						},
-						"relativeMinutesAgo_one": {
-							"type": "string"
-						},
-						"relativeMinutesAgo_two": {
-							"type": "string"
-						},
-						"relativeMinutesAgo_few": {
-							"type": "string"
-						},
-						"relativeMinutesAgo_many": {
-							"type": "string"
-						},
-						"relativeMinutesAgo_other": {
-							"type": "string"
-						},
-						"relativeHoursAgo": {
-							"type": "string"
-						},
-						"relativeHoursAgo_zero": {
-							"type": "string"
-						},
-						"relativeHoursAgo_one": {
-							"type": "string"
-						},
-						"relativeHoursAgo_two": {
-							"type": "string"
-						},
-						"relativeHoursAgo_few": {
-							"type": "string"
-						},
-						"relativeHoursAgo_many": {
-							"type": "string"
-						},
-						"relativeHoursAgo_other": {
-							"type": "string"
-						},
-						"relativeDaysAgo": {
-							"type": "string"
-						},
-						"relativeDaysAgo_zero": {
-							"type": "string"
-						},
-						"relativeDaysAgo_one": {
-							"type": "string"
-						},
-						"relativeDaysAgo_two": {
-							"type": "string"
-						},
-						"relativeDaysAgo_few": {
-							"type": "string"
-						},
-						"relativeDaysAgo_many": {
-							"type": "string"
-						},
-						"relativeDaysAgo_other": {
+						"useRepository": {
 							"type": "string"
 						}
 					},
@@ -9137,10 +8926,13 @@
 						"installGithubApp",
 						"noSearchMatchTitle",
 						"noSearchMatchHint",
-						"footerSummary",
-						"manageInstallations",
-						"updatedPrefix",
-						"relativeJustNow"
+						"emptyPageHint",
+						"loadMore",
+						"manageAccess",
+						"missingOne",
+						"searching",
+						"updated",
+						"useRepository"
 					]
 				},
 				"tasksImportExport": {
@@ -9250,43 +9042,17 @@
 						"importError",
 						"invalidFormat",
 						"noFileDropped",
-						"notJsonFile"
+						"notJsonFile",
+						"exportDescription",
+						"export",
+						"importDescription",
+						"import"
 					]
 				},
 				"workflowEditor": {
 					"type": "object",
 					"additionalProperties": false,
 					"properties": {
-						"loading": {
-							"type": "string"
-						},
-						"createColumnsFirst": {
-							"type": "string"
-						},
-						"githubHeading": {
-							"type": "string"
-						},
-						"githubHint": {
-							"type": "string"
-						},
-						"giteaHeading": {
-							"type": "string"
-						},
-						"giteaHint": {
-							"type": "string"
-						},
-						"gitlabHeading": {
-							"type": "string"
-						},
-						"gitlabHint": {
-							"type": "string"
-						},
-						"selectColumnPlaceholder": {
-							"type": "string"
-						},
-						"toastUpdated": {
-							"type": "string"
-						},
 						"toastError": {
 							"type": "string"
 						},
@@ -9317,21 +9083,31 @@
 								"issue_opened",
 								"issue_closed"
 							]
+						},
+						"dontMove": {
+							"type": "string"
+						},
+						"emptyTitle": {
+							"type": "string"
+						},
+						"emptyDescription": {
+							"type": "string"
+						},
+						"openIntegrations": {
+							"type": "string"
+						},
+						"connectMore": {
+							"type": "string"
 						}
 					},
 					"required": [
-						"loading",
-						"createColumnsFirst",
-						"githubHeading",
-						"githubHint",
-						"giteaHeading",
-						"giteaHint",
-						"gitlabHeading",
-						"gitlabHint",
-						"selectColumnPlaceholder",
-						"toastUpdated",
 						"toastError",
-						"events"
+						"events",
+						"dontMove",
+						"emptyTitle",
+						"emptyDescription",
+						"openIntegrations",
+						"connectMore"
 					]
 				},
 				"externalLinks": {

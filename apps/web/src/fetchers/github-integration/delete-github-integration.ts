@@ -2,11 +2,11 @@ import { client } from "@kaneo/libs";
 
 import { HttpError } from "@/lib/http-error";
 
-async function deleteGithubIntegration(projectId: string) {
-  const response = await client["github-integration"].project[
-    ":projectId"
+async function deleteGithubIntegration(integrationId: string) {
+  const response = await client["github-integration"].integration[
+    ":integrationId"
   ].$delete({
-    param: { projectId },
+    param: { integrationId },
   });
 
   if (!response.ok) {

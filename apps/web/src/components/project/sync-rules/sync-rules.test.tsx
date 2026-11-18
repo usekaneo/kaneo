@@ -55,7 +55,11 @@ vi.mock("@/fetchers/integration-sync/resume-sync", () => ({
 }));
 vi.mock("@/lib/toast", () => ({ toast: { success: vi.fn() } }));
 
-const param = { projectId: "project-1", provider: "gitea" as const };
+const param = {
+  projectId: "project-1",
+  provider: "gitea" as const,
+  integrationId: "integration-1",
+};
 const saved: SyncPreview = {
   isActive: true,
   rules: {
@@ -188,8 +192,16 @@ describe("advanced sync settings", () => {
   });
 
   it.each([
-    { projectId: "another-project", provider: "gitea" as const },
-    { projectId: param.projectId, provider: "github" as const },
+    {
+      projectId: "another-project",
+      provider: "gitea" as const,
+      integrationId: "integration-1",
+    },
+    {
+      projectId: param.projectId,
+      provider: "github" as const,
+      integrationId: "integration-1",
+    },
   ])(
     "does not show a previous integration's data while changing scope to %j",
     async (nextParam) => {
@@ -255,7 +267,13 @@ describe("advanced sync settings", () => {
       };
       act(() =>
         client.setQueryData(
-          ["integration-sync", param.projectId, param.provider, ""],
+          [
+            "integration-sync",
+            param.projectId,
+            param.provider,
+            param.integrationId,
+            "",
+          ],
           {
             ...initial,
             rules: { outgoing: { mode: "all" }, incoming: { mode: "all" } },
@@ -297,7 +315,13 @@ describe("advanced sync settings", () => {
     await screen.findByRole("checkbox", { name: "sync" });
     act(() =>
       client.setQueryData(
-        ["integration-sync", param.projectId, param.provider, ""],
+        [
+          "integration-sync",
+          param.projectId,
+          param.provider,
+          param.integrationId,
+          "",
+        ],
         {
           ...saved,
           rules: { outgoing: { mode: "all" }, incoming: { mode: "all" } },
@@ -324,6 +348,7 @@ describe("advanced sync settings", () => {
       "integration-sync-preview",
       param.projectId,
       param.provider,
+      param.integrationId,
       saved.rules,
     ];
     client.setQueryData(key, { ...saved, paused: 1, needsReview: 1 });

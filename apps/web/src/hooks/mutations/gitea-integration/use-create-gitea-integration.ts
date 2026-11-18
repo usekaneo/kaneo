@@ -30,8 +30,14 @@ export function useDeleteGiteaIntegration() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (projectId: string) => deleteGiteaIntegration(projectId),
-    onSuccess: (_, projectId) => {
+    mutationFn: ({
+      projectId,
+      integrationId,
+    }: {
+      projectId: string;
+      integrationId: string;
+    }) => deleteGiteaIntegration(integrationId),
+    onSuccess: (_, { projectId }) => {
       queryClient.invalidateQueries({
         queryKey: ["gitea-integration", projectId],
       });

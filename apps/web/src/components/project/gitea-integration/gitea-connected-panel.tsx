@@ -7,12 +7,12 @@ import { WebhookSection } from "@/components/project/code-hosting/webhook-sectio
 import { GiteaIssuesSection } from "@/components/project/gitea-integration/gitea-issues-section";
 import { GiteaRepositorySection } from "@/components/project/gitea-integration/gitea-repository-section";
 import { useGiteaVerification } from "@/components/project/gitea-integration/use-gitea-verification";
-import { useSaveGiteaIntegration } from "@/components/project/gitea-integration/use-save-gitea-integration";
 import { IntegrationPanel } from "@/components/project/integrations/panel/integration-panel";
 import { IntegrationPanelFooter } from "@/components/project/integrations/panel/integration-panel-footer";
 import { SyncRulesSection } from "@/components/project/sync-rules/sync-rules-section";
-import type { GiteaIntegration } from "@/fetchers/gitea-integration/get-gitea-integration";
+import type { GiteaIntegration } from "@/fetchers/gitea-integration/get-gitea-integrations";
 import { useDeleteGiteaIntegration } from "@/hooks/mutations/gitea-integration/use-create-gitea-integration";
+import { useUpdateGiteaIntegration } from "@/hooks/mutations/gitea-integration/use-update-gitea-integration";
 import { toast } from "@/lib/toast";
 
 type GiteaConnectedPanelProps = {
@@ -36,14 +36,32 @@ export function GiteaConnectedPanel({
     projectId,
     isConnected && !editingToken ? savedAccess : null,
   );
-  const { save, saving } = useSaveGiteaIntegration(projectId);
+  const { mutateAsync: update, isPending: isReconnecting } =
+    useUpdateGiteaIntegration();
   const { mutateAsync: remove, isPending: isDeleting } =
     useDeleteGiteaIntegration();
   const target = `${integration.repositoryOwner}/${integration.repositoryName}`;
 
+  const reconnect = async () => {
+    try {
+      await update({
+        projectId,
+        integrationId: integration.id,
+        json: { isActive: true },
+      });
+      toast.success(t("settings:giteaIntegration.toast.updated"));
+    } catch (error) {
+      toast.error(
+        error instanceof Error
+          ? error.message
+          : t("settings:giteaIntegration.toast.updateError"),
+      );
+    }
+  };
+
   const disconnect = async () => {
     try {
-      await remove(projectId);
+      await remove({ projectId, integrationId: integration.id });
       toast.success(t("settings:giteaIntegration.toast.removed"), {
         icon: UnplugIcon,
       });
@@ -62,12 +80,13 @@ export function GiteaConnectedPanel({
     <IntegrationPanel>
       <GiteaRepositorySection
         projectId={projectId}
+        integrationId={integration.id}
         integration={integration}
         status={status}
         editingToken={editingToken}
-        reconnecting={saving}
+        reconnecting={isReconnecting}
         onEditingTokenChange={setEditingToken}
-        onReconnect={() => void save(savedAccess, false)}
+        onReconnect={() => void reconnect()}
       />
       {integration.webhookUrl ? (
         <WebhookSection
@@ -79,20 +98,22 @@ export function GiteaConnectedPanel({
       ) : null}
       <GiteaIssuesSection
         projectId={projectId}
+        integrationId={integration.id}
         isConnected={isConnected}
         verified={isAccessVerified(status.result)}
         checking={status.checking}
       />
       <SyncRulesSection
-        key={`${projectId}:gitea`}
+        key={integration.id}
         projectId={projectId}
         provider="gitea"
+        integrationId={integration.id}
       />
       <IntegrationPanelFooter>
         <DisconnectIntegrationButton
           provider="Gitea"
           target={target}
-          pending={isDeleting || saving}
+          pending={isDeleting || isReconnecting}
           onConfirm={disconnect}
         />
       </IntegrationPanelFooter>

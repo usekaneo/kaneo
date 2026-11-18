@@ -12,6 +12,7 @@ export function useSyncPreview(
       "integration-sync-preview",
       param.projectId,
       param.provider,
+      param.integrationId,
       rules,
     ],
     queryFn: () => previewSyncRules(param, rules),

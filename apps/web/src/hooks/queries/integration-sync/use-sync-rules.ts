@@ -8,12 +8,14 @@ export function useSyncRules(param: SyncParams, after?: string) {
       "integration-sync",
       param.projectId,
       param.provider,
+      param.integrationId,
       after ?? "",
     ],
     queryFn: () => getSyncRules(param, after),
     placeholderData: (previousData, previousQuery) =>
       previousQuery?.queryKey[1] === param.projectId &&
-      previousQuery.queryKey[2] === param.provider
+      previousQuery.queryKey[2] === param.provider &&
+      previousQuery.queryKey[3] === param.integrationId
         ? previousData
         : undefined,
   });

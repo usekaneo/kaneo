@@ -30,8 +30,14 @@ export function useDeleteGithubIntegration() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (projectId: string) => deleteGithubIntegration(projectId),
-    onSuccess: (_, projectId) => {
+    mutationFn: ({
+      projectId,
+      integrationId,
+    }: {
+      projectId: string;
+      integrationId: string;
+    }) => deleteGithubIntegration(integrationId),
+    onSuccess: (_, { projectId }) => {
       queryClient.invalidateQueries({
         queryKey: ["github-integration", projectId],
       });

@@ -5,17 +5,20 @@ import { ChangeTokenForm } from "@/components/project/code-hosting/change-token-
 import type { GitlabTokenType } from "@/components/project/gitlab-integration/gitlab-access";
 import { GitlabTokenTypeSelect } from "@/components/project/gitlab-integration/gitlab-token-type-select";
 import { useGitlabVerification } from "@/components/project/gitlab-integration/use-gitlab-verification";
-import { useSaveGitlabIntegration } from "@/components/project/gitlab-integration/use-save-gitlab-integration";
-import type { GitlabIntegration } from "@/fetchers/gitlab-integration/get-gitlab-integration";
+import type { GitlabIntegration } from "@/fetchers/gitlab-integration/get-gitlab-integrations";
+import { useUpdateGitlabIntegration } from "@/hooks/mutations/gitlab-integration/use-update-gitlab-integration";
+import { toast } from "@/lib/toast";
 
 type GitlabChangeTokenProps = {
   projectId: string;
+  integrationId: string;
   integration: GitlabIntegration;
   onDone: () => void;
 };
 
 export function GitlabChangeToken({
   projectId,
+  integrationId,
   integration,
   onDone,
 }: GitlabChangeTokenProps) {
@@ -35,7 +38,8 @@ export function GitlabChangeToken({
     : null;
   const verification = useGitlabVerification(projectId, access);
   const verified = isAccessVerified(verification.result);
-  const { save, saving } = useSaveGitlabIntegration(projectId);
+  const { mutateAsync: update, isPending: saving } =
+    useUpdateGitlabIntegration();
 
   return (
     <ChangeTokenForm
@@ -58,7 +62,25 @@ export function GitlabChangeToken({
       onTokenChange={setToken}
       onCancel={onDone}
       onSave={async () => {
-        if (access && (await save(access, verified))) onDone();
+        if (!access) return;
+        try {
+          await update({
+            projectId,
+            integrationId,
+            json: {
+              accessToken: access.accessToken,
+              tokenType: access.tokenType,
+            },
+          });
+          toast.success(t("settings:gitlabIntegration.toast.updated"));
+          onDone();
+        } catch (error) {
+          toast.error(
+            error instanceof Error
+              ? error.message
+              : t("settings:gitlabIntegration.toast.updateError"),
+          );
+        }
       }}
     />
   );

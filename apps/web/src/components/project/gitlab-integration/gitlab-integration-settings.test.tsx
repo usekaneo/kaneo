@@ -18,6 +18,8 @@ import { GitlabIntegrationSettings } from "./gitlab-integration-settings";
 const m = vi.hoisted(() => ({
   verify: vi.fn(),
   create: vi.fn(),
+  update: vi.fn(),
+  remove: vi.fn(),
   importIssues: vi.fn(),
   refetch: vi.fn(),
   query: {
@@ -28,6 +30,7 @@ const m = vi.hoisted(() => ({
   },
 }));
 const saved = {
+  id: "integration-1",
   baseUrl: "https://gitlab.example",
   projectPath: "group/sub/project",
   tokenType: "private",
@@ -45,7 +48,7 @@ vi.mock("react-i18next", () => ({
   useTranslation: () => ({ t: (key: string) => key }),
 }));
 vi.mock(
-  "@/hooks/queries/gitlab-integration/use-get-gitlab-integration",
+  "@/hooks/queries/gitlab-integration/use-get-gitlab-integrations",
   () => ({
     default: () => ({ ...m.query.current, refetch: m.refetch }),
   }),
@@ -59,7 +62,7 @@ vi.mock(
       isPending: false,
     }),
     useDeleteGitlabIntegration: () => ({
-      mutateAsync: vi.fn(),
+      mutateAsync: m.remove,
       isPending: false,
     }),
   }),
@@ -67,7 +70,7 @@ vi.mock(
 vi.mock(
   "@/hooks/mutations/gitlab-integration/use-update-gitlab-integration",
   () => ({
-    useUpdateGitlabIntegration: () => ({ mutateAsync: vi.fn() }),
+    useUpdateGitlabIntegration: () => ({ mutateAsync: m.update }),
   }),
 );
 vi.mock(
@@ -76,9 +79,12 @@ vi.mock(
     default: () => ({ mutateAsync: m.importIssues }),
   }),
 );
-vi.mock("./gitlab-project-picker", () => ({
-  GitlabProjectPicker: () => null,
-}));
+vi.mock(
+  "@/components/project/gitlab-integration/gitlab-project-picker",
+  () => ({
+    GitlabProjectPicker: () => null,
+  }),
+);
 vi.mock("@/components/project/sync-rules/sync-rules-section", () => ({
   SyncRulesSection: () => <p>Sync rules</p>,
 }));
@@ -165,23 +171,32 @@ describe("GitLab setup", () => {
 
 describe("connected GitLab project", () => {
   it("imports issues without asking for the token again", async () => {
-    m.query.current = { data: saved, isLoading: false, error: null };
+    m.query.current = {
+      data: { integrations: [saved], usage: {} },
+      isLoading: false,
+      error: null,
+    };
     m.importIssues.mockResolvedValue({});
     render(<GitlabIntegrationSettings projectId="project" />);
     fireEvent.click(
       screen.getByRole("button", { name: "settings:codeHosting.importIssues" }),
     );
-    await waitFor(() => expect(m.importIssues).toHaveBeenCalledWith("project"));
+    await waitFor(() =>
+      expect(m.importIssues).toHaveBeenCalledWith({
+        projectId: "project",
+        integrationId: "integration-1",
+      }),
+    );
     expect(m.verify).not.toHaveBeenCalled();
   });
 
-  it("reconnects a paused project with the stored token", async () => {
+  it("reconnects a paused project by reactivating its binding", async () => {
     m.query.current = {
-      data: { ...saved, isActive: false },
+      data: { integrations: [{ ...saved, isActive: false }], usage: {} },
       isLoading: false,
       error: null,
     };
-    m.create.mockResolvedValue({});
+    m.update.mockResolvedValue({});
     render(<GitlabIntegrationSettings projectId="project" />);
     expect(
       screen.getByRole("button", { name: "settings:codeHosting.importIssues" }),
@@ -190,13 +205,10 @@ describe("connected GitLab project", () => {
       screen.getByRole("button", { name: "settings:codeHosting.reconnect" }),
     );
     await waitFor(() =>
-      expect(m.create).toHaveBeenCalledWith({
+      expect(m.update).toHaveBeenCalledWith({
         projectId: "project",
-        data: {
-          baseUrl: saved.baseUrl,
-          tokenType: "private",
-          projectPath: saved.projectPath,
-        },
+        integrationId: "integration-1",
+        json: { isActive: true },
       }),
     );
   });

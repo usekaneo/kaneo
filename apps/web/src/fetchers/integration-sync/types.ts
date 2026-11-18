@@ -1,13 +1,23 @@
 import { client } from "@kaneo/libs";
 import type { InferRequestType, InferResponseType } from "hono";
+import { HttpError } from "@/lib/http-error";
 
-type SyncRoute =
+type CompatSyncRoute =
   (typeof client)["integration-sync"]["project"][":projectId"][":provider"];
-export type SyncParams = InferRequestType<SyncRoute["$get"]>["param"];
-export type SyncRules = InferRequestType<SyncRoute["$patch"]>["json"]["rules"];
+type BindingSyncRoute =
+  (typeof client)["integration-sync"]["integration"][":integrationId"];
+
+export type SyncParams = {
+  projectId: string;
+  provider: InferRequestType<CompatSyncRoute["$get"]>["param"]["provider"];
+  integrationId: string;
+};
+export type SyncRules = InferRequestType<
+  BindingSyncRoute["$patch"]
+>["json"]["rules"];
 export type LabelRule = SyncRules["outgoing"];
-export type SyncPreview = InferResponseType<SyncRoute["$get"], 200>;
+export type SyncPreview = InferResponseType<BindingSyncRoute["$get"], 200>;
 export type ResumePreview = InferResponseType<
-  SyncRoute["links"][":linkId"]["review"]["$get"],
+  BindingSyncRoute["links"][":linkId"]["review"]["$get"],
   200
 >;

@@ -3,17 +3,17 @@ import type { InferRequestType } from "hono";
 import { HttpError } from "@/lib/http-error";
 
 export type UpdateGithubIntegrationRequest = InferRequestType<
-  (typeof client)["github-integration"]["project"][":projectId"]["$patch"]
+  (typeof client)["github-integration"]["integration"][":integrationId"]["$patch"]
 >["json"];
 
 async function updateGithubIntegration(
-  projectId: string,
+  integrationId: string,
   json: UpdateGithubIntegrationRequest,
 ) {
-  const response = await client["github-integration"].project[
-    ":projectId"
+  const response = await client["github-integration"].integration[
+    ":integrationId"
   ].$patch({
-    param: { projectId },
+    param: { integrationId },
     json,
   });
 

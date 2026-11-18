@@ -21,9 +21,13 @@ import { Button } from "@/components/ui/button";
 
 type GitlabSetupPanelProps = {
   projectId: string;
+  onConnected?: () => void;
 };
 
-export function GitlabSetupPanel({ projectId }: GitlabSetupPanelProps) {
+export function GitlabSetupPanel({
+  projectId,
+  onConnected,
+}: GitlabSetupPanelProps) {
   const { t } = useTranslation();
   const [baseUrl, setBaseUrl] = useState(GITLAB_CLOUD_URL);
   const [token, setToken] = useState("");
@@ -111,7 +115,10 @@ export function GitlabSetupPanel({ projectId }: GitlabSetupPanelProps) {
             loading={saving}
             disabled={!access || blocked}
             onClick={() => {
-              if (access) void save(access, verified);
+              if (access)
+                void save(access, verified).then((ok) => {
+                  if (ok) onConnected?.();
+                });
             }}
           >
             {t("settings:codeHosting.connectProject")}

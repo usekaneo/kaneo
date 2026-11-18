@@ -7,9 +7,12 @@ export default async function saveSyncRules(
   rules: SyncRules,
   previewToken: string,
 ) {
-  const response = await client["integration-sync"].project[":projectId"][
-    ":provider"
-  ].$patch({ param, json: { rules, previewToken } });
+  const response = await client["integration-sync"].integration[
+    ":integrationId"
+  ].$patch({
+    param: { integrationId: param.integrationId },
+    json: { rules, previewToken },
+  });
   if (!response.ok) throw await HttpError.fromResponse(response);
   return response.json();
 }

@@ -20,9 +20,13 @@ import { Button } from "@/components/ui/button";
 
 type GiteaSetupPanelProps = {
   projectId: string;
+  onConnected?: () => void;
 };
 
-export function GiteaSetupPanel({ projectId }: GiteaSetupPanelProps) {
+export function GiteaSetupPanel({
+  projectId,
+  onConnected,
+}: GiteaSetupPanelProps) {
   const { t } = useTranslation();
   const [baseUrl, setBaseUrl] = useState("");
   const [token, setToken] = useState("");
@@ -104,7 +108,10 @@ export function GiteaSetupPanel({ projectId }: GiteaSetupPanelProps) {
             loading={saving}
             disabled={!access || blocked}
             onClick={() => {
-              if (access) void save(access, verified);
+              if (access)
+                void save(access, verified).then((ok) => {
+                  if (ok) onConnected?.();
+                });
             }}
           >
             {t("settings:codeHosting.connectRepository")}

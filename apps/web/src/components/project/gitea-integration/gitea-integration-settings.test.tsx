@@ -20,12 +20,14 @@ const m = vi.hoisted(() => ({
   verify: vi.fn(),
   create: vi.fn(),
   remove: vi.fn(),
+  update: vi.fn(),
   importIssues: vi.fn(),
   success: vi.fn(),
   failure: vi.fn(),
   integration: { current: null as null | Record<string, unknown> },
 }));
 const saved = {
+  id: "integration-1",
   baseUrl: "https://gitea.example",
   repositoryOwner: "owner",
   repositoryName: "repo",
@@ -44,7 +46,7 @@ vi.mock("@/hooks/use-workspace-permission", () => ({
 vi.mock("react-i18next", () => ({
   useTranslation: () => ({ t: (key: string) => key }),
 }));
-vi.mock("@/hooks/queries/gitea-integration/use-get-gitea-integration", () => ({
+vi.mock("@/hooks/queries/gitea-integration/use-get-gitea-integrations", () => ({
   default: () => ({ data: m.integration.current, isLoading: false }),
 }));
 vi.mock(
@@ -64,7 +66,7 @@ vi.mock(
 vi.mock(
   "@/hooks/mutations/gitea-integration/use-update-gitea-integration",
   () => ({
-    useUpdateGiteaIntegration: () => ({ mutateAsync: vi.fn() }),
+    useUpdateGiteaIntegration: () => ({ mutateAsync: m.update }),
   }),
 );
 vi.mock("@/hooks/mutations/gitea-integration/use-import-gitea-issues", () => ({
@@ -96,8 +98,9 @@ afterEach(() => {
 beforeEach(() => {
   permissions.create = true;
   permissions.update = true;
-  m.integration.current = saved;
+  m.integration.current = { integrations: [saved], usage: {} };
   m.verify.mockResolvedValue(verified);
+  m.update.mockResolvedValue({});
 });
 
 describe("connected Gitea repository", () => {
@@ -118,7 +121,12 @@ describe("connected Gitea repository", () => {
     });
     expect(importButton).toBeEnabled();
     fireEvent.click(importButton);
-    await waitFor(() => expect(m.importIssues).toHaveBeenCalledWith("project"));
+    await waitFor(() =>
+      expect(m.importIssues).toHaveBeenCalledWith({
+        projectId: "project",
+        integrationId: "integration-1",
+      }),
+    );
     expect(screen.queryByText(saved.webhookSecret)).toBeNull();
   });
 
@@ -168,14 +176,10 @@ describe("connected Gitea repository", () => {
     await waitFor(() => expect(saveButton).toBeEnabled());
     fireEvent.click(saveButton);
     await waitFor(() =>
-      expect(m.create).toHaveBeenCalledWith({
+      expect(m.update).toHaveBeenCalledWith({
         projectId: "project",
-        data: {
-          baseUrl: saved.baseUrl,
-          accessToken: "new-token",
-          repositoryOwner: "owner",
-          repositoryName: "repo",
-        },
+        integrationId: "integration-1",
+        json: { accessToken: "new-token" },
       }),
     );
   });
@@ -193,7 +197,12 @@ describe("connected Gitea repository", () => {
         name: "settings:codeHosting.disconnect",
       }),
     );
-    await waitFor(() => expect(m.remove).toHaveBeenCalledWith("project"));
+    await waitFor(() =>
+      expect(m.remove).toHaveBeenCalledWith({
+        projectId: "project",
+        integrationId: "integration-1",
+      }),
+    );
   });
 });
 

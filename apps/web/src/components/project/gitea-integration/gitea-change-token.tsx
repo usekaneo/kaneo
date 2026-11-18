@@ -3,17 +3,20 @@ import { useTranslation } from "react-i18next";
 import { isAccessVerified } from "@/components/project/code-hosting/access-verification-tone";
 import { ChangeTokenForm } from "@/components/project/code-hosting/change-token-form";
 import { useGiteaVerification } from "@/components/project/gitea-integration/use-gitea-verification";
-import { useSaveGiteaIntegration } from "@/components/project/gitea-integration/use-save-gitea-integration";
-import type { GiteaIntegration } from "@/fetchers/gitea-integration/get-gitea-integration";
+import type { GiteaIntegration } from "@/fetchers/gitea-integration/get-gitea-integrations";
+import { useUpdateGiteaIntegration } from "@/hooks/mutations/gitea-integration/use-update-gitea-integration";
+import { toast } from "@/lib/toast";
 
 type GiteaChangeTokenProps = {
   projectId: string;
+  integrationId: string;
   integration: GiteaIntegration;
   onDone: () => void;
 };
 
 export function GiteaChangeToken({
   projectId,
+  integrationId,
   integration,
   onDone,
 }: GiteaChangeTokenProps) {
@@ -30,7 +33,8 @@ export function GiteaChangeToken({
     : null;
   const verification = useGiteaVerification(projectId, access);
   const verified = isAccessVerified(verification.result);
-  const { save, saving } = useSaveGiteaIntegration(projectId);
+  const { mutateAsync: update, isPending: saving } =
+    useUpdateGiteaIntegration();
 
   return (
     <ChangeTokenForm
@@ -46,7 +50,22 @@ export function GiteaChangeToken({
       onTokenChange={setToken}
       onCancel={onDone}
       onSave={async () => {
-        if (access && (await save(access, verified))) onDone();
+        if (!access) return;
+        try {
+          await update({
+            projectId,
+            integrationId,
+            json: { accessToken: access.accessToken },
+          });
+          toast.success(t("settings:giteaIntegration.toast.updated"));
+          onDone();
+        } catch (error) {
+          toast.error(
+            error instanceof Error
+              ? error.message
+              : t("settings:giteaIntegration.toast.updateError"),
+          );
+        }
       }}
     />
   );

@@ -12,6 +12,7 @@ export function useResumePreview(
       "integration-sync-review",
       param.projectId,
       param.provider,
+      param.integrationId,
       linkId,
     ],
     queryFn: ({ signal }) => reviewSyncResume(param, linkId, signal),

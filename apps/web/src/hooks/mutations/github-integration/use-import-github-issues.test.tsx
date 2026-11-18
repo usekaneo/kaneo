@@ -54,7 +54,12 @@ describe("GitHub import cache refresh", () => {
           new Error("connection lost after persisted page"),
         );
       const { result } = renderHook(useImportGithubIssues, { wrapper });
-      act(() => result.current.mutate({ projectId: "project" }));
+      act(() =>
+        result.current.mutate({
+          projectId: "project",
+          integrationId: "integration-1",
+        }),
+      );
       await waitFor(() =>
         expect(
           outcome === "success"

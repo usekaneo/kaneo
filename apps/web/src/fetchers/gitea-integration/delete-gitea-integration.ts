@@ -2,11 +2,11 @@ import { client } from "@kaneo/libs";
 
 import { HttpError } from "@/lib/http-error";
 
-async function deleteGiteaIntegration(projectId: string) {
-  const response = await client["gitea-integration"].project[
-    ":projectId"
+async function deleteGiteaIntegration(integrationId: string) {
+  const response = await client["gitea-integration"].integration[
+    ":integrationId"
   ].$delete({
-    param: { projectId },
+    param: { integrationId },
   });
 
   if (!response.ok) {

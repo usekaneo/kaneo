@@ -7,10 +7,12 @@ export default async function reviewSyncResume(
   linkId: string,
   signal?: AbortSignal,
 ) {
-  const response = await client["integration-sync"].project[":projectId"][
-    ":provider"
+  const response = await client["integration-sync"].integration[
+    ":integrationId"
   ].links[":linkId"].review.$get(
-    { param: { ...param, linkId } },
+    {
+      param: { integrationId: param.integrationId, linkId },
+    },
     { init: { signal } },
   );
   if (!response.ok) throw await HttpError.fromResponse(response);

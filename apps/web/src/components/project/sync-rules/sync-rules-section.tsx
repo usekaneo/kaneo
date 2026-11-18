@@ -13,7 +13,11 @@ import { ResumeSyncDialog } from "./resume-sync-dialog";
 import { SyncRulesEditor } from "./sync-rules-editor";
 import { SyncRulesSummary } from "./sync-rules-summary";
 
-export function SyncRulesSection({ projectId, provider }: SyncParams) {
+export function SyncRulesSection({
+  projectId,
+  provider,
+  integrationId,
+}: SyncParams) {
   const { t } = useTranslation();
   const advanced = useUserPreferencesStore((state) => state.advancedSettings);
   const { canManageSettings, canUpdateTasks } = useWorkspacePermission();
@@ -26,7 +30,7 @@ export function SyncRulesSection({ projectId, provider }: SyncParams) {
     taskId: string;
     linkId: string;
   } | null>(null);
-  const param = { projectId, provider };
+  const param = { projectId, provider, integrationId };
   const query = useSyncRules(param, pages.at(-1));
   const data = query.data;
   const canEdit = advanced && canManage;
@@ -98,7 +102,7 @@ export function SyncRulesSection({ projectId, provider }: SyncParams) {
       ) : null}
       {canEdit && editing ? (
         <SyncRulesEditor
-          key={`${projectId}:${provider}`}
+          key={integrationId}
           param={param}
           saved={data}
           onDone={() => setEditing(false)}

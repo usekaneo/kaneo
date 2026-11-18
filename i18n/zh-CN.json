@@ -1955,13 +1955,15 @@
 				"ended": "试用已结束",
 				"endingDescription": "现在就选一个套餐，别让团队的工作被打断。",
 				"expiredDescription": "订阅后即可继续创建和编辑。",
-				"viewPlans": "查看套餐"
+				"viewPlans": "查看套餐",
+				"daysLeft_one": "{{count}} day left in trial"
 			},
 			"openFailed": "无法打开此工作区的账单页面",
 			"checkoutSuccess": {
 				"title": "感谢订阅",
 				"description": "已收到付款。确认后，下方的方案会随即更新。"
-			}
+			},
+			"seats_one": "{{count}} seat"
 		},
 		"syncRules": {
 			"addLabel": "添加标签",

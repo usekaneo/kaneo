@@ -7,12 +7,13 @@ import { GitlabChangeToken } from "@/components/project/gitlab-integration/gitla
 import { IntegrationCheckLine } from "@/components/project/integrations/panel/integration-check-line";
 import { IntegrationPanelSection } from "@/components/project/integrations/panel/integration-panel-section";
 import { Button } from "@/components/ui/button";
-import type { GitlabIntegration } from "@/fetchers/gitlab-integration/get-gitlab-integration";
+import type { GitlabIntegration } from "@/fetchers/gitlab-integration/get-gitlab-integrations";
 import { useUpdateGitlabIntegration } from "@/hooks/mutations/gitlab-integration/use-update-gitlab-integration";
 import { toast } from "@/lib/toast";
 
 type GitlabRepositorySectionProps = {
   projectId: string;
+  integrationId: string;
   integration: GitlabIntegration;
   editingToken: boolean;
   reconnecting: boolean;
@@ -22,6 +23,7 @@ type GitlabRepositorySectionProps = {
 
 export function GitlabRepositorySection({
   projectId,
+  integrationId,
   integration,
   editingToken,
   reconnecting,
@@ -37,6 +39,7 @@ export function GitlabRepositorySection({
     try {
       await update({
         projectId,
+        integrationId,
         json: { commentTaskLinkOnGitlabIssue: next },
       });
       toast.success(
@@ -98,6 +101,7 @@ export function GitlabRepositorySection({
       {editingToken ? (
         <GitlabChangeToken
           projectId={projectId}
+          integrationId={integrationId}
           integration={integration}
           onDone={() => onEditingTokenChange(false)}
         />

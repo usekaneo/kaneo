@@ -5,8 +5,14 @@ export default function useImportGitlabIssues() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (projectId: string) => importGitlabIssues(projectId),
-    onSuccess: (_, projectId) => {
+    mutationFn: ({
+      projectId,
+      integrationId,
+    }: {
+      projectId: string;
+      integrationId: string;
+    }) => importGitlabIssues({ projectId, integrationId }),
+    onSuccess: (_, { projectId }) => {
       queryClient.invalidateQueries({ queryKey: ["tasks", projectId] });
       queryClient.invalidateQueries({ queryKey: ["project", projectId] });
     },

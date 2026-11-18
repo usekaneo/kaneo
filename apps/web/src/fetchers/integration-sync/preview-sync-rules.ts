@@ -6,9 +6,12 @@ export default async function previewSyncRules(
   param: SyncParams,
   rules: SyncRules,
 ) {
-  const response = await client["integration-sync"].project[":projectId"][
-    ":provider"
-  ].preview.$post({ param, json: { rules } });
+  const response = await client["integration-sync"].integration[
+    ":integrationId"
+  ].preview.$post({
+    param: { integrationId: param.integrationId },
+    json: { rules },
+  });
   if (!response.ok) throw await HttpError.fromResponse(response);
   return response.json();
 }

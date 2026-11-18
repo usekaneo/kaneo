@@ -9,11 +9,13 @@ export function useUpdateGithubIntegration() {
   return useMutation({
     mutationFn: ({
       projectId,
+      integrationId,
       json,
     }: {
       projectId: string;
+      integrationId: string;
       json: UpdateGithubIntegrationRequest;
-    }) => updateGithubIntegration(projectId, json),
+    }) => updateGithubIntegration(integrationId, json),
     onSuccess: (_, { projectId }) => {
       void queryClient.invalidateQueries({
         queryKey: ["github-integration", projectId],
