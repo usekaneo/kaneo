@@ -3929,6 +3929,11 @@
 			"durationSeconds": "{{seconds, number}}s",
 			"durationMinutes": "{{minutes, number}}min",
 			"durationHoursMinutes": "{{hours, number}}h {{minutes, number}}min"
+		},
+		"type": {
+			"label": "Tipo",
+			"bug": "Bug",
+			"task": "Tarefa"
 		}
 	},
 	"invitations": {

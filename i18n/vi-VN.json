@@ -3785,6 +3785,11 @@
 			"durationSeconds": "{{seconds, number}} giây",
 			"durationMinutes": "{{minutes, number}} phút",
 			"durationHoursMinutes": "{{hours, number}} giờ {{minutes, number}} phút"
+		},
+		"type": {
+			"label": "Loại",
+			"bug": "Lỗi",
+			"task": "Công việc"
 		}
 	},
 	"invitations": {
