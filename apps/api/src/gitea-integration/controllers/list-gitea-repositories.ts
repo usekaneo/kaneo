@@ -118,7 +118,7 @@ async function listGiteaRepositories({
     // Defense in depth: the query already constrains project and is_active;
     // this check runs again on the returned rows so a query regression can
     // never surface another project's binding details.
-    const bindingByKey = new Map<string, (typeof bindings)[number]>();
+    const bindingByKey = new Map<string | null, (typeof bindings)[number]>();
     for (const binding of bindings) {
       if (binding.projectId === projectId && binding.isActive === true) {
         bindingByKey.set(binding.repositoryKey, binding);
