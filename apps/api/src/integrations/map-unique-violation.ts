@@ -14,14 +14,29 @@ type PostgresUniqueViolation = Error & {
   constraint?: string;
 };
 
+/**
+ * Find the PostgreSQL error inside a caught error.
+ *
+ * drizzle-orm wraps query failures in DrizzleQueryError and keeps the
+ * driver's pg DatabaseError (which carries code/constraint) on `.cause`,
+ * so reading the fields off the top-level error alone never matches.
+ * Walk the cause chain instead; a hard depth limit protects against
+ * cycles.
+ */
+function findPgError(error: unknown): PostgresUniqueViolation | null {
+  let current: unknown = error;
+  for (let depth = 0; depth < 10 && typeof current === "object" && current !== null; depth += 1) {
+    const candidate = current as PostgresUniqueViolation;
+    if (candidate.code === "23505") return candidate;
+    current = (candidate as { cause?: unknown }).cause;
+  }
+  return null;
+}
+
 export function isDatabaseUniqueViolation(
   error: unknown,
 ): error is PostgresUniqueViolation {
-  return (
-    typeof error === "object" &&
-    error !== null &&
-    (error as PostgresUniqueViolation).code === "23505"
-  );
+  return findPgError(error) !== null;
 }
 
 /**
@@ -32,10 +47,11 @@ export function mapIntegrationUniqueViolation(
   error: unknown,
   context?: { projectId?: string; type?: string },
 ): never {
-  if (!isDatabaseUniqueViolation(error)) {
+  const violation = findPgError(error);
+  if (violation === null) {
     throw error;
   }
-  if (error.constraint !== INTEGRATION_PROJECT_TYPE_REPO_UNIQUE) {
+  if (violation.constraint !== INTEGRATION_PROJECT_TYPE_REPO_UNIQUE) {
     throw error;
   }
   throw new HTTPException(409, {
