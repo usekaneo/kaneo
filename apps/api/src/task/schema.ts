@@ -86,6 +86,7 @@ export const createTaskBody = z.object({
   dueDate: z.string().optional(),
   priority,
   status: z.string().openapi({ description: "The target column's slug." }),
+  type: taskType.optional(),
   userId: z.string().optional().openapi({ description: "Assignee, if any." }),
   recurrence: taskRecurrenceSchema
     .optional()
