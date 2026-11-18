@@ -2,7 +2,7 @@ import { pagingNumber, z } from "../openapi";
 import { MAX_TASK_POSITION } from "./controllers/next-task-position";
 import { taskRecurrenceSchema } from "./recurrence/schema";
 import { TICKET_ID_PATTERN } from "./ticket-id";
-import { VALID_PRIORITIES } from "./validate-task-fields";
+import { TASK_TYPES, VALID_PRIORITIES } from "./validate-task-fields";
 
 export const taskParam = z.object({ id: z.string() });
 
@@ -39,6 +39,11 @@ export const assignedTasksQuery = z.object({
 });
 
 const priority = z.enum(VALID_PRIORITIES);
+
+const taskType = z.enum(TASK_TYPES).openapi({
+  description:
+    "Bugs default to the project's active sprint; every other type defaults to the backlog.",
+});
 
 // Required object of optional filters: a RouteParameter cannot itself be optional.
 export const listTasksQuery = z.object({
