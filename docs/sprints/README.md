@@ -8,6 +8,7 @@ This folder contains the planning documents for adding Jira-style sprint plannin
 | [Gap analysis](./gap-analysis.md) | The contrast between Kaneo's capability before the feature and the target, with reusable foundations and assumptions. |
 | [Requirements and implementation plan](./requirements-implementation-plan.md) | Functional requirements, business rules, data model, API design, UI specification, and the phased implementation plan. |
 | [Testing](./testing.md) | The unit test coverage of the sprint controllers, fetchers, and React Query hooks, mapped to the testing strategy. |
+| [Review alignment](./review-alignment.md) | How the review feedback was addressed: restored prior features, Jira sprint import, migration numbering, concurrency guards, and backlog semantics. |
 
 ## Scope summary
 
@@ -19,5 +20,8 @@ This folder contains the planning documents for adding Jira-style sprint plannin
 - The sprint planning panel lists the tasks of every sprint section, and sprint-scheduled tasks leave the plain backlog list below.
 - The board offers a sprint filter, and the backlog bulk toolbar moves the selected tasks between sprints and the backlog.
 - Closing a sprint freezes a carry-over snapshot on the sprint, so every closed sprint reports planned versus completed work and lists the tasks that were carried over.
+
+- Sprint transitions are guarded against races: closing claims the active sprint under a row lock, starting claims the future sprint conditionally, and sprint assignments, creations, duplications, and bulk moves validate the sprint state inside the write transaction.
+- Sprints, sprint issue references, and per-task sprint assignments come along in Jira project imports.
 
 The gap analysis was written from public sources before implementation; the assumptions listed there were verified against this repository when the feature was implemented on the `feat/sprint-planning` branch.
