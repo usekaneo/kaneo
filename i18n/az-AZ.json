@@ -3071,37 +3071,6 @@
 			"then": "sonra",
 			"or": "və ya",
 			"thenEllipsis": "sonra…"
-		},
-		"keyboardShortcuts": {
-			"categories": {
-				"create": "Yarat",
-				"general": "Ümumi",
-				"navigation": "Naviqasiya",
-				"quickSelect": "Sürətli seçim (açılan pəncərələrdə)",
-				"views": "Görünüşlər"
-			},
-			"footer": "Bağlamaq üçün <kbd>Escape</kbd> düyməsini basın",
-			"items": {
-				"backlogView": "Gözləyən tapşırıqlar görünüşünə keç",
-				"boardView": "Lövhə görünüşünə keç",
-				"calendarView": "Təqvim görünüşünə keç",
-				"closeModal": "Modal/açılan pəncərəni bağla",
-				"createProject": "Layihə yarat",
-				"createTask": "Tapşırıq yarat",
-				"createWorkspace": "İş sahəsi yarat",
-				"globalSearch": "Ümumi axtarış",
-				"listView": "Siyahı görünüşünə keç",
-				"nextTask": "Növbəti tapşırıq",
-				"openCommandPalette": "Əmr palitrasını aç",
-				"openTask": "Seçilmiş tapşırığı aç",
-				"prevTask": "Əvvəlki tapşırıq",
-				"quickSelectNumber": "Nömrəyə görə seçim et",
-				"showShortcuts": "Klaviatura qısayollarını göstər",
-				"toggleSidebar": "Yan paneli aç/bağla"
-			},
-			"searchPlaceholder": "Qısayolları axtar...",
-			"subtitle": "Klaviatura qısayolları ilə işinizi sürətləndirin",
-			"title": "Klaviatura qısayolları"
 		}
 	},
 	"notifications": {
@@ -3297,6 +3266,20 @@
 		"movedFromOtherProject": "moved task from another project to \"{{to}}\""
 	},
 	"tasks": {
+		"dateFilter": {
+			"startDate": "Başlama tarixi",
+			"noDate": "Tarix yoxdur",
+			"condition": "Tarix şərti",
+			"exact": "Dəqiq tarix",
+			"range": "Tarix aralığı",
+			"before": "Əvvəl",
+			"after": "Sonra",
+			"apply": "Tarix filtrini tətbiq et",
+			"exactValue": "{{date}} tarixində",
+			"beforeValue": "{{date}} tarixindən əvvəl",
+			"afterValue": "{{date}} tarixindən sonra",
+			"rangeValue": "{{date}} – {{end}}"
+		},
 		"title": "Tapşırıqlar",
 		"status": {
 			"label": "Vəziyyət",
@@ -3851,7 +3834,9 @@
 			"showOnRows": "Sətirlərdə göstər",
 			"checklistProgress": "Yoxlama siyahısının gedişatı",
 			"projectBackground": "Layihə fonu",
-			"layout": "Düzən"
+			"layout": "Düzən",
+			"includeSubtasks": "Alt tapşırıqları daxil et",
+			"useProjectDefault": "Layihənin standart ayarından istifadə et"
 		},
 		"filterBar": {
 			"label": "Aktiv süzgəclər",
@@ -3895,6 +3880,21 @@
 			"startsOn": "Başlayır: {{date}}",
 			"beforeStart": "{{date}} başlama tarixindən əvvəldir",
 			"afterDue": "{{date}} son tarixdən sonradır"
+		},
+		"timeTracking": {
+			"empty": "Hələ vaxt qeydə alınmayıb.",
+			"loadError": "Vaxt qeydlərini yükləmək mümkün olmadı.",
+			"retry": "Yenidən cəhd et",
+			"running": "İşləyir",
+			"start": "Taymeri başlat",
+			"startError": "Taymeri başlatmaq mümkün olmadı.",
+			"stop": "Taymeri dayandır",
+			"stopError": "Taymeri dayandırmaq mümkün olmadı.",
+			"title": "Vaxtın izlənməsi",
+			"unknownUser": "Naməlum",
+			"durationSeconds": "{{seconds, number}} san",
+			"durationMinutes": "{{minutes, number}} dəq",
+			"durationHoursMinutes": "{{hours, number}} saat {{minutes, number}} dəq"
 		},
 		"sprints": {
 			"activeBadge": "Aktiv",

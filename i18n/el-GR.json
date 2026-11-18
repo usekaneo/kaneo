@@ -3071,37 +3071,6 @@
 			"then": "μετά",
 			"or": "ή",
 			"thenEllipsis": "μετά…"
-		},
-		"keyboardShortcuts": {
-			"categories": {
-				"create": "Δημιουργία",
-				"general": "Γενικά",
-				"navigation": "Πλοήγηση",
-				"quickSelect": "Γρήγορη επιλογή (σε αναδυόμενα)",
-				"views": "Προβολές"
-			},
-			"footer": "Πατήστε <kbd>Escape</kbd> για κλείσιμο",
-			"items": {
-				"backlogView": "Μετάβαση σε προβολή backlog",
-				"boardView": "Μετάβαση σε προβολή πίνακα",
-				"calendarView": "Μετάβαση σε προβολή ημερολογίου",
-				"closeModal": "Κλείσιμο modal/popover",
-				"createProject": "Δημιουργία έργου",
-				"createTask": "Δημιουργία εργασίας",
-				"createWorkspace": "Δημιουργία χώρου εργασίας",
-				"globalSearch": "Καθολική αναζήτηση",
-				"listView": "Μετάβαση σε προβολή λίστας",
-				"nextTask": "Επόμενη εργασία",
-				"openCommandPalette": "Άνοιγμα παλέτας εντολών",
-				"openTask": "Άνοιγμα επιλεγμένης εργασίας",
-				"prevTask": "Προηγούμενη εργασία",
-				"quickSelectNumber": "Επιλογή επιλογής με αριθμό",
-				"showShortcuts": "Εμφάνιση συντομεύσεων πληκτρολογίου",
-				"toggleSidebar": "Εναλλαγή πλαϊνής μπάρας"
-			},
-			"searchPlaceholder": "Αναζήτηση συντομεύσεων...",
-			"subtitle": "Επιταχύνετε τη ροή εργασίας σας με συντομεύσεις πληκτρολογίου",
-			"title": "Συντομεύσεις πληκτρολογίου"
 		}
 	},
 	"notifications": {
@@ -3297,6 +3266,20 @@
 		"movedFromOtherProject": "moved task from another project to \"{{to}}\""
 	},
 	"tasks": {
+		"dateFilter": {
+			"startDate": "Ημερομηνία έναρξης",
+			"noDate": "Χωρίς ημερομηνία",
+			"condition": "Συνθήκη ημερομηνίας",
+			"exact": "Συγκεκριμένη ημερομηνία",
+			"range": "Εύρος ημερομηνιών",
+			"before": "Πριν από",
+			"after": "Μετά από",
+			"apply": "Εφαρμογή φίλτρου ημερομηνίας",
+			"exactValue": "Στις {{date}}",
+			"beforeValue": "Πριν από τις {{date}}",
+			"afterValue": "Μετά τις {{date}}",
+			"rangeValue": "{{date}} – {{end}}"
+		},
 		"title": "Εργασίες",
 		"status": {
 			"label": "Κατάσταση",
@@ -3851,7 +3834,9 @@
 			"showOnRows": "Εμφάνιση στις γραμμές",
 			"checklistProgress": "Πρόοδος λίστας ελέγχου",
 			"projectBackground": "Φόντο έργου",
-			"layout": "Διάταξη"
+			"layout": "Διάταξη",
+			"includeSubtasks": "Συμπερίληψη υποεργασιών",
+			"useProjectDefault": "Χρήση προεπιλογής έργου"
 		},
 		"filterBar": {
 			"label": "Ενεργά φίλτρα",
@@ -3895,6 +3880,21 @@
 			"startsOn": "Ξεκινά {{date}}",
 			"beforeStart": "Η {{date}} είναι πριν από την ημερομηνία έναρξης",
 			"afterDue": "Η {{date}} είναι μετά την προθεσμία"
+		},
+		"timeTracking": {
+			"empty": "Δεν έχει καταγραφεί χρόνος ακόμη.",
+			"loadError": "Αποτυχία φόρτωσης των καταχωρίσεων χρόνου.",
+			"retry": "Δοκιμή ξανά",
+			"running": "Σε εξέλιξη",
+			"start": "Έναρξη χρονομέτρου",
+			"startError": "Αποτυχία εκκίνησης του χρονομέτρου.",
+			"stop": "Διακοπή χρονομέτρου",
+			"stopError": "Αποτυχία διακοπής του χρονομέτρου.",
+			"title": "Παρακολούθηση χρόνου",
+			"unknownUser": "Άγνωστος",
+			"durationSeconds": "{{seconds, number}} δ",
+			"durationMinutes": "{{minutes, number}} λ",
+			"durationHoursMinutes": "{{hours, number}} ώ {{minutes, number}} λ"
 		},
 		"sprints": {
 			"activeBadge": "Ενεργό",
