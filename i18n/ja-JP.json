@@ -3785,6 +3785,11 @@
 			"durationSeconds": "{{seconds, number}}秒",
 			"durationMinutes": "{{minutes, number}}分",
 			"durationHoursMinutes": "{{hours, number}}時間 {{minutes, number}}分"
+		},
+		"type": {
+			"label": "種類",
+			"bug": "バグ",
+			"task": "タスク"
 		}
 	},
 	"invitations": {

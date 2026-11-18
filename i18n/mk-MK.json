@@ -3857,6 +3857,11 @@
 			"durationSeconds": "{{seconds, number}} с",
 			"durationMinutes": "{{minutes, number}} мин",
 			"durationHoursMinutes": "{{hours, number}} ч {{minutes, number}} мин"
+		},
+		"type": {
+			"label": "Тип",
+			"bug": "Грешка",
+			"task": "Задача"
 		}
 	},
 	"invitations": {
