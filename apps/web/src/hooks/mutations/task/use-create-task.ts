@@ -19,6 +19,8 @@ function useCreateTask() {
       dueDate,
       priority,
       customFields,
+      type,
+      sprintId,
       draftAssetIds,
       recurrence,
     }: CreateTaskRequest) =>
@@ -32,6 +34,8 @@ function useCreateTask() {
         dueDate ? new Date(dueDate) : undefined,
         priority,
         customFields,
+        type,
+        sprintId,
         draftAssetIds,
         recurrence,
       ),
@@ -44,6 +48,10 @@ function useCreateTask() {
       });
       void queryClient.invalidateQueries({
         queryKey: ["custom-field-values", variables.projectId],
+      });
+      // A new bug lands in the active sprint, so sprint counters move too.
+      void queryClient.invalidateQueries({
+        queryKey: ["sprints", variables.projectId],
       });
     },
   });

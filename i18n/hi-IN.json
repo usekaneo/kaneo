@@ -163,6 +163,12 @@
 				"apply": "लिंक लागू करें",
 				"remove": "लिंक हटाएँ"
 			}
+		},
+		"boolean": {
+			"false": "False",
+			"notSet": "Not Set",
+			"true": "True",
+			"undefined": "Undefined"
 		}
 	},
 	"auth": {
@@ -1169,7 +1175,14 @@
 			"moveDialogTitle": "दूसरे वर्कस्पेस में ले जाएँ?",
 			"moveTargetLabel": "वर्कस्पेस",
 			"moving": "ले जाया जा रहा है...",
-			"tasksTitle": "कार्य"
+			"tasksTitle": "कार्य",
+			"sprintLength": "डिफ़ॉल्ट स्प्रिंट अवधि",
+			"sprintLengthDescription": "नए स्प्रिंट की डिफ़ॉल्ट अवधि दिनों में।",
+			"sprintLengthError": "स्प्रिंट अवधि सहेजी नहीं जा सकी",
+			"sprintLengthSave": "स्प्रिंट अवधि सहेजें",
+			"sprintLengthSaved": "स्प्रिंट अवधि सहेजी गई",
+			"sprints": "स्प्रिंट",
+			"sprintsSubtitle": "आगामी कार्य को निश्चित अवधि के चरणों में योजनाबद्ध करें।"
 		},
 		"projectIntegrations": {
 			"pageTitle": "एकीकरण",
@@ -2173,7 +2186,13 @@
 				"labels_one": "{{count, number}} label",
 				"labels_other": "{{count, number}} labels",
 				"tasks_one": "{{count, number}} task",
-				"tasks_other": "{{count, number}} tasks"
+				"tasks_other": "{{count, number}} tasks",
+				"attachments_one": "{{count, number}} attachment",
+				"attachments_other": "{{count, number}} attachments",
+				"sprints_one": "{{count, number}} sprint",
+				"sprints_other": "{{count, number}} sprints",
+				"users_one": "{{count, number}} user",
+				"users_other": "{{count, number}} users"
 			},
 			"entry": {
 				"createProjectLink": "Import your projects",
@@ -2269,10 +2288,18 @@
 				"commentsDescription": "Keeps each comment's original author and date.",
 				"commentsLabel": "Import comments",
 				"inviteMembers": "Invite members",
-				"membersNote": "Assignees are matched to members of {{workspace}} by email. Invite your team first so their tasks stay assigned.",
-				"membersNoteTrello": "Assignees are matched to members of {{workspace}} by email, or by full name for Trello. Invite your team first so their tasks stay assigned.",
+				"membersNote": "Assignees are matched to members of {{workspace}} by email. Anyone unknown gets an invitation or an account, as chosen above.",
+				"membersNoteTrello": "Assignees are matched to members of {{workspace}} by email, or by full name for Trello. Anyone unknown gets an invitation or an account, as chosen above.",
 				"selectAll": "Select all",
-				"membersNoteJira": "Assignees are matched to members of {{workspace}} by email, or by full name when Jira hides the email. Invite your team first so their tasks stay assigned."
+				"membersNoteJira": "Assignees are matched to members of {{workspace}} by email, or by full name when Jira hides the email. Anyone unknown gets an invitation or an account, as chosen above.",
+				"sprintsDescription": "Creates the project's sprints and keeps each issue in its sprint.",
+				"sprintsLabel": "Import sprints",
+				"usersCreateDescription": "Accounts are created directly and added as members, so their tasks are assigned right away. They sign in with their email.",
+				"usersCreateLabel": "Create their account",
+				"usersDescription": "What happens to assignees who are not members of this workspace yet.",
+				"usersInviteDescription": "They receive an email invitation and join once they accept. Their tasks stay unassigned until then.",
+				"usersInviteLabel": "Send an invitation",
+				"usersLabel": "New users"
 			},
 			"sources": {
 				"connect": "Connect",
@@ -2411,6 +2438,12 @@
 				"urlDescription": "Copy it from your browser. Data Center works too.",
 				"urlLabel": "Jira site URL",
 				"urlPlaceholder": "https://your-site.atlassian.net"
+			},
+			"stages": {
+				"reading": "Reading",
+				"sprints": "Sprints",
+				"tasks": "Issues",
+				"users": "Users"
 			}
 		},
 		"chatIntegrations": {
@@ -3038,6 +3071,37 @@
 			"then": "फिर",
 			"or": "या",
 			"thenEllipsis": "फिर…"
+		},
+		"keyboardShortcuts": {
+			"categories": {
+				"create": "बनाएँ",
+				"general": "सामान्य",
+				"navigation": "नेविगेशन",
+				"quickSelect": "त्वरित चयन (पॉपओवर में)",
+				"views": "दृश्य"
+			},
+			"footer": "बंद करने के लिए <kbd>Escape</kbd> दबाएँ",
+			"items": {
+				"backlogView": "बैकलॉग दृश्य पर स्विच करें",
+				"boardView": "बोर्ड दृश्य पर स्विच करें",
+				"calendarView": "कैलेंडर दृश्य पर जाएँ",
+				"closeModal": "मोडल/पॉपओवर बंद करें",
+				"createProject": "प्रोजेक्ट बनाएँ",
+				"createTask": "कार्य बनाएँ",
+				"createWorkspace": "वर्कस्पेस बनाएँ",
+				"globalSearch": "वैश्विक खोज",
+				"listView": "सूची दृश्य पर स्विच करें",
+				"nextTask": "अगला कार्य",
+				"openCommandPalette": "कमांड पैलेट खोलें",
+				"openTask": "चयनित कार्य खोलें",
+				"prevTask": "पिछला कार्य",
+				"quickSelectNumber": "संख्या द्वारा विकल्प चुनें",
+				"showShortcuts": "कीबोर्ड शॉर्टकट दिखाएँ",
+				"toggleSidebar": "साइडबार टॉगल करें"
+			},
+			"searchPlaceholder": "शॉर्टकट खोजें...",
+			"subtitle": "कीबोर्ड शॉर्टकट से अपने कार्यप्रवाह को तेज़ करें",
+			"title": "कीबोर्ड शॉर्टकट"
 		}
 	},
 	"notifications": {
@@ -3233,20 +3297,6 @@
 		"movedFromOtherProject": "moved task from another project to \"{{to}}\""
 	},
 	"tasks": {
-		"dateFilter": {
-			"startDate": "आरंभ तिथि",
-			"noDate": "कोई तिथि नहीं",
-			"condition": "तिथि की शर्त",
-			"exact": "निश्चित तिथि",
-			"range": "तिथि सीमा",
-			"before": "से पहले",
-			"after": "के बाद",
-			"apply": "तिथि फ़िल्टर लागू करें",
-			"exactValue": "{{date}} को",
-			"beforeValue": "{{date}} से पहले",
-			"afterValue": "{{date}} के बाद",
-			"rangeValue": "{{date}} – {{end}}"
-		},
 		"title": "कार्य",
 		"status": {
 			"label": "स्थिति",
@@ -3270,7 +3320,8 @@
 			"list": "सूची",
 			"backlog": "बैकलॉग",
 			"gantt": "गैंट",
-			"heading": "व्यू"
+			"heading": "व्यू",
+			"sprints": "Sprints"
 		},
 		"common": {
 			"selectTask": "कार्य चुनें",
@@ -3573,7 +3624,8 @@
 				"priority": "प्राथमिकता",
 				"assignee": "सौंपा गया",
 				"dueDate": "नियत तारीख",
-				"labels": "लेबल"
+				"labels": "लेबल",
+				"sprint": "स्प्रिंट"
 			},
 			"operators": {
 				"isAnyOf": "में से कोई है",
@@ -3586,7 +3638,8 @@
 			},
 			"allCustomFieldValues": "All values",
 			"noCustomFieldValues": "No custom field values",
-			"noValuesUsedYet": "No values used yet"
+			"noValuesUsedYet": "No values used yet",
+			"allSprints": "सभी स्प्रिंट"
 		},
 		"gantt": {
 			"searchPlaceholder": "शेड्यूल किए गए टिकट खोजें...",
@@ -3713,7 +3766,9 @@
 			"priorityPlaceholder": "प्राथमिकता सेट करें…",
 			"assigneePlaceholder": "असाइन करें…",
 			"labelPlaceholder": "लेबल जोड़ें…",
-			"columnPlaceholder": "कॉलम में ले जाएँ…"
+			"columnPlaceholder": "कॉलम में ले जाएँ…",
+			"moveToSprint": "स्प्रिंट में ले जाएँ",
+			"updateSprintError": "कार्यों को स्प्रिंट में ले जाना विफल"
 		},
 		"editor": {
 			"table": {
@@ -3796,9 +3851,7 @@
 			"showOnRows": "पंक्तियों में दिखाएँ",
 			"checklistProgress": "चेकलिस्ट प्रगति",
 			"projectBackground": "प्रोजेक्ट पृष्ठभूमि",
-			"layout": "लेआउट",
-			"includeSubtasks": "उपकार्य शामिल करें",
-			"useProjectDefault": "प्रोजेक्ट का डिफ़ॉल्ट इस्तेमाल करें"
+			"layout": "लेआउट"
 		},
 		"filterBar": {
 			"label": "सक्रिय फ़िल्टर",
@@ -3843,20 +3896,63 @@
 			"beforeStart": "{{date}} प्रारंभ तारीख से पहले है",
 			"afterDue": "{{date}} नियत तारीख के बाद है"
 		},
-		"timeTracking": {
-			"empty": "अभी तक कोई समय दर्ज नहीं किया गया है।",
-			"loadError": "समय प्रविष्टियाँ लोड नहीं हो सकीं।",
-			"retry": "फिर से प्रयास करें",
-			"running": "चल रहा है",
-			"start": "टाइमर शुरू करें",
-			"startError": "टाइमर शुरू नहीं हो सका।",
-			"stop": "टाइमर रोकें",
-			"stopError": "टाइमर रोका नहीं जा सका।",
-			"title": "समय ट्रैकिंग",
-			"unknownUser": "अज्ञात",
-			"durationSeconds": "{{seconds, number}} से",
-			"durationMinutes": "{{minutes, number}} मि",
-			"durationHoursMinutes": "{{hours, number}} घं {{minutes, number}} मि"
+		"sprints": {
+			"activeBadge": "सक्रिय",
+			"backlog": "बैकलॉग",
+			"backlogDescription": "Tasks without a sprint",
+			"backlogEmpty": "No unscheduled tasks",
+			"carriedOver": "स्थानांतरित",
+			"close": "स्प्रिंट बंद करें",
+			"closeConfirm": "स्प्रिंट बंद करें और अधूरे कार्य ले जाएँ",
+			"closeSuccess": "स्प्रिंट बंद हुआ, {{count}} अधूरे कार्य ले जाए गए",
+			"closeSummary": "{{name}} में {{total}} कार्य हैं, जिनमें से {{completed}} पूरे हुए।",
+			"closeTarget": "{{count}} अधूरे कार्य यहाँ ले जाएँ",
+			"closeTitle": "स्प्रिंट बंद करें",
+			"closedLocked": "यह कार्य बंद स्प्रिंट का हिस्सा है और इतिहास के रूप में वहीं रहेगा",
+			"completedCount": "{{count}} पूरे",
+			"create": "स्प्रिंट बनाएँ",
+			"createDescription": "नाम, लक्ष्य और तारीखों के साथ आगामी स्प्रिंट की योजना बनाएँ।",
+			"createTitle": "स्प्रिंट बनाएँ",
+			"daysOverdue": "{{remaining}} दिन से अतिदेय",
+			"daysRemaining": "{{remaining}} दिन शेष",
+			"edit": "स्प्रिंट संपादित करें",
+			"editDescription": "स्प्रिंट का नाम, लक्ष्य और तारीखें अपडेट करें।",
+			"editTitle": "स्प्रिंट संपादित करें",
+			"endsToday": "आज समाप्त",
+			"error": "स्प्रिंट कार्रवाई विफल",
+			"goal": "स्प्रिंट का लक्ष्य",
+			"goalPlaceholder": "इस स्प्रिंट में क्या हासिल करना है?",
+			"history": "बंद स्प्रिंट ({{count}})",
+			"moveDown": "नीचे ले जाएँ",
+			"moveSuccess_one": "Task moved",
+			"moveSuccess_other": "{{count}} tasks moved",
+			"moveUp": "ऊपर ले जाएँ",
+			"name": "स्प्रिंट का नाम",
+			"namePlaceholder": "स्प्रिंट 1",
+			"noActive": "कोई स्प्रिंट सक्रिय नहीं है। पुनरावृत्ति शुरू करने के लिए आगामी स्प्रिंट शुरू करें।",
+			"noTasks": "इस स्प्रिंट में अभी कोई कार्य नहीं है",
+			"openTaskMenu": "Open task menu",
+			"reportSummary": "योजनाबद्ध {{planned}}, पूर्ण {{completed}}, स्थानांतरित {{carriedOver}}",
+			"save": "परिवर्तन सहेजें",
+			"scopeCurrent": "Current sprint",
+			"scopeTitle": "Sprint scope",
+			"selectTask": "Select task",
+			"start": "स्प्रिंट शुरू करें",
+			"startSuccess": "स्प्रिंट {{name}} शुरू हुआ",
+			"taskCounts": "{{total}} में से {{completed}} पूरे",
+			"title": "स्प्रिंट",
+			"toggleTasks": "स्प्रिंट कार्य दिखाएँ",
+			"unscheduled": "अनिर्धारित",
+			"upcoming": "आगामी स्प्रिंट",
+			"viewEmptyDescription": "Create a sprint to plan work in iterations and track it from here.",
+			"viewEmptyTitle": "No sprints yet",
+			"viewHeading": "All sprints",
+			"viewPageTitle": "Sprints · {{name}}"
+		},
+		"type": {
+			"bug": "बग",
+			"label": "प्रकार",
+			"task": "कार्य"
 		}
 	},
 	"invitations": {

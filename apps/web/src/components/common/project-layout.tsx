@@ -70,11 +70,13 @@ export default function ProjectLayout({
     activeView ??
     (location.pathname.includes("/backlog")
       ? "backlog"
-      : location.pathname.includes("/calendar")
-        ? "calendar"
-        : location.pathname.includes("/gantt")
-          ? "gantt"
-          : "board");
+      : location.pathname.includes("/sprints")
+        ? "sprints"
+        : location.pathname.includes("/calendar")
+          ? "calendar"
+          : location.pathname.includes("/gantt")
+            ? "gantt"
+            : "board");
   const currentView = resolveProjectView(resolvedRoute, viewMode);
   const showViews = showViewSwitcher && !unavailableReason;
 

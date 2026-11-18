@@ -24,7 +24,7 @@ export function useGoToProjectView({
   return useCallback(
     (view: ProjectView) => {
       if (view === "board" || view === "list") setViewMode(view);
-      if (view !== "backlog") setTaskLayout(view);
+      if (view !== "backlog" && view !== "sprints") setTaskLayout(view);
       const route = routeForView(view);
       if (route === currentRoute) return;
       navigate({

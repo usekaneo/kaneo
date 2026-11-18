@@ -163,6 +163,12 @@
 				"apply": "Link toepassen",
 				"remove": "Link verwijderen"
 			}
+		},
+		"boolean": {
+			"false": "False",
+			"notSet": "Not Set",
+			"true": "True",
+			"undefined": "Undefined"
 		}
 	},
 	"auth": {
@@ -802,7 +808,14 @@
 			"moveDialogTitle": "Naar een andere werkruimte verplaatsen?",
 			"moveTargetLabel": "Werkruimte",
 			"moving": "Verplaatsen...",
-			"tasksTitle": "Taken"
+			"tasksTitle": "Taken",
+			"sprintLength": "Standaard sprintlengte",
+			"sprintLengthDescription": "Aantal dagen dat een nieuwe sprint standaard omvat.",
+			"sprintLengthError": "Kon de sprintlengte niet opslaan",
+			"sprintLengthSave": "Sprintlengte opslaan",
+			"sprintLengthSaved": "Sprintlengte opgeslagen",
+			"sprints": "Sprints",
+			"sprintsSubtitle": "Plan aankomend werk in iteraties met vaste lengte."
 		},
 		"projectIntegrations": {
 			"pageTitle": "Integraties",
@@ -2173,7 +2186,13 @@
 				"labels_one": "{{count, number}} label",
 				"labels_other": "{{count, number}} labels",
 				"tasks_one": "{{count, number}} task",
-				"tasks_other": "{{count, number}} tasks"
+				"tasks_other": "{{count, number}} tasks",
+				"attachments_one": "{{count, number}} attachment",
+				"attachments_other": "{{count, number}} attachments",
+				"sprints_one": "{{count, number}} sprint",
+				"sprints_other": "{{count, number}} sprints",
+				"users_one": "{{count, number}} user",
+				"users_other": "{{count, number}} users"
 			},
 			"entry": {
 				"createProjectLink": "Import your projects",
@@ -2269,10 +2288,18 @@
 				"commentsDescription": "Keeps each comment's original author and date.",
 				"commentsLabel": "Import comments",
 				"inviteMembers": "Invite members",
-				"membersNote": "Assignees are matched to members of {{workspace}} by email. Invite your team first so their tasks stay assigned.",
-				"membersNoteTrello": "Assignees are matched to members of {{workspace}} by email, or by full name for Trello. Invite your team first so their tasks stay assigned.",
+				"membersNote": "Assignees are matched to members of {{workspace}} by email. Anyone unknown gets an invitation or an account, as chosen above.",
+				"membersNoteTrello": "Assignees are matched to members of {{workspace}} by email, or by full name for Trello. Anyone unknown gets an invitation or an account, as chosen above.",
 				"selectAll": "Select all",
-				"membersNoteJira": "Assignees are matched to members of {{workspace}} by email, or by full name when Jira hides the email. Invite your team first so their tasks stay assigned."
+				"membersNoteJira": "Assignees are matched to members of {{workspace}} by email, or by full name when Jira hides the email. Anyone unknown gets an invitation or an account, as chosen above.",
+				"sprintsDescription": "Creates the project's sprints and keeps each issue in its sprint.",
+				"sprintsLabel": "Import sprints",
+				"usersCreateDescription": "Accounts are created directly and added as members, so their tasks are assigned right away. They sign in with their email.",
+				"usersCreateLabel": "Create their account",
+				"usersDescription": "What happens to assignees who are not members of this workspace yet.",
+				"usersInviteDescription": "They receive an email invitation and join once they accept. Their tasks stay unassigned until then.",
+				"usersInviteLabel": "Send an invitation",
+				"usersLabel": "New users"
 			},
 			"sources": {
 				"connect": "Connect",
@@ -2411,6 +2438,12 @@
 				"urlDescription": "Copy it from your browser. Data Center works too.",
 				"urlLabel": "Jira site URL",
 				"urlPlaceholder": "https://your-site.atlassian.net"
+			},
+			"stages": {
+				"reading": "Reading",
+				"sprints": "Sprints",
+				"tasks": "Issues",
+				"users": "Users"
 			}
 		},
 		"chatIntegrations": {
@@ -3233,20 +3266,6 @@
 		"movedFromOtherProject": "moved task from another project to \"{{to}}\""
 	},
 	"tasks": {
-		"dateFilter": {
-			"startDate": "Startdatum",
-			"noDate": "Geen datum",
-			"condition": "Datumvoorwaarde",
-			"exact": "Exacte datum",
-			"range": "Datumbereik",
-			"before": "Vóór",
-			"after": "Na",
-			"apply": "Datumfilter toepassen",
-			"exactValue": "Op {{date}}",
-			"beforeValue": "Vóór {{date}}",
-			"afterValue": "Na {{date}}",
-			"rangeValue": "{{date}} – {{end}}"
-		},
 		"title": "Taken",
 		"status": {
 			"label": "Status",
@@ -3270,7 +3289,8 @@
 			"list": "Lijst",
 			"backlog": "Backlog",
 			"gantt": "Gantt",
-			"heading": "Weergave"
+			"heading": "Weergave",
+			"sprints": "Sprints"
 		},
 		"common": {
 			"selectTask": "Selecteer taak",
@@ -3562,7 +3582,8 @@
 				"priority": "Prioriteit",
 				"assignee": "Toegewezen persoon",
 				"dueDate": "Einddatum",
-				"labels": "Labels"
+				"labels": "Labels",
+				"sprint": "Sprint"
 			},
 			"operators": {
 				"isAnyOf": "is een van",
@@ -3575,7 +3596,8 @@
 			},
 			"allCustomFieldValues": "All values",
 			"noCustomFieldValues": "No custom field values",
-			"noValuesUsedYet": "No values used yet"
+			"noValuesUsedYet": "No values used yet",
+			"allSprints": "Alle sprints"
 		},
 		"gantt": {
 			"searchPlaceholder": "Zoek geplande tickets...",
@@ -3702,7 +3724,9 @@
 			"priorityPlaceholder": "Prioriteit instellen…",
 			"assigneePlaceholder": "Toewijzen aan…",
 			"labelPlaceholder": "Label toevoegen…",
-			"columnPlaceholder": "Naar kolom verplaatsen…"
+			"columnPlaceholder": "Naar kolom verplaatsen…",
+			"moveToSprint": "Naar sprint verplaatsen",
+			"updateSprintError": "Kan de taken niet naar de sprint verplaatsen"
 		},
 		"move": {
 			"title": "Taak verplaatsen",
@@ -3796,9 +3820,7 @@
 			"showOnRows": "Tonen in rijen",
 			"checklistProgress": "Voortgang checklist",
 			"projectBackground": "Projectachtergrond",
-			"layout": "Indeling",
-			"includeSubtasks": "Subtaken opnemen",
-			"useProjectDefault": "Projectstandaard gebruiken"
+			"layout": "Indeling"
 		},
 		"filterBar": {
 			"label": "Actieve filters",
@@ -3843,20 +3865,63 @@
 			"beforeStart": "{{date}} ligt vóór de startdatum",
 			"afterDue": "{{date}} ligt na de vervaldatum"
 		},
-		"timeTracking": {
-			"empty": "Nog geen tijd geregistreerd.",
-			"loadError": "Kan de tijdregistraties niet laden.",
-			"retry": "Opnieuw proberen",
-			"running": "Actief",
-			"start": "Timer starten",
-			"startError": "Kan de timer niet starten.",
-			"stop": "Timer stoppen",
-			"stopError": "Kan de timer niet stoppen.",
-			"title": "Tijdregistratie",
-			"unknownUser": "Onbekend",
-			"durationSeconds": "{{seconds, number}} s",
-			"durationMinutes": "{{minutes, number}} min",
-			"durationHoursMinutes": "{{hours, number}} u {{minutes, number}} min"
+		"sprints": {
+			"activeBadge": "Actief",
+			"backlog": "Backlog",
+			"backlogDescription": "Tasks without a sprint",
+			"backlogEmpty": "No unscheduled tasks",
+			"carriedOver": "Doorgeschoven",
+			"close": "Sprint afsluiten",
+			"closeConfirm": "Sprint afsluiten en onvoltooide taken verplaatsen",
+			"closeSuccess": "Sprint afgesloten, {{count}} onvoltooide taken verplaatst",
+			"closeSummary": "{{name}} heeft {{total}} taken, waarvan {{completed}} voltooid.",
+			"closeTarget": "Verplaats {{count}} onvoltooide taken naar",
+			"closeTitle": "Sprint afsluiten",
+			"closedLocked": "Deze taak hoort bij een afgesloten sprint en blijft daar als geschiedenis",
+			"completedCount": "{{count}} voltooid",
+			"create": "Sprint aanmaken",
+			"createDescription": "Plan een aankomende sprint met naam, doel en datums.",
+			"createTitle": "Sprint aanmaken",
+			"daysOverdue": "{{remaining}} dagen te laat",
+			"daysRemaining": "{{remaining}} dagen resterend",
+			"edit": "Sprint bewerken",
+			"editDescription": "Werk naam, doel en datums van de sprint bij.",
+			"editTitle": "Sprint bewerken",
+			"endsToday": "Eindigt vandaag",
+			"error": "Sprintactie mislukt",
+			"goal": "Sprintdoel",
+			"goalPlaceholder": "Wat moet deze sprint bereiken?",
+			"history": "Afgesloten sprints ({{count}})",
+			"moveDown": "Omlaag",
+			"moveSuccess_one": "Task moved",
+			"moveSuccess_other": "{{count}} tasks moved",
+			"moveUp": "Omhoog",
+			"name": "Sprintnaam",
+			"namePlaceholder": "Sprint 1",
+			"noActive": "Er is geen actieve sprint. Start een aankomende sprint om te itereren.",
+			"noTasks": "Nog geen taken in deze sprint",
+			"openTaskMenu": "Open task menu",
+			"reportSummary": "Gepland {{planned}}, voltooid {{completed}}, doorgeschoven {{carriedOver}}",
+			"save": "Wijzigingen opslaan",
+			"scopeCurrent": "Current sprint",
+			"scopeTitle": "Sprint scope",
+			"selectTask": "Select task",
+			"start": "Sprint starten",
+			"startSuccess": "Sprint {{name}} gestart",
+			"taskCounts": "{{completed}} van {{total}} voltooid",
+			"title": "Sprints",
+			"toggleTasks": "Sprinttaken weergeven",
+			"unscheduled": "Niet gepland",
+			"upcoming": "Aankomende sprint",
+			"viewEmptyDescription": "Create a sprint to plan work in iterations and track it from here.",
+			"viewEmptyTitle": "No sprints yet",
+			"viewHeading": "All sprints",
+			"viewPageTitle": "Sprints · {{name}}"
+		},
+		"type": {
+			"bug": "Bug",
+			"label": "Type",
+			"task": "Taak"
 		}
 	},
 	"invitations": {

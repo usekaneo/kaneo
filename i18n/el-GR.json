@@ -163,6 +163,12 @@
 				"apply": "Εφαρμογή συνδέσμου",
 				"remove": "Αφαίρεση συνδέσμου"
 			}
+		},
+		"boolean": {
+			"false": "False",
+			"notSet": "Not Set",
+			"true": "True",
+			"undefined": "Undefined"
 		}
 	},
 	"auth": {
@@ -924,7 +930,14 @@
 			"moveDialogTitle": "Μετακίνηση σε άλλο χώρο εργασίας;",
 			"moveTargetLabel": "Χώρος εργασίας",
 			"moving": "Γίνεται μετακίνηση...",
-			"tasksTitle": "Εργασίες"
+			"tasksTitle": "Εργασίες",
+			"sprintLength": "Προεπιλεγμένη διάρκεια sprint",
+			"sprintLengthDescription": "Αριθμός ημερών που καλύπτει ένα νέο sprint από προεπιλογή.",
+			"sprintLengthError": "Αποτυχία αποθήκευσης της διάρκειας του sprint",
+			"sprintLengthSave": "Αποθήκευση διάρκειας sprint",
+			"sprintLengthSaved": "Η διάρκεια του sprint αποθηκεύτηκε",
+			"sprints": "Sprints",
+			"sprintsSubtitle": "Σχεδιάστε την επερχόμενη εργασία σε επαναλήψεις σταθερής διάρκειας."
 		},
 		"projectIntegrations": {
 			"pageTitle": "Ενσωματώσεις",
@@ -2173,7 +2186,13 @@
 				"labels_one": "{{count, number}} label",
 				"labels_other": "{{count, number}} labels",
 				"tasks_one": "{{count, number}} task",
-				"tasks_other": "{{count, number}} tasks"
+				"tasks_other": "{{count, number}} tasks",
+				"attachments_one": "{{count, number}} attachment",
+				"attachments_other": "{{count, number}} attachments",
+				"sprints_one": "{{count, number}} sprint",
+				"sprints_other": "{{count, number}} sprints",
+				"users_one": "{{count, number}} user",
+				"users_other": "{{count, number}} users"
 			},
 			"entry": {
 				"createProjectLink": "Import your projects",
@@ -2269,10 +2288,18 @@
 				"commentsDescription": "Keeps each comment's original author and date.",
 				"commentsLabel": "Import comments",
 				"inviteMembers": "Invite members",
-				"membersNote": "Assignees are matched to members of {{workspace}} by email. Invite your team first so their tasks stay assigned.",
-				"membersNoteTrello": "Assignees are matched to members of {{workspace}} by email, or by full name for Trello. Invite your team first so their tasks stay assigned.",
+				"membersNote": "Assignees are matched to members of {{workspace}} by email. Anyone unknown gets an invitation or an account, as chosen above.",
+				"membersNoteTrello": "Assignees are matched to members of {{workspace}} by email, or by full name for Trello. Anyone unknown gets an invitation or an account, as chosen above.",
 				"selectAll": "Select all",
-				"membersNoteJira": "Assignees are matched to members of {{workspace}} by email, or by full name when Jira hides the email. Invite your team first so their tasks stay assigned."
+				"membersNoteJira": "Assignees are matched to members of {{workspace}} by email, or by full name when Jira hides the email. Anyone unknown gets an invitation or an account, as chosen above.",
+				"sprintsDescription": "Creates the project's sprints and keeps each issue in its sprint.",
+				"sprintsLabel": "Import sprints",
+				"usersCreateDescription": "Accounts are created directly and added as members, so their tasks are assigned right away. They sign in with their email.",
+				"usersCreateLabel": "Create their account",
+				"usersDescription": "What happens to assignees who are not members of this workspace yet.",
+				"usersInviteDescription": "They receive an email invitation and join once they accept. Their tasks stay unassigned until then.",
+				"usersInviteLabel": "Send an invitation",
+				"usersLabel": "New users"
 			},
 			"sources": {
 				"connect": "Connect",
@@ -2411,6 +2438,12 @@
 				"urlDescription": "Copy it from your browser. Data Center works too.",
 				"urlLabel": "Jira site URL",
 				"urlPlaceholder": "https://your-site.atlassian.net"
+			},
+			"stages": {
+				"reading": "Reading",
+				"sprints": "Sprints",
+				"tasks": "Issues",
+				"users": "Users"
 			}
 		},
 		"chatIntegrations": {
@@ -3038,6 +3071,37 @@
 			"then": "μετά",
 			"or": "ή",
 			"thenEllipsis": "μετά…"
+		},
+		"keyboardShortcuts": {
+			"categories": {
+				"create": "Δημιουργία",
+				"general": "Γενικά",
+				"navigation": "Πλοήγηση",
+				"quickSelect": "Γρήγορη επιλογή (σε αναδυόμενα)",
+				"views": "Προβολές"
+			},
+			"footer": "Πατήστε <kbd>Escape</kbd> για κλείσιμο",
+			"items": {
+				"backlogView": "Μετάβαση σε προβολή backlog",
+				"boardView": "Μετάβαση σε προβολή πίνακα",
+				"calendarView": "Μετάβαση σε προβολή ημερολογίου",
+				"closeModal": "Κλείσιμο modal/popover",
+				"createProject": "Δημιουργία έργου",
+				"createTask": "Δημιουργία εργασίας",
+				"createWorkspace": "Δημιουργία χώρου εργασίας",
+				"globalSearch": "Καθολική αναζήτηση",
+				"listView": "Μετάβαση σε προβολή λίστας",
+				"nextTask": "Επόμενη εργασία",
+				"openCommandPalette": "Άνοιγμα παλέτας εντολών",
+				"openTask": "Άνοιγμα επιλεγμένης εργασίας",
+				"prevTask": "Προηγούμενη εργασία",
+				"quickSelectNumber": "Επιλογή επιλογής με αριθμό",
+				"showShortcuts": "Εμφάνιση συντομεύσεων πληκτρολογίου",
+				"toggleSidebar": "Εναλλαγή πλαϊνής μπάρας"
+			},
+			"searchPlaceholder": "Αναζήτηση συντομεύσεων...",
+			"subtitle": "Επιταχύνετε τη ροή εργασίας σας με συντομεύσεις πληκτρολογίου",
+			"title": "Συντομεύσεις πληκτρολογίου"
 		}
 	},
 	"notifications": {
@@ -3233,20 +3297,6 @@
 		"movedFromOtherProject": "moved task from another project to \"{{to}}\""
 	},
 	"tasks": {
-		"dateFilter": {
-			"startDate": "Ημερομηνία έναρξης",
-			"noDate": "Χωρίς ημερομηνία",
-			"condition": "Συνθήκη ημερομηνίας",
-			"exact": "Συγκεκριμένη ημερομηνία",
-			"range": "Εύρος ημερομηνιών",
-			"before": "Πριν από",
-			"after": "Μετά από",
-			"apply": "Εφαρμογή φίλτρου ημερομηνίας",
-			"exactValue": "Στις {{date}}",
-			"beforeValue": "Πριν από τις {{date}}",
-			"afterValue": "Μετά τις {{date}}",
-			"rangeValue": "{{date}} – {{end}}"
-		},
 		"title": "Εργασίες",
 		"status": {
 			"label": "Κατάσταση",
@@ -3270,7 +3320,8 @@
 			"list": "Λίστα",
 			"backlog": "Backlog",
 			"gantt": "Gantt",
-			"heading": "Προβολή"
+			"heading": "Προβολή",
+			"sprints": "Sprints"
 		},
 		"common": {
 			"selectTask": "Επιλέξτε εργασία",
@@ -3573,7 +3624,8 @@
 				"priority": "Προτεραιότητα",
 				"assignee": "Ανατεθειμένος",
 				"dueDate": "Ημερομηνία λήξης",
-				"labels": "Ετικέτες"
+				"labels": "Ετικέτες",
+				"sprint": "Sprint"
 			},
 			"operators": {
 				"isAnyOf": "είναι ένα από",
@@ -3586,7 +3638,8 @@
 			},
 			"allCustomFieldValues": "All values",
 			"noCustomFieldValues": "No custom field values",
-			"noValuesUsedYet": "No values used yet"
+			"noValuesUsedYet": "No values used yet",
+			"allSprints": "Όλα τα sprint"
 		},
 		"gantt": {
 			"searchPlaceholder": "Αναζήτηση προγραμματισμένων αιτημάτων...",
@@ -3713,7 +3766,9 @@
 			"priorityPlaceholder": "Ορισμός προτεραιότητας…",
 			"assigneePlaceholder": "Ανάθεση σε…",
 			"labelPlaceholder": "Προσθήκη ετικέτας…",
-			"columnPlaceholder": "Μετακίνηση σε στήλη…"
+			"columnPlaceholder": "Μετακίνηση σε στήλη…",
+			"moveToSprint": "Μετακίνηση σε sprint",
+			"updateSprintError": "Απέτυχε η μετακίνηση των εργασιών στο sprint"
 		},
 		"editor": {
 			"table": {
@@ -3796,9 +3851,7 @@
 			"showOnRows": "Εμφάνιση στις γραμμές",
 			"checklistProgress": "Πρόοδος λίστας ελέγχου",
 			"projectBackground": "Φόντο έργου",
-			"layout": "Διάταξη",
-			"includeSubtasks": "Συμπερίληψη υποεργασιών",
-			"useProjectDefault": "Χρήση προεπιλογής έργου"
+			"layout": "Διάταξη"
 		},
 		"filterBar": {
 			"label": "Ενεργά φίλτρα",
@@ -3843,20 +3896,63 @@
 			"beforeStart": "Η {{date}} είναι πριν από την ημερομηνία έναρξης",
 			"afterDue": "Η {{date}} είναι μετά την προθεσμία"
 		},
-		"timeTracking": {
-			"empty": "Δεν έχει καταγραφεί χρόνος ακόμη.",
-			"loadError": "Αποτυχία φόρτωσης των καταχωρίσεων χρόνου.",
-			"retry": "Δοκιμή ξανά",
-			"running": "Σε εξέλιξη",
-			"start": "Έναρξη χρονομέτρου",
-			"startError": "Αποτυχία εκκίνησης του χρονομέτρου.",
-			"stop": "Διακοπή χρονομέτρου",
-			"stopError": "Αποτυχία διακοπής του χρονομέτρου.",
-			"title": "Παρακολούθηση χρόνου",
-			"unknownUser": "Άγνωστος",
-			"durationSeconds": "{{seconds, number}} δ",
-			"durationMinutes": "{{minutes, number}} λ",
-			"durationHoursMinutes": "{{hours, number}} ώ {{minutes, number}} λ"
+		"sprints": {
+			"activeBadge": "Ενεργό",
+			"backlog": "Backlog",
+			"backlogDescription": "Tasks without a sprint",
+			"backlogEmpty": "No unscheduled tasks",
+			"carriedOver": "Μεταφέρθηκαν",
+			"close": "Κλείσιμο sprint",
+			"closeConfirm": "Κλείσιμο sprint και μετακίνηση μη ολοκληρωμένων εργασιών",
+			"closeSuccess": "Το sprint έκλεισε, μετακινήθηκαν {{count}} μη ολοκληρωμένες εργασίες",
+			"closeSummary": "Το {{name}} έχει {{total}} εργασίες, από τις οποίες ολοκληρώθηκαν {{completed}}.",
+			"closeTarget": "Μετακίνηση {{count}} μη ολοκληρωμένων εργασιών σε",
+			"closeTitle": "Κλείσιμο sprint",
+			"closedLocked": "Αυτή η εργασία ανήκει σε κλειστό sprint και παραμένει εκεί ως ιστορικό",
+			"completedCount": "{{count}} ολοκληρώθηκαν",
+			"create": "Δημιουργία sprint",
+			"createDescription": "Σχεδιάστε ένα επερχόμενο sprint με όνομα, στόχο και ημερομηνίες.",
+			"createTitle": "Δημιουργία sprint",
+			"daysOverdue": "{{remaining}} ημέρες καθυστέρηση",
+			"daysRemaining": "Απομένουν {{remaining}} ημέρες",
+			"edit": "Επεξεργασία sprint",
+			"editDescription": "Ενημερώστε όνομα, στόχο και ημερομηνίες του sprint.",
+			"editTitle": "Επεξεργασία sprint",
+			"endsToday": "Τελειώνει σήμερα",
+			"error": "Η ενέργεια sprint απέτυχε",
+			"goal": "Στόχος sprint",
+			"goalPlaceholder": "Τι πρέπει να πετύχει αυτό το sprint;",
+			"history": "Κλειστά sprints ({{count}})",
+			"moveDown": "Μετακίνηση κάτω",
+			"moveSuccess_one": "Task moved",
+			"moveSuccess_other": "{{count}} tasks moved",
+			"moveUp": "Μετακίνηση πάνω",
+			"name": "Όνομα sprint",
+			"namePlaceholder": "Sprint 1",
+			"noActive": "Κανένα sprint δεν είναι ενεργό. Ξεκινήστε ένα επερχόμενο sprint.",
+			"noTasks": "Δεν υπάρχουν ακόμα εργασίες σε αυτό το sprint",
+			"openTaskMenu": "Open task menu",
+			"reportSummary": "Προγραμματισμένες {{planned}}, ολοκληρωμένες {{completed}}, μεταφέρθηκαν {{carriedOver}}",
+			"save": "Αποθήκευση αλλαγών",
+			"scopeCurrent": "Current sprint",
+			"scopeTitle": "Sprint scope",
+			"selectTask": "Select task",
+			"start": "Έναρξη sprint",
+			"startSuccess": "Το sprint {{name}} ξεκίνησε",
+			"taskCounts": "{{completed}} από {{total}} ολοκληρώθηκαν",
+			"title": "Sprints",
+			"toggleTasks": "Εμφάνιση εργασιών sprint",
+			"unscheduled": "Χωρίς προγραμματισμό",
+			"upcoming": "Επερχόμενο sprint",
+			"viewEmptyDescription": "Create a sprint to plan work in iterations and track it from here.",
+			"viewEmptyTitle": "No sprints yet",
+			"viewHeading": "All sprints",
+			"viewPageTitle": "Sprints · {{name}}"
+		},
+		"type": {
+			"bug": "Σφάλμα",
+			"label": "Τύπος",
+			"task": "Εργασία"
 		}
 	},
 	"invitations": {

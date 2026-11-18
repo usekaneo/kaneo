@@ -163,6 +163,12 @@
 				"apply": "Link übernehmen",
 				"remove": "Link entfernen"
 			}
+		},
+		"boolean": {
+			"false": "False",
+			"notSet": "Not Set",
+			"true": "True",
+			"undefined": "Undefined"
 		}
 	},
 	"auth": {
@@ -1087,7 +1093,14 @@
 			"moveDialogTitle": "In anderen Workspace verschieben?",
 			"moveTargetLabel": "Workspace",
 			"moving": "Wird verschoben...",
-			"tasksTitle": "Aufgaben"
+			"tasksTitle": "Aufgaben",
+			"sprintLength": "Standard-Sprint-Länge",
+			"sprintLengthDescription": "Anzahl der Tage, die ein neuer Sprint standardmäßig umfasst.",
+			"sprintLengthError": "Sprint-Länge konnte nicht gespeichert werden",
+			"sprintLengthSave": "Sprint-Länge speichern",
+			"sprintLengthSaved": "Sprint-Länge gespeichert",
+			"sprints": "Sprints",
+			"sprintsSubtitle": "Plane anstehende Arbeit in Iterationen fester Länge."
 		},
 		"projectIntegrations": {
 			"pageTitle": "Integrationen",
@@ -2173,7 +2186,13 @@
 				"labels_one": "{{count, number}} Label",
 				"labels_other": "{{count, number}} Labels",
 				"tasks_one": "{{count, number}} Aufgabe",
-				"tasks_other": "{{count, number}} Aufgaben"
+				"tasks_other": "{{count, number}} Aufgaben",
+				"attachments_one": "{{count, number}} attachment",
+				"attachments_other": "{{count, number}} attachments",
+				"sprints_one": "{{count, number}} Sprint",
+				"sprints_other": "{{count, number}} Sprints",
+				"users_one": "{{count, number}} Benutzer",
+				"users_other": "{{count, number}} Benutzer"
 			},
 			"entry": {
 				"createProjectLink": "Deine Projekte importieren",
@@ -2272,7 +2291,15 @@
 				"membersNote": "Zugewiesene Personen werden anhand ihrer E-Mail-Adresse den Mitgliedern von {{workspace}} zugeordnet. Lade zuerst dein Team ein, damit die Aufgaben zugewiesen bleiben.",
 				"membersNoteTrello": "Zugewiesene Personen werden anhand ihrer E-Mail-Adresse, bei Trello auch anhand ihres vollständigen Namens, den Mitgliedern von {{workspace}} zugeordnet. Lade zuerst dein Team ein, damit die Aufgaben zugewiesen bleiben.",
 				"selectAll": "Alle auswählen",
-				"membersNoteJira": "Zugewiesene Personen werden anhand ihrer E-Mail-Adresse den Mitgliedern von {{workspace}} zugeordnet. Wenn Jira die E-Mail-Adresse ausblendet, wird der vollständige Name verwendet. Lade zuerst dein Team ein, damit die Aufgaben zugewiesen bleiben."
+				"membersNoteJira": "Zugewiesene Personen werden anhand ihrer E-Mail-Adresse den Mitgliedern von {{workspace}} zugeordnet. Wenn Jira die E-Mail-Adresse ausblendet, wird der vollständige Name verwendet. Lade zuerst dein Team ein, damit die Aufgaben zugewiesen bleiben.",
+				"sprintsDescription": "Erstellt die Sprints des Projekts und behält jede Aufgabe in ihrem Sprint.",
+				"sprintsLabel": "Sprints importieren",
+				"usersCreateDescription": "Konten werden direkt erstellt und als Mitglieder hinzugefügt, sodass ihre Aufgaben sofort zugewiesen sind. Sie melden sich mit ihrer E-Mail-Adresse an.",
+				"usersCreateLabel": "Konto erstellen",
+				"usersDescription": "Was passiert mit Bearbeitern, die noch keine Mitglieder dieses Workspaces sind.",
+				"usersInviteDescription": "Sie erhalten eine E-Mail-Einladung und treten bei, sobald sie diese annehmen. Ihre Aufgaben bleiben bis dahin nicht zugewiesen.",
+				"usersInviteLabel": "Einladung senden",
+				"usersLabel": "Neue Benutzer"
 			},
 			"sources": {
 				"connect": "Verbinden",
@@ -2411,6 +2438,12 @@
 				"urlDescription": "Kopiere sie aus deinem Browser. Data Center wird ebenfalls unterstützt.",
 				"urlLabel": "URL der Jira-Website",
 				"urlPlaceholder": "https://deine-website.atlassian.net"
+			},
+			"stages": {
+				"reading": "Lesen",
+				"sprints": "Sprints",
+				"tasks": "Aufgaben",
+				"users": "Benutzer"
 			}
 		},
 		"chatIntegrations": {
@@ -3233,20 +3266,6 @@
 		"movedFromOtherProject": "hat die Aufgabe aus einem anderen Projekt nach „{{to}}“ verschoben"
 	},
 	"tasks": {
-		"dateFilter": {
-			"startDate": "Startdatum",
-			"noDate": "Kein Datum",
-			"condition": "Datumsbedingung",
-			"exact": "Genaues Datum",
-			"range": "Datumsbereich",
-			"before": "Vor",
-			"after": "Nach",
-			"apply": "Datumsfilter anwenden",
-			"exactValue": "Am {{date}}",
-			"beforeValue": "Vor dem {{date}}",
-			"afterValue": "Nach dem {{date}}",
-			"rangeValue": "{{date}} – {{end}}"
-		},
 		"title": "Aufgaben",
 		"status": {
 			"label": "Status",
@@ -3270,7 +3289,8 @@
 			"list": "Liste",
 			"backlog": "Backlog",
 			"gantt": "Gantt",
-			"heading": "Ansicht"
+			"heading": "Ansicht",
+			"sprints": "Sprints"
 		},
 		"common": {
 			"selectTask": "Aufgabe auswählen",
@@ -3573,7 +3593,8 @@
 				"priority": "Priorität",
 				"assignee": "Zugewiesen",
 				"dueDate": "Fälligkeitsdatum",
-				"labels": "Labels"
+				"labels": "Labels",
+				"sprint": "Sprint"
 			},
 			"operators": {
 				"isAnyOf": "ist einer von",
@@ -3586,7 +3607,8 @@
 			},
 			"allCustomFieldValues": "Alle Werte",
 			"noCustomFieldValues": "Keine Werte für benutzerdefinierte Felder",
-			"noValuesUsedYet": "Noch keine Werte verwendet"
+			"noValuesUsedYet": "Noch keine Werte verwendet",
+			"allSprints": "Alle Sprints"
 		},
 		"gantt": {
 			"searchPlaceholder": "Geplante Tickets suchen...",
@@ -3713,7 +3735,9 @@
 			"priorityPlaceholder": "Priorität festlegen…",
 			"assigneePlaceholder": "Zuweisen an…",
 			"labelPlaceholder": "Label hinzufügen…",
-			"columnPlaceholder": "In Spalte verschieben…"
+			"columnPlaceholder": "In Spalte verschieben…",
+			"moveToSprint": "In Sprint verschieben",
+			"updateSprintError": "Aufgaben konnten nicht in den Sprint verschoben werden"
 		},
 		"editor": {
 			"table": {
@@ -3796,9 +3820,7 @@
 			"showOnRows": "In Zeilen anzeigen",
 			"checklistProgress": "Checklisten-Fortschritt",
 			"projectBackground": "Projekthintergrund",
-			"layout": "Layout",
-			"includeSubtasks": "Unteraufgaben einbeziehen",
-			"useProjectDefault": "Projektstandard verwenden"
+			"layout": "Layout"
 		},
 		"filterBar": {
 			"label": "Aktive Filter",
@@ -3843,20 +3865,63 @@
 			"beforeStart": "{{date}} liegt vor dem Startdatum",
 			"afterDue": "{{date}} liegt nach dem Fälligkeitsdatum"
 		},
-		"timeTracking": {
-			"title": "Zeiterfassung",
-			"start": "Timer starten",
-			"stop": "Timer stoppen",
-			"running": "Läuft",
-			"empty": "Noch keine Zeit erfasst.",
-			"unknownUser": "Unbekannt",
-			"startError": "Der Timer konnte nicht gestartet werden.",
-			"stopError": "Der Timer konnte nicht gestoppt werden.",
-			"loadError": "Die Zeiteinträge konnten nicht geladen werden.",
-			"retry": "Erneut versuchen",
-			"durationSeconds": "{{seconds, number}} Sek.",
-			"durationMinutes": "{{minutes, number}} Min.",
-			"durationHoursMinutes": "{{hours, number}} Std. {{minutes, number}} Min."
+		"sprints": {
+			"activeBadge": "Aktiv",
+			"backlog": "Backlog",
+			"backlogDescription": "Tasks without a sprint",
+			"backlogEmpty": "No unscheduled tasks",
+			"carriedOver": "Übertragen",
+			"close": "Sprint abschließen",
+			"closeConfirm": "Sprint abschließen und offene Aufgaben verschieben",
+			"closeSuccess": "Sprint abgeschlossen, {{count}} offene Aufgaben verschoben",
+			"closeSummary": "{{name}} hat {{total}} Aufgaben, davon {{completed}} abgeschlossen.",
+			"closeTarget": "{{count}} offene Aufgaben verschieben nach",
+			"closeTitle": "Sprint abschließen",
+			"closedLocked": "Diese Aufgabe gehört zu einem abgeschlossenen Sprint und bleibt dort als Verlauf",
+			"completedCount": "{{count}} abgeschlossen",
+			"create": "Sprint erstellen",
+			"createDescription": "Plane einen kommenden Sprint mit Name, Ziel und Terminen.",
+			"createTitle": "Sprint erstellen",
+			"daysOverdue": "{{remaining}} Tage überfällig",
+			"daysRemaining": "{{remaining}} Tage verbleibend",
+			"edit": "Sprint bearbeiten",
+			"editDescription": "Aktualisiere Name, Ziel und Termine des Sprints.",
+			"editTitle": "Sprint bearbeiten",
+			"endsToday": "Endet heute",
+			"error": "Sprint-Aktion fehlgeschlagen",
+			"goal": "Sprint-Ziel",
+			"goalPlaceholder": "Was soll dieser Sprint erreichen?",
+			"history": "Abgeschlossene Sprints ({{count}})",
+			"moveDown": "Nach unten",
+			"moveSuccess_one": "Task moved",
+			"moveSuccess_other": "{{count}} tasks moved",
+			"moveUp": "Nach oben",
+			"name": "Sprint-Name",
+			"namePlaceholder": "Sprint 1",
+			"noActive": "Kein Sprint ist aktiv. Starte einen kommenden Sprint, um zu iterieren.",
+			"noTasks": "Noch keine Aufgaben in diesem Sprint",
+			"openTaskMenu": "Open task menu",
+			"reportSummary": "Geplant {{planned}}, abgeschlossen {{completed}}, übertragen {{carriedOver}}",
+			"save": "Änderungen speichern",
+			"scopeCurrent": "Current sprint",
+			"scopeTitle": "Sprint scope",
+			"selectTask": "Select task",
+			"start": "Sprint starten",
+			"startSuccess": "Sprint {{name}} gestartet",
+			"taskCounts": "{{completed}} von {{total}} abgeschlossen",
+			"title": "Sprints",
+			"toggleTasks": "Sprint-Aufgaben anzeigen",
+			"unscheduled": "Nicht terminiert",
+			"upcoming": "Kommender Sprint",
+			"viewEmptyDescription": "Erstelle einen Sprint, um Arbeit in Iterationen zu planen und von hier aus zu verfolgen.",
+			"viewEmptyTitle": "Noch keine Sprints",
+			"viewHeading": "Alle Sprints",
+			"viewPageTitle": "Sprints · {{name}}"
+		},
+		"type": {
+			"bug": "Bug",
+			"label": "Typ",
+			"task": "Aufgabe"
 		}
 	},
 	"invitations": {

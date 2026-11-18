@@ -30,6 +30,8 @@ type Task = {
   descriptionDeferred?: boolean;
   status: string;
   priority: string | null;
+  sprintId: string | null;
+  type: string | null;
   startDate: string | null;
   dueDate: string | null;
   recurrence?: TaskRecurrence | null;
@@ -42,7 +44,6 @@ type Task = {
   assigneeImage?: string | null;
   projectId: string;
   columnId?: string | null;
-  isSubtask?: boolean;
   subtaskCounts?: { completed: number; total: number };
   labels?: TaskLabel[];
   externalLinks?: TaskExternalLink[];

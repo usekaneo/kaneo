@@ -1,7 +1,6 @@
-import { parseDateCondition } from "@/lib/task-filters/date-condition";
-import { formatDateCondition } from "./format-date-condition";
-import { CalendarDays, CircleDot, Tag, UserRound } from "lucide-react";
+import { CalendarDays, CircleDot, Rocket, Tag, UserRound } from "lucide-react";
 import { useTranslation } from "react-i18next";
+import { SPRINT_FILTER_VALUES } from "@/hooks/use-task-filters";
 import { getColumnIcon } from "@/lib/column";
 import { getPriorityLabel } from "@/lib/i18n/domain";
 import { getPriorityIcon } from "@/lib/priority";
@@ -16,6 +15,7 @@ import {
 } from "@/lib/task-filters/label-groups";
 import type { ProjectWithTasks } from "@/types/project";
 import type Task from "@/types/task";
+import type Sprint from "@/types/sprint";
 import { customFieldIcon } from "@/components/custom-fields/custom-field-icon";
 import { formatCustomFieldValue } from "@/components/custom-fields/format-custom-field-value";
 import { PriorityGlyph } from "@/components/task-chips/priority-glyph";
@@ -33,6 +33,7 @@ type UseFilterSubjectsInput = {
   columns?: ProjectWithTasks["columns"];
   tasks: Task[];
   showStatus: boolean;
+  sprints?: Sprint[];
 };
 
 export function useFilterSubjects({
@@ -41,6 +42,7 @@ export function useFilterSubjects({
   columns = [],
   tasks,
   showStatus,
+  sprints = [],
 }: UseFilterSubjectsInput): FilterSubject[] {
   const { t } = useTranslation();
   const { filters, toggleFilter, updateFilter, setNegated } = controls;
@@ -65,7 +67,7 @@ export function useFilterSubjects({
   });
 
   const listSubject = (
-    key: "status" | "priority" | "assignee" | "dueDate",
+    key: "status" | "priority" | "assignee" | "dueDate" | "sprint",
     fields: Pick<FilterSubject, "label" | "icon" | "options">,
   ) =>
     subject(key, {
@@ -74,37 +76,6 @@ export function useFilterSubjects({
       onToggle: (value) => toggleFilter(key, value),
       onClear: () => updateFilter(key, null),
     });
-
-  const dateSubject = (key: "startDate" | "dueDate") => {
-    const selected = filters[key] ?? [];
-    return subject(key, {
-      label:
-        key === "startDate"
-          ? t("tasks:dateFilter.startDate")
-          : t("tasks:boardFilters.subjects.dueDate"),
-      icon: <CalendarDays />,
-      selected,
-      options: [
-        ...(key === "dueDate"
-          ? DUE_DATE_OPTIONS.map((option) => ({
-              value: option.value,
-              label: t(option.labelKey),
-            }))
-          : [{ value: "noDate", label: t("tasks:dateFilter.noDate") }]),
-        ...selected
-          .filter((value) => parseDateCondition(value))
-          .map((value) => ({ value, label: formatDateCondition(value, t) })),
-      ],
-      onToggle: (value) => toggleFilter(key, value),
-      onDateApply: (value) => {
-        updateFilter(key, [
-          ...selected.filter((item) => !parseDateCondition(item)),
-          value,
-        ]);
-      },
-      onClear: () => updateFilter(key, null),
-    });
-  };
 
   const labelGroups = groupLabels(options.labels);
   const groupIdByLabel = new Map(
@@ -119,6 +90,7 @@ export function useFilterSubjects({
         groupIdByLabel.get(labelGroupKey(label)),
       ),
     ),
+    sprint: countValues(tasks, (task) => [task.sprintId]),
   };
 
   const core = [
@@ -190,8 +162,31 @@ export function useFilterSubjects({
       },
       "include",
     ),
-    dateSubject("startDate"),
-    dateSubject("dueDate"),
+    listSubject("dueDate", {
+      label: t("tasks:boardFilters.subjects.dueDate"),
+      icon: <CalendarDays />,
+      options: DUE_DATE_OPTIONS.map((option) => ({
+        value: option.value,
+        label: t(option.labelKey),
+      })),
+    }),
+    listSubject("sprint", {
+      label: t("tasks:boardFilters.subjects.sprint"),
+      icon: <Rocket />,
+      options: [
+        {
+          value: SPRINT_FILTER_VALUES.backlog,
+          label: t("tasks:sprints.backlog"),
+        },
+        ...sprints
+          .filter((sprint) => sprint.status !== "closed")
+          .map((sprint) => ({
+            value: sprint.id,
+            label: sprint.name,
+            count: counts.sprint[sprint.id],
+          })),
+      ],
+    }),
   ];
 
   const customFields = options.customFields.map((field) => {

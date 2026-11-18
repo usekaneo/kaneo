@@ -5,6 +5,7 @@ import PageTitle from "@/components/page-title";
 import { AutosaveNote } from "@/components/settings/autosave-note";
 import { ProjectDangerZone } from "@/components/settings/project-general/project-danger-zone";
 import { ProjectDetailsSection } from "@/components/settings/project-general/project-details-section";
+import { ProjectSprintsSection } from "@/components/settings/project-general/project-sprints-section";
 import { ProjectTasksSection } from "@/components/settings/project-general/project-tasks-section";
 import { useProjectAutosave } from "@/components/settings/project-general/use-project-autosave";
 import { SettingsPage } from "@/components/settings/settings-page";
@@ -53,6 +54,9 @@ export function ProjectGeneralPage() {
           project={project}
           canEdit={canEdit}
         />
+        {project ? (
+          <ProjectSprintsSection project={project} canEdit={canEdit} />
+        ) : null}
         {project ? (
           <ProjectTasksSection
             project={project}

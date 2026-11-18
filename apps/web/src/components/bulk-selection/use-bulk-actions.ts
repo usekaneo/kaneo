@@ -12,8 +12,10 @@ import { createElement, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useBulkOperations } from "@/hooks/mutations/task/use-bulk-operations";
 import useGetLabelsByWorkspace from "@/hooks/queries/label/use-get-labels-by-workspace";
+import { useGetSprints } from "@/hooks/queries/sprint/use-get-sprints";
 import useActiveWorkspace from "@/hooks/queries/workspace/use-active-workspace";
 import useGetProjectMembers from "@/hooks/queries/workspace-users/use-get-project-members";
+import { SPRINT_FILTER_VALUES } from "@/hooks/use-task-filters";
 import { useWorkspacePermission } from "@/hooks/use-workspace-permission";
 import { PriorityGlyph } from "@/components/task-chips/priority-glyph";
 import { type ToastIcon, toast } from "@/lib/toast";
@@ -34,6 +36,7 @@ export function useBulkActions(
   const { data: workspaceLabels = [] } = useGetLabelsByWorkspace(
     workspace?.id ?? "",
   );
+  const { data: sprints = [] } = useGetSprints(project?.id ?? "");
   const { canUpdateTasks, canDeleteTasks, canAssignTasks, canUpdateLabels } =
     useWorkspacePermission();
   const [deleteCount, setDeleteCount] = useState<number | null>(null);
@@ -73,6 +76,7 @@ export function useBulkActions(
     columns: project?.columns ?? [],
     members,
     labels,
+    sprints,
     permissions: {
       edit: canUpdateTasks(),
       delete: canDeleteTasks(),
@@ -118,6 +122,17 @@ export function useBulkActions(
         t("tasks:bulk.updateSuccess", { count }),
         CalendarDaysIcon,
         t("tasks:bulk.updateDueDateError"),
+      ),
+    setSprint: (value: string) =>
+      run(
+        () =>
+          operations.bulkSprint({
+            taskIds: taskIds(),
+            sprintId: value === SPRINT_FILTER_VALUES.backlog ? null : value,
+          }),
+        t("tasks:bulk.updateSuccess", { count }),
+        RocketIcon,
+        t("tasks:bulk.updateSprintError"),
       ),
     moveToBacklog: () =>
       run(

@@ -163,6 +163,12 @@
 				"apply": "套用連結",
 				"remove": "移除連結"
 			}
+		},
+		"boolean": {
+			"false": "否",
+			"notSet": "未設定",
+			"true": "是",
+			"undefined": "未定義"
 		}
 	},
 	"auth": {
@@ -1159,7 +1165,14 @@
 			"moveDialogTitle": "要移動到其他工作區嗎？",
 			"moveTargetLabel": "工作區",
 			"moving": "移動中...",
-			"tasksTitle": "任務"
+			"tasksTitle": "任務",
+			"sprintLength": "預設衝刺長度",
+			"sprintLengthDescription": "新衝刺預設涵蓋的天數。",
+			"sprintLengthError": "無法儲存衝刺長度",
+			"sprintLengthSave": "儲存衝刺長度",
+			"sprintLengthSaved": "衝刺長度已儲存",
+			"sprints": "衝刺",
+			"sprintsSubtitle": "以固定長度的迭代來規劃接下來的工作。"
 		},
 		"projectIntegrations": {
 			"pageTitle": "整合",
@@ -2153,7 +2166,12 @@
 				"columns_other": "{{count, number}} columns",
 				"comments_other": "{{count, number}} comments",
 				"labels_other": "{{count, number}} labels",
-				"tasks_other": "{{count, number}} tasks"
+				"tasks_other": "{{count, number}} tasks",
+				"attachments_other": "{{count, number}} attachments",
+				"sprints_one": "{{count, number}} sprint",
+				"sprints_other": "{{count, number}} sprints",
+				"users_one": "{{count, number}} user",
+				"users_other": "{{count, number}} users"
 			},
 			"entry": {
 				"createProjectLink": "Import your projects",
@@ -2246,10 +2264,18 @@
 				"commentsDescription": "Keeps each comment's original author and date.",
 				"commentsLabel": "Import comments",
 				"inviteMembers": "Invite members",
-				"membersNote": "Assignees are matched to members of {{workspace}} by email. Invite your team first so their tasks stay assigned.",
-				"membersNoteTrello": "Assignees are matched to members of {{workspace}} by email, or by full name for Trello. Invite your team first so their tasks stay assigned.",
+				"membersNote": "Assignees are matched to members of {{workspace}} by email. Anyone unknown gets an invitation or an account, as chosen above.",
+				"membersNoteTrello": "Assignees are matched to members of {{workspace}} by email, or by full name for Trello. Anyone unknown gets an invitation or an account, as chosen above.",
 				"selectAll": "Select all",
-				"membersNoteJira": "Assignees are matched to members of {{workspace}} by email, or by full name when Jira hides the email. Invite your team first so their tasks stay assigned."
+				"membersNoteJira": "Assignees are matched to members of {{workspace}} by email, or by full name when Jira hides the email. Anyone unknown gets an invitation or an account, as chosen above.",
+				"sprintsDescription": "Creates the project's sprints and keeps each issue in its sprint.",
+				"sprintsLabel": "Import sprints",
+				"usersCreateDescription": "Accounts are created directly and added as members, so their tasks are assigned right away. They sign in with their email.",
+				"usersCreateLabel": "Create their account",
+				"usersDescription": "What happens to assignees who are not members of this workspace yet.",
+				"usersInviteDescription": "They receive an email invitation and join once they accept. Their tasks stay unassigned until then.",
+				"usersInviteLabel": "Send an invitation",
+				"usersLabel": "New users"
 			},
 			"sources": {
 				"connect": "Connect",
@@ -2369,6 +2395,12 @@
 				"urlDescription": "Copy it from your browser. Data Center works too.",
 				"urlLabel": "Jira site URL",
 				"urlPlaceholder": "https://your-site.atlassian.net"
+			},
+			"stages": {
+				"reading": "Reading",
+				"sprints": "Sprints",
+				"tasks": "Issues",
+				"users": "Users"
 			}
 		},
 		"chatIntegrations": {
@@ -2988,6 +3020,37 @@
 			"then": "然後",
 			"or": "或",
 			"thenEllipsis": "然後…"
+		},
+		"keyboardShortcuts": {
+			"categories": {
+				"create": "建立",
+				"general": "一般",
+				"navigation": "導覽",
+				"quickSelect": "快速選取（在彈出選單中）",
+				"views": "檢視"
+			},
+			"footer": "按 <kbd>Escape</kbd> 關閉",
+			"items": {
+				"backlogView": "切換到待辦事項檢視",
+				"boardView": "切換到看板檢視",
+				"calendarView": "切換到行事曆檢視",
+				"closeModal": "關閉對話框／彈出選單",
+				"createProject": "建立專案",
+				"createTask": "建立任務",
+				"createWorkspace": "建立工作區",
+				"globalSearch": "全域搜尋",
+				"listView": "切換到清單檢視",
+				"nextTask": "下一個任務",
+				"openCommandPalette": "開啟指令面板",
+				"openTask": "開啟選取的任務",
+				"prevTask": "上一個任務",
+				"quickSelectNumber": "依數字選取選項",
+				"showShortcuts": "顯示鍵盤快速鍵",
+				"toggleSidebar": "切換側邊欄"
+			},
+			"searchPlaceholder": "搜尋快速鍵...",
+			"subtitle": "用鍵盤快速鍵加快你的工作流程",
+			"title": "鍵盤快速鍵"
 		}
 	},
 	"notifications": {
@@ -3179,20 +3242,6 @@
 		"movedFromOtherProject": "moved task from another project to \"{{to}}\""
 	},
 	"tasks": {
-		"dateFilter": {
-			"startDate": "開始日期",
-			"noDate": "無日期",
-			"condition": "日期條件",
-			"exact": "指定日期",
-			"range": "日期範圍",
-			"before": "早於",
-			"after": "晚於",
-			"apply": "套用日期篩選",
-			"exactValue": "在 {{date}}",
-			"beforeValue": "早於 {{date}}",
-			"afterValue": "晚於 {{date}}",
-			"rangeValue": "{{date}} – {{end}}"
-		},
 		"title": "任務",
 		"status": {
 			"label": "狀態",
@@ -3216,7 +3265,8 @@
 			"list": "清單",
 			"backlog": "待辦",
 			"gantt": "甘特圖",
-			"heading": "檢視"
+			"heading": "檢視",
+			"sprints": "Sprints"
 		},
 		"common": {
 			"selectTask": "選取任務",
@@ -3515,7 +3565,8 @@
 				"priority": "優先順序",
 				"assignee": "負責人",
 				"dueDate": "截止日期",
-				"labels": "標籤"
+				"labels": "標籤",
+				"sprint": "衝刺"
 			},
 			"operators": {
 				"isAnyOf": "為以下任一",
@@ -3528,7 +3579,8 @@
 			},
 			"allCustomFieldValues": "所有值",
 			"noCustomFieldValues": "沒有自訂欄位值",
-			"noValuesUsedYet": "尚未使用任何值"
+			"noValuesUsedYet": "尚未使用任何值",
+			"allSprints": "所有衝刺"
 		},
 		"calendar": {
 			"pageTitle": "{{name}} - 行事曆",
@@ -3666,7 +3718,9 @@
 			"priorityPlaceholder": "設定優先順序…",
 			"assigneePlaceholder": "指派給…",
 			"labelPlaceholder": "新增標籤…",
-			"columnPlaceholder": "移至欄位…"
+			"columnPlaceholder": "移至欄位…",
+			"moveToSprint": "移至衝刺",
+			"updateSprintError": "無法將任務移至衝刺"
 		},
 		"editor": {
 			"table": {
@@ -3727,9 +3781,7 @@
 			"showOnRows": "在列中顯示",
 			"checklistProgress": "檢查清單進度",
 			"projectBackground": "專案背景",
-			"layout": "版面配置",
-			"includeSubtasks": "包含子任務",
-			"useProjectDefault": "使用專案預設設定"
+			"layout": "版面配置"
 		},
 		"filterBar": {
 			"label": "已套用的篩選",
@@ -3771,20 +3823,62 @@
 			"beforeStart": "{{date}} 早於開始日期",
 			"afterDue": "{{date}} 晚於截止日期"
 		},
-		"timeTracking": {
-			"empty": "尚未記錄時間。",
-			"loadError": "無法載入時間記錄。",
-			"retry": "重試",
-			"running": "計時中",
-			"start": "啟動計時器",
-			"startError": "無法開始計時。",
-			"stop": "停止計時",
-			"stopError": "無法停止計時。",
-			"title": "時間追蹤",
-			"unknownUser": "未知使用者",
-			"durationSeconds": "{{seconds, number}}秒",
-			"durationMinutes": "{{minutes, number}}分",
-			"durationHoursMinutes": "{{hours, number}}小時 {{minutes, number}}分"
+		"sprints": {
+			"activeBadge": "進行中",
+			"backlog": "待辦清單",
+			"backlogDescription": "Tasks without a sprint",
+			"backlogEmpty": "No unscheduled tasks",
+			"carriedOver": "結轉的任務",
+			"close": "關閉衝刺",
+			"closeConfirm": "關閉衝刺並移動未完成的任務",
+			"closeSuccess": "衝刺已關閉，已移動 {{count}} 個未完成的任務",
+			"closeSummary": "{{name}} 共有 {{total}} 個任務，其中 {{completed}} 個已完成。",
+			"closeTarget": "將 {{count}} 個未完成的任務移動到",
+			"closeTitle": "關閉衝刺",
+			"closedLocked": "此任務屬於已關閉的衝刺，將作為歷史保留在其中",
+			"completedCount": "{{count}} 個已完成",
+			"create": "建立衝刺",
+			"createDescription": "為即將開始的衝刺設定名稱、目標和日期。",
+			"createTitle": "建立衝刺",
+			"daysOverdue": "已逾期 {{remaining}} 天",
+			"daysRemaining": "剩餘 {{remaining}} 天",
+			"edit": "編輯衝刺",
+			"editDescription": "更新衝刺的名稱、目標和日期。",
+			"editTitle": "編輯衝刺",
+			"endsToday": "今天結束",
+			"error": "衝刺操作失敗",
+			"goal": "衝刺目標",
+			"goalPlaceholder": "這個衝刺要達成什麼？",
+			"history": "已關閉的衝刺（{{count}}）",
+			"moveDown": "下移",
+			"moveSuccess_other": "{{count}} tasks moved",
+			"moveUp": "上移",
+			"name": "衝刺名稱",
+			"namePlaceholder": "衝刺 1",
+			"noActive": "目前沒有進行中的衝刺。請開始一個即將進行的衝刺以進入迭代。",
+			"noTasks": "此衝刺中尚無任務",
+			"openTaskMenu": "Open task menu",
+			"reportSummary": "已規劃 {{planned}}，已完成 {{completed}}，已結轉 {{carriedOver}}",
+			"save": "儲存變更",
+			"scopeCurrent": "Current sprint",
+			"scopeTitle": "Sprint scope",
+			"selectTask": "Select task",
+			"start": "開始衝刺",
+			"startSuccess": "衝刺 {{name}} 已開始",
+			"taskCounts": "已完成 {{completed}} / {{total}}",
+			"title": "衝刺",
+			"toggleTasks": "顯示衝刺任務",
+			"unscheduled": "未安排",
+			"upcoming": "即將開始的衝刺",
+			"viewEmptyDescription": "Create a sprint to plan work in iterations and track it from here.",
+			"viewEmptyTitle": "No sprints yet",
+			"viewHeading": "All sprints",
+			"viewPageTitle": "Sprints · {{name}}"
+		},
+		"type": {
+			"bug": "錯誤",
+			"label": "類型",
+			"task": "任務"
 		}
 	},
 	"invitations": {

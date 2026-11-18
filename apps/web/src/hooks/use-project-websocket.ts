@@ -207,6 +207,19 @@ export function useProjectWebSocket(projectId: string) {
             });
             return;
           }
+          if (message.type === "SPRINT_UPDATED") {
+            // Starting or closing a sprint moves tasks between sprints and
+            // changes every sprint's task counters, so the sprint list and the
+            // board are reloaded together.
+            markBoardCacheChanged(queryClient, projectId);
+            void queryClient.invalidateQueries({
+              queryKey: ["sprints", projectId],
+            });
+            void queryClient.invalidateQueries({
+              queryKey: ["tasks", projectId],
+            });
+            return;
+          }
           if (
             message.taskId &&
             [
@@ -309,10 +322,6 @@ export function useProjectWebSocket(projectId: string) {
             queryClient.invalidateQueries({
               queryKey: ["task-relations", "project", message.projectId],
             });
-          }
-
-          if (message.type === "TASK_MOVED" && message.taskId) {
-            void invalidateTaskRelations(queryClient, message.taskId);
           }
 
           const boardIsLoading =

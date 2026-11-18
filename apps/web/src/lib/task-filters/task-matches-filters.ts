@@ -5,10 +5,12 @@ import {
   isWithinInterval,
   startOfWeek,
 } from "date-fns";
-import type { BoardFilters } from "@/hooks/use-task-filters";
-import { DUE_DATE_FILTER_VALUES } from "./due-date-filter-values";
+import {
+  type BoardFilters,
+  DUE_DATE_FILTER_VALUES,
+  SPRINT_FILTER_VALUES,
+} from "@/hooks/use-task-filters";
 import type Task from "@/types/task";
-import { matchesDateCondition, parseDateCondition } from "./date-condition";
 import { customFieldSubjectId } from "./filter-subject-id";
 
 export type TaskFilterContext = {
@@ -50,8 +52,6 @@ function matchesDueDate(
 ) {
   if (dueDateFilter === DUE_DATE_FILTER_VALUES.noDueDate) return !task.dueDate;
   if (!task.dueDate) return false;
-  const condition = parseDateCondition(dueDateFilter);
-  if (condition) return matchesDateCondition(task.dueDate, condition);
 
   const weeksAhead =
     dueDateFilter === DUE_DATE_FILTER_VALUES.dueThisWeek
@@ -76,14 +76,6 @@ export function taskMatchesFilters(
   if (!matchesQuery(task, context)) return false;
 
   const negated = new Set(filters.negated ?? []);
-  // Missing dates only match an explicit, positive "No date" selection.
-  for (const field of ["startDate", "dueDate"] as const) {
-    if (filters[field]?.length && !task[field]) {
-      const noDate =
-        field === "dueDate" ? DUE_DATE_FILTER_VALUES.noDueDate : "noDate";
-      if (negated.has(field) || !filters[field]?.includes(noDate)) return false;
-    }
-  }
   const passes = (subject: string, matches: boolean) =>
     negated.has(subject) ? !matches : matches;
   const checks: Array<[string, string[] | null | undefined, () => boolean]> = [
@@ -103,26 +95,22 @@ export function taskMatchesFilters(
       () => filters.assignee?.includes(task.userId ?? "") ?? false,
     ],
     [
+      "sprint",
+      filters.sprint,
+      () =>
+        filters.sprint?.some((value) =>
+          value === SPRINT_FILTER_VALUES.backlog
+            ? task.sprintId == null
+            : task.sprintId === value,
+        ) ?? false,
+    ],
+    [
       "dueDate",
       filters.dueDate,
       () =>
         filters.dueDate?.some((value) =>
           matchesDueDate(task, value, context),
         ) ?? false,
-    ],
-    [
-      "startDate",
-      filters.startDate,
-      () =>
-        filters.startDate?.some((value) => {
-          if (value === "noDate") return !task.startDate;
-          const condition = parseDateCondition(value);
-          return (
-            !!task.startDate &&
-            !!condition &&
-            matchesDateCondition(task.startDate, condition)
-          );
-        }) ?? false,
     ],
     [
       "labels",

@@ -163,6 +163,12 @@
 				"apply": "Apply link",
 				"remove": "Remove link"
 			}
+		},
+		"boolean": {
+			"false": "False",
+			"notSet": "Not Set",
+			"true": "True",
+			"undefined": "Undefined"
 		}
 	},
 	"auth": {
@@ -1692,10 +1698,18 @@
 				"back": "Back",
 				"commentsLabel": "Import comments",
 				"commentsDescription": "Keeps each comment's original author and date.",
-				"membersNote": "Assignees are matched to members of {{workspace}} by email. Invite your team first so their tasks stay assigned.",
-				"membersNoteTrello": "Assignees are matched to members of {{workspace}} by email, or by full name for Trello. Invite your team first so their tasks stay assigned.",
-				"membersNoteJira": "Assignees are matched to members of {{workspace}} by email, or by full name when Jira hides the email. Invite your team first so their tasks stay assigned.",
-				"inviteMembers": "Invite members"
+				"membersNote": "Assignees are matched to members of {{workspace}} by email. Anyone unknown gets an invitation or an account, as chosen above.",
+				"membersNoteTrello": "Assignees are matched to members of {{workspace}} by email, or by full name for Trello. Anyone unknown gets an invitation or an account, as chosen above.",
+				"membersNoteJira": "Assignees are matched to members of {{workspace}} by email, or by full name when Jira hides the email. Anyone unknown gets an invitation or an account, as chosen above.",
+				"inviteMembers": "Invite members",
+				"sprintsDescription": "Creates the project's sprints and keeps each issue in its sprint.",
+				"sprintsLabel": "Import sprints",
+				"usersCreateDescription": "Accounts are created directly and added as members, so their tasks are assigned right away. They sign in with their email.",
+				"usersCreateLabel": "Create their account",
+				"usersDescription": "What happens to assignees who are not members of this workspace yet.",
+				"usersInviteDescription": "They receive an email invitation and join once they accept. Their tasks stay unassigned until then.",
+				"usersInviteLabel": "Send an invitation",
+				"usersLabel": "New users"
 			},
 			"units": {
 				"team": {
@@ -1764,7 +1778,13 @@
 				"labels_one": "{{count, number}} label",
 				"labels_other": "{{count, number}} labels",
 				"comments_one": "{{count, number}} comment",
-				"comments_other": "{{count, number}} comments"
+				"comments_other": "{{count, number}} comments",
+				"attachments_one": "{{count, number}} attachment",
+				"attachments_other": "{{count, number}} attachments",
+				"sprints_one": "{{count, number}} sprint",
+				"sprints_other": "{{count, number}} sprints",
+				"users_one": "{{count, number}} user",
+				"users_other": "{{count, number}} users"
 			},
 			"run": {
 				"importingTitle": "Importing from {{source}}",
@@ -1806,6 +1826,12 @@
 				"projectsEmpty": "Import from another tool",
 				"createProjectPrompt": "Moving from Jira, Linear, Trello or Plane?",
 				"createProjectLink": "Import your projects"
+			},
+			"stages": {
+				"reading": "Reading",
+				"sprints": "Sprints",
+				"tasks": "Issues",
+				"users": "Users"
 			}
 		},
 		"projectGeneral": {
@@ -1862,7 +1888,14 @@
 			"moveTargetLabel": "Workspace",
 			"moveDialogTitle": "Move to another workspace?",
 			"moveDialogDescription": "Tasks assigned to people outside the new workspace become unassigned, and notification subscriptions for this project are cleared.",
-			"moving": "Moving..."
+			"moving": "Moving...",
+			"sprintLength": "Default sprint length",
+			"sprintLengthDescription": "Number of days a new sprint covers by default.",
+			"sprintLengthError": "Could not save the sprint length",
+			"sprintLengthSave": "Save sprint length",
+			"sprintLengthSaved": "Sprint length saved",
+			"sprints": "Sprints",
+			"sprintsSubtitle": "Plan upcoming work in fixed-length iterations."
 		},
 		"projectIntegrations": {
 			"turnedOffByAdmin": "Turned off by an administrator",
@@ -3257,7 +3290,8 @@
 			"list": "List",
 			"backlog": "Backlog",
 			"gantt": "Gantt",
-			"heading": "View"
+			"heading": "View",
+			"sprints": "Sprints"
 		},
 		"common": {
 			"selectTask": "Select task",
@@ -3563,7 +3597,8 @@
 				"priority": "Priority",
 				"assignee": "Assignee",
 				"dueDate": "Due date",
-				"labels": "Labels"
+				"labels": "Labels",
+				"sprint": "Sprint"
 			},
 			"operators": {
 				"isAnyOf": "is any of",
@@ -3573,7 +3608,8 @@
 				"isNoneOf": "is none of",
 				"include": "include",
 				"exclude": "exclude"
-			}
+			},
+			"allSprints": "All sprints"
 		},
 		"calendar": {
 			"pageTitle": "{{name}} / Calendar",
@@ -3725,7 +3761,9 @@
 			"priorityPlaceholder": "Set priority…",
 			"assigneePlaceholder": "Assign to…",
 			"labelPlaceholder": "Add label…",
-			"columnPlaceholder": "Move to column…"
+			"columnPlaceholder": "Move to column…",
+			"moveToSprint": "Move to sprint",
+			"updateSprintError": "Failed to move tasks to the sprint"
 		},
 		"editor": {
 			"table": {
@@ -3782,9 +3820,7 @@
 			"showOnRows": "Show on rows",
 			"checklistProgress": "Checklist progress",
 			"projectBackground": "Project background",
-			"layout": "Layout",
-			"includeSubtasks": "Include Sub Tasks",
-			"useProjectDefault": "Use project default"
+			"layout": "Layout"
 		},
 		"filterBar": {
 			"label": "Active filters",
@@ -3829,34 +3865,63 @@
 			"beforeStart": "{{date}} is before the start date",
 			"afterDue": "{{date}} is after the due date"
 		},
-		"dateFilter": {
-			"startDate": "Start date",
-			"noDate": "No date",
-			"condition": "Date condition",
-			"exact": "On",
-			"range": "Between",
-			"before": "Before",
-			"after": "After",
-			"apply": "Apply date filter",
-			"exactValue": "On {{date}}",
-			"beforeValue": "Before {{date}}",
-			"afterValue": "After {{date}}",
-			"rangeValue": "{{date}} – {{end}}"
+		"sprints": {
+			"activeBadge": "Active",
+			"backlog": "Backlog",
+			"backlogDescription": "Tasks without a sprint",
+			"backlogEmpty": "No unscheduled tasks",
+			"carriedOver": "Carried over",
+			"close": "Close sprint",
+			"closeConfirm": "Close sprint and move unfinished tasks",
+			"closeSuccess": "Sprint closed, {{count}} unfinished tasks moved",
+			"closeSummary": "{{name}} has {{total}} tasks, {{completed}} of them completed.",
+			"closeTarget": "Move {{count}} unfinished tasks to",
+			"closeTitle": "Close sprint",
+			"closedLocked": "This task is part of a closed sprint and stays there as its history",
+			"completedCount": "{{count}} completed",
+			"create": "Create sprint",
+			"createDescription": "Plan an upcoming sprint with a name, goal, and dates.",
+			"createTitle": "Create sprint",
+			"daysOverdue": "{{remaining}} days overdue",
+			"daysRemaining": "{{remaining}} days remaining",
+			"edit": "Edit sprint",
+			"editDescription": "Update the sprint's name, goal, and dates.",
+			"editTitle": "Edit sprint",
+			"endsToday": "Ends today",
+			"error": "Sprint action failed",
+			"goal": "Sprint goal",
+			"goalPlaceholder": "What should this sprint achieve?",
+			"history": "Closed sprints ({{count}})",
+			"moveDown": "Move down",
+			"moveSuccess_one": "Task moved",
+			"moveSuccess_other": "{{count}} tasks moved",
+			"moveUp": "Move up",
+			"name": "Sprint name",
+			"namePlaceholder": "Sprint 1",
+			"noActive": "No sprint is active. Start an upcoming sprint to begin iterating.",
+			"noTasks": "No tasks in this sprint yet",
+			"openTaskMenu": "Open task menu",
+			"reportSummary": "Planned {{planned}}, completed {{completed}}, carried over {{carriedOver}}",
+			"save": "Save changes",
+			"scopeCurrent": "Current sprint",
+			"scopeTitle": "Sprint scope",
+			"selectTask": "Select task",
+			"start": "Start sprint",
+			"startSuccess": "Sprint {{name}} started",
+			"taskCounts": "{{completed}} of {{total}} completed",
+			"title": "Sprints",
+			"toggleTasks": "Show sprint tasks",
+			"unscheduled": "Not scheduled",
+			"upcoming": "Upcoming sprint",
+			"viewEmptyDescription": "Create a sprint to plan work in iterations and track it from here.",
+			"viewEmptyTitle": "No sprints yet",
+			"viewHeading": "All sprints",
+			"viewPageTitle": "Sprints · {{name}}"
 		},
-		"timeTracking": {
-			"title": "Time tracking",
-			"start": "Start timer",
-			"stop": "Stop timer",
-			"running": "Running",
-			"empty": "No time logged yet.",
-			"unknownUser": "Unknown",
-			"startError": "Failed to start the timer.",
-			"stopError": "Failed to stop the timer.",
-			"loadError": "Failed to load time entries.",
-			"retry": "Retry",
-			"durationSeconds": "{{seconds, number}}s",
-			"durationMinutes": "{{minutes, number}}m",
-			"durationHoursMinutes": "{{hours, number}}h {{minutes, number}}m"
+		"type": {
+			"bug": "Bug",
+			"label": "Type",
+			"task": "Task"
 		}
 	},
 	"invitations": {

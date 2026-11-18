@@ -125,5 +125,10 @@ describe("ProjectLayout access states", () => {
     expect(backlog.getAttribute("href")).toBe(
       "/dashboard/workspace/$workspaceId/project/$projectId/backlog",
     );
+    const sprints = screen.getByRole("link", { name: "tasks:view.sprints" });
+    expect(sprints.getAttribute("aria-current")).toBeNull();
+    expect(sprints.getAttribute("href")).toBe(
+      "/dashboard/workspace/$workspaceId/project/$projectId/sprints",
+    );
   });
 });

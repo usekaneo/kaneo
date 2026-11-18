@@ -3,9 +3,6 @@ import { act, renderHook, waitFor } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it } from "vite-plus/test";
 import { useTaskFiltersWithLabelsSupport } from "./use-task-filters-with-labels-support";
 
-import type { ProjectWithTasks } from "@/types/project";
-import type Task from "@/types/task";
-
 const IGNORE_STATUS = ["status"] as const;
 
 function createTestQueryClient() {
@@ -260,118 +257,117 @@ describe("useTaskFiltersWithLabelsSupport", () => {
       expect.objectContaining({ status: ["done"], priority: null }),
     );
   });
-});
 
-it("uses the project subtask default, persists an override, and follows live membership changes", () => {
-  window.localStorage.clear();
-  const parent = { id: "parent", title: "Parent" } as Task;
-  const child = { id: "child", title: "Child", isSubtask: true } as Task;
-  const project = {
-    id: "subtask-project",
-    includeSubtasks: false,
-    columns: [{ id: "todo", tasks: [parent, child] }],
-    plannedTasks: [child],
-    archivedTasks: [child],
-  } as unknown as ProjectWithTasks;
-  const { result, rerender, unmount } = renderHook(
-    ({ project }) => useTaskFiltersWithLabelsSupport(project, project.id),
-    { initialProps: { project }, wrapper: createWrapper() },
-  );
-  expect(result.current.filteredProject?.columns[0].tasks).toEqual([parent]);
-  expect(result.current.filteredProject?.plannedTasks).toEqual([]);
-  expect(result.current.filteredProject?.archivedTasks).toEqual([]);
-  expect(result.current.filterTasks([parent, child])).toEqual([parent]);
-  act(() => result.current.setIncludeSubtasks(true));
-  expect(result.current.filterTasks([parent, child])).toEqual([parent, child]);
-  expect(
-    JSON.parse(
-      window.localStorage.getItem("kaneo:include-subtasks:subtask-project")!,
-    ),
-  ).toBe(true);
-  act(() => result.current.setIncludeSubtasks(false));
-  rerender({
-    project: {
-      ...project,
-      columns: [
-        {
-          ...project.columns[0],
-          tasks: [parent, { ...child, isSubtask: false }],
-        },
-      ],
-    },
-  });
-  expect(result.current.filteredProject?.columns[0].tasks).toHaveLength(2);
-  unmount();
-  window.localStorage.clear();
-});
-
-it("clears a legacy subtask override and follows changing project defaults after remount", () => {
-  window.localStorage.clear();
-  const key = "kaneo:include-subtasks:project-default";
-  window.localStorage.setItem(key, "true");
-  const project = {
-    id: "project-default",
-    includeSubtasks: false,
-    columns: [],
+  const sprintProject = {
+    id: "project-1",
+    name: "Project",
+    slug: "PROJ",
+    icon: null,
+    description: null,
+    isPublic: false,
+    createdAt: "2026-04-16T00:00:00.000Z",
+    updatedAt: "2026-04-16T00:00:00.000Z",
+    workspaceId: "workspace-1",
+    columns: [
+      {
+        id: "todo",
+        slug: "todo",
+        name: "Todo",
+        icon: null,
+        isFinal: false,
+        tasks: [
+          {
+            id: "task-sprint",
+            title: "Sprint task",
+            number: 1,
+            description: null,
+            status: "todo",
+            priority: null,
+            sprintId: "sprint-1",
+            type: null,
+            startDate: null,
+            dueDate: null,
+            position: 0,
+            createdAt: "2026-04-16T00:00:00.000Z",
+            updatedAt: "2026-04-16T00:00:00.000Z",
+            userId: null,
+            assigneeId: null,
+            assigneeName: null,
+            assigneeImage: null,
+            projectId: "project-1",
+            labels: [],
+            externalLinks: [],
+          },
+          {
+            id: "task-backlog",
+            title: "Backlog task",
+            number: 2,
+            description: null,
+            status: "todo",
+            priority: null,
+            sprintId: null,
+            type: null,
+            startDate: null,
+            dueDate: null,
+            position: 1,
+            createdAt: "2026-04-16T00:00:00.000Z",
+            updatedAt: "2026-04-16T00:00:00.000Z",
+            userId: null,
+            assigneeId: null,
+            assigneeName: null,
+            assigneeImage: null,
+            projectId: "project-1",
+            labels: [],
+            externalLinks: [],
+          },
+        ],
+      },
+    ],
     plannedTasks: [],
     archivedTasks: [],
-  } as unknown as ProjectWithTasks;
-  const { result, rerender, unmount } = renderHook(
-    ({ project }) => useTaskFiltersWithLabelsSupport(project, project.id),
-    { initialProps: { project }, wrapper: createWrapper() },
-  );
-  expect(result.current.includeSubtasks).toBe(true);
-  expect(result.current.hasIncludeSubtasksOverride).toBe(true);
-  act(() => result.current.setIncludeSubtasks(null));
-  expect(result.current.includeSubtasks).toBe(false);
-  expect(result.current.hasIncludeSubtasksOverride).toBe(false);
-  expect(JSON.parse(window.localStorage.getItem(key)!)).toBeNull();
-  rerender({ project: { ...project, includeSubtasks: true } });
-  expect(result.current.includeSubtasks).toBe(true);
-  rerender({ project: { ...project, includeSubtasks: false } });
-  expect(result.current.includeSubtasks).toBe(false);
-  unmount();
-  const restored = renderHook(
-    () => useTaskFiltersWithLabelsSupport(project, project.id),
-    { wrapper: createWrapper() },
-  );
-  expect(restored.result.current.hasIncludeSubtasksOverride).toBe(false);
-  expect(restored.result.current.includeSubtasks).toBe(false);
-  act(() => restored.result.current.setIncludeSubtasks(true));
-  expect(restored.result.current.hasIncludeSubtasksOverride).toBe(true);
-  restored.unmount();
-  window.localStorage.clear();
-});
+  };
 
-it("restores, updates, and clears date conditions with other saved filters", async () => {
-  const key = "kaneo:board-filters:date-test";
-  window.localStorage.setItem(
-    key,
-    JSON.stringify({
-      startDate: ["range:2026-10-01:2026-10-15"],
-      dueDate: ["dueThisWeek"],
-      priority: ["high"],
-    }),
-  );
-  const { result, unmount } = renderHook(
-    () => useTaskFiltersWithLabelsSupport(null, "date-test"),
-    { wrapper: createWrapper() },
-  );
-  await waitFor(() =>
-    expect(result.current.filters.startDate).toEqual([
-      "range:2026-10-01:2026-10-15",
-    ]),
-  );
-  expect(result.current.activeFilterCount).toBe(3);
-  act(() => result.current.updateFilter("dueDate", ["exact:2026-10-15"]));
-  await waitFor(() =>
-    expect(JSON.parse(window.localStorage.getItem(key)!).dueDate).toEqual([
-      "exact:2026-10-15",
-    ]),
-  );
-  act(() => result.current.clearFilters());
-  expect(result.current.activeFilterCount).toBe(0);
-  expect(result.current.filters.startDate).toBeNull();
-  unmount();
-  window.localStorage.removeItem(key);
+  it("restores a persisted sprint filter and keeps only tasks of that sprint", async () => {
+    window.localStorage.setItem(
+      storageKey,
+      JSON.stringify({ sprint: ["sprint-1"] }),
+    );
+
+    const { result } = renderHook(
+      () => useTaskFiltersWithLabelsSupport(sprintProject, "project-1"),
+      {
+        wrapper: createWrapper(),
+      },
+    );
+
+    await waitFor(() => {
+      expect(result.current.filters.sprint).toEqual(["sprint-1"]);
+    });
+
+    expect(
+      result.current.filteredProject?.columns[0]?.tasks.map((task) => task.id),
+    ).toEqual(["task-sprint"]);
+  });
+
+  it("matches tasks without a sprint when the backlog token is filtered", async () => {
+    window.localStorage.setItem(
+      storageKey,
+      JSON.stringify({ sprint: ["backlog"] }),
+    );
+
+    const { result } = renderHook(
+      () => useTaskFiltersWithLabelsSupport(sprintProject, "project-1"),
+      {
+        wrapper: createWrapper(),
+      },
+    );
+
+    await waitFor(() => {
+      expect(result.current.filters.sprint).toEqual(["backlog"]);
+    });
+
+    expect(
+      result.current.filteredProject?.columns[0]?.tasks.map((task) => task.id),
+    ).toEqual(["task-backlog"]);
+  });
 });

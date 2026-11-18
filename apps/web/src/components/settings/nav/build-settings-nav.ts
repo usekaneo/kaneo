@@ -7,6 +7,7 @@ import {
   Import,
   KeyRound,
   LayoutDashboard,
+  Palette,
   ScrollText,
   Server,
   Settings,

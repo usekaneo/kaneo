@@ -3,6 +3,7 @@ import {
   ArrowDownToLine,
   ArrowUpToLine,
   CircleDot,
+  Rocket,
   Tag,
   Trash2,
   UserRound,
@@ -148,6 +149,17 @@ export function BulkBar({
           ),
         }
       : null,
+    can.edit
+      ? {
+          value: "sprint",
+          label: t("tasks:bulk.moveToSprint"),
+          items: toCommandItems(
+            "sprint",
+            options.sprintOptions,
+            actions.setSprint,
+          ),
+        }
+      : null,
     can.edit || can.delete
       ? {
           value: "actions",
@@ -245,6 +257,17 @@ export function BulkBar({
           {can.edit && (
             <BulkDueDatePopover
               onSelect={(date) => void actions.setDueDate(date ?? undefined)}
+              onDismiss={dismissTemporary}
+              returnFocus={focusedTaskElement}
+            />
+          )}
+          {can.edit && (
+            <BulkOptionPopover
+              icon={<Rocket />}
+              label={t("tasks:bulk.moveToSprint")}
+              placeholder={t("tasks:bulk.moveToSprint")}
+              options={options.sprintOptions}
+              onSelect={(value) => void actions.setSprint(value)}
               onDismiss={dismissTemporary}
               returnFocus={focusedTaskElement}
             />

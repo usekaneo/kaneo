@@ -32,10 +32,10 @@ function AuthProvider({ children }: PropsWithChildren) {
   const previousOwner = useRef<string | null | undefined>(undefined);
   useEffect(() => {
     if (isPending || error) return;
-    const owner = data?.user.id ?? null;
+    const owner = data?.user?.id ?? null;
     if (previousOwner.current !== owner) descriptionSaveQueue.clear();
     previousOwner.current = owner;
-  }, [data?.user.id, isPending, error]);
+  }, [data?.user?.id, isPending, error]);
   const hasLoadedOnce = useRef(false);
   if (!isPending) {
     hasLoadedOnce.current = true;

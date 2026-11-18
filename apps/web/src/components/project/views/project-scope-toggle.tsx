@@ -20,9 +20,9 @@ export function ProjectScopeToggle({
   const taskLayout = useUserPreferencesStore((state) => state.taskLayout);
   const viewMode = useUserPreferencesStore((state) => state.viewMode);
   const onBacklog = currentView === "backlog";
-  const tasksView = onBacklog
-    ? tasksViewFor(taskLayout, viewMode)
-    : currentView;
+  const onSprints = currentView === "sprints";
+  const tasksView =
+    onBacklog || onSprints ? tasksViewFor(taskLayout, viewMode) : currentView;
 
   return (
     <nav
@@ -33,7 +33,7 @@ export function ProjectScopeToggle({
         view={tasksView}
         workspaceId={workspaceId}
         projectId={projectId}
-        active={!onBacklog}
+        active={!onBacklog && !onSprints}
         onSelect={onSelect}
       >
         {t("tasks:title")}
@@ -46,6 +46,15 @@ export function ProjectScopeToggle({
         onSelect={onSelect}
       >
         {t("tasks:view.backlog")}
+      </ProjectScopeLink>
+      <ProjectScopeLink
+        view="sprints"
+        workspaceId={workspaceId}
+        projectId={projectId}
+        active={onSprints}
+        onSelect={onSelect}
+      >
+        {t("tasks:view.sprints")}
       </ProjectScopeLink>
     </nav>
   );

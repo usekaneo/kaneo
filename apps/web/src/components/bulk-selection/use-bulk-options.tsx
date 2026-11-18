@@ -1,6 +1,8 @@
+import { Inbox, Rocket } from "lucide-react";
 import { useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { SPRINT_FILTER_VALUES } from "@/hooks/use-task-filters";
 import { getColumnIcon } from "@/lib/column";
 import { getInitials } from "@/lib/get-initials";
 import { getPriorityLabel } from "@/lib/i18n/domain";
@@ -13,7 +15,7 @@ const PRIORITIES = ["urgent", "high", "medium", "low", "no-priority"];
 
 export function useBulkOptions(actions: BulkActions) {
   const { t } = useTranslation();
-  const { columns, members, labels } = actions;
+  const { columns, members, labels, sprints } = actions;
 
   return useMemo(() => {
     const columnOptions: OptionMenuItem[] = columns.map((column) => ({
@@ -48,6 +50,26 @@ export function useBulkOptions(actions: BulkActions) {
         />
       ),
     }));
-    return { columnOptions, priorityOptions, memberOptions, labelOptions };
-  }, [columns, members, labels, t]);
+    const sprintOptions: OptionMenuItem[] = [
+      {
+        value: SPRINT_FILTER_VALUES.backlog,
+        label: t("tasks:sprints.backlog"),
+        icon: <Inbox className="size-4 text-muted-foreground" />,
+      },
+      ...sprints
+        .filter((sprint) => sprint.status !== "closed")
+        .map((sprint) => ({
+          value: sprint.id,
+          label: sprint.name,
+          icon: <Rocket className="size-4 text-muted-foreground" />,
+        })),
+    ];
+    return {
+      columnOptions,
+      priorityOptions,
+      memberOptions,
+      labelOptions,
+      sprintOptions,
+    };
+  }, [columns, members, labels, sprints, t]);
 }

@@ -163,6 +163,12 @@
 				"apply": "Appliquer le lien",
 				"remove": "Supprimer le lien"
 			}
+		},
+		"boolean": {
+			"false": "False",
+			"notSet": "Not Set",
+			"true": "True",
+			"undefined": "Undefined"
 		}
 	},
 	"auth": {
@@ -932,7 +938,14 @@
 			"moveDialogTitle": "Déplacer vers un autre espace de travail ?",
 			"moveTargetLabel": "Espace de travail",
 			"moving": "Déplacement...",
-			"tasksTitle": "Tâches"
+			"tasksTitle": "Tâches",
+			"sprintLength": "Durée de sprint par défaut",
+			"sprintLengthDescription": "Nombre de jours couverts par défaut par un nouveau sprint.",
+			"sprintLengthError": "Impossible d'enregistrer la durée de sprint",
+			"sprintLengthSave": "Enregistrer la durée de sprint",
+			"sprintLengthSaved": "Durée de sprint enregistrée",
+			"sprints": "Sprints",
+			"sprintsSubtitle": "Planifiez le travail à venir par itérations de longueur fixe."
 		},
 		"projectIntegrations": {
 			"pageTitle": "Intégrations",
@@ -2193,7 +2206,16 @@
 				"labels_other": "{{count, number}} labels",
 				"tasks_many": "{{count, number}} tâches",
 				"tasks_one": "{{count, number}} tâche",
-				"tasks_other": "{{count, number}} tâches"
+				"tasks_other": "{{count, number}} tâches",
+				"attachments_many": "{{count, number}} attachments",
+				"attachments_one": "{{count, number}} attachment",
+				"attachments_other": "{{count, number}} attachments",
+				"sprints_many": "{{count, number}} sprints",
+				"sprints_one": "{{count, number}} sprint",
+				"sprints_other": "{{count, number}} sprints",
+				"users_many": "{{count, number}} users",
+				"users_one": "{{count, number}} user",
+				"users_other": "{{count, number}} users"
 			},
 			"entry": {
 				"createProjectLink": "Importez vos projets",
@@ -2295,7 +2317,15 @@
 				"membersNote": "Les personnes assignées sont associées aux membres de {{workspace}} par e-mail. Invitez d'abord votre équipe pour conserver les assignations des tâches.",
 				"membersNoteTrello": "Les personnes assignées sont associées aux membres de {{workspace}} par e-mail, ou par nom complet pour Trello. Invitez d'abord votre équipe pour conserver les assignations des tâches.",
 				"selectAll": "Tout sélectionner",
-				"membersNoteJira": "Les personnes assignées sont associées aux membres de {{workspace}} par e-mail, ou par nom complet lorsque Jira masque l'e-mail. Invitez d'abord votre équipe pour conserver les assignations des tâches."
+				"membersNoteJira": "Les personnes assignées sont associées aux membres de {{workspace}} par e-mail, ou par nom complet lorsque Jira masque l'e-mail. Invitez d'abord votre équipe pour conserver les assignations des tâches.",
+				"sprintsDescription": "Creates the project's sprints and keeps each issue in its sprint.",
+				"sprintsLabel": "Import sprints",
+				"usersCreateDescription": "Accounts are created directly and added as members, so their tasks are assigned right away. They sign in with their email.",
+				"usersCreateLabel": "Create their account",
+				"usersDescription": "What happens to assignees who are not members of this workspace yet.",
+				"usersInviteDescription": "They receive an email invitation and join once they accept. Their tasks stay unassigned until then.",
+				"usersInviteLabel": "Send an invitation",
+				"usersLabel": "New users"
 			},
 			"sources": {
 				"connect": "Connecter",
@@ -2453,6 +2483,12 @@
 				"urlDescription": "Copiez-la depuis votre navigateur. Data Center est également pris en charge.",
 				"urlLabel": "URL du site Jira",
 				"urlPlaceholder": "https://your-site.atlassian.net"
+			},
+			"stages": {
+				"reading": "Reading",
+				"sprints": "Sprints",
+				"tasks": "Issues",
+				"users": "Users"
 			}
 		},
 		"chatIntegrations": {
@@ -3088,6 +3124,37 @@
 			"then": "puis",
 			"or": "ou",
 			"thenEllipsis": "puis…"
+		},
+		"keyboardShortcuts": {
+			"categories": {
+				"create": "Créer",
+				"general": "Général",
+				"navigation": "Navigation",
+				"quickSelect": "Sélection rapide (dans les popovers)",
+				"views": "Vues"
+			},
+			"footer": "Appuyez sur <kbd>Echap</kbd> pour fermer",
+			"items": {
+				"backlogView": "Passer à la vue backlog",
+				"boardView": "Passer à la vue tableau",
+				"calendarView": "Passer à la vue calendrier",
+				"closeModal": "Fermer la modale/popover",
+				"createProject": "Créer un projet",
+				"createTask": "Créer une tâche",
+				"createWorkspace": "Créer un espace de travail",
+				"globalSearch": "Recherche globale",
+				"listView": "Passer à la vue de liste",
+				"nextTask": "Tâche suivante",
+				"openCommandPalette": "Ouvrir la palette de commandes",
+				"openTask": "Ouvrir la tâche sélectionnée",
+				"prevTask": "Tâche précédente",
+				"quickSelectNumber": "Sélectionner une option par numéro",
+				"showShortcuts": "Afficher les raccourcis clavier",
+				"toggleSidebar": "Basculer la barre latérale"
+			},
+			"searchPlaceholder": "Rechercher des raccourcis...",
+			"subtitle": "Accélérez votre flux de travail avec les raccourcis clavier",
+			"title": "Raccourcis clavier"
 		}
 	},
 	"notifications": {
@@ -3287,20 +3354,6 @@
 		"movedFromOtherProject": "a déplacé la tâche depuis un autre projet vers « {{to}} »"
 	},
 	"tasks": {
-		"dateFilter": {
-			"startDate": "Date de début",
-			"noDate": "Aucune date",
-			"condition": "Condition de date",
-			"exact": "Date exacte",
-			"range": "Plage de dates",
-			"before": "Avant",
-			"after": "Après",
-			"apply": "Appliquer le filtre de date",
-			"exactValue": "Le {{date}}",
-			"beforeValue": "Avant le {{date}}",
-			"afterValue": "Après le {{date}}",
-			"rangeValue": "{{date}} – {{end}}"
-		},
 		"title": "Tâches",
 		"status": {
 			"label": "Statut",
@@ -3324,7 +3377,8 @@
 			"list": "Liste",
 			"backlog": "Backlog",
 			"gantt": "Gantt",
-			"heading": "Vue"
+			"heading": "Vue",
+			"sprints": "Sprints"
 		},
 		"common": {
 			"selectTask": "Sélectionner une tâche",
@@ -3631,7 +3685,8 @@
 				"priority": "Priorité",
 				"assignee": "Assigné",
 				"dueDate": "Date d'échéance",
-				"labels": "Labels"
+				"labels": "Labels",
+				"sprint": "Sprint"
 			},
 			"operators": {
 				"isAnyOf": "est l'un des",
@@ -3644,7 +3699,8 @@
 			},
 			"allCustomFieldValues": "Toutes les valeurs",
 			"noCustomFieldValues": "Aucune valeur de champ personnalisé",
-			"noValuesUsedYet": "Aucune valeur utilisée pour le moment"
+			"noValuesUsedYet": "Aucune valeur utilisée pour le moment",
+			"allSprints": "Tous les sprints"
 		},
 		"gantt": {
 			"searchPlaceholder": "Rechercher des tâches planifiées...",
@@ -3774,7 +3830,9 @@
 			"priorityPlaceholder": "Définir la priorité…",
 			"assigneePlaceholder": "Assigner à…",
 			"labelPlaceholder": "Ajouter une étiquette…",
-			"columnPlaceholder": "Déplacer vers la colonne…"
+			"columnPlaceholder": "Déplacer vers la colonne…",
+			"moveToSprint": "Déplacer vers le sprint",
+			"updateSprintError": "Échec du déplacement des tâches vers le sprint"
 		},
 		"editor": {
 			"table": {
@@ -3865,9 +3923,7 @@
 			"showOnRows": "Afficher sur les lignes",
 			"checklistProgress": "Progression de la liste",
 			"projectBackground": "Arrière-plan du projet",
-			"layout": "Disposition",
-			"includeSubtasks": "Inclure les sous-tâches",
-			"useProjectDefault": "Utiliser le réglage par défaut du projet"
+			"layout": "Disposition"
 		},
 		"filterBar": {
 			"label": "Filtres actifs",
@@ -3915,20 +3971,64 @@
 			"beforeStart": "{{date}} est avant la date de début",
 			"afterDue": "{{date}} est après l’échéance"
 		},
-		"timeTracking": {
-			"empty": "Aucun temps enregistré pour le moment.",
-			"loadError": "Impossible de charger les entrées de temps.",
-			"retry": "Réessayer",
-			"running": "En cours",
-			"start": "Démarrer le minuteur",
-			"startError": "Impossible de démarrer le minuteur.",
-			"stop": "Arrêter le minuteur",
-			"stopError": "Impossible d’arrêter le minuteur.",
-			"title": "Suivi du temps",
-			"unknownUser": "Inconnu",
-			"durationSeconds": "{{seconds, number}} s",
-			"durationMinutes": "{{minutes, number}} min",
-			"durationHoursMinutes": "{{hours, number}} h {{minutes, number}} min"
+		"sprints": {
+			"activeBadge": "Actif",
+			"backlog": "Backlog",
+			"backlogDescription": "Tasks without a sprint",
+			"backlogEmpty": "No unscheduled tasks",
+			"carriedOver": "Reportées",
+			"close": "Clôturer le sprint",
+			"closeConfirm": "Clôturer le sprint et déplacer les tâches inachevées",
+			"closeSuccess": "Sprint clôturé, {{count}} tâches inachevées déplacées",
+			"closeSummary": "{{name}} contient {{total}} tâches, dont {{completed}} terminées.",
+			"closeTarget": "Déplacer {{count}} tâches inachevées vers",
+			"closeTitle": "Clôturer le sprint",
+			"closedLocked": "Cette tâche appartient à un sprint clôturé et y reste comme historique",
+			"completedCount": "{{count}} terminées",
+			"create": "Créer un sprint",
+			"createDescription": "Planifier un sprint à venir avec un nom, un objectif et des dates.",
+			"createTitle": "Créer un sprint",
+			"daysOverdue": "{{remaining}} jours de retard",
+			"daysRemaining": "{{remaining}} jours restants",
+			"edit": "Modifier le sprint",
+			"editDescription": "Mettre à jour le nom, l'objectif et les dates du sprint.",
+			"editTitle": "Modifier le sprint",
+			"endsToday": "Se termine aujourd'hui",
+			"error": "L'action sur le sprint a échoué",
+			"goal": "Objectif du sprint",
+			"goalPlaceholder": "Que doit accomplir ce sprint ?",
+			"history": "Sprints clôturés ({{count}})",
+			"moveDown": "Descendre",
+			"moveSuccess_many": "{{count}} tasks moved",
+			"moveSuccess_one": "Task moved",
+			"moveSuccess_other": "{{count}} tasks moved",
+			"moveUp": "Monter",
+			"name": "Nom du sprint",
+			"namePlaceholder": "Sprint 1",
+			"noActive": "Aucun sprint n'est actif. Démarrez un sprint à venir pour itérer.",
+			"noTasks": "Aucune tâche dans ce sprint pour le moment",
+			"openTaskMenu": "Open task menu",
+			"reportSummary": "Prévues {{planned}}, terminées {{completed}}, reportées {{carriedOver}}",
+			"save": "Enregistrer les modifications",
+			"scopeCurrent": "Current sprint",
+			"scopeTitle": "Sprint scope",
+			"selectTask": "Select task",
+			"start": "Démarrer le sprint",
+			"startSuccess": "Sprint {{name}} démarré",
+			"taskCounts": "{{completed}} sur {{total}} terminées",
+			"title": "Sprints",
+			"toggleTasks": "Afficher les tâches du sprint",
+			"unscheduled": "Non planifié",
+			"upcoming": "Sprint à venir",
+			"viewEmptyDescription": "Create a sprint to plan work in iterations and track it from here.",
+			"viewEmptyTitle": "No sprints yet",
+			"viewHeading": "All sprints",
+			"viewPageTitle": "Sprints · {{name}}"
+		},
+		"type": {
+			"bug": "Bug",
+			"label": "Type",
+			"task": "Tâche"
 		}
 	},
 	"invitations": {

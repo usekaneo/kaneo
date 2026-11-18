@@ -3,7 +3,6 @@ export type ProjectFormValues = {
   slug: string;
   description?: string;
   icon: string;
-  includeSubtasks?: boolean;
 };
 
 export type NormalizedProjectValues = {
@@ -11,7 +10,6 @@ export type NormalizedProjectValues = {
   slug: string;
   description: string;
   icon: string;
-  includeSubtasks?: boolean;
 };
 
 export type ProjectFieldChanges = Record<
@@ -27,7 +25,6 @@ export function normalizeProjectValues(
     slug: data.slug.trim(),
     description: (data.description ?? "").trim(),
     icon: data.icon || "Layout",
-    includeSubtasks: data.includeSubtasks ?? true,
   };
 }
 
@@ -40,8 +37,6 @@ export function getProjectFieldChanges(
     slug: last?.slug !== next.slug,
     description: last?.description !== next.description,
     icon: last?.icon !== next.icon,
-    includeSubtasks:
-      (last?.includeSubtasks ?? true) !== (next.includeSubtasks ?? true),
   };
 }
 

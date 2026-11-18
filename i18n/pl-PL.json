@@ -163,6 +163,12 @@
 				"apply": "Zastosuj link",
 				"remove": "Usuń link"
 			}
+		},
+		"boolean": {
+			"false": "False",
+			"notSet": "Not Set",
+			"true": "True",
+			"undefined": "Undefined"
 		}
 	},
 	"auth": {
@@ -774,6 +780,37 @@
 			"then": "potem",
 			"or": "lub",
 			"thenEllipsis": "potem…"
+		},
+		"keyboardShortcuts": {
+			"categories": {
+				"create": "Tworzenie",
+				"general": "Ogólne",
+				"navigation": "Nawigacja",
+				"quickSelect": "Szybki wybór (w oknach podręcznych)",
+				"views": "Widoki"
+			},
+			"footer": "Naciśnij <kbd>Escape</kbd>, aby zamknąć",
+			"items": {
+				"backlogView": "Przełącz na backlog",
+				"boardView": "Przełącz na widok tablicy",
+				"calendarView": "Przełącz na widok kalendarza",
+				"closeModal": "Zamknij okno lub menu",
+				"createProject": "Utwórz projekt",
+				"createTask": "Utwórz zadanie",
+				"createWorkspace": "Utwórz obszar roboczy",
+				"globalSearch": "Globalne wyszukiwanie",
+				"listView": "Przełącz na widok listy",
+				"nextTask": "Następne zadanie",
+				"openCommandPalette": "Otwórz paletę poleceń",
+				"openTask": "Otwórz zaznaczone zadanie",
+				"prevTask": "Poprzednie zadanie",
+				"quickSelectNumber": "Wybierz opcję numerem",
+				"showShortcuts": "Pokaż skróty klawiszowe",
+				"toggleSidebar": "Przełącz pasek boczny"
+			},
+			"searchPlaceholder": "Szukaj skrótów...",
+			"subtitle": "Przyspiesz pracę dzięki skrótom klawiszowym",
+			"title": "Skróty klawiszowe"
 		}
 	},
 	"notifications": {
@@ -1761,7 +1798,14 @@
 			"moveDialogTitle": "Przenieść do innego obszaru roboczego?",
 			"moveTargetLabel": "Obszar roboczy",
 			"moving": "Przenoszenie...",
-			"tasksTitle": "Zadania"
+			"tasksTitle": "Zadania",
+			"sprintLength": "Domyślna długość sprintu",
+			"sprintLengthDescription": "Liczba dni, które domyślnie obejmuje nowy sprint.",
+			"sprintLengthError": "Nie udało się zapisać długości sprintu",
+			"sprintLengthSave": "Zapisz długość sprintu",
+			"sprintLengthSaved": "Długość sprintu zapisana",
+			"sprints": "Sprinty",
+			"sprintsSubtitle": "Planuj nadchodzącą pracę w iteracjach o stałej długości."
 		},
 		"projectIntegrations": {
 			"discordSectionSubtitle": "Wysyłaj aktualizacje zadań projektu na kanał Discord za pomocą webhooka.",
@@ -2904,7 +2948,19 @@
 				"tasks_few": "{{count, number}} tasks",
 				"tasks_many": "{{count, number}} tasks",
 				"tasks_one": "{{count, number}} task",
-				"tasks_other": "{{count, number}} tasks"
+				"tasks_other": "{{count, number}} tasks",
+				"attachments_few": "{{count, number}} attachments",
+				"attachments_many": "{{count, number}} attachments",
+				"attachments_one": "{{count, number}} attachment",
+				"attachments_other": "{{count, number}} attachments",
+				"sprints_few": "{{count, number}} sprints",
+				"sprints_many": "{{count, number}} sprints",
+				"sprints_one": "{{count, number}} sprint",
+				"sprints_other": "{{count, number}} sprints",
+				"users_few": "{{count, number}} users",
+				"users_many": "{{count, number}} users",
+				"users_one": "{{count, number}} user",
+				"users_other": "{{count, number}} users"
 			},
 			"entry": {
 				"createProjectLink": "Import your projects",
@@ -3006,10 +3062,18 @@
 				"commentsDescription": "Keeps each comment's original author and date.",
 				"commentsLabel": "Import comments",
 				"inviteMembers": "Invite members",
-				"membersNote": "Assignees are matched to members of {{workspace}} by email. Invite your team first so their tasks stay assigned.",
-				"membersNoteTrello": "Assignees are matched to members of {{workspace}} by email, or by full name for Trello. Invite your team first so their tasks stay assigned.",
+				"membersNote": "Assignees are matched to members of {{workspace}} by email. Anyone unknown gets an invitation or an account, as chosen above.",
+				"membersNoteTrello": "Assignees are matched to members of {{workspace}} by email, or by full name for Trello. Anyone unknown gets an invitation or an account, as chosen above.",
 				"selectAll": "Select all",
-				"membersNoteJira": "Assignees are matched to members of {{workspace}} by email, or by full name when Jira hides the email. Invite your team first so their tasks stay assigned."
+				"membersNoteJira": "Assignees are matched to members of {{workspace}} by email, or by full name when Jira hides the email. Anyone unknown gets an invitation or an account, as chosen above.",
+				"sprintsDescription": "Creates the project's sprints and keeps each issue in its sprint.",
+				"sprintsLabel": "Import sprints",
+				"usersCreateDescription": "Accounts are created directly and added as members, so their tasks are assigned right away. They sign in with their email.",
+				"usersCreateLabel": "Create their account",
+				"usersDescription": "What happens to assignees who are not members of this workspace yet.",
+				"usersInviteDescription": "They receive an email invitation and join once they accept. Their tasks stay unassigned until then.",
+				"usersInviteLabel": "Send an invitation",
+				"usersLabel": "New users"
 			},
 			"sources": {
 				"connect": "Connect",
@@ -3186,6 +3250,12 @@
 				"urlDescription": "Copy it from your browser. Data Center works too.",
 				"urlLabel": "Jira site URL",
 				"urlPlaceholder": "https://your-site.atlassian.net"
+			},
+			"stages": {
+				"reading": "Reading",
+				"sprints": "Sprints",
+				"tasks": "Issues",
+				"users": "Users"
 			}
 		},
 		"chatIntegrations": {
@@ -3698,11 +3768,13 @@
 				"dueDate": "Termin",
 				"labels": "Etykiety",
 				"priority": "Priorytet",
-				"status": "Status"
+				"status": "Status",
+				"sprint": "Sprint"
 			},
 			"allCustomFieldValues": "All values",
 			"noCustomFieldValues": "No custom field values",
-			"noValuesUsedYet": "No values used yet"
+			"noValuesUsedYet": "No values used yet",
+			"allSprints": "Wszystkie sprinty"
 		},
 		"bulk": {
 			"actions": "Akcje",
@@ -3745,7 +3817,9 @@
 			"priorityPlaceholder": "Ustaw priorytet…",
 			"assigneePlaceholder": "Przypisz do…",
 			"labelPlaceholder": "Dodaj etykietę…",
-			"columnPlaceholder": "Przenieś do kolumny…"
+			"columnPlaceholder": "Przenieś do kolumny…",
+			"moveToSprint": "Przenieś do sprintu",
+			"updateSprintError": "Nie udało się przenieść zadań do sprintu"
 		},
 		"common": {
 			"loadingTask": "Ładowanie zadania...",
@@ -4143,7 +4217,8 @@
 			"list": "Lista",
 			"backlog": "Backlog",
 			"gantt": "Gantt",
-			"heading": "Widok"
+			"heading": "Widok",
+			"sprints": "Sprints"
 		},
 		"descriptionSearchLoading": "Searching full descriptions…",
 		"descriptionSearchError": "Description search failed. Results may be incomplete.",
@@ -4222,9 +4297,7 @@
 			"showOnRows": "Pokaż w wierszach",
 			"checklistProgress": "Postęp listy kontrolnej",
 			"projectBackground": "Tło projektu",
-			"layout": "Układ",
-			"includeSubtasks": "Uwzględnij podzadania",
-			"useProjectDefault": "Użyj domyślnego ustawienia projektu"
+			"layout": "Układ"
 		},
 		"filterBar": {
 			"label": "Aktywne filtry",
@@ -4275,20 +4348,65 @@
 			"beforeStart": "{{date}} jest przed datą rozpoczęcia",
 			"afterDue": "{{date}} jest po terminie"
 		},
-		"timeTracking": {
-			"empty": "Nie zarejestrowano jeszcze czasu.",
-			"loadError": "Nie udało się wczytać wpisów czasu.",
-			"retry": "Spróbuj ponownie",
-			"running": "W toku",
-			"start": "Uruchom licznik",
-			"startError": "Nie udało się uruchomić licznika.",
-			"stop": "Zatrzymaj licznik",
-			"stopError": "Nie udało się zatrzymać licznika.",
-			"title": "Śledzenie czasu",
-			"unknownUser": "Nieznany",
-			"durationSeconds": "{{seconds, number}} s",
-			"durationMinutes": "{{minutes, number}} min",
-			"durationHoursMinutes": "{{hours, number}} godz. {{minutes, number}} min"
+		"sprints": {
+			"activeBadge": "Aktywny",
+			"backlog": "Backlog",
+			"backlogDescription": "Tasks without a sprint",
+			"backlogEmpty": "No unscheduled tasks",
+			"carriedOver": "Przeniesione",
+			"close": "Zamknij sprint",
+			"closeConfirm": "Zamknij sprint i przenieś nieukończone zadania",
+			"closeSuccess": "Sprint zamknięty, przeniesiono {{count}} nieukończonych zadań",
+			"closeSummary": "{{name}} ma {{total}} zadań, z czego {{completed}} ukończonych.",
+			"closeTarget": "Przenieś {{count}} nieukończonych zadań do",
+			"closeTitle": "Zamknij sprint",
+			"closedLocked": "To zadanie należy do zamkniętego sprintu i pozostaje w nim jako historia",
+			"completedCount": "{{count}} ukończonych",
+			"create": "Utwórz sprint",
+			"createDescription": "Zaplanuj nadchodzący sprint: nazwa, cel i daty.",
+			"createTitle": "Utwórz sprint",
+			"daysOverdue": "{{remaining}} dni po terminie",
+			"daysRemaining": "Pozostało {{remaining}} dni",
+			"edit": "Edytuj sprint",
+			"editDescription": "Zaktualizuj nazwę, cel i daty sprintu.",
+			"editTitle": "Edytuj sprint",
+			"endsToday": "Kończy się dziś",
+			"error": "Akcja sprintu nie powiodła się",
+			"goal": "Cel sprintu",
+			"goalPlaceholder": "Co ma osiągnąć ten sprint?",
+			"history": "Zamknięte sprinty ({{count}})",
+			"moveDown": "W dół",
+			"moveSuccess_few": "{{count}} tasks moved",
+			"moveSuccess_many": "{{count}} tasks moved",
+			"moveSuccess_one": "Task moved",
+			"moveSuccess_other": "{{count}} tasks moved",
+			"moveUp": "W górę",
+			"name": "Nazwa sprintu",
+			"namePlaceholder": "Sprint 1",
+			"noActive": "Żaden sprint nie jest aktywny. Rozpocznij nadchodzący sprint, aby iterować.",
+			"noTasks": "Brak zadań w tym sprincie",
+			"openTaskMenu": "Open task menu",
+			"reportSummary": "Zaplanowane {{planned}}, ukończone {{completed}}, przeniesione {{carriedOver}}",
+			"save": "Zapisz zmiany",
+			"scopeCurrent": "Current sprint",
+			"scopeTitle": "Sprint scope",
+			"selectTask": "Select task",
+			"start": "Rozpocznij sprint",
+			"startSuccess": "Sprint {{name}} rozpoczęty",
+			"taskCounts": "{{completed}} z {{total}} ukończonych",
+			"title": "Sprinty",
+			"toggleTasks": "Pokaż zadania sprintu",
+			"unscheduled": "Bez terminu",
+			"upcoming": "Nadchodzący sprint",
+			"viewEmptyDescription": "Create a sprint to plan work in iterations and track it from here.",
+			"viewEmptyTitle": "No sprints yet",
+			"viewHeading": "All sprints",
+			"viewPageTitle": "Sprints · {{name}}"
+		},
+		"type": {
+			"bug": "Błąd",
+			"label": "Typ",
+			"task": "Zadanie"
 		}
 	},
 	"press": {

@@ -17,6 +17,8 @@ async function createTask(
   dueDate: Date | undefined,
   priority: CreateTaskRequest["priority"],
   customFields?: { fieldId: string; value: string }[],
+  type?: CreateTaskRequest["type"],
+  sprintId?: string,
   draftAssetIds?: string[],
   recurrence?: CreateTaskRequest["recurrence"],
 ) {
@@ -36,6 +38,8 @@ async function createTask(
       recurrence,
       customFields,
       draftAssetIds,
+      ...(type ? { type } : {}),
+      ...(sprintId ? { sprintId } : {}),
     },
     param: { projectId },
   });

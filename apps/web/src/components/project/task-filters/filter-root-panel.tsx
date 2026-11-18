@@ -8,13 +8,7 @@ import { FilterSubjectPanel } from "./filter-subject-panel";
 
 const HOVER_DELAY_MS = 120;
 
-export function FilterRootPanel({
-  subjects,
-  onApplied,
-}: {
-  subjects: FilterSubject[];
-  onApplied?: () => void;
-}) {
+export function FilterRootPanel({ subjects }: { subjects: FilterSubject[] }) {
   const { t } = useTranslation();
   const [query, setQuery] = useState("");
   const [nested, setNested] = useState<{
@@ -93,18 +87,13 @@ export function FilterRootPanel({
           alignOffset={-5}
           finalFocus={inputRef}
           positionerClassName="transition-none"
-          className={nestedSubject?.onDateApply ? "w-80" : "w-64"}
+          className="w-64"
         >
           {nestedSubject && (
             <FilterSubjectPanel
               key={nestedSubject.id}
               subject={nestedSubject}
               onBack={closeNested}
-              onApplied={() => {
-                window.clearTimeout(hoverTimer.current);
-                setNested(null);
-                onApplied?.();
-              }}
             />
           )}
         </PopoverContent>

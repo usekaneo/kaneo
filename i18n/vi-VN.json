@@ -163,6 +163,12 @@
 				"apply": "Áp dụng liên kết",
 				"remove": "Xóa liên kết"
 			}
+		},
+		"boolean": {
+			"false": "False",
+			"notSet": "Not Set",
+			"true": "True",
+			"undefined": "Undefined"
 		}
 	},
 	"auth": {
@@ -1160,7 +1166,14 @@
 			"moveDialogTitle": "Chuyển sang không gian làm việc khác?",
 			"moveTargetLabel": "Không gian làm việc",
 			"moving": "Đang chuyển...",
-			"tasksTitle": "Công việc"
+			"tasksTitle": "Công việc",
+			"sprintLength": "Độ dài sprint mặc định",
+			"sprintLengthDescription": "Số ngày một sprint mới bao phủ theo mặc định.",
+			"sprintLengthError": "Không thể lưu độ dài sprint",
+			"sprintLengthSave": "Lưu độ dài sprint",
+			"sprintLengthSaved": "Đã lưu độ dài sprint",
+			"sprints": "Sprint",
+			"sprintsSubtitle": "Lập kế hoạch công việc sắp tới theo các vòng lặp có độ dài cố định."
 		},
 		"projectIntegrations": {
 			"pageTitle": "Tích hợp",
@@ -2153,7 +2166,12 @@
 				"columns_other": "{{count, number}} columns",
 				"comments_other": "{{count, number}} comments",
 				"labels_other": "{{count, number}} labels",
-				"tasks_other": "{{count, number}} tasks"
+				"tasks_other": "{{count, number}} tasks",
+				"attachments_other": "{{count, number}} attachments",
+				"sprints_one": "{{count, number}} sprint",
+				"sprints_other": "{{count, number}} sprints",
+				"users_one": "{{count, number}} user",
+				"users_other": "{{count, number}} users"
 			},
 			"entry": {
 				"createProjectLink": "Import your projects",
@@ -2246,10 +2264,18 @@
 				"commentsDescription": "Keeps each comment's original author and date.",
 				"commentsLabel": "Import comments",
 				"inviteMembers": "Invite members",
-				"membersNote": "Assignees are matched to members of {{workspace}} by email. Invite your team first so their tasks stay assigned.",
-				"membersNoteTrello": "Assignees are matched to members of {{workspace}} by email, or by full name for Trello. Invite your team first so their tasks stay assigned.",
+				"membersNote": "Assignees are matched to members of {{workspace}} by email. Anyone unknown gets an invitation or an account, as chosen above.",
+				"membersNoteTrello": "Assignees are matched to members of {{workspace}} by email, or by full name for Trello. Anyone unknown gets an invitation or an account, as chosen above.",
 				"selectAll": "Select all",
-				"membersNoteJira": "Assignees are matched to members of {{workspace}} by email, or by full name when Jira hides the email. Invite your team first so their tasks stay assigned."
+				"membersNoteJira": "Assignees are matched to members of {{workspace}} by email, or by full name when Jira hides the email. Anyone unknown gets an invitation or an account, as chosen above.",
+				"sprintsDescription": "Creates the project's sprints and keeps each issue in its sprint.",
+				"sprintsLabel": "Import sprints",
+				"usersCreateDescription": "Accounts are created directly and added as members, so their tasks are assigned right away. They sign in with their email.",
+				"usersCreateLabel": "Create their account",
+				"usersDescription": "What happens to assignees who are not members of this workspace yet.",
+				"usersInviteDescription": "They receive an email invitation and join once they accept. Their tasks stay unassigned until then.",
+				"usersInviteLabel": "Send an invitation",
+				"usersLabel": "New users"
 			},
 			"sources": {
 				"connect": "Connect",
@@ -2369,6 +2395,12 @@
 				"urlDescription": "Copy it from your browser. Data Center works too.",
 				"urlLabel": "Jira site URL",
 				"urlPlaceholder": "https://your-site.atlassian.net"
+			},
+			"stages": {
+				"reading": "Reading",
+				"sprints": "Sprints",
+				"tasks": "Issues",
+				"users": "Users"
 			}
 		},
 		"chatIntegrations": {
@@ -2988,6 +3020,37 @@
 			"then": "rồi",
 			"or": "hoặc",
 			"thenEllipsis": "rồi…"
+		},
+		"keyboardShortcuts": {
+			"categories": {
+				"create": "Tạo",
+				"general": "Chung",
+				"navigation": "Điều hướng",
+				"quickSelect": "Chọn nhanh (trong popover)",
+				"views": "Chế độ xem"
+			},
+			"footer": "Nhấn <kbd>Escape</kbd> để đóng",
+			"items": {
+				"backlogView": "Chuyển sang chế độ xem backlog",
+				"boardView": "Chuyển sang chế độ xem bảng",
+				"calendarView": "Chuyển sang chế độ xem lịch",
+				"closeModal": "Đóng modal/popover",
+				"createProject": "Tạo dự án",
+				"createTask": "Tạo công việc",
+				"createWorkspace": "Tạo không gian làm việc",
+				"globalSearch": "Tìm kiếm toàn cục",
+				"listView": "Chuyển sang chế độ xem danh sách",
+				"nextTask": "Công việc tiếp theo",
+				"openCommandPalette": "Mở bảng lệnh",
+				"openTask": "Mở công việc đã chọn",
+				"prevTask": "Công việc trước đó",
+				"quickSelectNumber": "Chọn tùy chọn theo số",
+				"showShortcuts": "Hiện phím tắt",
+				"toggleSidebar": "Bật/tắt thanh bên"
+			},
+			"searchPlaceholder": "Tìm phím tắt...",
+			"subtitle": "Tăng tốc quy trình làm việc của bạn với phím tắt",
+			"title": "Phím tắt"
 		}
 	},
 	"notifications": {
@@ -3179,20 +3242,6 @@
 		"movedFromOtherProject": "moved task from another project to \"{{to}}\""
 	},
 	"tasks": {
-		"dateFilter": {
-			"startDate": "Ngày bắt đầu",
-			"noDate": "Không có ngày",
-			"condition": "Điều kiện ngày",
-			"exact": "Ngày cụ thể",
-			"range": "Khoảng ngày",
-			"before": "Trước",
-			"after": "Sau",
-			"apply": "Áp dụng bộ lọc ngày",
-			"exactValue": "Vào {{date}}",
-			"beforeValue": "Trước {{date}}",
-			"afterValue": "Sau {{date}}",
-			"rangeValue": "{{date}} – {{end}}"
-		},
 		"title": "Nhiệm vụ",
 		"status": {
 			"label": "Trạng thái",
@@ -3216,7 +3265,8 @@
 			"list": "Danh sách",
 			"backlog": "Backlog",
 			"gantt": "Gantt",
-			"heading": "Chế độ xem"
+			"heading": "Chế độ xem",
+			"sprints": "Sprints"
 		},
 		"common": {
 			"selectTask": "Chọn công việc",
@@ -3515,7 +3565,8 @@
 				"priority": "Mức ưu tiên",
 				"assignee": "Người được giao",
 				"dueDate": "Ngày đến hạn",
-				"labels": "Nhãn"
+				"labels": "Nhãn",
+				"sprint": "Sprint"
 			},
 			"operators": {
 				"isAnyOf": "là một trong",
@@ -3528,7 +3579,8 @@
 			},
 			"allCustomFieldValues": "All values",
 			"noCustomFieldValues": "No custom field values",
-			"noValuesUsedYet": "No values used yet"
+			"noValuesUsedYet": "No values used yet",
+			"allSprints": "Tất cả sprint"
 		},
 		"gantt": {
 			"searchPlaceholder": "Tìm phiếu đã lên lịch...",
@@ -3652,7 +3704,9 @@
 			"priorityPlaceholder": "Đặt mức ưu tiên…",
 			"assigneePlaceholder": "Giao cho…",
 			"labelPlaceholder": "Thêm nhãn…",
-			"columnPlaceholder": "Chuyển sang cột…"
+			"columnPlaceholder": "Chuyển sang cột…",
+			"moveToSprint": "Chuyển sang sprint",
+			"updateSprintError": "Không thể chuyển công việc sang sprint"
 		},
 		"editor": {
 			"table": {
@@ -3727,9 +3781,7 @@
 			"showOnRows": "Hiện trên hàng",
 			"checklistProgress": "Tiến độ danh sách kiểm tra",
 			"projectBackground": "Hình nền dự án",
-			"layout": "Bố cục",
-			"includeSubtasks": "Bao gồm nhiệm vụ phụ",
-			"useProjectDefault": "Dùng thiết lập mặc định của dự án"
+			"layout": "Bố cục"
 		},
 		"filterBar": {
 			"label": "Bộ lọc đang áp dụng",
@@ -3771,20 +3823,62 @@
 			"beforeStart": "{{date}} trước ngày bắt đầu",
 			"afterDue": "{{date}} sau hạn chót"
 		},
-		"timeTracking": {
-			"empty": "Chưa có thời gian nào được ghi lại.",
-			"loadError": "Không thể tải các mục thời gian.",
-			"retry": "Thử lại",
-			"running": "Đang chạy",
-			"start": "Bắt đầu hẹn giờ",
-			"startError": "Không thể bắt đầu bộ hẹn giờ.",
-			"stop": "Dừng bộ hẹn giờ",
-			"stopError": "Không thể dừng bộ hẹn giờ.",
-			"title": "Theo dõi thời gian",
-			"unknownUser": "Không xác định",
-			"durationSeconds": "{{seconds, number}} giây",
-			"durationMinutes": "{{minutes, number}} phút",
-			"durationHoursMinutes": "{{hours, number}} giờ {{minutes, number}} phút"
+		"sprints": {
+			"activeBadge": "Đang chạy",
+			"backlog": "Backlog",
+			"backlogDescription": "Tasks without a sprint",
+			"backlogEmpty": "No unscheduled tasks",
+			"carriedOver": "Đã chuyển sang",
+			"close": "Đóng sprint",
+			"closeConfirm": "Đóng sprint và chuyển công việc chưa hoàn thành",
+			"closeSuccess": "Sprint đã đóng, {{count}} công việc chưa hoàn thành đã được chuyển",
+			"closeSummary": "{{name}} có {{total}} công việc, trong đó {{completed}} đã hoàn thành.",
+			"closeTarget": "Chuyển {{count}} công việc chưa hoàn thành sang",
+			"closeTitle": "Đóng sprint",
+			"closedLocked": "Công việc này thuộc một sprint đã đóng và ở lại đó như lịch sử",
+			"completedCount": "{{count}} hoàn thành",
+			"create": "Tạo sprint",
+			"createDescription": "Lập kế hoạch sprint sắp tới với tên, mục tiêu và ngày.",
+			"createTitle": "Tạo sprint",
+			"daysOverdue": "Trễ {{remaining}} ngày",
+			"daysRemaining": "Còn {{remaining}} ngày",
+			"edit": "Sửa sprint",
+			"editDescription": "Cập nhật tên, mục tiêu và ngày của sprint.",
+			"editTitle": "Sửa sprint",
+			"endsToday": "Kết thúc hôm nay",
+			"error": "Thao tác sprint thất bại",
+			"goal": "Mục tiêu sprint",
+			"goalPlaceholder": "Sprint này cần đạt được điều gì?",
+			"history": "Sprint đã đóng ({{count}})",
+			"moveDown": "Chuyển xuống",
+			"moveSuccess_other": "{{count}} tasks moved",
+			"moveUp": "Chuyển lên",
+			"name": "Tên sprint",
+			"namePlaceholder": "Sprint 1",
+			"noActive": "Không có sprint nào đang chạy. Hãy bắt đầu một sprint sắp tới.",
+			"noTasks": "Chưa có công việc nào trong sprint này",
+			"openTaskMenu": "Open task menu",
+			"reportSummary": "Đã lập kế hoạch {{planned}}, đã hoàn thành {{completed}}, đã chuyển {{carriedOver}}",
+			"save": "Lưu thay đổi",
+			"scopeCurrent": "Current sprint",
+			"scopeTitle": "Sprint scope",
+			"selectTask": "Select task",
+			"start": "Bắt đầu sprint",
+			"startSuccess": "Sprint {{name}} đã bắt đầu",
+			"taskCounts": "{{completed}} trên {{total}} hoàn thành",
+			"title": "Sprint",
+			"toggleTasks": "Hiển thị công việc của sprint",
+			"unscheduled": "Chưa lên lịch",
+			"upcoming": "Sprint sắp tới",
+			"viewEmptyDescription": "Create a sprint to plan work in iterations and track it from here.",
+			"viewEmptyTitle": "No sprints yet",
+			"viewHeading": "All sprints",
+			"viewPageTitle": "Sprints · {{name}}"
+		},
+		"type": {
+			"bug": "Lỗi",
+			"label": "Loại",
+			"task": "Công việc"
 		}
 	},
 	"invitations": {

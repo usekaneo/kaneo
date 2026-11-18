@@ -163,6 +163,12 @@
 				"apply": "リンクを適用",
 				"remove": "リンクを削除"
 			}
+		},
+		"boolean": {
+			"false": "False",
+			"notSet": "Not Set",
+			"true": "True",
+			"undefined": "Undefined"
 		}
 	},
 	"auth": {
@@ -1160,7 +1166,14 @@
 			"moveDialogTitle": "別のワークスペースに移動しますか？",
 			"moveTargetLabel": "ワークスペース",
 			"moving": "移動しています...",
-			"tasksTitle": "タスク"
+			"tasksTitle": "タスク",
+			"sprintLength": "既定のスプリント期間",
+			"sprintLengthDescription": "新しいスプリントが既定でカバーする日数。",
+			"sprintLengthError": "スプリント期間を保存できませんでした",
+			"sprintLengthSave": "スプリント期間を保存",
+			"sprintLengthSaved": "スプリント期間を保存しました",
+			"sprints": "スプリント",
+			"sprintsSubtitle": "今後の作業を固定長のイテレーションで計画します。"
 		},
 		"projectIntegrations": {
 			"pageTitle": "連携",
@@ -2153,7 +2166,12 @@
 				"columns_other": "{{count, number}} columns",
 				"comments_other": "{{count, number}} comments",
 				"labels_other": "{{count, number}} labels",
-				"tasks_other": "{{count, number}} tasks"
+				"tasks_other": "{{count, number}} tasks",
+				"attachments_other": "{{count, number}} attachments",
+				"sprints_one": "{{count, number}} sprint",
+				"sprints_other": "{{count, number}} sprints",
+				"users_one": "{{count, number}} user",
+				"users_other": "{{count, number}} users"
 			},
 			"entry": {
 				"createProjectLink": "Import your projects",
@@ -2246,10 +2264,18 @@
 				"commentsDescription": "Keeps each comment's original author and date.",
 				"commentsLabel": "Import comments",
 				"inviteMembers": "Invite members",
-				"membersNote": "Assignees are matched to members of {{workspace}} by email. Invite your team first so their tasks stay assigned.",
-				"membersNoteTrello": "Assignees are matched to members of {{workspace}} by email, or by full name for Trello. Invite your team first so their tasks stay assigned.",
+				"membersNote": "Assignees are matched to members of {{workspace}} by email. Anyone unknown gets an invitation or an account, as chosen above.",
+				"membersNoteTrello": "Assignees are matched to members of {{workspace}} by email, or by full name for Trello. Anyone unknown gets an invitation or an account, as chosen above.",
 				"selectAll": "Select all",
-				"membersNoteJira": "Assignees are matched to members of {{workspace}} by email, or by full name when Jira hides the email. Invite your team first so their tasks stay assigned."
+				"membersNoteJira": "Assignees are matched to members of {{workspace}} by email, or by full name when Jira hides the email. Anyone unknown gets an invitation or an account, as chosen above.",
+				"sprintsDescription": "Creates the project's sprints and keeps each issue in its sprint.",
+				"sprintsLabel": "Import sprints",
+				"usersCreateDescription": "Accounts are created directly and added as members, so their tasks are assigned right away. They sign in with their email.",
+				"usersCreateLabel": "Create their account",
+				"usersDescription": "What happens to assignees who are not members of this workspace yet.",
+				"usersInviteDescription": "They receive an email invitation and join once they accept. Their tasks stay unassigned until then.",
+				"usersInviteLabel": "Send an invitation",
+				"usersLabel": "New users"
 			},
 			"sources": {
 				"connect": "Connect",
@@ -2369,6 +2395,12 @@
 				"urlDescription": "Copy it from your browser. Data Center works too.",
 				"urlLabel": "Jira site URL",
 				"urlPlaceholder": "https://your-site.atlassian.net"
+			},
+			"stages": {
+				"reading": "Reading",
+				"sprints": "Sprints",
+				"tasks": "Issues",
+				"users": "Users"
 			}
 		},
 		"chatIntegrations": {
@@ -2988,6 +3020,37 @@
 			"then": "次に",
 			"or": "または",
 			"thenEllipsis": "次に…"
+		},
+		"keyboardShortcuts": {
+			"categories": {
+				"create": "作成",
+				"general": "一般",
+				"navigation": "ナビゲーション",
+				"quickSelect": "クイック選択 (ポップオーバー内)",
+				"views": "ビュー"
+			},
+			"footer": "<kbd>Escape</kbd> で閉じる",
+			"items": {
+				"backlogView": "バックログビューに切り替え",
+				"boardView": "ボードビューに切り替え",
+				"calendarView": "カレンダービューに切り替え",
+				"closeModal": "モーダル/ポップオーバーを閉じる",
+				"createProject": "プロジェクトを作成",
+				"createTask": "タスクを作成",
+				"createWorkspace": "ワークスペースを作成",
+				"globalSearch": "全体検索",
+				"listView": "リストビューに切り替え",
+				"nextTask": "次のタスク",
+				"openCommandPalette": "コマンドパレットを開く",
+				"openTask": "選択したタスクを開く",
+				"prevTask": "前のタスク",
+				"quickSelectNumber": "番号で項目を選択",
+				"showShortcuts": "キーボードショートカットを表示",
+				"toggleSidebar": "サイドバーを切り替え"
+			},
+			"searchPlaceholder": "ショートカットを検索...",
+			"subtitle": "キーボードショートカットで作業を効率化",
+			"title": "キーボードショートカット"
 		}
 	},
 	"notifications": {
@@ -3179,20 +3242,6 @@
 		"movedFromOtherProject": "moved task from another project to \"{{to}}\""
 	},
 	"tasks": {
-		"dateFilter": {
-			"startDate": "開始日",
-			"noDate": "日付なし",
-			"condition": "日付の条件",
-			"exact": "指定日",
-			"range": "日付範囲",
-			"before": "指定日より前",
-			"after": "指定日より後",
-			"apply": "日付フィルターを適用",
-			"exactValue": "{{date}}",
-			"beforeValue": "{{date}}より前",
-			"afterValue": "{{date}}より後",
-			"rangeValue": "{{date}} – {{end}}"
-		},
 		"title": "タスク",
 		"status": {
 			"label": "ステータス",
@@ -3216,7 +3265,8 @@
 			"list": "リスト",
 			"backlog": "バックログ",
 			"gantt": "ガント",
-			"heading": "ビュー"
+			"heading": "ビュー",
+			"sprints": "Sprints"
 		},
 		"common": {
 			"selectTask": "タスクを選択",
@@ -3515,7 +3565,8 @@
 				"priority": "優先度",
 				"assignee": "担当者",
 				"dueDate": "期限",
-				"labels": "ラベル"
+				"labels": "ラベル",
+				"sprint": "スプリント"
 			},
 			"operators": {
 				"isAnyOf": "次のいずれか",
@@ -3528,7 +3579,8 @@
 			},
 			"allCustomFieldValues": "All values",
 			"noCustomFieldValues": "No custom field values",
-			"noValuesUsedYet": "No values used yet"
+			"noValuesUsedYet": "No values used yet",
+			"allSprints": "すべてのスプリント"
 		},
 		"calendar": {
 			"pageTitle": "{{name}} / カレンダー",
@@ -3661,7 +3713,9 @@
 			"priorityPlaceholder": "優先度を設定…",
 			"assigneePlaceholder": "担当者を割り当て…",
 			"labelPlaceholder": "ラベルを追加…",
-			"columnPlaceholder": "列に移動…"
+			"columnPlaceholder": "列に移動…",
+			"moveToSprint": "スプリントに移動",
+			"updateSprintError": "スプリントへのタスクの移動に失敗しました"
 		},
 		"editor": {
 			"table": {
@@ -3727,9 +3781,7 @@
 			"showOnRows": "行に表示",
 			"checklistProgress": "チェックリストの進捗",
 			"projectBackground": "プロジェクトの背景",
-			"layout": "レイアウト",
-			"includeSubtasks": "サブタスクを含める",
-			"useProjectDefault": "プロジェクトの既定値を使用"
+			"layout": "レイアウト"
 		},
 		"filterBar": {
 			"label": "適用中のフィルター",
@@ -3771,20 +3823,62 @@
 			"beforeStart": "{{date}} は開始日より前です",
 			"afterDue": "{{date}} は期日より後です"
 		},
-		"timeTracking": {
-			"empty": "まだ時間が記録されていません。",
-			"loadError": "時間の記録を読み込めませんでした。",
-			"retry": "再試行",
-			"running": "計測中",
-			"start": "タイマーを開始",
-			"startError": "タイマーを開始できませんでした。",
-			"stop": "タイマーを停止",
-			"stopError": "タイマーを停止できませんでした。",
-			"title": "時間の記録",
-			"unknownUser": "不明なユーザー",
-			"durationSeconds": "{{seconds, number}}秒",
-			"durationMinutes": "{{minutes, number}}分",
-			"durationHoursMinutes": "{{hours, number}}時間 {{minutes, number}}分"
+		"sprints": {
+			"activeBadge": "進行中",
+			"backlog": "バックログ",
+			"backlogDescription": "Tasks without a sprint",
+			"backlogEmpty": "No unscheduled tasks",
+			"carriedOver": "繰り越されたタスク",
+			"close": "スプリントを完了",
+			"closeConfirm": "スプリントを完了して未完了タスクを移動",
+			"closeSuccess": "スプリントを完了し、未完了タスク {{count}} 件を移動しました",
+			"closeSummary": "{{name}} には {{total}} 件のタスクがあり、うち {{completed}} 件が完了しました。",
+			"closeTarget": "未完了のタスク {{count}} 件の移動先",
+			"closeTitle": "スプリントを完了",
+			"closedLocked": "このタスクは完了したスプリントの一部であり、履歴として残ります",
+			"completedCount": "{{count}} 件完了",
+			"create": "スプリントを作成",
+			"createDescription": "名前・目標・日付を指定して今後のスプリントを計画します。",
+			"createTitle": "スプリントを作成",
+			"daysOverdue": "{{remaining}}日超過",
+			"daysRemaining": "残り{{remaining}}日",
+			"edit": "スプリントを編集",
+			"editDescription": "スプリントの名前・目標・日付を更新します。",
+			"editTitle": "スプリントを編集",
+			"endsToday": "本日終了",
+			"error": "スプリントの操作に失敗しました",
+			"goal": "スプリントの目標",
+			"goalPlaceholder": "このスプリントで何を達成しますか？",
+			"history": "完了したスプリント ({{count}})",
+			"moveDown": "下へ移動",
+			"moveSuccess_other": "{{count}} tasks moved",
+			"moveUp": "上へ移動",
+			"name": "スプリント名",
+			"namePlaceholder": "スプリント 1",
+			"noActive": "進行中のスプリントはありません。今後のスプリントを開始してください。",
+			"noTasks": "このスプリントにはまだタスクがありません",
+			"openTaskMenu": "Open task menu",
+			"reportSummary": "計画 {{planned}}、完了 {{completed}}、繰り越し {{carriedOver}}",
+			"save": "変更を保存",
+			"scopeCurrent": "Current sprint",
+			"scopeTitle": "Sprint scope",
+			"selectTask": "Select task",
+			"start": "スプリントを開始",
+			"startSuccess": "スプリント {{name}} を開始しました",
+			"taskCounts": "{{total}} 件中 {{completed}} 件完了",
+			"title": "スプリント",
+			"toggleTasks": "スプリントのタスクを表示",
+			"unscheduled": "未設定",
+			"upcoming": "今後のスプリント",
+			"viewEmptyDescription": "Create a sprint to plan work in iterations and track it from here.",
+			"viewEmptyTitle": "No sprints yet",
+			"viewHeading": "All sprints",
+			"viewPageTitle": "Sprints · {{name}}"
+		},
+		"type": {
+			"bug": "バグ",
+			"label": "種類",
+			"task": "タスク"
 		}
 	},
 	"invitations": {
