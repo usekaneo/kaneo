@@ -93,7 +93,7 @@ export const githubRepositorySchema = z
     }),
     linkedTo: repositoryLinkedToSchema.nullable().openapi({
       description:
-        "The binding that already links this repository, or null. Same-project links block selection in the picker; cross-project links (decision D1) are informational only.",
+        "The binding that already links this repository within the calling project, or null. Only the calling project's own bindings are reported, so no other project's identity is disclosed.",
     }),
   })
   .openapi("GitHubRepository");

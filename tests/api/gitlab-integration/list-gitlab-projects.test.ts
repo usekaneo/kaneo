@@ -15,6 +15,7 @@ describe("listGitlabProjects", () => {
         baseUrl: "https://gitlab.com",
         accessToken: "token",
         tokenType: "private",
+        projectId: "project",
       }),
     ).rejects.toMatchObject({
       status: 401,

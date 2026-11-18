@@ -318,13 +318,14 @@ describe("authorized bounded repository listing", () => {
         projectId: "project",
         repositoryKey: "github:20",
         project: { name: "Kaneo" },
+        isActive: true,
       },
     ]);
     const page = await listUserRepositories("user", {
       installationPage: 1,
       repositoryPage: 1,
     });
-    const annotated = await annotateLinkedState(page.repositories);
+    const annotated = await annotateLinkedState(page.repositories, "project");
     expect(m.integrations).toHaveBeenCalledTimes(1);
     expect(annotated[0].linkedTo).toEqual({
       integrationId: "integration",
@@ -332,6 +333,33 @@ describe("authorized bounded repository listing", () => {
       projectName: "Kaneo",
     });
     expect(annotated[1].linkedTo).toBeNull();
+  });
+  it("never reports foreign-project or deactivated bindings as linked", async () => {
+    m.integrations.mockResolvedValue([
+      {
+        id: "foreign",
+        projectId: "other-project",
+        repositoryKey: "github:20",
+        project: { name: "Rival" },
+        isActive: true,
+      },
+      {
+        id: "inactive",
+        projectId: "project",
+        repositoryKey: "github:20",
+        project: { name: "Kaneo" },
+        isActive: false,
+      },
+    ]);
+    const page = await listUserRepositories("user", {
+      installationPage: 1,
+      repositoryPage: 1,
+    });
+    const annotated = await annotateLinkedState(page.repositories, "project");
+    expect(annotated[0].linkedTo).toBeNull();
+    expect(annotated[1].linkedTo).toBeNull();
+    expect(JSON.stringify(annotated)).not.toContain("Rival");
+    expect(JSON.stringify(annotated)).not.toContain("other-project");
   });
   it("does not expose an unauthorized installation's metadata", async () => {
     m.permission.mockResolvedValue({ data: { permission: "read" } });

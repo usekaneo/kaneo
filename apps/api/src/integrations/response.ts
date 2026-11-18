@@ -32,9 +32,11 @@ export const repositoryBindingUsageSchema = z
   })
   .openapi("RepositoryBindingUsage");
 
-// RFC 0001: linked-state annotation for listed repositories. Same-project
-// links block selection in the picker; cross-project links (allowed per
-// decision D1) are informational only.
+// RFC 0001: linked-state annotation for listed repositories. Only the
+// requesting project's own bindings are annotated, so the same-project links
+// that block selection in the picker never disclose another project's
+// identity. Cross-project sharing still works (decision D1); foreign
+// bindings are simply not reported here.
 export const repositoryLinkedToSchema = z
   .object({
     integrationId: z.string(),

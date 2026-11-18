@@ -77,7 +77,7 @@ const listRepositoriesRoute = createRoute({
   tags: ["Gitea"],
   summary: "List Gitea repositories",
   description:
-    "List the repositories a Gitea token can reach, for picking one to link. Sent as a POST because the token travels in the body rather than the URL. Each repository is annotated with its linked state (linkedTo); same-project links block selection, cross-project links are informational only (RFC decision D1).",
+    "List the repositories a Gitea token can reach, for picking one to link. Sent as a POST because the token travels in the body rather than the URL. Each repository is annotated with its linked state (linkedTo): bindings of the calling project itself, which block re-selection in the picker. Bindings owned by other projects are never reported.",
   middleware: manageAccess,
   request: {
     body: {

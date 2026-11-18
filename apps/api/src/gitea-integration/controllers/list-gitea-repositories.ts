@@ -27,8 +27,11 @@ type RepoRow = {
 
 // RFC 0001 WP3: annotate each listed repository with its linked state,
 // resolved by a server-side Map keyed by repository_key rather than repeated
-// in-memory filtering. Same-project links block selection in the picker;
-// cross-project links (allowed per decision D1) are informational only.
+// in-memory filtering. The annotation is scoped to the authorized project and
+// to active bindings: cross-project bindings may share the repository
+// (allowed per decision D1), but their project names, ids, and integration
+// ids stay private to the projects that own them, and deactivated bindings do
+// not hold the repository either.
 async function listGiteaRepositories({
   baseUrl,
   accessToken,
@@ -36,7 +39,7 @@ async function listGiteaRepositories({
 }: {
   baseUrl: string;
   accessToken: string;
-  projectId?: string;
+  projectId: string;
 }): Promise<{ repositories: RepoRow[] }> {
   const normalized = normalizeGiteaBaseUrl(baseUrl);
 
@@ -96,22 +99,28 @@ async function listGiteaRepositories({
         repositoryKey: integrationTable.repositoryKey,
         projectId: integrationTable.projectId,
         projectName: projectTable.name,
+        isActive: integrationTable.isActive,
       })
       .from(integrationTable)
       .innerJoin(projectTable, eq(integrationTable.projectId, projectTable.id))
       .where(
         and(
           eq(integrationTable.type, "gitea"),
+          // Security: same-project scope only, so the list can never disclose
+          // another project's name, id, or integration ids.
+          eq(integrationTable.projectId, projectId),
+          // Deactivated bindings do not hold the repository.
+          eq(integrationTable.isActive, true),
           inArray(integrationTable.repositoryKey, keys),
         ),
       );
 
+    // Defense in depth: the query already constrains project and is_active;
+    // this check runs again on the returned rows so a query regression can
+    // never surface another project's binding details.
     const bindingByKey = new Map<string, (typeof bindings)[number]>();
     for (const binding of bindings) {
-      // Same-project annotation wins; cross-project is informational only.
-      if (!bindingByKey.has(binding.repositoryKey)) {
-        bindingByKey.set(binding.repositoryKey, binding);
-      } else if (projectId !== undefined && binding.projectId === projectId) {
+      if (binding.projectId === projectId && binding.isActive === true) {
         bindingByKey.set(binding.repositoryKey, binding);
       }
     }

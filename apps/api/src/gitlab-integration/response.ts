@@ -57,7 +57,7 @@ export const gitlabProjectSchema = z
     web_url: z.string(),
     linkedTo: repositoryLinkedToSchema.nullable().optional().openapi({
       description:
-        "The binding this GitLab project is already linked to, when any. Same-project links block selection; cross-project links (allowed per RFC decision D1) are informational only.",
+        "The binding that already links this GitLab project within the calling project, when any. Only the calling project's own bindings are reported, so no other project's identity is disclosed.",
     }),
   })
   .openapi("GitlabProject");

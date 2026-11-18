@@ -345,13 +345,14 @@ const githubIntegration = apiRouter<BaseVariables & { workspaceId: string }>()
     );
   })
   .openapi(listRepositoriesRoute, async (c) => {
+    const { projectId } = c.req.valid("param");
     const { search, ...page } = c.req.valid("query");
     const repositories = await listUserRepositories(
       c.get("userId"),
       page,
       search || undefined,
     );
-    const annotated = await annotateLinkedState(repositories);
+    const annotated = await annotateLinkedState(repositories, projectId);
     return c.json(annotated, 200);
   })
   .openapi(verifyRoute, async (c) => {

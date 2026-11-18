@@ -78,7 +78,7 @@ const listProjectsRoute = createRoute({
   tags: ["GitLab"],
   summary: "List GitLab projects",
   description:
-    "List the projects a GitLab token is a member of, for picking one to link. Sent as a POST because the token travels in the body rather than the URL. Each project is annotated with its linked state (linkedTo); same-project links block selection, cross-project links are informational only (RFC decision D1).",
+    "List the projects a GitLab token is a member of, for picking one to link. Sent as a POST because the token travels in the body rather than the URL. Each project is annotated with its linked state (linkedTo): bindings of the calling project itself, which block re-selection in the picker. Bindings owned by other projects are never reported.",
   middleware: manageAccess,
   request: {
     body: {
