@@ -487,7 +487,7 @@ describe("API integration: sprint lifecycle", () => {
 
     const a = await createSprintViaApi(app, project.id, { name: "Sprint A" });
     const b = await createSprintViaApi(app, project.id, { name: "Sprint B" });
-    const c = await createSprintViaApi(app, project.id, { name: "Sprint C" });
+    await createSprintViaApi(app, project.id, { name: "Sprint C" });
 
     const swap = await sprintJson(app, `/reorder/${project.id}`, "POST", {
       sprints: [
