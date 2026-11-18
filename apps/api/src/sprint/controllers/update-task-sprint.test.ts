@@ -29,9 +29,9 @@ vi.mock("../../database", () => ({
         select: () => ({
           from: () => ({
             where: () => ({
-              for: () => {
-                const row = mockSprintFindFirst();
-                return Promise.resolve(row ? [row] : []);
+              for: async () => {
+                const row = await mockSprintFindFirst();
+                return row ? [row] : [];
               },
             }),
           }),
