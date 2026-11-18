@@ -14,6 +14,7 @@ async function updateProject({
   slug,
   description,
   isPublic,
+  includeSubtasks,
   defaultSprintLengthDays,
 }: UpdateProjectRequest) {
   const response = await client.project[":id"].$put({
@@ -24,6 +25,7 @@ async function updateProject({
       slug,
       description,
       isPublic,
+      ...(includeSubtasks !== undefined ? { includeSubtasks } : {}),
       // Optional so callers that only edit the form fields keep sending the
       // legacy payload and the API leaves the stored sprint length untouched.
       ...(defaultSprintLengthDays !== undefined

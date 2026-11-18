@@ -24,6 +24,7 @@ export const updateProjectBody = z.object({
   slug: z.string(),
   description: z.string(),
   isPublic: z.boolean(),
+  includeSubtasks: z.boolean().optional(),
   defaultSprintLengthDays: z.number().int().min(1).optional().openapi({
     description:
       "Default sprint length in days. Used to prefill a new sprint's end date when starting it. Omit to keep the current value.",

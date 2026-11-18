@@ -12,6 +12,7 @@ const noFilters: BoardFilters = {
   assignee: null,
   dueDate: null,
   labels: null,
+  sprint: null,
   customFields: null,
 };
 
@@ -158,5 +159,102 @@ describe("taskMatchesFilters", () => {
         context,
       ),
     ).toBe(true);
+  });
+});
+
+describe.each(["startDate", "dueDate"] as const)(
+  "custom %s filters",
+  (field) => {
+    it.each([
+      ["exact:2026-10-15", "2026-10-15", true],
+      ["exact:2026-10-15", "2026-10-15T23:59:59", true],
+      ["exact:2026-10-15", "2026-10-16", false],
+      ["range:2026-10-01:2026-10-15", "2026-10-01", true],
+      ["range:2026-10-01:2026-10-15", "2026-10-15T23:59:59", true],
+      ["range:2026-10-01:2026-10-15", "2026-09-30", false],
+      ["range:2026-10-01:2026-10-15", "2026-10-16", false],
+      ["before:2026-10-15", "2026-10-14", true],
+      ["before:2026-10-15", "2026-10-15", false],
+      ["after:2026-10-15", "2026-10-16", true],
+      ["after:2026-10-15", "2026-10-15", false],
+      ["exact:2026-10-15", null, false],
+      ["after:2026-10-15", null, false],
+      ["range:2026-10-15:2026-10-01", "2026-10-10", false],
+    ])("%s against %s matches %s", (condition, date, expected) => {
+      expect(
+        taskMatchesFilters(
+          task({ [field]: date }),
+          { ...noFilters, [field]: [condition] },
+          context,
+        ),
+      ).toBe(expected);
+    });
+
+    it("requires an explicit No date even for negative conditions", () => {
+      const missing = task({ [field]: null });
+      expect(
+        taskMatchesFilters(
+          missing,
+          { ...noFilters, [field]: ["exact:2026-10-15"], negated: [field] },
+          context,
+        ),
+      ).toBe(false);
+      expect(
+        taskMatchesFilters(
+          missing,
+          {
+            ...noFilters,
+            [field]: [field === "dueDate" ? "noDueDate" : "noDate"],
+          },
+          context,
+        ),
+      ).toBe(true);
+    });
+  },
+);
+
+it("combines both date fields with assignee, priority and labels", () => {
+  const filters = {
+    ...noFilters,
+    startDate: ["range:2026-10-01:2026-10-15"],
+    dueDate: ["exact:2026-10-16"],
+    assignee: ["u1"],
+    priority: ["high"],
+    labels: ["l1"],
+  };
+  expect(
+    taskMatchesFilters(task({ startDate: "2026-10-01" }), filters, context),
+  ).toBe(true);
+  expect(
+    taskMatchesFilters(
+      task({ startDate: "2026-10-01", userId: "u2" }),
+      filters,
+      context,
+    ),
+  ).toBe(false);
+  expect(
+    taskMatchesFilters(
+      task({ startDate: "2026-10-01", dueDate: null }),
+      filters,
+      context,
+    ),
+  ).toBe(false);
+});
+
+describe("sprint filters", () => {
+  it.each([
+    ["sprint-1", "sprint-1", true],
+    ["sprint-1", "sprint-2", false],
+    ["sprint-1", null, false],
+    ["backlog", null, true],
+    ["backlog", "sprint-1", false],
+  ] as const)("filter %s against sprint %s matches %s", (filter, sprintId, expected) => {
+    expect(
+      taskMatchesFilters(
+        task({ sprintId }),
+        { ...noFilters, sprint: [filter] },
+        context,
+      ),
+    ).toBe(expected);
   });
 });
