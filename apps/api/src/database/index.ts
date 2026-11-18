@@ -18,6 +18,7 @@ import {
   notificationTableRelations,
   projectTableRelations,
   sessionTableRelations,
+  sprintTableRelations,
   taskRelationTableRelations,
   taskReminderSentTableRelations,
   taskTableRelations,

@@ -17,6 +17,16 @@ import { isCloud } from "./is-cloud";
 
 config();
 
+// A missing or unreadable Creem secret file must not break the public
+// settings endpoint (used by the login screen); billing is simply off.
+function isBillingAvailable() {
+  try {
+    return isBillingEnabled();
+  } catch {
+    return false;
+  }
+}
+
 function getSettings(
   instance: InstanceSettings = resolveInstanceSettings(
     DEFAULT_STORED_SETTINGS,
@@ -56,7 +66,7 @@ function getSettings(
     customOAuthLogoutUrl: process.env.CUSTOM_OAUTH_LOGOUT_URL || null,
     customOAuthManagedProfileFields: parseManagedProfileFields(),
     customOAuthAccountUrl: parseCustomOAuthAccountUrl(),
-    billingEnabled: isBillingEnabled(),
+    billingEnabled: isBillingAvailable(),
   };
 }
 

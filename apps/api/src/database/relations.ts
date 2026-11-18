@@ -16,6 +16,7 @@ import {
   notificationTable,
   projectTable,
   sessionTable,
+  sprintTable,
   taskRelationTable,
   taskReminderSentTable,
   taskTable,
@@ -423,3 +424,11 @@ export const customFieldValueTableRelations = relations(
     }),
   }),
 );
+
+export const sprintTableRelations = relations(sprintTable, ({ one, many }) => ({
+  project: one(projectTable, {
+    fields: [sprintTable.projectId],
+    references: [projectTable.id],
+  }),
+  tasks: many(taskTable),
+}));

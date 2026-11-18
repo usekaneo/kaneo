@@ -1,3 +1,4 @@
+import { resolveFileSecret } from "../utils/file-secret";
 import { isCloud } from "../utils/is-cloud";
 
 export type Plan = "personal" | "team";

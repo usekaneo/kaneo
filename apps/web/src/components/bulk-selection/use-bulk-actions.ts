@@ -2,6 +2,7 @@ import {
   ArchiveIcon,
   CalendarDaysIcon,
   CircleDotIcon,
+  RocketIcon,
   SquareKanbanIcon,
   SquircleDashedIcon,
   TagIcon,
