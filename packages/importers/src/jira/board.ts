@@ -5,6 +5,8 @@ import type { JiraClient } from "./client.js";
 export type BoardRead = {
   columns: JiraBoardColumn[] | null;
   unavailable: boolean;
+  // Id of the board the columns came from; used to read its sprints.
+  boardId: number | null;
 };
 
 const NO_BOARD_ACCESS = new Set([401, 403, 404]);
@@ -19,21 +21,21 @@ export async function readBoardColumns(
   } catch (error) {
     const status = deniedStatus(error);
     if (status === undefined) throw error;
-    return { columns: null, unavailable: status !== 404 };
+    return { columns: null, unavailable: status !== 404, boardId: null };
   }
 
   const board = pickBoard(boards, projectKey);
-  if (!board) return { columns: null, unavailable: false };
+  if (!board) return { columns: null, unavailable: false, boardId: null };
 
   try {
     const config = await client.boardConfiguration(board.id);
     const columns = config?.columnConfig?.columns;
     return columns?.length
-      ? { columns, unavailable: false }
-      : { columns: null, unavailable: true };
+      ? { columns, unavailable: false, boardId: board.id }
+      : { columns: null, unavailable: true, boardId: board.id };
   } catch (error) {
     if (deniedStatus(error) === undefined) throw error;
-    return { columns: null, unavailable: true };
+    return { columns: null, unavailable: true, boardId: board.id };
   }
 }
 

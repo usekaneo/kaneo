@@ -9,11 +9,13 @@ import { loadAssignableMembers } from "./load-assignable-members";
 import { createAssigneeMatcher } from "./match-assignees";
 import { planImportColumns } from "./plan-import-columns";
 import { planImportRelations } from "./plan-import-relations";
+import { planImportSprints } from "./plan-import-sprints";
 import { planImportTasks } from "./plan-import-tasks";
 import { writeImportColumns } from "./write-import-columns";
 import { writeImportComments } from "./write-import-comments";
 import { writeImportLabels } from "./write-import-labels";
 import { writeImportRelations } from "./write-import-relations";
+import { writeImportSprints } from "./write-import-sprints";
 import { writeImportTasks } from "./write-import-tasks";
 
 type Transaction = Parameters<Parameters<typeof db.transaction>[0]>[0];
@@ -49,6 +51,12 @@ export async function writeProjectContent(
 
   const columnPlan = planImportColumns(project.columns);
   const board = await writeImportColumns(tx, projectId, columnPlan);
+
+  // Sprints are created before tasks so imported tasks can be resolved to
+  // their created sprint ids, keeping the source's closed-sprint history.
+  const sprintPlan = planImportSprints(project.sprints ?? [], createId);
+  const sprintIds = await writeImportSprints(tx, projectId, sprintPlan);
+
   const assignees = createAssigneeMatcher(
     await loadAssignableMembers(tx, workspaceId, projectId),
   );
@@ -66,6 +74,7 @@ export async function writeProjectContent(
     tasks: project.tasks,
     columns: board.byKey,
     fallbackColumn: board.fallback,
+    sprintIds,
     numbers,
     now,
     newId: createId,

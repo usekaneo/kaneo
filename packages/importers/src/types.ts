@@ -10,6 +10,17 @@ export type ImportedPriority =
   | "high"
   | "urgent";
 
+export type ImportedSprintStatus = "future" | "active" | "closed";
+
+export type ImportedSprint = {
+  key: string;
+  name: string;
+  status: ImportedSprintStatus;
+  goal?: string;
+  startDate?: string;
+  endDate?: string;
+};
+
 export type ImportedColumn = {
   key: string;
   name: string;
@@ -44,6 +55,9 @@ export type ImportedTask = {
   startDate?: string;
   dueDate?: string;
   createdAt?: string;
+  // Source key of the sprint this task belongs to; absent or null means the
+  // task is unscheduled and lands in the backlog.
+  sprintKey?: string | null;
   assignee?: ImportedPerson;
   labelKeys: string[];
   comments: ImportedComment[];
@@ -63,6 +77,8 @@ export type ImportedProject = {
   description?: string;
   columns: ImportedColumn[];
   labels: ImportedLabel[];
+  // Sprints recovered from the source, if the source exposes them.
+  sprints?: ImportedSprint[];
   tasks: ImportedTask[];
   relations: ImportedRelation[];
   warnings: string[];

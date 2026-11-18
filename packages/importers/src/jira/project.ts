@@ -1,4 +1,4 @@
-import type { ImportedProject } from "../types.js";
+import type { ImportedProject, ImportedSprint } from "../types.js";
 import type {
   JiraBoardColumn,
   JiraComment,
@@ -31,6 +31,10 @@ export type JiraProjectData = {
   boardUnavailable: boolean;
   issues: JiraIssue[];
   comments: ReadonlyMap<string, JiraComment[]>;
+  // Sprint data recovered from the project board, if any was readable.
+  sprints?: readonly ImportedSprint[];
+  // Jira issue id to the source key of the sprint it belongs to.
+  issueSprint: ReadonlyMap<string, string>;
 };
 
 export function mapJiraProject(data: JiraProjectData): ImportedProject {
@@ -48,13 +52,15 @@ export function mapJiraProject(data: JiraProjectData): ImportedProject {
     ...(description ? { description } : {}),
     columns: plan.columns,
     labels: mapLabels(data.issues),
-    tasks: placed.map(({ issue, columnKey }) =>
-      mapIssue(issue, {
+    ...(data.sprints?.length ? { sprints: [...data.sprints] } : {}),
+    tasks: placed.map(({ issue, columnKey }) => ({
+      ...mapIssue(issue, {
         columnKey,
         comments: mapComments(data.comments.get(issue.id) ?? [], toMarkdown),
         toMarkdown,
       }),
-    ),
+      sprintKey: data.issueSprint.get(issue.id) ?? null,
+    })),
     relations,
     warnings: buildWarnings({
       issuesWithAttachments: data.issues.filter(

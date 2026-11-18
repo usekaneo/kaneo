@@ -5,6 +5,7 @@ import { readBoardColumns } from "./board.js";
 import type { JiraClient } from "./client.js";
 import { mapJiraProject } from "./project.js";
 import { readComments } from "./read-comments.js";
+import { readBoardSprints, type SprintsRead } from "./sprints.js";
 import { searchProjectIssues } from "./search.js";
 
 export async function readJiraProject(
@@ -20,6 +21,19 @@ export async function readJiraProject(
   const statusGroups = await client.projectStatuses(project.key);
   const board = await readBoardColumns(client, project.key);
 
+  let sprints: SprintsRead | undefined;
+  if (board.boardId !== null) {
+    sprints = await readBoardSprints(client, board.boardId, (message) =>
+      onProgress?.(message),
+    );
+  } else {
+    sprints = {
+      sprints: [],
+      issueSprint: new Map(),
+      warning: null,
+    };
+  }
+
   onProgress?.("Reading issues");
   const issues = await searchProjectIssues(client, project.key, {
     includeComments: options.includeComments,
@@ -31,7 +45,7 @@ export async function readJiraProject(
     comments = await readComments(client, issues, onProgress);
   }
 
-  return mapJiraProject({
+  const mapped = mapJiraProject({
     baseUrl,
     project,
     statusGroups,
@@ -39,7 +53,15 @@ export async function readJiraProject(
     boardUnavailable: board.unavailable,
     issues,
     comments,
+    sprints: sprints.sprints,
+    issueSprint: sprints.issueSprint,
   });
+
+  if (sprints.warning) {
+    mapped.warnings = [...mapped.warnings, sprints.warning];
+  }
+
+  return mapped;
 }
 
 async function readProjectDetails(

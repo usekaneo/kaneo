@@ -23,6 +23,7 @@ export async function writeImportTasks(
         columnId: task.columnId,
         position: task.position,
         priority: task.priority,
+        sprintId: task.sprintId,
         startDate: task.startDate,
         dueDate: task.dueDate,
         createdAt: task.createdAt,

@@ -9,6 +9,8 @@ import type {
   JiraProject,
   JiraProjectPage,
   JiraServerSearchPage,
+  JiraSprintIssuePage,
+  JiraSprintPage,
   JiraUser,
 } from "./api-types.js";
 import type { JiraAuth } from "./auth.js";
@@ -18,6 +20,7 @@ import type { JiraSite } from "./url.js";
 export const PROJECTS_PAGE_SIZE = 50;
 export const SEARCH_PAGE_SIZE = 100;
 export const COMMENTS_PAGE_SIZE = 100;
+export const SPRINTS_PAGE_SIZE = 50;
 
 export type JiraClientOptions = {
   site: JiraSite;
@@ -104,6 +107,33 @@ export class JiraClient {
   boardConfiguration(boardId: number): Promise<JiraBoardConfiguration | null> {
     return this.request(
       `/rest/agile/1.0/board/${encodeURIComponent(String(boardId))}/configuration`,
+    );
+  }
+
+  boardSprints(
+    boardId: number,
+    startAt: number,
+  ): Promise<JiraSprintPage | null> {
+    const params = new URLSearchParams({
+      startAt: String(startAt),
+      maxResults: String(SPRINTS_PAGE_SIZE),
+    });
+    return this.request(
+      `/rest/agile/1.0/board/${encodeURIComponent(String(boardId))}/sprint?${params}`,
+    );
+  }
+
+  sprintIssues(
+    sprintId: string,
+    startAt: number,
+  ): Promise<JiraSprintIssuePage | null> {
+    const params = new URLSearchParams({
+      startAt: String(startAt),
+      maxResults: String(SEARCH_PAGE_SIZE),
+      fields: "id",
+    });
+    return this.request(
+      `/rest/agile/1.0/sprint/${encodeURIComponent(sprintId)}/issue?${params}`,
     );
   }
 

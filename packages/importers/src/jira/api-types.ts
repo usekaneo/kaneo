@@ -46,6 +46,36 @@ export type JiraBoardPage = {
   values?: JiraBoard[] | null;
 };
 
+export type JiraSprint = {
+  id: number;
+  name?: string | null;
+  state?: string | null;
+  goal?: string | null;
+  startDate?: string | null;
+  endDate?: string | null;
+};
+
+export type JiraSprintPage = {
+  values?: JiraSprint[] | null;
+  maxResults?: number | null;
+  total?: number | null;
+  isLast?: boolean | null;
+};
+
+export type JiraSprintIssue = {
+  id?: number | null;
+  key?: string | null;
+};
+
+export type JiraSprintIssuePage = {
+  issues?: JiraSprintIssue[] | null;
+  values?: JiraSprintIssue[] | null;
+  startAt?: number | null;
+  maxResults?: number | null;
+  total?: number | null;
+  isLast?: boolean | null;
+};
+
 export type JiraBoardColumn = {
   name?: string | null;
   statuses?: Array<{ id: string }> | null;

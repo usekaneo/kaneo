@@ -17,6 +17,7 @@ export type PlannedImportTask = {
   columnId: string | null;
   position: number;
   priority: string;
+  sprintId: string | null;
   startDate: Date | null;
   dueDate: Date | null;
   createdAt: Date;
@@ -29,6 +30,9 @@ type PlanImportTasksInput = {
   tasks: readonly ImportedTask[];
   columns: ReadonlyMap<string, BoardColumn>;
   fallbackColumn: BoardColumn | null;
+  // Source sprint key to the created sprint id; imported sprint membership is
+  // resolved through this map and left empty (backlog) when unknown.
+  sprintIds: ReadonlyMap<string, string>;
   numbers: readonly number[];
   now: Date;
   newId: () => string;
@@ -71,6 +75,7 @@ export function planImportTasks({
   tasks,
   columns,
   fallbackColumn,
+  sprintIds,
   numbers,
   now,
   newId,
@@ -97,6 +102,7 @@ export function planImportTasks({
       ...placement,
       position,
       priority: importPriority(task.priority),
+      sprintId: task.sprintKey ? (sprintIds.get(task.sprintKey) ?? null) : null,
       startDate: parseImportDate(task.startDate),
       dueDate: parseImportDate(task.dueDate),
       createdAt: parseImportDate(task.createdAt) ?? now,
