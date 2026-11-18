@@ -348,13 +348,19 @@ const githubIntegration = apiRouter<BaseVariables & { workspaceId: string }>()
   .openapi(listRepositoriesRoute, async (c) => {
     const { projectId } = c.req.valid("param");
     const { search, ...page } = c.req.valid("query");
-    const repositories = await listUserRepositories(
+    const listing = await listUserRepositories(
       c.get("userId"),
       page,
       search || undefined,
     );
-    const annotated = await annotateLinkedState(repositories, projectId);
-    return c.json(annotated, 200);
+    // annotateLinkedState decorates each repository in the listing with its
+    // per-project linked state; the installations/total/nextPage envelope
+    // fields pass through untouched.
+    const repositories = await annotateLinkedState(
+      listing.repositories,
+      projectId,
+    );
+    return c.json({ ...listing, repositories }, 200);
   })
   .openapi(verifyRoute, async (c) => {
     const { repositoryOwner, repositoryName } = c.req.valid("json");
