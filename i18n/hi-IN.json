@@ -3857,6 +3857,11 @@
 			"durationSeconds": "{{seconds, number}} से",
 			"durationMinutes": "{{minutes, number}} मि",
 			"durationHoursMinutes": "{{hours, number}} घं {{minutes, number}} मि"
+		},
+		"type": {
+			"label": "प्रकार",
+			"bug": "बग",
+			"task": "कार्य"
 		}
 	},
 	"invitations": {
