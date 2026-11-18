@@ -316,13 +316,42 @@ describe("connected GitHub repository", () => {
     );
   });
 
-  it("reconnects the saved repository by reactivating its binding", async () => {
+  it("reconnects a legacy binding by re-running verification in place", async () => {
     m.appInfo.mockResolvedValue(linkedAccount);
     setIntegrations({
       id: "integration-1",
       repositoryOwner: "owner",
       repositoryName: "repo",
       requiresVerification: true,
+      isActive: false,
+    });
+    show();
+    fireEvent.click(
+      await screen.findByRole("button", {
+        name: "settings:codeHosting.reconnect",
+      }),
+    );
+    // Legacy rows cannot be reactivated alone: the create flow verifies the
+    // repository and reconciles the existing binding in place.
+    await waitFor(() =>
+      expect(m.create).toHaveBeenCalledWith({
+        projectId: "project",
+        data: {
+          repositoryOwner: "owner",
+          repositoryName: "repo",
+        },
+      }),
+    );
+    expect(m.update).not.toHaveBeenCalled();
+  });
+
+  it("reactivates an already verified binding directly", async () => {
+    m.appInfo.mockResolvedValue(linkedAccount);
+    setIntegrations({
+      id: "integration-1",
+      repositoryOwner: "owner",
+      repositoryName: "repo",
+      requiresVerification: false,
       isActive: false,
     });
     show();
@@ -338,6 +367,7 @@ describe("connected GitHub repository", () => {
         json: { isActive: true },
       }),
     );
+    expect(m.create).not.toHaveBeenCalled();
   });
 
   it("offers resume after refresh and forwards the persisted run ID", async () => {
