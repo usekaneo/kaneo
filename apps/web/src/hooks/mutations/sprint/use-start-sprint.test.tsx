@@ -50,9 +50,9 @@ describe("useStartSprint", () => {
     expect(startSprint).toHaveBeenCalledWith("sprint-1", {
       startDate: "2025-01-15",
     });
-    expect(
-      client.getQueryState(["sprints", "project-1"])?.isInvalidated,
-    ).toBe(true);
+    expect(client.getQueryState(["sprints", "project-1"])?.isInvalidated).toBe(
+      true,
+    );
     client.clear();
   });
 

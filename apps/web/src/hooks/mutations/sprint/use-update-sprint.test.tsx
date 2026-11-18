@@ -50,9 +50,9 @@ describe("useUpdateSprint", () => {
     expect(updateSprint).toHaveBeenCalledWith("sprint-1", {
       goal: "New goal",
     });
-    expect(
-      client.getQueryState(["sprints", "project-1"])?.isInvalidated,
-    ).toBe(true);
+    expect(client.getQueryState(["sprints", "project-1"])?.isInvalidated).toBe(
+      true,
+    );
     client.clear();
   });
 });

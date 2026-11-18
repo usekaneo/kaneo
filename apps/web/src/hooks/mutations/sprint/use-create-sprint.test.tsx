@@ -49,9 +49,9 @@ describe("useCreateSprint", () => {
     expect(createSprint).toHaveBeenCalledWith("project-1", {
       name: "Sprint 1",
     });
-    expect(
-      client.getQueryState(["sprints", "project-1"])?.isInvalidated,
-    ).toBe(true);
+    expect(client.getQueryState(["sprints", "project-1"])?.isInvalidated).toBe(
+      true,
+    );
     client.clear();
   });
 
@@ -68,9 +68,9 @@ describe("useCreateSprint", () => {
       }),
     ).rejects.toThrow("duplicate name");
 
-    expect(
-      client.getQueryState(["sprints", "project-1"])?.isInvalidated,
-    ).toBe(false);
+    expect(client.getQueryState(["sprints", "project-1"])?.isInvalidated).toBe(
+      false,
+    );
     client.clear();
   });
 });

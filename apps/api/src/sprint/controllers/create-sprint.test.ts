@@ -130,7 +130,8 @@ describe("createSprint", () => {
       }),
     ).rejects.toMatchObject({
       status: 400,
-      message: "Start date cannot be after due date. Please adjust the date range.",
+      message:
+        "Start date cannot be after due date. Please adjust the date range.",
     });
     expect(mockInsert).not.toHaveBeenCalled();
   });
@@ -143,6 +144,9 @@ describe("createSprint", () => {
 
     await expect(
       createSprint({ projectId: "project-1" }),
-    ).rejects.toMatchObject({ status: 500, message: "Failed to create sprint" });
+    ).rejects.toMatchObject({
+      status: 500,
+      message: "Failed to create sprint",
+    });
   });
 });

@@ -56,9 +56,9 @@ describe("useReorderSprints", () => {
       { id: "sprint-2", position: 0 },
       { id: "sprint-1", position: 1 },
     ]);
-    expect(
-      client.getQueryState(["sprints", "project-1"])?.isInvalidated,
-    ).toBe(true);
+    expect(client.getQueryState(["sprints", "project-1"])?.isInvalidated).toBe(
+      true,
+    );
     client.clear();
   });
 });

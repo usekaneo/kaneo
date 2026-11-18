@@ -17,7 +17,9 @@ vi.mock("../../database", () => ({
     },
     // The single-active-sprint guard reads via select().from().where().limit(1).
     select: () => ({
-      from: () => ({ where: () => ({ limit: () => mockActiveSprintSelect() }) }),
+      from: () => ({
+        where: () => ({ limit: () => mockActiveSprintSelect() }),
+      }),
     }),
     update: () => ({
       set: (values: Record<string, unknown>) => ({
@@ -75,9 +77,7 @@ describe("startSprint", () => {
       id: "project-1",
       defaultSprintLengthDays: 21,
     });
-    mockUpdate.mockResolvedValueOnce([
-      { ...futureSprint, status: "active" },
-    ]);
+    mockUpdate.mockResolvedValueOnce([{ ...futureSprint, status: "active" }]);
     const started = { id: "sprint-1", status: "active", taskCount: 0 };
     mockGetSprint.mockResolvedValueOnce(started);
 
@@ -127,7 +127,8 @@ describe("startSprint", () => {
       }),
     ).rejects.toMatchObject({
       status: 400,
-      message: "Start date cannot be after due date. Please adjust the date range.",
+      message:
+        "Start date cannot be after due date. Please adjust the date range.",
     });
     expect(mockUpdate).not.toHaveBeenCalled();
   });
@@ -183,7 +184,9 @@ describe("startSprint", () => {
     mockSprintFindFirst.mockResolvedValueOnce(futureSprint);
     mockActiveSprintSelect.mockResolvedValueOnce([]);
     mockProjectFindFirst.mockResolvedValueOnce(null);
-    mockUpdate.mockRejectedValueOnce(uniqueViolation("sprint_project_active_unique"));
+    mockUpdate.mockRejectedValueOnce(
+      uniqueViolation("sprint_project_active_unique"),
+    );
 
     await expect(startSprint("sprint-1", {})).rejects.toMatchObject({
       status: 409,

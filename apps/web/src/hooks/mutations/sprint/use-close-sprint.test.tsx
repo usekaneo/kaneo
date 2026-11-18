@@ -53,12 +53,12 @@ describe("useCloseSprint", () => {
     });
 
     expect(closeSprint).toHaveBeenCalledWith("sprint-1", "sprint-2");
-    expect(
-      client.getQueryState(["sprints", "project-1"])?.isInvalidated,
-    ).toBe(true);
-    expect(
-      client.getQueryState(["tasks", "project-1"])?.isInvalidated,
-    ).toBe(true);
+    expect(client.getQueryState(["sprints", "project-1"])?.isInvalidated).toBe(
+      true,
+    );
+    expect(client.getQueryState(["tasks", "project-1"])?.isInvalidated).toBe(
+      true,
+    );
     client.clear();
   });
 

@@ -47,9 +47,7 @@ describe("updateTaskSprint fetcher", () => {
       ),
     );
 
-    await expect(
-      updateTaskSprint("task-1", "sprint-0"),
-    ).rejects.toMatchObject({
+    await expect(updateTaskSprint("task-1", "sprint-0")).rejects.toMatchObject({
       status: 409,
       message: "Cannot assign tasks to a closed sprint",
     });

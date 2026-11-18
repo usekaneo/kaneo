@@ -57,7 +57,10 @@ describe("reorderSprints", () => {
     ]);
 
     expect(result).toBe(list);
-    expect(mockTxSet.mock.calls).toEqual([[{ position: 0 }], [{ position: 1 }]]);
+    expect(mockTxSet.mock.calls).toEqual([
+      [{ position: 0 }],
+      [{ position: 1 }],
+    ]);
     expect(mockPublishEvent).toHaveBeenCalledWith("sprint.updated", {
       projectId: "project-1",
     });

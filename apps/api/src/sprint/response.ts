@@ -42,18 +42,13 @@ export const sprintListSchema = z.array(sprintSchema);
 export const closeSprintResultSchema = z
   .object({
     sprint: sprintSchema,
-    movedTaskIds: z
-      .array(z.string())
-      .openapi({
-        description: "Unfinished tasks that were moved to the target.",
-      }),
-    targetSprintId: z
-      .string()
-      .nullable()
-      .openapi({
-        description:
-          "The sprint that received the unfinished tasks; null means backlog.",
-      }),
+    movedTaskIds: z.array(z.string()).openapi({
+      description: "Unfinished tasks that were moved to the target.",
+    }),
+    targetSprintId: z.string().nullable().openapi({
+      description:
+        "The sprint that received the unfinished tasks; null means backlog.",
+    }),
   })
   .openapi("CloseSprintResult");
 
