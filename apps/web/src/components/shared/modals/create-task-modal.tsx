@@ -242,8 +242,8 @@ function CreateTaskModalContent({
   const titleRef = useAutoGrowTextarea(title);
   const [description, setDescription] = useState("");
   const [priority, setPriority] = useState<Priority>("no-priority");
-  // Bugs route to the active sprint on creation; every other type starts in
-  // the backlog (docs/sprints, FR-12/FR-13).
+  // Set at creation and shown as a read-only badge on task cards afterwards.
+  // Placement is not affected by the type; the task goes to the chosen status.
   const [taskType, setTaskType] = useState<"task" | "bug">("task");
   const [assigneeId, setAssigneeId] = useState("");
   const [startDate, setStartDate] = useState<Date | undefined>(undefined);
@@ -251,6 +251,9 @@ function CreateTaskModalContent({
   const [recurrence, setRecurrence] = useState<TaskRecurrence | null>(null);
   const [startDateOpen, setStartDateOpen] = useState(false);
   const [dueDateOpen, setDueDateOpen] = useState(false);
+  const [projectOpen, setProjectOpen] = useState(false);
+  const [priorityOpen, setPriorityOpen] = useState(false);
+  const [assigneeOpen, setAssigneeOpen] = useState(false);
   const [createMore, setCreateMore] = useState(false);
   const [labels, setLabels] = useState<Label[]>([]);
   const [discardConfirmationOpen, setDiscardConfirmationOpen] = useState(false);
@@ -867,7 +870,7 @@ function CreateTaskModalContent({
 
             <div className="flex flex-wrap items-center gap-2 py-2">
               {!explicitProjectId && (
-                <Popover>
+                <Popover open={projectOpen} onOpenChange={setProjectOpen}>
                   <PopoverTrigger asChild>
                     <button
                       type="button"
@@ -904,6 +907,7 @@ function CreateTaskModalContent({
                               !submittingRef.current
                             ) {
                               setSelectedProjectId(workspaceProject.id);
+                              setProjectOpen(false);
                             }
                           }}
                         >
@@ -963,7 +967,7 @@ function CreateTaskModalContent({
                 </PopoverContent>
               </Popover>
 
-              <Popover>
+              <Popover open={priorityOpen} onOpenChange={setPriorityOpen}>
                 <PopoverTrigger asChild>
                   <button
                     type="button"
@@ -989,7 +993,10 @@ function CreateTaskModalContent({
                         key={option.value}
                         type="button"
                         className="w-full flex items-center gap-2 px-2 py-1.5 text-sm hover:bg-accent/50 text-left transition-colors h-8"
-                        onClick={() => setPriority(option.value as Priority)}
+                        onClick={() => {
+                          setPriority(option.value as Priority);
+                          setPriorityOpen(false);
+                        }}
                       >
                         {getPriorityIcon(option.value)}
                         <span className="text-sm">{option.label}</span>
@@ -1032,7 +1039,7 @@ function CreateTaskModalContent({
                 </span>
               </button>
 
-              <Popover>
+              <Popover open={assigneeOpen} onOpenChange={setAssigneeOpen}>
                 <PopoverTrigger asChild>
                   <button
                     type="button"
@@ -1069,7 +1076,10 @@ function CreateTaskModalContent({
                     <button
                       type="button"
                       className="w-full flex items-center gap-2 px-2 py-1.5 text-sm hover:bg-accent/50 text-left transition-colors h-8"
-                      onClick={() => setAssigneeId("")}
+                      onClick={() => {
+                        setAssigneeId("");
+                        setAssigneeOpen(false);
+                      }}
                     >
                       <div
                         className="w-6 h-6 rounded-full bg-muted border border-border flex items-center justify-center"
@@ -1091,7 +1101,10 @@ function CreateTaskModalContent({
                         key={member.id}
                         type="button"
                         className="w-full flex items-center gap-2 px-2 py-1.5 text-sm hover:bg-accent/50 text-left transition-colors h-8"
-                        onClick={() => setAssigneeId(member.id)}
+                        onClick={() => {
+                          setAssigneeId(member.id);
+                          setAssigneeOpen(false);
+                        }}
                       >
                         <Avatar className="h-6 w-6">
                           <AvatarImage

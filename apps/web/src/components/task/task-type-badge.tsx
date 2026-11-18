@@ -8,8 +8,8 @@ type TaskTypeBadgeProps = {
   className?: string;
 };
 
-// Read-only type indicator. The type is set at creation (bugs default to the
-// active sprint, everything else to the backlog) and is not editable after.
+// Read-only type indicator. The type is chosen when the task is created and
+// is not editable afterwards; it does not affect sprint or column placement.
 // A span, not a button: it announces itself as plain text and never pretends
 // to be an interactive control.
 export default function TaskTypeBadge({ task, className }: TaskTypeBadgeProps) {

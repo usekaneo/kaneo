@@ -3,6 +3,7 @@ import { memo, type TouchEvent, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { TaskPullRequests } from "@/components/task/task-pull-requests";
 import { TaskRecurrenceBadge } from "@/components/task/task-recurrence-badge";
+import TaskTypeBadge from "@/components/task/task-type-badge";
 import {
   AlertDialog,
   AlertDialogClose,
@@ -200,6 +201,7 @@ function TaskCardContent({
                 {showPriority && hasPriority && <PriorityChip task={task} />}
                 {showDueDates && <DueDateChip task={task} />}
                 <TaskRecurrenceBadge task={task} />
+                <TaskTypeBadge task={task} />
                 <SubtasksChip task={task} workspaceId={workspaceId} />
                 {showTaskItemCounts && <ChecklistChip task={task} />}
                 <TaskPullRequests

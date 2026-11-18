@@ -30,6 +30,7 @@ type Task = {
   descriptionDeferred?: boolean;
   status: string;
   priority: string | null;
+  type?: "task" | "bug";
   startDate: string | null;
   dueDate: string | null;
   recurrence?: TaskRecurrence | null;
