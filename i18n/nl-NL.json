@@ -3857,6 +3857,11 @@
 			"durationSeconds": "{{seconds, number}} s",
 			"durationMinutes": "{{minutes, number}} min",
 			"durationHoursMinutes": "{{hours, number}} u {{minutes, number}} min"
+		},
+		"type": {
+			"label": "Type",
+			"bug": "Bug",
+			"task": "Taak"
 		}
 	},
 	"invitations": {

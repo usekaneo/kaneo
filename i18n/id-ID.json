@@ -3785,6 +3785,11 @@
 			"durationSeconds": "{{seconds, number}} dtk",
 			"durationMinutes": "{{minutes, number}} mnt",
 			"durationHoursMinutes": "{{hours, number}} j {{minutes, number}} mnt"
+		},
+		"type": {
+			"label": "Tipe",
+			"bug": "Bug",
+			"task": "Tugas"
 		}
 	},
 	"invitations": {
