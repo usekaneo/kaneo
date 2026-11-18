@@ -190,6 +190,14 @@ describe("GitHub binding HTTP and webhook tenant boundaries", () => {
           repositoryName: "repo",
           ...config,
         }),
+        // RFC 0001 WP2: webhook deliveries resolve bindings by the numeric
+        // repository key plus the installation id, so every row carries the
+        // key a real binding would have. The unverified row keeps the legacy
+        // owner/name key, which exercises the fallback path without ever
+        // matching.
+        repositoryKey: config.repositoryId
+          ? `github:${config.repositoryId}`
+          : "github:owner/repo",
       });
     }
     await handleLabelCreated({
