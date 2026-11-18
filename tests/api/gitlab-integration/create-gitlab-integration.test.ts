@@ -10,8 +10,8 @@ const mocks = vi.hoisted(() => ({
 // of mutating an existing one, and it enforces the repository binding quota
 // and inserts inside the project's advisory-lock transaction on the
 // transaction handle. The stub mirrors that: db.transaction passes the same
-// handle through, and the quota's select stage machine answers first with
-// "no row" (workspace override) and then with a zero count, so the quota is
+// handle through, and the quota's select stub answers both chain shapes
+// with "no row" (workspace override) and a zero count, so the quota is
 // effectively unlimited in these tests. A saved credential authorizes reuse
 // only for the destination it belongs to; per-binding settings are not
 // carried over to the new row.
@@ -32,22 +32,21 @@ vi.mock("../../../apps/api/src/database", () => {
         },
       },
     },
-    select: (() => {
-      let stage: "limit" | "count" = "limit";
-      return () =>
-        stage === "limit"
-          ? {
-              from: () => ({
-                where: () => ({
-                  limit: async () => {
-                    stage = "count";
-                    return [];
-                  },
-                }),
-              }),
-            }
-          : { from: () => ({ where: async () => [{ count: 0 }] }) };
-    })(),
+    // The quota helpers chain the same builder two ways:
+    //   resolveRepositoryBindingLimits -> select().from().where().limit()
+    //   countActiveRepositoryBindings  -> select().from().where() (awaited)
+    // The where() stub is both chainable (limit()) and awaitable (then()), so
+    // any call order and any repetition works and the quota stays
+    // effectively unlimited in these tests.
+    select: () => ({
+      from: () => ({
+        where: () => ({
+          limit: async () => [],
+          then: (resolve: never, reject: never) =>
+            Promise.resolve([{ count: 0 }]).then(resolve, reject),
+        }),
+      }),
+    }),
     insert: () => ({
       values: (data: Record<string, unknown>) => {
         mocks.insertValues(data);

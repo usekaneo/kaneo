@@ -10,8 +10,8 @@ const m = vi.hoisted(() => ({
 // The create controller enforces the repository binding quota and inserts
 // the binding inside the project's advisory-lock transaction, on the
 // transaction handle. The stub mirrors that: db.transaction passes the same
-// handle through, and the quota's select stage machine answers first with
-// "no row" (workspace override) and then with a zero count, so the quota is
+// handle through, and the quota's select stub answers both chain shapes
+// with "no row" (workspace override) and a zero count, so the quota is
 // effectively unlimited in these tests.
 vi.mock("../../../apps/api/src/database", () => {
   const handle = {
@@ -21,22 +21,19 @@ vi.mock("../../../apps/api/src/database", () => {
       },
       integrationTable: { findFirst: m.config, findMany: async () => [] },
     },
-    select: (() => {
-      let stage: "limit" | "count" = "limit";
-      return () =>
-        stage === "limit"
-          ? {
-              from: () => ({
-                where: () => ({
-                  limit: async () => {
-                    stage = "count";
-                    return [];
-                  },
-                }),
-              }),
-            }
-          : { from: () => ({ where: async () => [{ count: 0 }] }) };
-    })(),
+    // resolveRepositoryBindingLimits chains select().from().where().limit()
+    // while countActiveRepositoryBindings awaits select().from().where()
+    // directly; the where() stub is both chainable (limit()) and awaitable
+    // (then()), so any call order and any repetition works.
+    select: () => ({
+      from: () => ({
+        where: () => ({
+          limit: async () => [],
+          then: (resolve: never, reject: never) =>
+            Promise.resolve([{ count: 0 }]).then(resolve, reject),
+        }),
+      }),
+    }),
     insert: () => ({
       values: (data: unknown) => {
         m.insert(data);
