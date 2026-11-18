@@ -220,6 +220,14 @@
             "type": "string",
             "description": "One of: no-priority, low, medium, high, urgent."
           },
+          "type": {
+            "type": "string",
+            "enum": [
+              "task",
+              "bug"
+            ],
+            "description": "The task's classification, chosen at creation."
+          },
           "startDate": {
             "type": [
               "string",
@@ -322,6 +330,7 @@
           "description",
           "status",
           "priority",
+          "type",
           "startDate",
           "dueDate",
           "recurrence",
@@ -1310,6 +1319,14 @@
             "type": "string",
             "description": "One of: no-priority, low, medium, high, urgent."
           },
+          "type": {
+            "type": "string",
+            "enum": [
+              "task",
+              "bug"
+            ],
+            "description": "The task's classification, chosen at creation. Every stored task has a value; existing rows default to task."
+          },
           "startDate": {
             "type": [
               "string",
@@ -1367,6 +1384,7 @@
           "description",
           "status",
           "priority",
+          "type",
           "startDate",
           "dueDate",
           "createdAt"
@@ -12841,6 +12859,14 @@
                       "high",
                       "urgent"
                     ]
+                  },
+                  "type": {
+                    "type": "string",
+                    "enum": [
+                      "task",
+                      "bug"
+                    ],
+                    "description": "Classification shown as a badge in the UI. Optional on create; stored tasks always have a value, defaulting to task. Placement is unaffected: the task goes to the supplied status column either way."
                   },
                   "status": {
                     "type": "string",
