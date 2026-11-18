@@ -38,8 +38,9 @@ describe("github and gitea import permissions", () => {
       const { project } = await createProjectFixture({
         workspaceId: member.workspace.id,
       });
-      // The github import route is keyed by integration id (RFC 0001 WP2);
-      // gitea keeps the project-keyed body until WP3.
+      // The import routes are keyed by integration id (RFC 0001 WP2/WP3):
+      // one project can hold several bindings now, so the permission check
+      // targets the binding being imported, reached by its id.
       const [integration] = await db
         .insert(schema.integrationTable)
         .values({
@@ -72,11 +73,7 @@ describe("github and gitea import permissions", () => {
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(
-            type === "github"
-              ? { integrationId: integration!.id }
-              : { projectId: project.id },
-          ),
+          body: JSON.stringify({ integrationId: integration!.id }),
         },
       );
       expect(response.status).toBe(403);
@@ -93,22 +90,26 @@ describe("github and gitea import permissions", () => {
     const { project } = await createProjectFixture({
       workspaceId: member.workspace.id,
     });
-    await db.insert(schema.integrationTable).values({
-      projectId: project.id,
-      type: "gitea",
-      config: JSON.stringify({
-        baseUrl: "https://gitea.example",
-        accessToken: "fake-test-token",
-        repositoryOwner: "owner",
-        repositoryName: "repo",
-      }),
-    });
+    const [giteaIntegration] = await db
+      .insert(schema.integrationTable)
+      .values({
+        projectId: project.id,
+        type: "gitea",
+        isActive: true,
+        config: JSON.stringify({
+          baseUrl: "https://gitea.example",
+          accessToken: "fake-test-token",
+          repositoryOwner: "owner",
+          repositoryName: "repo",
+        }),
+      })
+      .returning();
     mockAuthenticatedSession(member.user);
     const { app } = createApp();
     const response = await app.request("/api/gitea-integration/import-issues", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ projectId: project.id }),
+      body: JSON.stringify({ integrationId: giteaIntegration!.id }),
     });
     expect(response.status).toBe(200);
     expect(provider.listIssues).toHaveBeenCalled();
