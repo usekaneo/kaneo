@@ -38,10 +38,12 @@ describe("nextSprintName", () => {
   });
 
   it("skips names that are already taken, including by closed sprints", () => {
-    expect(nextSprintName(["Sprint 2", "Sprint 3"])).toBe("Sprint 4");
-    expect(nextSprintName(["Sprint 1", "Sprint 2", "Sprint 4"])).toBe(
-      "Sprint 5",
+    expect(nextSprintName(["Sprint 1", "Sprint 2", "Sprint 3"])).toBe(
+      "Sprint 4",
     );
+    expect(
+      nextSprintName(["Sprint 1", "Sprint 2", "Growth sprint", "Sprint 3"]),
+    ).toBe("Sprint 4");
   });
 
   it("ignores renamed sprints that no longer block a number", () => {

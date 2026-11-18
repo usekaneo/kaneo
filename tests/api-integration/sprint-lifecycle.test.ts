@@ -163,7 +163,7 @@ describe("API integration: sprint lifecycle", () => {
   it("requires project:update to manage sprints, keeping members read-only", async () => {
     const { member, project, app } = await sprintSetup();
 
-    mockAuthenticatedSession(member);
+    mockAuthenticatedSession(member.user);
     const denied = await sprintJson(app, `/${project.id}`, "POST", {});
     expect(denied.status).toBe(403);
     expect(await readErrorBody(denied)).toEqual({
@@ -236,10 +236,10 @@ describe("API integration: sprint lifecycle", () => {
     const first = await createSprintViaApi(app, project.id, { name: "Alpha" });
     expect(first.response.status).toBe(200);
 
-    const duplicate = await createSprintViaApi(app, project.id, {
+    const duplicate = await sprintJson(app, `/${project.id}`, "POST", {
       name: "Alpha",
     });
-    expect(duplicate.response.status).toBe(409);
+    expect(duplicate.status).toBe(409);
     expect(await readErrorBody(duplicate)).toMatchObject({
       message: 'Sprint "Alpha" already exists in this project',
       code: "CONFLICT",
@@ -276,9 +276,9 @@ describe("API integration: sprint lifecycle", () => {
       name: "Sprint 2",
     });
 
-    const secondStart = await startSprintViaApi(app, second.id);
-    expect(secondStart.response.status).toBe(409);
-    expect(await readErrorBody(secondStart.response)).toMatchObject({
+    const secondStart = await sprintJson(app, `/start/${second.id}`, "POST");
+    expect(secondStart.status).toBe(409);
+    expect(await readErrorBody(secondStart)).toMatchObject({
       message:
         'Sprint "Sprint 1" is already active. Close it before starting another sprint.',
       code: "CONFLICT",
@@ -290,9 +290,9 @@ describe("API integration: sprint lifecycle", () => {
     });
     expect(closed.status).toBe(200);
 
-    const restart = await startSprintViaApi(app, active.id);
-    expect(restart.response.status).toBe(409);
-    expect(await readErrorBody(restart.response)).toMatchObject({
+    const restart = await sprintJson(app, `/start/${active.id}`, "POST");
+    expect(restart.status).toBe(409);
+    expect(await readErrorBody(restart)).toMatchObject({
       message: "Closed sprints cannot be restarted",
       code: "CONFLICT",
     });
@@ -410,7 +410,7 @@ describe("API integration: sprint lifecycle", () => {
       number: 1,
     });
 
-    mockAuthenticatedSession(member);
+    mockAuthenticatedSession(member.user);
     const assign = await sprintJson(app, `/task/${task.id}`, "PUT", {
       sprintId: future.id,
     });
@@ -444,7 +444,7 @@ describe("API integration: sprint lifecycle", () => {
       number: 2,
     });
 
-    mockAuthenticatedSession(member);
+    mockAuthenticatedSession(member.user);
     const intoClosed = await sprintJson(app, `/task/${task.id}`, "PUT", {
       sprintId: active.id,
     });
@@ -471,7 +471,7 @@ describe("API integration: sprint lifecycle", () => {
     });
     const { sprint: foreign } = await createSprintViaApi(app, otherProject.id);
 
-    mockAuthenticatedSession(member);
+    mockAuthenticatedSession(member.user);
     const foreignTarget = await sprintJson(app, `/task/${task.id}`, "PUT", {
       sprintId: foreign.id,
     });
