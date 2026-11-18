@@ -150,7 +150,6 @@ export async function handleGitlabMergeRequestClosed(
           config.statusTransitions?.onPRMerge || "done",
           database,
           integration,
-          integration,
         );
 
         const statusResult = await updateTaskStatus(
