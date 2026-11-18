@@ -17,6 +17,7 @@ import {
 import { findExternalLinksByTask, updateExternalLink } from "./link-manager";
 import { isTaskInFinalState } from "./task-service";
 import { isStateSyncPaused } from "../../sync/state-sync-paused";
+import { reconcileIssueState } from "./reconcile-issue-state";
 
 // Provider requests may complete out of order across API instances. Every late
 // completion repairs the provider using the current, still-linked task value.
@@ -85,6 +86,24 @@ export async function syncLatestTaskValue(
     const binding = await currentBinding();
     if (!binding) return;
     if (await statePaused()) return true;
+    // Re-closing an already closed GitHub issue resets "not planned" to
+    // "completed". On a retry, the binding is checked per bound integration:
+    // if the provider already carries the desired state, update the displayed
+    // state under the sync locks instead of dispatching another close.
+    if (
+      attempts > 0 &&
+      field === "state" &&
+      readCurrent &&
+      (await readCurrent().catch(() => undefined)) === value
+    ) {
+      if (!binding.integration) return;
+      return reconcileIssueState(
+        { id: link.id, taskId },
+        binding.integration,
+        value,
+        identity,
+      );
+    }
     identity ??= binding.integration
       ? { type: binding.integration.type, config: binding.integration.config }
       : undefined;
