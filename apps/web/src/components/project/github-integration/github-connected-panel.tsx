@@ -10,7 +10,10 @@ import { IntegrationPanelFooter } from "@/components/project/integrations/panel/
 import { SyncRulesSection } from "@/components/project/sync-rules/sync-rules-section";
 import type { GitHubAppInfo } from "@/fetchers/github-integration/get-app-info";
 import type { GithubIntegration } from "@/fetchers/github-integration/get-github-integrations";
-import { useDeleteGithubIntegration } from "@/hooks/mutations/github-integration/use-create-github-integration";
+import {
+  useCreateGithubIntegration,
+  useDeleteGithubIntegration,
+} from "@/hooks/mutations/github-integration/use-create-github-integration";
 import { useUpdateGithubIntegration } from "@/hooks/mutations/github-integration/use-update-github-integration";
 import { toast } from "@/lib/toast";
 
@@ -36,16 +39,32 @@ export function GithubConnectedPanel({
   );
   const { mutateAsync: update, isPending: isReconnecting } =
     useUpdateGithubIntegration();
+  const { mutateAsync: create, isPending: isVerifying } =
+    useCreateGithubIntegration();
   const { mutateAsync: remove, isPending: isDeleting } =
     useDeleteGithubIntegration();
 
   const reconnect = async () => {
     try {
-      await update({
-        projectId,
-        integrationId: integration.id,
-        json: { isActive: true },
-      });
+      if (integration.requiresVerification) {
+        // Legacy rows cannot be verified by reactivation alone: rerun the
+        // create flow, whose repository verification reconciles the
+        // existing binding in place (merging the verified config and
+        // re-keying it onto the numeric repository id).
+        await create({
+          projectId,
+          data: {
+            repositoryOwner: repository.owner,
+            repositoryName: repository.name,
+          },
+        });
+      } else {
+        await update({
+          projectId,
+          integrationId: integration.id,
+          json: { isActive: true },
+        });
+      }
       toast.success(t("settings:githubIntegration.toast.updated"));
     } catch (error) {
       toast.error(
@@ -81,7 +100,7 @@ export function GithubConnectedPanel({
         integration={integration}
         appInfo={appInfo}
         verification={verification.result}
-        reconnecting={isReconnecting}
+        reconnecting={isReconnecting || isVerifying}
         onReconnect={() => void reconnect()}
       />
       <GithubIssuesSection projectId={projectId} integration={integration} />
@@ -97,7 +116,7 @@ export function GithubConnectedPanel({
         <DisconnectIntegrationButton
           provider="GitHub"
           target={`${repository.owner}/${repository.name}`}
-          pending={isDeleting || isReconnecting}
+          pending={isDeleting || isReconnecting || isVerifying}
           onConfirm={disconnect}
         />
       </IntegrationPanelFooter>

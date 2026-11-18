@@ -2,6 +2,9 @@ import { beforeEach, describe, expect, it, vi } from "vite-plus/test";
 
 const m = vi.hoisted(() => ({
   account: vi.fn(),
+  integrationFindFirst: vi.fn(),
+  updateReturn: vi.fn(),
+  updateSet: vi.fn(),
   integrations: vi.fn(),
   installation: vi.fn(),
   user: vi.fn(),
@@ -18,7 +21,7 @@ vi.mock("../../../apps/api/src/database", () => ({
       accountTable: { findFirst: m.account },
       projectTable: { findFirst: async () => ({ id: "project" }) },
       integrationTable: {
-        findFirst: async () => null,
+        findFirst: m.integrationFindFirst,
         findMany: m.integrations,
       },
     },
@@ -26,6 +29,14 @@ vi.mock("../../../apps/api/src/database", () => ({
       values: (data: unknown) => {
         m.insert(data);
         return { returning: m.insertReturning };
+      },
+    }),
+    update: () => ({
+      set: (data: unknown) => {
+        m.updateSet(data);
+        return {
+          where: () => ({ returning: m.updateReturn }),
+        };
       },
     }),
   },
@@ -62,6 +73,9 @@ const { default: createIntegration } =
   await import("../../../apps/api/src/github-integration/controllers/create-github-integration");
 const { findAllIntegrationsByRepo } =
   await import("../../../apps/api/src/plugins/github/services/task-service");
+const { assertRepositoryBindingQuota } = await import(
+  "../../../apps/api/src/plan-limits/repository-binding-quota"
+);
 const binding = {
   repositoryOwner: "Victim",
   repositoryName: "Private",
@@ -73,6 +87,8 @@ const binding = {
 
 beforeEach(() => {
   vi.clearAllMocks();
+  m.integrationFindFirst.mockResolvedValue(null);
+  m.updateReturn.mockResolvedValue([]);
   m.account.mockResolvedValue({ accountId: "30" });
   m.installation.mockResolvedValue({ data: { id: 10 } });
   m.user.mockResolvedValue({ data: { id: 30, login: "verified-login" } });
@@ -202,6 +218,114 @@ describe("GitHub repository linking", () => {
       (rejected) => rejected,
     );
     expect(error).toBe(otherConstraint);
+  });
+
+  it("relinks a legacy migration row by reconciling it in place", async () => {
+    m.integrationFindFirst.mockResolvedValue({
+      id: "legacy",
+      projectId: "project",
+      type: "github",
+      config: JSON.stringify({
+        repositoryOwner: "Victim",
+        repositoryName: "Private",
+        installationId: null,
+        branchPattern: "issue-{number}",
+      }),
+      // Startup-migration key: `github:<owner>/<name>` lowercased.
+      repositoryKey: "github:victim/private",
+      isActive: false,
+    });
+    m.updateReturn.mockResolvedValue([
+      {
+        id: "legacy",
+        projectId: "project",
+        isActive: true,
+        createdAt: new Date("2026-01-01T00:00:00Z"),
+        updatedAt: new Date("2026-01-02T00:00:00Z"),
+      },
+    ]);
+
+    const result = await createIntegration({
+      userId: "user",
+      projectId: "project",
+      repositoryOwner: "victim",
+      repositoryName: "private",
+    });
+
+    expect(result).toMatchObject({
+      id: "legacy",
+      requiresVerification: false,
+      isActive: true,
+    });
+    expect(m.insert).not.toHaveBeenCalled();
+    expect(m.updateSet).toHaveBeenCalledTimes(1);
+    const set = m.updateSet.mock.calls[0][0] as Record<string, unknown>;
+    expect(set).toMatchObject({
+      repositoryKey: "github:20",
+      repositoryOwner: "Victim",
+      repositoryName: "Private",
+      repositoryId: 20,
+      isActive: true,
+    });
+    expect(JSON.parse(set.config as string)).toMatchObject({
+      ...binding,
+      branchPattern: "issue-{number}",
+    });
+    // Reactivating the deactivated legacy row re-enters the quota count.
+    expect(assertRepositoryBindingQuota).toHaveBeenCalledTimes(1);
+  });
+
+  it("relinks an already-verified binding without a new row or quota check", async () => {
+    m.integrationFindFirst.mockResolvedValue({
+      id: "verified",
+      projectId: "project",
+      type: "github",
+      config: JSON.stringify(binding),
+      repositoryKey: "github:20",
+      isActive: true,
+    });
+    m.updateReturn.mockResolvedValue([
+      {
+        id: "verified",
+        projectId: "project",
+        isActive: true,
+        createdAt: new Date("2026-01-01T00:00:00Z"),
+        updatedAt: new Date("2026-01-02T00:00:00Z"),
+      },
+    ]);
+
+    const result = await createIntegration({
+      userId: "user",
+      projectId: "project",
+      repositoryOwner: "victim",
+      repositoryName: "private",
+    });
+
+    expect(result).toMatchObject({ id: "verified", isActive: true });
+    expect(m.insert).not.toHaveBeenCalled();
+    expect(assertRepositoryBindingQuota).not.toHaveBeenCalled();
+  });
+
+  it("reports a row that changed mid-relink as 409", async () => {
+    m.integrationFindFirst.mockResolvedValue({
+      id: "legacy",
+      projectId: "project",
+      type: "github",
+      config: JSON.stringify(binding),
+      repositoryKey: "github:victim/private",
+      isActive: false,
+    });
+    // Optimistic guard: the row changed between read and write.
+    m.updateReturn.mockResolvedValue([]);
+
+    await expect(
+      createIntegration({
+        userId: "user",
+        projectId: "project",
+        repositoryOwner: "victim",
+        repositoryName: "private",
+      }),
+    ).rejects.toMatchObject({ status: 409 });
   });
 });
 

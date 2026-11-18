@@ -82,6 +82,11 @@ export async function migrateGitHubIntegration() {
         continue;
       }
 
+      // Legacy pre-re-keying key (`github:<owner>/<name>` lowercased):
+      // re-linking this repository later reconciles the row in place onto
+      // the numeric `github:<repositoryId>` key during verification in
+      // createGithubIntegration, preserving its id, settings, and issue
+      // links. No second row is inserted for the same repository.
       await db.insert(integrationTable).values({
         projectId: old.projectId,
         type: "github",

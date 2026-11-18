@@ -1,15 +1,10 @@
 import { and, eq, inArray } from "drizzle-orm";
 import db from "../../database";
 import { integrationTable } from "../../database/schema";
-import { githubRepositoryKey } from "./create-github-integration";
-
-/** Legacy pre-re-keying key form: `github:<owner>/<name>` lowercased. */
-function legacyGithubRepositoryKey(
-  ownerLogin: string,
-  repositoryName: string,
-): string {
-  return `github:${ownerLogin}/${repositoryName}`.toLowerCase();
-}
+import {
+  githubRepositoryKey,
+  legacyGithubRepositoryKey,
+} from "./create-github-integration";
 
 // RFC 0001 WP2: annotate each listed repository with its linked state using
 // a single query on repository_key (numeric keys for verified bindings plus
