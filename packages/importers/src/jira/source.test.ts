@@ -568,6 +568,7 @@ describe("readProject on Jira Cloud", () => {
     expect(project.warnings).toEqual([
       "1 issue has attachments, which are not imported.",
       "1 parent or issue link points to another project, so it was not imported.",
+      "Jira did not share the sprints for this project, so they were not imported.",
     ]);
   });
 
