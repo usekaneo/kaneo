@@ -104,6 +104,16 @@ it.each(
             incoming: { mode: "all" },
           },
         }),
+        // GitHub webhook resolution matches rows by the numeric repository
+        // key, so the fixture carries the repository identity columns.
+        ...(type === "github"
+          ? {
+              repositoryKey: "github:1",
+              repositoryOwner: "team",
+              repositoryName: "repo",
+              repositoryId: 1,
+            }
+          : {}),
       })
       .returning();
     const removeQualifyingLabel = async () => {
