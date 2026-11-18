@@ -4,7 +4,6 @@ import { writeImportSprints } from "./write-import-sprints";
 
 type Transaction = Parameters<typeof writeImportSprints>[0];
 
-
 type SprintRow = {
   id: string;
   name: string;

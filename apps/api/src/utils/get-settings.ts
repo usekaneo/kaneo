@@ -17,7 +17,6 @@ import { isCloud } from "./is-cloud";
 
 config();
 
-
 function getSettings(
   instance: InstanceSettings = resolveInstanceSettings(
     DEFAULT_STORED_SETTINGS,
