@@ -75,6 +75,16 @@ it.each(
             : {}),
           statusTransitions: { onBranchPush: "in-progress" },
         }),
+        // GitHub webhook resolution matches rows by the numeric repository
+        // key, so the fixture carries the repository identity columns.
+        ...(provider === "github"
+          ? {
+              repositoryKey: "github:20",
+              repositoryOwner: "owner",
+              repositoryName: "repo",
+              repositoryId: 20,
+            }
+          : {}),
       })
       .returning();
     if (race === "paused")
