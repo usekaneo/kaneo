@@ -156,6 +156,10 @@ export const taskTableRelations = relations(taskTable, ({ one, many }) => ({
     fields: [taskTable.columnId],
     references: [columnTable.id],
   }),
+  sprint: one(sprintTable, {
+    fields: [taskTable.sprintId],
+    references: [sprintTable.id],
+  }),
   timeEntries: many(timeEntryTable),
   activities: many(activityTable),
   comments: many(commentTable),

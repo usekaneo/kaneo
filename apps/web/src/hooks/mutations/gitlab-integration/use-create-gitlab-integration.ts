@@ -31,7 +31,6 @@ export function useDeleteGitlabIntegration() {
 
   return useMutation({
     mutationFn: ({
-      projectId,
       integrationId,
     }: {
       projectId: string;

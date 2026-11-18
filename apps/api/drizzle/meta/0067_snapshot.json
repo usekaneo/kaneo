@@ -2971,13 +2971,6 @@
           "notNull": false,
           "default": false
         },
-        "include_subtasks": {
-          "name": "include_subtasks",
-          "type": "boolean",
-          "primaryKey": false,
-          "notNull": true,
-          "default": true
-        },
         "archived_at": {
           "name": "archived_at",
           "type": "timestamp",

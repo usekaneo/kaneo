@@ -31,7 +31,6 @@ export function useDeleteGiteaIntegration() {
 
   return useMutation({
     mutationFn: ({
-      projectId,
       integrationId,
     }: {
       projectId: string;

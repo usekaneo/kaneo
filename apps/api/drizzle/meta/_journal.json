@@ -516,8 +516,22 @@
     {
       "idx": 73,
       "version": "7",
-      "when": 1793798733016,
-      "tag": "0073_thick_talisman",
+      "when": 1793132500000,
+      "tag": "0073_sprint_planning",
+      "breakpoints": true
+    },
+    {
+      "idx": 74,
+      "version": "7",
+      "when": 1793132600000,
+      "tag": "0074_sprint_carry_over",
+      "breakpoints": true
+    },
+    {
+      "idx": 75,
+      "version": "7",
+      "when": 1793132700000,
+      "tag": "0075_multi_repo_integrations",
       "breakpoints": true
     }
   ]

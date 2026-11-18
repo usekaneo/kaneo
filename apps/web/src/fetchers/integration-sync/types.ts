@@ -1,6 +1,5 @@
 import { client } from "@kaneo/libs";
 import type { InferRequestType, InferResponseType } from "hono";
-import { HttpError } from "@/lib/http-error";
 
 type CompatSyncRoute =
   (typeof client)["integration-sync"]["project"][":projectId"][":provider"];

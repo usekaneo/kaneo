@@ -223,9 +223,6 @@ const createIntegrationRoute = createRoute({
     403: errorResponse(
       "No access to the project, or missing workspace:manage_settings",
     ),
-    409: errorResponse(
-      "That GitLab project is already linked to another Kaneo project",
-    ),
     404: errorResponse("Project not found"),
   },
 });
@@ -257,7 +254,6 @@ const updateIntegrationRoute = createRoute({
       "No access to the project, or missing workspace:manage_settings",
     ),
     404: errorResponse("Project or integration not found"),
-    409: errorResponse("Integration changed; refresh before updating settings"),
   },
 });
 

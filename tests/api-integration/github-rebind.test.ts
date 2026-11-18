@@ -147,7 +147,7 @@ describe("GitHub repository changes preserve link ownership", () => {
     expect(await db.query.externalLinkTable.findFirst()).toBeDefined();
   });
   it("permits switching after disconnect without reusing old links or import cursors", async () => {
-    const { project, config, integration, task, connect } = await setup();
+    const { config, integration, task, connect } = await setup();
     await deleteIntegration(integration.id);
     verify.mockResolvedValue({
       ...config,
@@ -163,7 +163,7 @@ describe("GitHub repository changes preserve link ownership", () => {
   it.each(["reconnect", "settings"])(
     "rejects a concurrent repository change during %s instead of overwriting the new binding",
     async (operation) => {
-      const { project, config, integration, connect, app } = await setup();
+      const { config, integration, connect, app } = await setup();
       const nextConfig = JSON.stringify({
         ...config,
         repositoryId: 99,

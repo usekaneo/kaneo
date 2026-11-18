@@ -8,7 +8,6 @@ export function useUpdateGiteaIntegration() {
 
   return useMutation({
     mutationFn: ({
-      projectId,
       integrationId,
       json,
     }: {

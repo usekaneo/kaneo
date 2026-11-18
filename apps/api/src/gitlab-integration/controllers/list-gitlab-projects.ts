@@ -1,5 +1,4 @@
 import { and, eq, inArray } from "drizzle-orm";
-import { HTTPException } from "hono/http-exception";
 import db from "../../database";
 import { integrationTable, projectTable } from "../../database/schema";
 import { ApiError } from "../../errors/api-error";

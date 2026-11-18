@@ -8,7 +8,6 @@ export function useUpdateGithubIntegration() {
 
   return useMutation({
     mutationFn: ({
-      projectId,
       integrationId,
       json,
     }: {

@@ -31,7 +31,6 @@ export function useDeleteGithubIntegration() {
 
   return useMutation({
     mutationFn: ({
-      projectId,
       integrationId,
     }: {
       projectId: string;
