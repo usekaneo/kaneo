@@ -30,6 +30,8 @@ vi.mock("../../../../apps/api/src/database", () => ({
       integrationTable: {
         findFirst: async () => ({
           id: "integration-1",
+          type: "gitea",
+          projectId: "project-1",
           isActive: true,
           config: JSON.stringify(config),
         }),
@@ -137,7 +139,10 @@ describe("Gitea comment sync", () => {
       );
       mocks.values.mockClear();
       mocks.listIssueComments.mockResolvedValue([comment(body)]);
-      await importGiteaIssues("project-1");
+      await importGiteaIssues({
+        integrationId: "integration-1",
+        projectId: "project-1",
+      });
       expect(mocks.values).toHaveBeenCalledWith(
         expect.objectContaining({ content: body }),
       );
@@ -161,7 +166,10 @@ describe("Gitea comment sync", () => {
       comment(`${body}\nAn edit appended in Gitea`),
       comment("Native comment", 2),
     ]);
-    const result = await importGiteaIssues("project-1");
+    const result = await importGiteaIssues({
+      integrationId: "integration-1",
+      projectId: "project-1",
+    });
     expect(result.errors).toBeUndefined();
     expect(result.updated).toBe(1);
     expect(mocks.values).toHaveBeenCalledTimes(1);
