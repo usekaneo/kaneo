@@ -77,10 +77,7 @@ async function getGitlabIntegrationById(
   integrationId: string,
   includeSecrets = false,
 ) {
-  const integration = await findIntegrationByIdAndType(
-    integrationId,
-    "gitlab",
-  );
+  const integration = await findIntegrationByIdAndType(integrationId, "gitlab");
   if (!integration) {
     return null;
   }

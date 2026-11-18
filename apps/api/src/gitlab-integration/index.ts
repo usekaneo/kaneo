@@ -372,10 +372,7 @@ const gitlabIntegration = apiRouter<BaseVariables & { workspaceId: string }>()
     const { integrationId } = c.req.valid("param");
     const body = c.req.valid("json");
 
-    const row = await findIntegrationByIdAndType(
-      integrationId,
-      "gitlab",
-    );
+    const row = await findIntegrationByIdAndType(integrationId, "gitlab");
 
     if (!row) {
       throw new HTTPException(404, { message: "Integration not found" });

@@ -106,7 +106,10 @@ describe("importGitlabIssues labels on an already linked task", () => {
       linkedIssue(["bug", "priority:high"]),
     ]);
 
-    await importGitlabIssues({ integrationId: "integration-1", projectId: "project-1" });
+    await importGitlabIssues({
+      integrationId: "integration-1",
+      projectId: "project-1",
+    });
 
     expect(mocks.deleteLabels).not.toHaveBeenCalled();
     expect(mocks.insertValues).toHaveBeenCalledWith(

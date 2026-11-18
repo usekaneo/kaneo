@@ -1,7 +1,14 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { cleanup, renderHook } from "@testing-library/react";
 import type { PropsWithChildren } from "react";
-import { afterEach, beforeEach, describe, expect, it, vi } from "vite-plus/test";
+import {
+  afterEach,
+  beforeEach,
+  describe,
+  expect,
+  it,
+  vi,
+} from "vite-plus/test";
 import deleteDiscordIntegration from "@/fetchers/discord-integration/delete-discord-integration";
 import deleteGenericWebhookIntegration from "@/fetchers/generic-webhook-integration/delete-generic-webhook-integration";
 import deleteGiteaIntegration from "@/fetchers/gitea-integration/delete-gitea-integration";
@@ -43,9 +50,12 @@ vi.mock("@/fetchers/slack-integration/delete-slack-integration", () => ({
 vi.mock("@/fetchers/discord-integration/delete-discord-integration", () => ({
   default: vi.fn(),
 }));
-vi.mock("@/fetchers/mattermost-integration/delete-mattermost-integration", () => ({
-  default: vi.fn(),
-}));
+vi.mock(
+  "@/fetchers/mattermost-integration/delete-mattermost-integration",
+  () => ({
+    default: vi.fn(),
+  }),
+);
 vi.mock("@/fetchers/telegram-integration/delete-telegram-integration", () => ({
   default: vi.fn(),
 }));
@@ -74,13 +84,19 @@ afterEach(() => {
 });
 
 describe("useDisconnectIntegration", () => {
-  it.each(
-    [
-      { id: "github", list: getGithubIntegrations, remove: deleteGithubIntegration },
-      { id: "gitea", list: getGiteaIntegrations, remove: deleteGiteaIntegration },
-      { id: "gitlab", list: getGitlabIntegrations, remove: deleteGitlabIntegration },
-    ] as const,
-  )(
+  it.each([
+    {
+      id: "github",
+      list: getGithubIntegrations,
+      remove: deleteGithubIntegration,
+    },
+    { id: "gitea", list: getGiteaIntegrations, remove: deleteGiteaIntegration },
+    {
+      id: "gitlab",
+      list: getGitlabIntegrations,
+      remove: deleteGitlabIntegration,
+    },
+  ] as const)(
     "$id resolves the project's bindings and deletes each by id",
     async ({ id, list, remove }) => {
       const invalidate = vi.spyOn(queryClient, "invalidateQueries");
@@ -114,16 +130,19 @@ describe("useDisconnectIntegration", () => {
     { id: "mattermost", remove: deleteMattermostIntegration },
     { id: "telegram", remove: deleteTelegramIntegration },
     { id: "webhook", remove: deleteGenericWebhookIntegration },
-  ] as const)("$id keeps passing the projectId through", async ({ id, remove }) => {
-    const mockedRemove = vi.mocked(remove);
-    mockedRemove.mockResolvedValue({ success: true } as never);
+  ] as const)(
+    "$id keeps passing the projectId through",
+    async ({ id, remove }) => {
+      const mockedRemove = vi.mocked(remove);
+      mockedRemove.mockResolvedValue({ success: true } as never);
 
-    const { result } = renderHook(() => useDisconnectIntegration(id), {
-      wrapper: Wrapper,
-    });
-    await result.current.mutateAsync("p1");
+      const { result } = renderHook(() => useDisconnectIntegration(id), {
+        wrapper: Wrapper,
+      });
+      await result.current.mutateAsync("p1");
 
-    expect(mockedRemove).toHaveBeenCalledWith("p1");
-    expect(mockedRemove).toHaveBeenCalledTimes(1);
-  });
+      expect(mockedRemove).toHaveBeenCalledWith("p1");
+      expect(mockedRemove).toHaveBeenCalledTimes(1);
+    },
+  );
 });

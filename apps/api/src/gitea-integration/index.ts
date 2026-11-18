@@ -369,10 +369,7 @@ const giteaIntegration = apiRouter<BaseVariables & { workspaceId: string }>()
     const { integrationId } = c.req.valid("param");
     const body = c.req.valid("json");
 
-    const row = await findIntegrationByIdAndType(
-      integrationId,
-      "gitea",
-    );
+    const row = await findIntegrationByIdAndType(integrationId, "gitea");
 
     if (!row) {
       throw new HTTPException(404, { message: "Integration not found" });

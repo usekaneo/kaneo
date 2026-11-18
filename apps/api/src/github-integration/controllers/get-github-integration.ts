@@ -74,10 +74,7 @@ async function listGithubIntegrations(projectId: string) {
 
 /** Single lookup by primary key (id-keyed routes). */
 async function getGithubIntegrationById(integrationId: string) {
-  const integration = await findIntegrationByIdAndType(
-    integrationId,
-    "github",
-  );
+  const integration = await findIntegrationByIdAndType(integrationId, "github");
   if (!integration) {
     return null;
   }

@@ -102,9 +102,7 @@ const { default: createIntegration } =
 const { findAllIntegrationsByRepo } =
   await import("../../../apps/api/src/plugins/github/services/task-service");
 const { assertRepositoryBindingQuota, withRepositoryBindingQuotaLock } =
-  await import(
-    "../../../apps/api/src/plan-limits/repository-binding-quota"
-  );
+  await import("../../../apps/api/src/plan-limits/repository-binding-quota");
 const binding = {
   repositoryOwner: "Victim",
   repositoryName: "Private",

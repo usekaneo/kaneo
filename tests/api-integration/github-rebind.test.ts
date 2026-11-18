@@ -121,9 +121,9 @@ describe("GitHub repository changes preserve link ownership", () => {
       ]),
     );
     expect(await db.query.externalLinkTable.findFirst()).toMatchObject(link);
-    expect(
-      await db.query.githubImportTable.findFirst(),
-    ).toMatchObject({ integrationId: integration.id });
+    expect(await db.query.githubImportTable.findFirst()).toMatchObject({
+      integrationId: integration.id,
+    });
   });
   it("preserves links, pending imports and settings when the same repository is renamed or reinstalled", async () => {
     const { config, integration, link, connect } = await setup();
@@ -195,9 +195,9 @@ describe("GitHub repository changes preserve link ownership", () => {
       integrationId: integration.id,
       taskId: task.id,
     });
-    expect(
-      await db.query.githubImportTable.findFirst(),
-    ).toMatchObject({ integrationId: integration.id });
+    expect(await db.query.githubImportTable.findFirst()).toMatchObject({
+      integrationId: integration.id,
+    });
   });
   it("heals a legacy row with an unparseable config when its repository is relinked", async () => {
     const { integration, connect } = await setup();
@@ -217,9 +217,11 @@ describe("GitHub repository changes preserve link ownership", () => {
     expect(await connect()).toMatchObject({ id: integration.id });
     expect(
       JSON.parse(
-        (await db.query.integrationTable.findFirst({
-          where: eq(schema.integrationTable.id, integration.id),
-        }))?.config ?? "{}",
+        (
+          await db.query.integrationTable.findFirst({
+            where: eq(schema.integrationTable.id, integration.id),
+          })
+        )?.config ?? "{}",
       ),
     ).toMatchObject({ repositoryOwner: "owner", repositoryId: 2 });
     expect(await db.query.externalLinkTable.findFirst()).toBeDefined();
@@ -269,21 +271,19 @@ describe("GitHub repository changes preserve link ownership", () => {
         // reconcile lookup so the row changes on another connection
         // between the read and the guarded write; READ COMMITTED then
         // lets the guarded update see the new config and match zero rows.
-        transactionSpy.mockImplementation(
-          (async (fn) => {
-            return runOriginalTransaction(async (tx) => {
-              const original = tx.query.integrationTable.findFirst.bind(
-                tx.query.integrationTable,
-              );
-              tx.query.integrationTable.findFirst = async (...args) => {
-                const row = await original(...args);
-                if (row) await changeRowConcurrently();
-                return row;
-              };
-              return fn(tx);
-            });
-          }) as typeof db.transaction,
-        );
+        transactionSpy.mockImplementation((async (fn) => {
+          return runOriginalTransaction(async (tx) => {
+            const original = tx.query.integrationTable.findFirst.bind(
+              tx.query.integrationTable,
+            );
+            tx.query.integrationTable.findFirst = async (...args) => {
+              const row = await original(...args);
+              if (row) await changeRowConcurrently();
+              return row;
+            };
+            return fn(tx);
+          });
+        }) as typeof db.transaction);
       }
 
       const find = db.query.integrationTable.findFirst.bind(

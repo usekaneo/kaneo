@@ -15,9 +15,8 @@ vi.mock("../../../apps/api/src/database", () => ({
   },
 }));
 
-const { withRepositoryBindingQuotaLock } = await import(
-  "../../../apps/api/src/plan-limits/repository-binding-quota"
-);
+const { withRepositoryBindingQuotaLock } =
+  await import("../../../apps/api/src/plan-limits/repository-binding-quota");
 
 const PROJECT = "project-1";
 

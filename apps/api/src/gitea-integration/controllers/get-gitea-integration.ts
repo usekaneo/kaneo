@@ -78,10 +78,7 @@ async function getGiteaIntegrationById(
   integrationId: string,
   includeWebhookSecret = false,
 ) {
-  const integration = await findIntegrationByIdAndType(
-    integrationId,
-    "gitea",
-  );
+  const integration = await findIntegrationByIdAndType(integrationId, "gitea");
   if (!integration) {
     return null;
   }

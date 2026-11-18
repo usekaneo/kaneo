@@ -98,8 +98,7 @@ function findReconcilableGiteaRow<T extends ReconcilableRow>(
       storedGiteaBaseUrl(stored.baseUrl) === baseUrl &&
       typeof stored.repositoryOwner === "string" &&
       typeof stored.repositoryName === "string" &&
-      stored.repositoryOwner.toLowerCase() ===
-        repositoryOwner.toLowerCase() &&
+      stored.repositoryOwner.toLowerCase() === repositoryOwner.toLowerCase() &&
       stored.repositoryName.toLowerCase() === repositoryName.toLowerCase()
     ) {
       return row;

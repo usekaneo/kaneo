@@ -25,7 +25,11 @@ type PostgresUniqueViolation = Error & {
  */
 function findPgError(error: unknown): PostgresUniqueViolation | null {
   let current: unknown = error;
-  for (let depth = 0; depth < 10 && typeof current === "object" && current !== null; depth += 1) {
+  for (
+    let depth = 0;
+    depth < 10 && typeof current === "object" && current !== null;
+    depth += 1
+  ) {
     const candidate = current as PostgresUniqueViolation;
     if (candidate.code === "23505") return candidate;
     current = (candidate as { cause?: unknown }).cause;

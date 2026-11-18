@@ -418,10 +418,7 @@ const githubIntegration = apiRouter<BaseVariables & { workspaceId: string }>()
     const { integrationId } = c.req.valid("param");
     const body = c.req.valid("json");
 
-    const row = await findIntegrationByIdAndType(
-      integrationId,
-      "github",
-    );
+    const row = await findIntegrationByIdAndType(integrationId, "github");
 
     if (!row) {
       throw new HTTPException(404, { message: "Integration not found" });
@@ -469,7 +466,9 @@ const githubIntegration = apiRouter<BaseVariables & { workspaceId: string }>()
           .set({
             config: JSON.stringify(config),
             isActive:
-              body.isActive !== undefined ? body.isActive : (row.isActive ?? true),
+              body.isActive !== undefined
+                ? body.isActive
+                : (row.isActive ?? true),
             updatedAt: new Date(),
           })
           .where(
