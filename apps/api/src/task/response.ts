@@ -1,5 +1,6 @@
 import { nullableResponseTimestamp, responseTimestamp, z } from "../openapi";
 import { taskRecurrenceSchema } from "./recurrence/schema";
+import { TASK_TYPES } from "./validate-task-fields";
 
 const priorityDescription = "One of: no-priority, low, medium, high, urgent.";
 
@@ -27,6 +28,10 @@ export const taskSchema = z
       description: "The slug of the column the task sits in.",
     }),
     priority: z.string().openapi({ description: priorityDescription }),
+    type: z.enum(TASK_TYPES).openapi({
+      description:
+        "The task's classification, chosen at creation. Every stored task has a value; existing rows default to task.",
+    }),
     startDate: nullableResponseTimestamp,
     dueDate: nullableResponseTimestamp,
     recurrence: z.union([taskRecurrenceSchema, z.null()]).optional(),
@@ -107,6 +112,9 @@ export const boardTaskSchema = z
     }),
     status: z.string(),
     priority: z.string().openapi({ description: priorityDescription }),
+    type: z.enum(TASK_TYPES).openapi({
+      description: "The task's classification, chosen at creation.",
+    }),
     startDate: nullableResponseTimestamp,
     dueDate: nullableResponseTimestamp,
     recurrence: z.union([taskRecurrenceSchema, z.null()]),

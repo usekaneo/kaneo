@@ -709,6 +709,7 @@ export const taskTable = pgTable(
       onUpdate: "cascade",
     }),
     priority: text("priority").default("low").notNull(),
+    type: text("type").default("task").notNull(),
     startDate: timestamp("start_date", { mode: "date" }),
     dueDate: timestamp("due_date", { mode: "date" }),
     recurrence: jsonb("recurrence").$type<TaskRecurrence>(),

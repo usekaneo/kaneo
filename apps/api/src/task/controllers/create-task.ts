@@ -58,6 +58,7 @@ async function createTask({
   userId,
   title,
   status,
+  type,
   startDate,
   dueDate,
   description,
@@ -71,6 +72,7 @@ async function createTask({
   userId?: string;
   title: string;
   status: string;
+  type?: string;
   startDate?: Date;
   dueDate?: Date;
   description?: string;
@@ -81,6 +83,7 @@ async function createTask({
 }) {
   const resolvedStatus = status || "to-do";
   const resolvedPriority = priority || "no-priority";
+  const resolvedType = type || "task";
   const normalizedCustomFields = deduplicateCustomFields(customFields);
 
   const normalizedUserId = userId?.trim() || undefined;
@@ -181,6 +184,7 @@ async function createTask({
         dueDate: dueDate || null,
         description: description || "",
         priority: resolvedPriority,
+        type: resolvedType,
         recurrence: recurrence ?? null,
         number: taskNumber,
         position: nextPosition,

@@ -389,6 +389,7 @@ async function duplicateTask({
           recurrence,
           description,
           priority: sourceTask.priority,
+          type: sourceTask.type,
           number: taskNumber,
           position: nextPosition,
         })

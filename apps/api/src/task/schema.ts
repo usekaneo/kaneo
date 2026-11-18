@@ -40,10 +40,12 @@ export const assignedTasksQuery = z.object({
 
 const priority = z.enum(VALID_PRIORITIES);
 
-const taskType = z.enum(TASK_TYPES).openapi({
-  description:
-    "Bugs default to the project's active sprint; every other type defaults to the backlog.",
-});
+const taskType = z
+  .enum(TASK_TYPES)
+  .openapi({
+    description:
+      "Classification shown as a badge in the UI. Optional on create; stored tasks always have a value, defaulting to task. Placement is unaffected: the task goes to the supplied status column either way.",
+  });
 
 // Required object of optional filters: a RouteParameter cannot itself be optional.
 export const listTasksQuery = z.object({
