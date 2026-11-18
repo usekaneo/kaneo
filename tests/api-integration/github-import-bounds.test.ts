@@ -165,7 +165,7 @@ describe("bounded resumable GitHub import", () => {
   it.each([false, true])(
     "fails closed for invalid stored rules (linked=%s)",
     async (linked) => {
-      const { integration, config, request } = await setup();
+      const { integration, project, config, request } = await setup();
       if (linked) {
         const [task] = await db
           .insert(schema.taskTable)
