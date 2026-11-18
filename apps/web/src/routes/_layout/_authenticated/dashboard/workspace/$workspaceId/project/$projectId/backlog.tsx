@@ -81,31 +81,39 @@ function RouteComponent() {
 
   const sortedProject = useMemo(() => {
     const filteredProject = filters.filteredProject;
-    if (!filteredProject || sort.field === "position") return filteredProject;
+    if (!filteredProject) return filteredProject;
+    // Tasks scheduled into a sprint are planned in the sprint sections of
+    // the sprint planning view, so the backlog list below only shows
+    // unscheduled tasks (the Jira model). The filter runs before the
+    // position-sort early return so it also applies to the default sort.
+    const backlogPlannedTasks = (filteredProject.plannedTasks || []).filter(
+      (task) => !task.sprintId,
+    );
+    if (sort.field === "position") {
+      return { ...filteredProject, plannedTasks: backlogPlannedTasks };
+    }
     return {
       ...filteredProject,
-      // Tasks scheduled into a sprint are planned in the sprint sections of
-      // the sprint planning view, so the backlog list below only shows
-      // unscheduled tasks (the Jira model).
-      plannedTasks: sortTasks(
-        (filteredProject.plannedTasks || []).filter((task) => !task.sprintId),
-        sort,
-      ),
+      plannedTasks: sortTasks(backlogPlannedTasks, sort),
       archivedTasks: sortTasks(filteredProject.archivedTasks || [], sort),
     };
   }, [filters.filteredProject, sort]);
 
+  // Bulk actions act on the same backlog-only task list the view renders.
+  const backlogPlannedTasks = useMemo(
+    () => (project?.plannedTasks || []).filter((task) => !task.sprintId),
+    [project],
+  );
+
   const handleMoveAllPlannedToTodo = () => {
     if (!project) return;
 
-    const plannedTasks = project.plannedTasks || [];
-
-    if (plannedTasks.length === 0) {
+    if (backlogPlannedTasks.length === 0) {
       toast.info(t("tasks:backlog.noTasksToMove"));
       return;
     }
 
-    setMoveAllCount(plannedTasks.length);
+    setMoveAllCount(backlogPlannedTasks.length);
     setIsMoveAllOpen(true);
   };
 
@@ -113,9 +121,7 @@ function RouteComponent() {
     setIsMoveAllOpen(false);
     if (!project) return;
 
-    const plannedTasks = project.plannedTasks || [];
-
-    for (const task of plannedTasks) {
+    for (const task of backlogPlannedTasks) {
       updateTask({
         ...task,
         status: "to-do",
@@ -124,22 +130,25 @@ function RouteComponent() {
 
     const updatedProject = produce(project, (draft) => {
       // "to-do" is a column slug, so it can only be matched against slug.
+      // Sprint-scheduled tasks stay planned: only unscheduled backlog
+      // tasks move to the to-do column.
       const todoColumn = draft.columns?.find((col) => col.slug === "to-do");
-      if (todoColumn && draft.plannedTasks) {
-        todoColumn.tasks.push(
-          ...draft.plannedTasks.map((task) => ({
-            ...task,
-            status: "to-do",
-          })),
-        );
+      if (!todoColumn || !draft.plannedTasks) return;
 
-        draft.plannedTasks = [];
-      }
+      const remainingPlanned = draft.plannedTasks.filter(
+        (task) => task.sprintId,
+      );
+      todoColumn.tasks.push(
+        ...draft.plannedTasks
+          .filter((task) => !task.sprintId)
+          .map((task) => ({ ...task, status: "to-do" as const })),
+      );
+      draft.plannedTasks = remainingPlanned;
     });
 
     setProject(updatedProject);
     toast.success(
-      t("tasks:backlog.moveAllSuccess", { count: plannedTasks.length }),
+      t("tasks:backlog.moveAllSuccess", { count: backlogPlannedTasks.length }),
       { icon: SquareKanbanIcon },
     );
   };
