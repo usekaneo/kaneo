@@ -40,6 +40,13 @@ async function setup() {
         verifiedGithubAccountId: "123",
         verifiedByUserId: "user",
       }),
+      // RFC 0001 WP2: webhook delivery resolves bindings by the numeric
+      // repository key and the installation that delivered the event, so the
+      // fixture must carry the same identity columns a verified binding has.
+      repositoryKey: "github:20",
+      repositoryOwner: "example",
+      repositoryName: "repo",
+      repositoryId: 20,
     })
     .returning();
   const [task] = await db
