@@ -2590,7 +2590,7 @@
         },
         "repository_id": {
           "name": "repository_id",
-          "type": "integer",
+          "type": "bigint",
           "primaryKey": false,
           "notNull": false
         },

@@ -1,7 +1,7 @@
 ALTER TABLE "integration" ADD COLUMN IF NOT EXISTS "repository_key" text;--> statement-breakpoint
 ALTER TABLE "integration" ADD COLUMN IF NOT EXISTS "repository_owner" text;--> statement-breakpoint
 ALTER TABLE "integration" ADD COLUMN IF NOT EXISTS "repository_name" text;--> statement-breakpoint
-ALTER TABLE "integration" ADD COLUMN IF NOT EXISTS "repository_id" integer;--> statement-breakpoint
+ALTER TABLE "integration" ADD COLUMN IF NOT EXISTS "repository_id" bigint;--> statement-breakpoint
 ALTER TABLE "integration" ADD COLUMN IF NOT EXISTS "base_url" text;--> statement-breakpoint
 ALTER TABLE "workflow_rule" ADD COLUMN IF NOT EXISTS "integration_id" text;--> statement-breakpoint
 CREATE TABLE IF NOT EXISTS "workspace_limit" (
@@ -60,7 +60,7 @@ BEGIN
 					repository_key = key,
 					repository_owner = owner,
 					repository_name = name,
-					repository_id = CASE WHEN repo_id IS NOT NULL AND repo_id ~ '^[1-9][0-9]*$' THEN repo_id::integer END,
+					repository_id = CASE WHEN repo_id IS NOT NULL AND repo_id ~ '^[1-9][0-9]*$' THEN repo_id::bigint END,
 					base_url = NULL
 				WHERE id = binding.id;
 

@@ -1,6 +1,7 @@
 import { createId } from "@paralleldrive/cuid2";
 import { relations, sql } from "drizzle-orm";
 import {
+  bigint,
   boolean,
   customType,
   foreignKey,
@@ -1276,7 +1277,7 @@ export const integrationTable = pgTable(
     repositoryKey: text("repository_key"),
     repositoryOwner: text("repository_owner"),
     repositoryName: text("repository_name"),
-    repositoryId: integer("repository_id"),
+    repositoryId: bigint("repository_id", { mode: "number" }),
     // RFC 0001: baseUrl for self-hosted Gitea/GitLab instances; null for
     // github.com and default installs.
     baseUrl: text("base_url"),
