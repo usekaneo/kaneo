@@ -24,68 +24,80 @@ async function updateTaskSprint({
     throw new HTTPException(404, { message: "Task not found" });
   }
 
-  if (task.sprintId) {
-    const currentSprint = await db.query.sprintTable.findFirst({
-      where: eq(sprintTable.id, task.sprintId),
-    });
+  // The sprint checks and the write run in one transaction under row locks,
+  // so a sprint cannot be closed (or otherwise change its status) between
+  // validation and the task write.
+  const updated = await db.transaction(async (tx) => {
+    if (task.sprintId) {
+      const [currentSprint] = await tx
+        .select()
+        .from(sprintTable)
+        .where(eq(sprintTable.id, task.sprintId))
+        .for("update");
 
-    if (currentSprint?.status === "closed") {
-      throw new HTTPException(409, {
-        message:
-          "The task belongs to a closed sprint and stays there as implementation history",
-      });
-    }
-  }
-
-  if (sprintId) {
-    const targetSprint = await db.query.sprintTable.findFirst({
-      where: eq(sprintTable.id, sprintId),
-    });
-
-    if (!targetSprint || targetSprint.projectId !== task.projectId) {
-      throw new HTTPException(404, {
-        message: "Target sprint not found in this project",
-      });
+      if (currentSprint?.status === "closed") {
+        throw new HTTPException(409, {
+          message:
+            "The task belongs to a closed sprint and stays there as implementation history",
+        });
+      }
     }
 
-    if (targetSprint.status === "closed") {
-      throw new HTTPException(409, {
-        message: "Cannot assign tasks to a closed sprint",
-      });
+    if (sprintId) {
+      const [targetSprint] = await tx
+        .select()
+        .from(sprintTable)
+        .where(eq(sprintTable.id, sprintId))
+        .for("update");
+
+      if (!targetSprint || targetSprint.projectId !== task.projectId) {
+        throw new HTTPException(404, {
+          message: "Target sprint not found in this project",
+        });
+      }
+
+      if (targetSprint.status === "closed") {
+        throw new HTTPException(409, {
+          message: "Cannot assign tasks to a closed sprint",
+        });
+      }
+
+      if (
+        targetSprint.status !== "active" &&
+        targetSprint.status !== "future"
+      ) {
+        throw new HTTPException(400, {
+          message: "Target sprint is not an active or upcoming sprint",
+        });
+      }
     }
 
-    if (targetSprint.status !== "active" && targetSprint.status !== "future") {
-      throw new HTTPException(400, {
-        message: "Target sprint is not an active or upcoming sprint",
+    return tx
+      .update(taskTable)
+      .set({ sprintId })
+      .where(eq(taskTable.id, taskId))
+      .returning({
+        id: taskTable.id,
+        projectId: taskTable.projectId,
+        sprintId: taskTable.sprintId,
       });
-    }
-  }
+  });
 
-  const [updated] = await db
-    .update(taskTable)
-    .set({ sprintId })
-    .where(eq(taskTable.id, taskId))
-    .returning({
-      id: taskTable.id,
-      projectId: taskTable.projectId,
-      sprintId: taskTable.sprintId,
-    });
-
-  if (!updated) {
+  if (!updated.length) {
     throw new HTTPException(500, {
       message: "Failed to update the task's sprint",
     });
   }
 
   await publishEvent("task.sprint_changed", {
-    taskId: updated.id,
-    projectId: updated.projectId,
+    taskId: updated[0].id,
+    projectId: updated[0].projectId,
     userId: currentUserId,
   });
 
-  await publishEvent("sprint.updated", { projectId: updated.projectId });
+  await publishEvent("sprint.updated", { projectId: updated[0].projectId });
 
-  return updated;
+  return updated[0];
 }
 
 export default updateTaskSprint;

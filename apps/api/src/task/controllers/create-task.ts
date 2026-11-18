@@ -54,14 +54,19 @@ function deduplicateCustomFields(
 }
 
 async function resolveSprintForNewTask(
+  tx: Parameters<Parameters<typeof db.transaction>[0]>[0],
   projectId: string,
   type: "task" | "bug",
   sprintId?: string,
 ): Promise<string | null> {
+  // Runs inside the create transaction under sprint row locks, so a sprint
+  // cannot be closed between validation and the task insert.
   if (sprintId) {
-    const sprint = await db.query.sprintTable.findFirst({
-      where: eq(sprintTable.id, sprintId),
-    });
+    const [sprint] = await tx
+      .select()
+      .from(sprintTable)
+      .where(eq(sprintTable.id, sprintId))
+      .for("update");
 
     if (!sprint || sprint.projectId !== projectId) {
       throw new HTTPException(404, {
@@ -79,12 +84,16 @@ async function resolveSprintForNewTask(
   }
 
   if (type === "bug") {
-    const activeSprint = await db.query.sprintTable.findFirst({
-      where: and(
-        eq(sprintTable.projectId, projectId),
-        eq(sprintTable.status, "active"),
-      ),
-    });
+    const [activeSprint] = await tx
+      .select()
+      .from(sprintTable)
+      .where(
+        and(
+          eq(sprintTable.projectId, projectId),
+          eq(sprintTable.status, "active"),
+        ),
+      )
+      .for("update");
 
     return activeSprint?.id ?? null;
   }
@@ -205,15 +214,18 @@ async function createTask({
       message: "Create the task in an open column to make it repeat",
     });
 
-  // Sprint defaults: an explicit sprint wins; bugs otherwise land in the
-  // project's active sprint; everything else starts in the backlog.
-  const resolvedSprintId = await resolveSprintForNewTask(
-    projectId,
-    resolvedType,
-    sprintId,
-  );
-
   const createdTask = await db.transaction(async (tx) => {
+    // Sprint defaults: an explicit sprint wins; bugs otherwise land in the
+    // project's active sprint; everything else starts in the backlog. The
+    // resolution happens inside the transaction so the sprint status is
+    // locked in before the insert.
+    const resolvedSprintId = await resolveSprintForNewTask(
+      tx,
+      projectId,
+      resolvedType,
+      sprintId,
+    );
+
     const taskNumber = await claimTaskNumber(projectId, tx);
     const nextPosition = await nextTaskPosition(
       tx,

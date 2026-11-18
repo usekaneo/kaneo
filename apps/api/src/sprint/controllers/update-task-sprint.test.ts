@@ -9,13 +9,29 @@ vi.mock("../../database", () => ({
   default: {
     query: {
       taskTable: { findFirst: (args: unknown) => mockTaskFindFirst(args) },
-      sprintTable: { findFirst: (args: unknown) => mockSprintFindFirst(args) },
     },
-    update: () => ({
-      set: (values: Record<string, unknown>) => ({
-        where: () => ({ returning: () => mockUpdate(values) }),
+    // The transaction hands the controller a tx with the chains
+    // updateTaskSprint runs: the locked sprint reads (the task's current
+    // sprint first, the target sprint second) and the task update. The
+    // sprint reads share one ordered queue.
+    transaction: async (callback: (tx: unknown) => Promise<unknown>) =>
+      callback({
+        select: () => ({
+          from: () => ({
+            where: () => ({
+              for: () => {
+                const row = mockSprintFindFirst();
+                return Promise.resolve(row ? [row] : []);
+              },
+            }),
+          }),
+        }),
+        update: () => ({
+          set: (values: Record<string, unknown>) => ({
+            where: () => ({ returning: () => mockUpdate(values) }),
+          }),
+        }),
       }),
-    }),
   },
 }));
 

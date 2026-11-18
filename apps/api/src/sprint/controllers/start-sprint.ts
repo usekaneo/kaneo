@@ -78,7 +78,10 @@ async function startSprint(
     [updated] = await db
       .update(sprintTable)
       .set({ status: "active", startDate: start, endDate: end })
-      .where(eq(sprintTable.id, id))
+      // The claim only fires while the sprint is still future: a sprint
+      // that closed (or otherwise changed) between the read check and this
+      // write fails the condition instead of being resurrected.
+      .where(and(eq(sprintTable.id, id), eq(sprintTable.status, "future")))
       .returning();
   } catch (error) {
     // Two concurrent starts can both pass the read check above; the partial
@@ -96,7 +99,10 @@ async function startSprint(
   }
 
   if (!updated) {
-    throw new HTTPException(500, { message: "Failed to start sprint" });
+    throw new HTTPException(409, {
+      message:
+        "The sprint is no longer upcoming and cannot be started. Reload the sprint list and try again.",
+    });
   }
 
   await publishEvent("sprint.updated", {

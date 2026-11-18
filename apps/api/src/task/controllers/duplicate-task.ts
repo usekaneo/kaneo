@@ -379,12 +379,15 @@ async function duplicateTask({
 
       // A duplicate keeps the task type, and the sprint only while that
       // sprint is still mutable: closed sprints keep their original tasks
-      // as history.
+      // as history. The row lock keeps the sprint from closing between the
+      // check and the insert.
       const duplicatedSprintId = await (async () => {
         if (!sourceTask.sprintId) return null;
-        const sprint = await tx.query.sprintTable.findFirst({
-          where: eq(sprintTable.id, sourceTask.sprintId),
-        });
+        const [sprint] = await tx
+          .select()
+          .from(sprintTable)
+          .where(eq(sprintTable.id, sourceTask.sprintId))
+          .for("update");
         return sprint && sprint.status !== "closed" ? sprint.id : null;
       })();
 

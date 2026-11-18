@@ -537,39 +537,45 @@ async function bulkUpdateTasks({
       // The bulk move follows the single-task sprint assignment rules: the
       // target must be an active or upcoming sprint of the tasks' project, a
       // null target moves every task to the backlog, and tasks that belong to
-      // a closed sprint stay there as implementation history.
-      if (sprintId) {
-        const targetSprint = await db.query.sprintTable.findFirst({
-          where: eq(sprintTable.id, sprintId),
-        });
-
-        if (!targetSprint) {
-          throw new HTTPException(404, { message: "Target sprint not found" });
-        }
-
-        if (targetSprint.status === "closed") {
-          throw new HTTPException(409, {
-            message: "Cannot assign tasks to a closed sprint",
-          });
-        }
-
-        if (
-          targetSprint.status !== "active" &&
-          targetSprint.status !== "future"
-        ) {
-          throw new HTTPException(400, {
-            message: "Target sprint is not an active or upcoming sprint",
-          });
-        }
-
-        if (tasks.some((task) => task.projectId !== targetSprint.projectId)) {
-          throw new HTTPException(400, {
-            message: "All tasks must belong to the target sprint's project",
-          });
-        }
-      }
-
+      // a closed sprint stay there as implementation history. The target
+      // sprint is validated and locked inside the write transaction, so it
+      // cannot close between the check and the update.
       const updatedTasks = await db.transaction(async (tx) => {
+        if (sprintId) {
+          const [targetSprint] = await tx
+            .select()
+            .from(sprintTable)
+            .where(eq(sprintTable.id, sprintId))
+            .for("update");
+
+          if (!targetSprint) {
+            throw new HTTPException(404, {
+              message: "Target sprint not found",
+            });
+          }
+
+          if (targetSprint.status === "closed") {
+            throw new HTTPException(409, {
+              message: "Cannot assign tasks to a closed sprint",
+            });
+          }
+
+          if (
+            targetSprint.status !== "active" &&
+            targetSprint.status !== "future"
+          ) {
+            throw new HTTPException(400, {
+              message: "Target sprint is not an active or upcoming sprint",
+            });
+          }
+
+          if (tasks.some((task) => task.projectId !== targetSprint.projectId)) {
+            throw new HTTPException(400, {
+              message: "All tasks must belong to the target sprint's project",
+            });
+          }
+        }
+
         const locked = await tx
           .select({
             id: taskTable.id,

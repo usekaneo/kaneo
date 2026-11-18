@@ -8,15 +8,22 @@ const mockGetSprint = vi.fn();
 
 vi.mock("../../database", () => ({
   default: {
-    query: {
-      sprintTable: { findFirst: (args: unknown) => mockSprintFindFirst(args) },
-    },
-    // The transaction hands the controller a tx with the two update chains
-    // closeSprint runs: the unfinished-task move (with .returning()) and the
-    // sprint freeze (awaited directly on .where()). The two are told apart by
-    // the values they set, which is all the assertions need.
+    // The transaction hands the controller a tx with the chains closeSprint
+    // runs: the locked sprint reads (the closing sprint first, the target
+    // sprint second), the unfinished-task move (with .returning()) and the
+    // sprint freeze claim (`.where(status = "active").returning()`).
     transaction: async (callback: (tx: unknown) => Promise<unknown>) =>
       callback({
+        select: () => ({
+          from: () => ({
+            where: () => ({
+              for: () => {
+                const row = mockSprintFindFirst();
+                return Promise.resolve(row ? [row] : []);
+              },
+            }),
+          }),
+        }),
         update: (table: unknown) => ({
           set: (values: Record<string, unknown>) => ({
             where: () => {
@@ -24,7 +31,7 @@ vi.mock("../../database", () => ({
                 expect(table).toBeTruthy();
                 return { returning: () => mockMoveTasks(values) };
               }
-              return mockFreezeSprint(values);
+              return { returning: () => mockFreezeSprint(values) };
             },
           }),
         }),
@@ -46,7 +53,9 @@ beforeEach(() => {
   mockSprintFindFirst.mockReset();
   mockMoveTasks.mockReset();
   mockFreezeSprint.mockReset();
-  mockFreezeSprint.mockResolvedValue(undefined);
+  // The freeze claim's `.returning()` must produce at least one row for the
+  // close to count as won.
+  mockFreezeSprint.mockResolvedValue([{ id: "sprint-1" }]);
   mockPublishEvent.mockReset();
   mockGetSprint.mockReset();
 });
@@ -181,5 +190,17 @@ describe("closeSprint", () => {
       status: 400,
       message: "Unfinished tasks can only move to a future sprint",
     });
+  });
+
+  it("loses the close race with 409 when the sprint stopped being active", async () => {
+    mockSprintFindFirst.mockResolvedValueOnce(activeSprint);
+    mockMoveTasks.mockResolvedValueOnce([]);
+    mockFreezeSprint.mockResolvedValueOnce([]);
+
+    await expect(closeSprint("sprint-1", null)).rejects.toMatchObject({
+      status: 409,
+      message: "Sprint is no longer active and cannot be closed",
+    });
+    expect(mockPublishEvent).not.toHaveBeenCalled();
   });
 });
