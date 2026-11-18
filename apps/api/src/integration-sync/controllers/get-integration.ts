@@ -9,7 +9,9 @@ import type { IntegrationDatabase } from "../../plugins/github/services/integrat
 // lookup on (projectId, provider) remains on the primary path; the
 // project-keyed compat shim below resolves the first binding only.
 
-function assertSyncRules(integration: { config: string }) {
+// Kept generic so callers keep the full integration row's type (id,
+// projectId, ...) instead of just the validated config field.
+function assertSyncRules<T extends { config: string }>(integration: T): T {
   if (!readSyncRules(integration.config))
     throw new HTTPException(409, {
       message: "Invalid sync rules; repair the integration configuration",
