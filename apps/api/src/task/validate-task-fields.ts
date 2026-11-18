@@ -231,6 +231,8 @@ export const VALID_PRIORITIES = [
 
 export const TASK_TYPES = ["task", "bug"] as const;
 
+export type TaskType = (typeof TASK_TYPES)[number];
+
 export const VIRTUAL_STATUSES = ["planned", "archived"] as const;
 
 export function assertValidPriority(priority: string): void {

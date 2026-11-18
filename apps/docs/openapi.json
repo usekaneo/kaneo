@@ -12860,6 +12860,10 @@
                       "urgent"
                     ]
                   },
+                  "status": {
+                    "type": "string",
+                    "description": "The target column's slug."
+                  },
                   "type": {
                     "type": "string",
                     "enum": [
@@ -12867,10 +12871,6 @@
                       "bug"
                     ],
                     "description": "Classification shown as a badge in the UI. Optional on create; stored tasks always have a value, defaulting to task. Placement is unaffected: the task goes to the supplied status column either way."
-                  },
-                  "status": {
-                    "type": "string",
-                    "description": "The target column's slug."
                   },
                   "userId": {
                     "type": "string",

@@ -18,6 +18,7 @@ import type { AuditWebhookPayload } from "../admin/webhooks/audit-webhook-payloa
 import type { GitHubImportState } from "../github-integration/import-state";
 import type { ImportRunProject } from "../import/import-run-project";
 import type { TaskRecurrence } from "../task/recurrence/schema";
+import type { TaskType } from "../task/validate-task-fields";
 
 // Timestamp columns without a time zone hold UTC (Drizzle reads and writes
 // them as UTC). A bare now() default would be cast through the session time
@@ -709,7 +710,7 @@ export const taskTable = pgTable(
       onUpdate: "cascade",
     }),
     priority: text("priority").default("low").notNull(),
-    type: text("type").default("task").notNull(),
+    type: text("type").$type<TaskType>().default("task").notNull(),
     startDate: timestamp("start_date", { mode: "date" }),
     dueDate: timestamp("due_date", { mode: "date" }),
     recurrence: jsonb("recurrence").$type<TaskRecurrence>(),

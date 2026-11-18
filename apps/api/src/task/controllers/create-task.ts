@@ -28,6 +28,7 @@ import {
   assertValidTaskStatus,
   isCustomFieldValueEmpty,
 } from "../validate-task-fields";
+import type { TaskType } from "../validate-task-fields";
 import { claimTaskNumber } from "./claim-task-numbers";
 import { nextTaskPosition } from "./next-task-position";
 
@@ -72,7 +73,7 @@ async function createTask({
   userId?: string;
   title: string;
   status: string;
-  type?: string;
+  type?: TaskType;
   startDate?: Date;
   dueDate?: Date;
   description?: string;
