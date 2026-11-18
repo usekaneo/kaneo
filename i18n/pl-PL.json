@@ -780,37 +780,6 @@
 			"then": "potem",
 			"or": "lub",
 			"thenEllipsis": "potem…"
-		},
-		"keyboardShortcuts": {
-			"categories": {
-				"create": "Tworzenie",
-				"general": "Ogólne",
-				"navigation": "Nawigacja",
-				"quickSelect": "Szybki wybór (w oknach podręcznych)",
-				"views": "Widoki"
-			},
-			"footer": "Naciśnij <kbd>Escape</kbd>, aby zamknąć",
-			"items": {
-				"backlogView": "Przełącz na backlog",
-				"boardView": "Przełącz na widok tablicy",
-				"calendarView": "Przełącz na widok kalendarza",
-				"closeModal": "Zamknij okno lub menu",
-				"createProject": "Utwórz projekt",
-				"createTask": "Utwórz zadanie",
-				"createWorkspace": "Utwórz obszar roboczy",
-				"globalSearch": "Globalne wyszukiwanie",
-				"listView": "Przełącz na widok listy",
-				"nextTask": "Następne zadanie",
-				"openCommandPalette": "Otwórz paletę poleceń",
-				"openTask": "Otwórz zaznaczone zadanie",
-				"prevTask": "Poprzednie zadanie",
-				"quickSelectNumber": "Wybierz opcję numerem",
-				"showShortcuts": "Pokaż skróty klawiszowe",
-				"toggleSidebar": "Przełącz pasek boczny"
-			},
-			"searchPlaceholder": "Szukaj skrótów...",
-			"subtitle": "Przyspiesz pracę dzięki skrótom klawiszowym",
-			"title": "Skróty klawiszowe"
 		}
 	},
 	"notifications": {
@@ -4297,7 +4266,9 @@
 			"showOnRows": "Pokaż w wierszach",
 			"checklistProgress": "Postęp listy kontrolnej",
 			"projectBackground": "Tło projektu",
-			"layout": "Układ"
+			"layout": "Układ",
+			"includeSubtasks": "Uwzględnij podzadania",
+			"useProjectDefault": "Użyj domyślnego ustawienia projektu"
 		},
 		"filterBar": {
 			"label": "Aktywne filtry",
@@ -4347,6 +4318,21 @@
 			"startsOn": "Początek: {{date}}",
 			"beforeStart": "{{date}} jest przed datą rozpoczęcia",
 			"afterDue": "{{date}} jest po terminie"
+		},
+		"timeTracking": {
+			"empty": "Nie zarejestrowano jeszcze czasu.",
+			"loadError": "Nie udało się wczytać wpisów czasu.",
+			"retry": "Spróbuj ponownie",
+			"running": "W toku",
+			"start": "Uruchom licznik",
+			"startError": "Nie udało się uruchomić licznika.",
+			"stop": "Zatrzymaj licznik",
+			"stopError": "Nie udało się zatrzymać licznika.",
+			"title": "Śledzenie czasu",
+			"unknownUser": "Nieznany",
+			"durationSeconds": "{{seconds, number}} s",
+			"durationMinutes": "{{minutes, number}} min",
+			"durationHoursMinutes": "{{hours, number}} godz. {{minutes, number}} min"
 		},
 		"sprints": {
 			"activeBadge": "Aktywny",
