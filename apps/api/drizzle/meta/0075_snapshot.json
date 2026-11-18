@@ -1,6 +1,6 @@
 {
-  "id": "a80e0bca-5fca-4cb4-9f08-5e05ef365c49",
-  "prevId": "be64e564-7d98-451f-98b7-09a1ab47549f",
+  "id": "be64e564-7d98-451f-98b7-09a1ab47549f",
+  "prevId": "3e35e627-9ea6-44c9-9e91-a98643132370",
   "version": "7",
   "dialect": "postgresql",
   "tables": {
@@ -2062,6 +2062,92 @@
       "checkConstraints": {},
       "isRLSEnabled": false
     },
+    "public.github_integration": {
+      "name": "github_integration",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "text",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "project_id": {
+          "name": "project_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "repository_owner": {
+          "name": "repository_owner",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "repository_name": {
+          "name": "repository_name",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "installation_id": {
+          "name": "installation_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "is_active": {
+          "name": "is_active",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": false,
+          "default": true
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "github_integration_project_id_project_id_fk": {
+          "name": "github_integration_project_id_project_id_fk",
+          "tableFrom": "github_integration",
+          "tableTo": "project",
+          "columnsFrom": [
+            "project_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "cascade"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {
+        "github_integration_project_id_unique": {
+          "name": "github_integration_project_id_unique",
+          "nullsNotDistinct": false,
+          "columns": [
+            "project_id"
+          ]
+        }
+      },
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
     "public.import_run": {
       "name": "import_run",
       "schema": "",
@@ -2581,36 +2667,6 @@
           "primaryKey": false,
           "notNull": true,
           "default": "(now() AT TIME ZONE 'utc')"
-        },
-        "base_url": {
-          "name": "base_url",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "repository_id": {
-          "name": "repository_id",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "repository_key": {
-          "name": "repository_key",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "repository_name": {
-          "name": "repository_name",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "repository_owner": {
-          "name": "repository_owner",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
         }
       },
       "indexes": {
@@ -2643,49 +2699,6 @@
           "concurrently": false,
           "method": "btree",
           "with": {}
-        },
-        "integration_project_type_null_repo_unique": {
-          "name": "integration_project_type_null_repo_unique",
-          "columns": [
-            {
-              "expression": "project_id",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last"
-            },
-            {
-              "expression": "type",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last"
-            }
-          ],
-          "isUnique": true,
-          "where": "\"integration\".\"repository_key\" is null",
-          "concurrently": false,
-          "method": "btree",
-          "with": {}
-        },
-        "integration_type_repository_key_idx": {
-          "name": "integration_type_repository_key_idx",
-          "columns": [
-            {
-              "expression": "type",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last"
-            },
-            {
-              "expression": "repository_key",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last"
-            }
-          ],
-          "isUnique": false,
-          "concurrently": false,
-          "method": "btree",
-          "with": {}
         }
       },
       "foreignKeys": {
@@ -2705,13 +2718,12 @@
       },
       "compositePrimaryKeys": {},
       "uniqueConstraints": {
-        "integration_project_type_repo_unique": {
-          "name": "integration_project_type_repo_unique",
+        "integration_project_type_unique": {
+          "name": "integration_project_type_unique",
           "nullsNotDistinct": false,
           "columns": [
             "project_id",
-            "type",
-            "repository_key"
+            "type"
           ]
         }
       },
@@ -3449,6 +3461,13 @@
           "primaryKey": false,
           "notNull": false,
           "default": false
+        },
+        "include_subtasks": {
+          "name": "include_subtasks",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true,
+          "default": true
         },
         "archived_at": {
           "name": "archived_at",
@@ -5376,12 +5395,6 @@
           "primaryKey": false,
           "notNull": true,
           "default": "(now() AT TIME ZONE 'utc')"
-        },
-        "integration_id": {
-          "name": "integration_id",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
         }
       },
       "indexes": {
@@ -5414,54 +5427,6 @@
           "concurrently": false,
           "method": "btree",
           "with": {}
-        },
-        "workflow_rule_integrationId_idx": {
-          "name": "workflow_rule_integrationId_idx",
-          "columns": [
-            {
-              "expression": "integration_id",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last"
-            }
-          ],
-          "isUnique": false,
-          "concurrently": false,
-          "method": "btree",
-          "with": {}
-        },
-        "workflow_rule_resolution_idx": {
-          "name": "workflow_rule_resolution_idx",
-          "columns": [
-            {
-              "expression": "project_id",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last"
-            },
-            {
-              "expression": "integration_type",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last"
-            },
-            {
-              "expression": "event_type",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last"
-            },
-            {
-              "expression": "integration_id",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last"
-            }
-          ],
-          "isUnique": false,
-          "concurrently": false,
-          "method": "btree",
-          "with": {}
         }
       },
       "foreignKeys": {
@@ -5484,19 +5449,6 @@
           "tableTo": "column",
           "columnsFrom": [
             "column_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "cascade",
-          "onUpdate": "cascade"
-        },
-        "workflow_rule_integration_id_integration_id_fk": {
-          "name": "workflow_rule_integration_id_integration_id_fk",
-          "tableFrom": "workflow_rule",
-          "tableTo": "integration",
-          "columnsFrom": [
-            "integration_id"
           ],
           "columnsTo": [
             "id"
@@ -6212,52 +6164,6 @@
           ]
         }
       },
-      "policies": {},
-      "checkConstraints": {},
-      "isRLSEnabled": false
-    },
-    "public.workspace_limit": {
-      "name": "workspace_limit",
-      "schema": "",
-      "columns": {
-        "workspace_id": {
-          "name": "workspace_id",
-          "type": "text",
-          "primaryKey": true,
-          "notNull": true
-        },
-        "max_repositories_per_project": {
-          "name": "max_repositories_per_project",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "updated_at": {
-          "name": "updated_at",
-          "type": "timestamp",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "now()"
-        }
-      },
-      "indexes": {},
-      "foreignKeys": {
-        "workspace_limit_workspace_id_workspace_id_fk": {
-          "name": "workspace_limit_workspace_id_workspace_id_fk",
-          "tableFrom": "workspace_limit",
-          "tableTo": "workspace",
-          "columnsFrom": [
-            "workspace_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "cascade",
-          "onUpdate": "cascade"
-        }
-      },
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {},
       "policies": {},
       "checkConstraints": {},
       "isRLSEnabled": false
