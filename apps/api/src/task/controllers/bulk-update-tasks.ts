@@ -7,6 +7,7 @@ import {
   columnTable,
   labelTable,
   projectTable,
+  sprintTable,
   taskTable,
   userTable,
   taskReminderSentTable,
@@ -31,7 +32,8 @@ type BulkOperation =
   | "delete"
   | "addLabel"
   | "removeLabel"
-  | "updateDueDate";
+  | "updateDueDate"
+  | "updateSprint";
 
 async function bulkUpdateTasks({
   taskIds,
@@ -526,6 +528,122 @@ async function bulkUpdateTasks({
           userId,
           { fields: ["dueDate"] },
         );
+      break;
+    }
+
+    case "updateSprint": {
+      const sprintId = value?.trim() || null;
+
+      // The bulk move follows the single-task sprint assignment rules: the
+      // target must be an active or upcoming sprint of the tasks' project, a
+      // null target moves every task to the backlog, and tasks that belong to
+      // a closed sprint stay there as implementation history.
+      if (sprintId) {
+        const targetSprint = await db.query.sprintTable.findFirst({
+          where: eq(sprintTable.id, sprintId),
+        });
+
+        if (!targetSprint) {
+          throw new HTTPException(404, { message: "Target sprint not found" });
+        }
+
+        if (targetSprint.status === "closed") {
+          throw new HTTPException(409, {
+            message: "Cannot assign tasks to a closed sprint",
+          });
+        }
+
+        if (
+          targetSprint.status !== "active" &&
+          targetSprint.status !== "future"
+        ) {
+          throw new HTTPException(400, {
+            message: "Target sprint is not an active or upcoming sprint",
+          });
+        }
+
+        if (tasks.some((task) => task.projectId !== targetSprint.projectId)) {
+          throw new HTTPException(400, {
+            message: "All tasks must belong to the target sprint's project",
+          });
+        }
+      }
+
+      const updatedTasks = await db.transaction(async (tx) => {
+        const locked = await tx
+          .select({
+            id: taskTable.id,
+            projectId: taskTable.projectId,
+            title: taskTable.title,
+            sprintId: taskTable.sprintId,
+          })
+          .from(taskTable)
+          .where(inArray(taskTable.id, foundIds))
+          .orderBy(asc(taskTable.id))
+          .for("update");
+        const originalProjects = new Map(
+          tasks.map((task) => [task.id, task.projectId]),
+        );
+        if (
+          locked.length !== foundIds.length ||
+          locked.some(
+            (task) => task.projectId !== originalProjects.get(task.id),
+          )
+        )
+          throw new HTTPException(409, {
+            message: "Tasks changed projects; retry the operation",
+          });
+
+        // Validate every task's current sprint before the first write.
+        const currentSprintIds = [
+          ...new Set(
+            locked
+              .map((task) => task.sprintId)
+              .filter((id): id is string => Boolean(id)),
+          ),
+        ];
+        if (currentSprintIds.length) {
+          const closedSprints = await tx
+            .select({ id: sprintTable.id })
+            .from(sprintTable)
+            .where(
+              and(
+                inArray(sprintTable.id, currentSprintIds),
+                eq(sprintTable.status, "closed"),
+              ),
+            );
+          if (closedSprints.length) {
+            throw new HTTPException(409, {
+              message:
+                "Tasks in a closed sprint stay there as implementation history",
+            });
+          }
+        }
+
+        return tx
+          .update(taskTable)
+          .set({ sprintId })
+          .where(inArray(taskTable.id, foundIds))
+          .returning({
+            id: taskTable.id,
+            projectId: taskTable.projectId,
+            title: taskTable.title,
+            sprintId: taskTable.sprintId,
+          });
+      });
+      updatedCount = updatedTasks.length;
+      for (const updatedTask of updatedTasks) {
+        await publishEvent("task.sprint_changed", {
+          taskId: updatedTask.id,
+          projectId: updatedTask.projectId,
+          userId,
+        });
+      }
+      for (const projectId of new Set(
+        updatedTasks.map((task) => task.projectId),
+      )) {
+        await publishEvent("sprint.updated", { projectId });
+      }
       break;
     }
 

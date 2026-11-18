@@ -1,7 +1,6 @@
 import { boundedTaskRead } from "../bounded-read";
 import { alias } from "drizzle-orm/pg-core";
 import { boardDescription, descriptionDeferred } from "../description-pages";
-import { isSubtask } from "../is-subtask";
 import { getSubtaskCounts } from "../get-subtask-counts";
 import { and, eq, sql } from "drizzle-orm";
 import { HTTPException } from "hono/http-exception";
@@ -17,7 +16,6 @@ async function getTask(taskId: string, board = false, userId?: string) {
   const task = await db
     .select({
       id: taskTable.id,
-      isSubtask,
       title: taskTable.title,
       number: taskTable.number,
       description: board ? boardDescription : taskTable.description,

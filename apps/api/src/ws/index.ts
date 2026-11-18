@@ -985,6 +985,7 @@ const taskUpdateEvents = [
   "task.unassigned",
   "task.assignee_changed",
   "task.due_date_changed",
+  "task.sprint_changed",
   "task.title_changed",
   "task.description_changed",
   "task.label_assigned",
@@ -1122,6 +1123,23 @@ subscribeToEvent<{
       projectId,
       ...(data.linksChanged ? { linksChanged: true } : {}),
     },
+    initiatorId,
+  );
+});
+
+subscribeToEvent<{
+  projectId: string;
+  sprintId?: string;
+  initiatorId?: string;
+}>("sprint.updated", async (data) => {
+  const { projectId, initiatorId } = data;
+  if (!projectId) return;
+
+  // Sprint changes move tasks between sprints and refresh every sprint's
+  // task counters, so clients reload the sprint list and the board.
+  broadcastToProject(
+    projectId,
+    { type: "SPRINT_UPDATED", projectId },
     initiatorId,
   );
 });

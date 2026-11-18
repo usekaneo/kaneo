@@ -67,10 +67,11 @@ export const bulkUpdateBody = z.object({
     "addLabel",
     "removeLabel",
     "updateDueDate",
+    "updateSprint",
   ]),
   value: z.string().nullable().optional().openapi({
     description:
-      "The new value for the chosen operation. Unused by `delete`; null clears an assignee or due date.",
+      "The new value for the chosen operation. Unused by `delete`; null clears an assignee or due date, or moves tasks to the backlog for `updateSprint`.",
   }),
 });
 
@@ -81,6 +82,11 @@ export const createTaskBody = z.object({
   dueDate: z.string().optional(),
   priority,
   status: z.string().openapi({ description: "The target column's slug." }),
+  type: taskType.optional(),
+  sprintId: z.string().optional().openapi({
+    description:
+      "Active or future sprint of the project. Omit to apply the type-based default: bugs go to the active sprint, everything else to the backlog.",
+  }),
   userId: z.string().optional().openapi({ description: "Assignee, if any." }),
   recurrence: taskRecurrenceSchema
     .optional()

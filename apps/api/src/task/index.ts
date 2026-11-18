@@ -938,6 +938,8 @@ const task = apiRouter<BaseVariables & { workspaceId: string }>()
       dueDate,
       priority,
       status,
+      type,
+      sprintId,
       userId,
       recurrence,
       customFields,
@@ -968,6 +970,8 @@ const task = apiRouter<BaseVariables & { workspaceId: string }>()
       recurrence,
       customFields,
       draftAssetIds,
+      type,
+      sprintId,
     });
 
     return c.json(task, 200);

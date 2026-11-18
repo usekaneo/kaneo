@@ -817,6 +817,7 @@ export function createApp() {
   const calendarFeedApi = api.route("/calendar-feed", calendarFeed);
   const taskApi = api.route("/task", task);
   const columnApi = api.route("/column", column);
+  const sprintApi = api.route("/sprint", sprint);
   const activityApi = api.route("/activity", activity);
   const commentApi = api.route("/comment", comment);
   const timeEntryApi = api.route("/time-entry", timeEntry);
@@ -1170,6 +1171,7 @@ export type AppType =
   | typeof calendarFeedApi
   | typeof taskApi
   | typeof columnApi
+  | typeof sprintApi
   | typeof activityApi
   | typeof commentApi
   | typeof timeEntryApi

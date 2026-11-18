@@ -7,6 +7,7 @@ import {
   columnTable,
   customFieldDefinitionTable,
   customFieldValueTable,
+  sprintTable,
   taskTable,
   projectTable,
   userTable,
@@ -52,12 +53,53 @@ function deduplicateCustomFields(
   return Array.from(fieldsById.values());
 }
 
+async function resolveSprintForNewTask(
+  projectId: string,
+  type: "task" | "bug",
+  sprintId?: string,
+): Promise<string | null> {
+  if (sprintId) {
+    const sprint = await db.query.sprintTable.findFirst({
+      where: eq(sprintTable.id, sprintId),
+    });
+
+    if (!sprint || sprint.projectId !== projectId) {
+      throw new HTTPException(404, {
+        message: "Target sprint not found in this project",
+      });
+    }
+
+    if (sprint.status === "closed") {
+      throw new HTTPException(409, {
+        message: "Cannot assign tasks to a closed sprint",
+      });
+    }
+
+    return sprint.id;
+  }
+
+  if (type === "bug") {
+    const activeSprint = await db.query.sprintTable.findFirst({
+      where: and(
+        eq(sprintTable.projectId, projectId),
+        eq(sprintTable.status, "active"),
+      ),
+    });
+
+    return activeSprint?.id ?? null;
+  }
+
+  return null;
+}
+
 async function createTask({
   projectId,
   currentUserId,
   userId,
   title,
   status,
+  type,
+  sprintId,
   startDate,
   dueDate,
   description,
@@ -71,6 +113,8 @@ async function createTask({
   userId?: string;
   title: string;
   status: string;
+  type?: "task" | "bug";
+  sprintId?: string;
   startDate?: Date;
   dueDate?: Date;
   description?: string;
@@ -81,6 +125,7 @@ async function createTask({
 }) {
   const resolvedStatus = status || "to-do";
   const resolvedPriority = priority || "no-priority";
+  const resolvedType = type ?? "task";
   const normalizedCustomFields = deduplicateCustomFields(customFields);
 
   const normalizedUserId = userId?.trim() || undefined;
@@ -160,6 +205,14 @@ async function createTask({
       message: "Create the task in an open column to make it repeat",
     });
 
+  // Sprint defaults: an explicit sprint wins; bugs otherwise land in the
+  // project's active sprint; everything else starts in the backlog.
+  const resolvedSprintId = await resolveSprintForNewTask(
+    projectId,
+    resolvedType,
+    sprintId,
+  );
+
   const createdTask = await db.transaction(async (tx) => {
     const taskNumber = await claimTaskNumber(projectId, tx);
     const nextPosition = await nextTaskPosition(
@@ -177,6 +230,8 @@ async function createTask({
         title: title || "",
         status: resolvedStatus,
         columnId: column?.id ?? null,
+        type: resolvedType,
+        sprintId: resolvedSprintId,
         startDate: startDate || null,
         dueDate: dueDate || null,
         description: description || "",

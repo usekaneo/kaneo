@@ -578,4 +578,140 @@ describe("registerTools", () => {
       }),
     ]);
   });
+
+  it("registers the sprint planning tools", () => {
+    const { server } = createServerMock();
+    const client = { json: vi.fn() };
+
+    registerTools(server as never, { client: client as never });
+
+    for (const name of [
+      "list_sprints",
+      "create_sprint",
+      "reorder_sprints",
+      "update_sprint",
+      "start_sprint",
+      "close_sprint",
+      "update_task_sprint",
+    ]) {
+      expect(server.registerTool).toHaveBeenCalledWith(
+        name,
+        expect.any(Object),
+        expect.any(Function),
+      );
+    }
+  });
+
+  it("lists and creates sprints through the sprint endpoints", async () => {
+    const { server, tools } = createServerMock();
+    const client = {
+      json: vi.fn().mockResolvedValue([{ id: "sprint-1", name: "Sprint 1" }]),
+    };
+
+    registerTools(server as never, { client: client as never });
+
+    await tools.get("list_sprints")?.handler({ projectId: "project 1" });
+    expect(client.json).toHaveBeenNthCalledWith(1, "/api/sprint/project%201", {
+      method: "GET",
+    });
+
+    await tools.get("create_sprint")?.handler({
+      projectId: "project-1",
+      goal: "Ship the beta",
+    });
+    expect(client.json).toHaveBeenNthCalledWith(2, "/api/sprint/project-1", {
+      method: "POST",
+      body: JSON.stringify({ goal: "Ship the beta" }),
+    });
+  });
+
+  it("reorders sprints with explicit positions", async () => {
+    const { server, tools } = createServerMock();
+    const client = { json: vi.fn().mockResolvedValue([]) };
+
+    registerTools(server as never, { client: client as never });
+
+    await tools.get("reorder_sprints")?.handler({
+      projectId: "project-1",
+      sprints: [
+        { id: "sprint-2", position: 0 },
+        { id: "sprint-1", position: 1 },
+      ],
+    });
+
+    expect(client.json).toHaveBeenCalledWith("/api/sprint/reorder/project-1", {
+      method: "POST",
+      body: JSON.stringify({
+        sprints: [
+          { id: "sprint-2", position: 0 },
+          { id: "sprint-1", position: 1 },
+        ],
+      }),
+    });
+  });
+
+  it("starts a sprint without dates and closes it to the backlog", async () => {
+    const { server, tools } = createServerMock();
+    const client = { json: vi.fn().mockResolvedValue({ id: "sprint-1" }) };
+
+    registerTools(server as never, { client: client as never });
+
+    await tools.get("start_sprint")?.handler({ id: "sprint-1" });
+    expect(client.json).toHaveBeenNthCalledWith(
+      1,
+      "/api/sprint/start/sprint-1",
+      { method: "POST", body: JSON.stringify({}) },
+    );
+
+    await tools.get("close_sprint")?.handler({
+      id: "sprint-1",
+      targetSprintId: null,
+    });
+    expect(client.json).toHaveBeenNthCalledWith(
+      2,
+      "/api/sprint/close/sprint-1",
+      { method: "POST", body: JSON.stringify({ targetSprintId: null }) },
+    );
+  });
+
+  it("moves a task between sprints and to the backlog", async () => {
+    const { server, tools } = createServerMock();
+    const client = { json: vi.fn().mockResolvedValue({ id: "task-1" }) };
+
+    registerTools(server as never, { client: client as never });
+
+    await tools.get("update_task_sprint")?.handler({
+      taskId: "task-1",
+      sprintId: "sprint-2",
+    });
+    await tools.get("update_task_sprint")?.handler({
+      taskId: "task-1",
+      sprintId: null,
+    });
+
+    expect(client.json).toHaveBeenNthCalledWith(1, "/api/sprint/task/task-1", {
+      method: "PUT",
+      body: JSON.stringify({ sprintId: "sprint-2" }),
+    });
+    expect(client.json).toHaveBeenNthCalledWith(2, "/api/sprint/task/task-1", {
+      method: "PUT",
+      body: JSON.stringify({ sprintId: null }),
+    });
+  });
+
+  it("validates sprint dates as ISO calendar dates", () => {
+    const { server, tools } = createServerMock();
+    const client = { json: vi.fn() };
+
+    registerTools(server as never, { client: client as never });
+
+    const schema = tools.get("create_sprint")?.config.inputSchema;
+    expect(schema).toBeDefined();
+    expect(() =>
+      schema?.parse({
+        projectId: "project-1",
+        startDate: "2026-01-15T10:00:00Z",
+      }),
+    ).toThrow(/ISO date/i);
+  });
 });

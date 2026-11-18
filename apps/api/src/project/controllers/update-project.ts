@@ -17,7 +17,7 @@ async function updateProject(
   isPublic: boolean,
   workspaceId: string,
   canShare: boolean,
-  includeSubtasks?: boolean,
+  defaultSprintLengthDays?: number,
 ) {
   return db.transaction(async (tx) => {
     await tx.execute(
@@ -65,7 +65,9 @@ async function updateProject(
         slug,
         description,
         isPublic,
-        ...(includeSubtasks === undefined ? {} : { includeSubtasks }),
+        ...(defaultSprintLengthDays !== undefined && {
+          defaultSprintLengthDays,
+        }),
       })
       .where(eq(projectTable.id, id))
       .returning();

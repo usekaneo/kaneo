@@ -33,6 +33,11 @@ const optionalIsoDateTimeSchema = isoDateTimeSchema.optional();
 const nullableOptionalIsoDateTimeSchema = isoDateTimeSchema
   .nullable()
   .optional();
+const isoDateSchema = z
+  .string()
+  .regex(/^\d{4}-\d{2}-\d{2}$/, "Expected an ISO date like 2025-01-15");
+const optionalIsoDateSchema = isoDateSchema.optional();
+const nullableOptionalIsoDateSchema = isoDateSchema.nullable().optional();
 const hexColorSchema = z
   .string()
   .regex(
@@ -885,6 +890,174 @@ export function registerTools(
     async (args) =>
       run(() =>
         client.json(`/api/time-entry/task/${encodeURIComponent(args.taskId)}`),
+      ),
+  );
+
+  registerTool(
+    "list_sprints",
+    {
+      description:
+        "List a project's sprints ordered by position, with task and completed-task counts.",
+      inputSchema: z.object({ projectId: nonEmptyString }),
+    },
+    async (args) =>
+      run(() =>
+        client.json(`/api/sprint/${encodeURIComponent(args.projectId)}`, {
+          method: "GET",
+        }),
+      ),
+  );
+
+  registerTool(
+    "create_sprint",
+    {
+      description:
+        "Create a future sprint at the end of a project's sprint backlog. Omit name to generate the next free 'Sprint N' name.",
+      inputSchema: z.object({
+        projectId: nonEmptyString,
+        name: optionalNonEmptyString,
+        goal: nullableOptionalNonEmptyString.describe(
+          "What the team wants to achieve in this sprint",
+        ),
+        startDate: optionalIsoDateSchema,
+        endDate: optionalIsoDateSchema,
+      }),
+    },
+    async (args) =>
+      run(() =>
+        client.json(`/api/sprint/${encodeURIComponent(args.projectId)}`, {
+          method: "POST",
+          body: JSON.stringify({
+            ...(args.name !== undefined ? { name: args.name } : {}),
+            ...(args.goal !== undefined ? { goal: args.goal } : {}),
+            ...(args.startDate !== undefined
+              ? { startDate: args.startDate }
+              : {}),
+            ...(args.endDate !== undefined ? { endDate: args.endDate } : {}),
+          }),
+        }),
+      ),
+  );
+
+  registerTool(
+    "reorder_sprints",
+    {
+      description:
+        "Set new positions for a project's future sprints and get the reordered list back. Active and closed sprints keep their positions.",
+      inputSchema: z.object({
+        projectId: nonEmptyString,
+        sprints: z
+          .array(
+            z.object({ id: nonEmptyString, position: z.number().int().min(0) }),
+          )
+          .min(1)
+          .describe("Every future sprint with its new position"),
+      }),
+    },
+    async (args) =>
+      run(() =>
+        client.json(
+          `/api/sprint/reorder/${encodeURIComponent(args.projectId)}`,
+          {
+            method: "POST",
+            body: JSON.stringify({ sprints: args.sprints }),
+          },
+        ),
+      ),
+  );
+
+  registerTool(
+    "update_sprint",
+    {
+      description:
+        "Rename a sprint or edit its goal and dates. Closed sprints are immutable; the active sprint cannot change its start date. A null goal or endDate clears it.",
+      inputSchema: z.object({
+        id: nonEmptyString,
+        name: optionalNonEmptyString,
+        goal: nullableOptionalNonEmptyString,
+        startDate: optionalIsoDateSchema,
+        endDate: nullableOptionalIsoDateSchema,
+      }),
+    },
+    async (args) => {
+      const { id, ...patch } = args;
+      return run(() =>
+        client.json(`/api/sprint/${encodeURIComponent(id)}`, {
+          method: "PUT",
+          body: JSON.stringify(patch),
+        }),
+      );
+    },
+  );
+
+  registerTool(
+    "start_sprint",
+    {
+      description:
+        "Make a future sprint the single active sprint of its project. Dates default to now plus the project's default sprint length. Fails while another sprint is active.",
+      inputSchema: z.object({
+        id: nonEmptyString,
+        startDate: optionalIsoDateSchema,
+        endDate: optionalIsoDateSchema,
+      }),
+    },
+    async (args) =>
+      run(() =>
+        client.json(`/api/sprint/start/${encodeURIComponent(args.id)}`, {
+          method: "POST",
+          body: JSON.stringify({
+            ...(args.startDate !== undefined
+              ? { startDate: args.startDate }
+              : {}),
+            ...(args.endDate !== undefined ? { endDate: args.endDate } : {}),
+          }),
+        }),
+      ),
+  );
+
+  registerTool(
+    "close_sprint",
+    {
+      description:
+        "Close the active sprint. Unfinished tasks move to targetSprintId (a future sprint of the same project), or to the backlog for null. Completed tasks stay in the closed sprint as history.",
+      inputSchema: z.object({
+        id: nonEmptyString,
+        targetSprintId: nonEmptyString
+          .nullable()
+          .describe(
+            "Future sprint that receives the unfinished tasks, or null for the backlog",
+          ),
+      }),
+    },
+    async (args) =>
+      run(() =>
+        client.json(`/api/sprint/close/${encodeURIComponent(args.id)}`, {
+          method: "POST",
+          body: JSON.stringify({ targetSprintId: args.targetSprintId }),
+        }),
+      ),
+  );
+
+  registerTool(
+    "update_task_sprint",
+    {
+      description:
+        "Move a task to an active or future sprint of its project, or to the backlog with a null sprintId. Closed sprints are immutable in both directions.",
+      inputSchema: z.object({
+        taskId: nonEmptyString,
+        sprintId: nonEmptyString
+          .nullable()
+          .describe(
+            "Target sprint ID, or null to move the task to the backlog",
+          ),
+      }),
+    },
+    async (args) =>
+      run(() =>
+        client.json(`/api/sprint/task/${encodeURIComponent(args.taskId)}`, {
+          method: "PUT",
+          body: JSON.stringify({ sprintId: args.sprintId }),
+        }),
       ),
   );
 

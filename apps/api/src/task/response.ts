@@ -27,6 +27,14 @@ export const taskSchema = z
       description: "The slug of the column the task sits in.",
     }),
     priority: z.string().openapi({ description: priorityDescription }),
+    sprintId: z.string().nullable().openapi({
+      description:
+        "The sprint this task belongs to; null means the task sits in the backlog.",
+    }),
+    type: z
+      .string()
+      .nullable()
+      .openapi({ description: "Task type, e.g. task or bug." }),
     startDate: nullableResponseTimestamp,
     dueDate: nullableResponseTimestamp,
     recurrence: z.union([taskRecurrenceSchema, z.null()]).optional(),
@@ -107,6 +115,14 @@ export const boardTaskSchema = z
     }),
     status: z.string(),
     priority: z.string().openapi({ description: priorityDescription }),
+    sprintId: z.string().nullable().openapi({
+      description:
+        "The sprint this task belongs to; null means the task sits in the backlog.",
+    }),
+    type: z
+      .string()
+      .nullable()
+      .openapi({ description: "Task type, e.g. task or bug." }),
     startDate: nullableResponseTimestamp,
     dueDate: nullableResponseTimestamp,
     recurrence: z.union([taskRecurrenceSchema, z.null()]),
@@ -117,7 +133,6 @@ export const boardTaskSchema = z
     assigneeId: z.string().nullable(),
     assigneeImage: z.string().nullable(),
     projectId: z.string(),
-    isSubtask: z.boolean().optional(),
     subtaskCounts: z
       .object({
         completed: z.number().int().nonnegative(),
@@ -158,7 +173,6 @@ export const boardSchema = z
             "True when a project description above 64 KiB is omitted; use project detail or public project description pages for full text.",
         }),
         isPublic: z.boolean().nullable(),
-        includeSubtasks: z.boolean().optional(),
         workspaceId: z.string(),
         backgroundVersion: z.string().nullable(),
         columns: z.array(boardColumnSchema),

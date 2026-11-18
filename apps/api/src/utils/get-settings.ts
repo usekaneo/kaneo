@@ -65,7 +65,7 @@ function getSettings(
     customOAuthLogoutUrl: process.env.CUSTOM_OAUTH_LOGOUT_URL || null,
     customOAuthManagedProfileFields: parseManagedProfileFields(),
     customOAuthAccountUrl: parseCustomOAuthAccountUrl(),
-    billingEnabled: isBillingAvailable(),
+    billingEnabled: isBillingEnabled(),
   };
 }
 

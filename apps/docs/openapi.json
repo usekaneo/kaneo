@@ -281,9 +281,6 @@
           "projectId": {
             "type": "string"
           },
-          "isSubtask": {
-            "type": "boolean"
-          },
           "subtaskCounts": {
             "type": "object",
             "properties": {
@@ -313,6 +310,20 @@
             "items": {
               "$ref": "#/components/schemas/TaskExternalLink"
             }
+          },
+          "sprintId": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "The sprint this task belongs to; null means the task sits in the backlog."
+          },
+          "type": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "Task type, e.g. task or bug."
           }
         },
         "required": [
@@ -322,6 +333,8 @@
           "description",
           "status",
           "priority",
+          "sprintId",
+          "type",
           "startDate",
           "dueDate",
           "recurrence",
@@ -534,9 +547,6 @@
               "boolean",
               "null"
             ]
-          },
-          "includeSubtasks": {
-            "type": "boolean"
           },
           "workspaceId": {
             "type": "string"
@@ -852,9 +862,6 @@
       "Project": {
         "type": "object",
         "properties": {
-          "includeSubtasks": {
-            "type": "boolean"
-          },
           "id": {
             "type": "string"
           },
@@ -912,6 +919,10 @@
           "lastTaskNumber": {
             "type": "number",
             "description": "Highest task number issued in this project; the next task gets this plus one."
+          },
+          "defaultSprintLengthDays": {
+            "type": "number",
+            "description": "Default sprint length in days; used to prefill a sprint's end date when it starts."
           }
         },
         "required": [
@@ -1355,6 +1366,20 @@
                 "value"
               ]
             }
+          },
+          "sprintId": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "The sprint this task belongs to; null means the task sits in the backlog."
+          },
+          "type": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "Task type, e.g. task or bug."
           }
         },
         "required": [
@@ -1367,6 +1392,8 @@
           "description",
           "status",
           "priority",
+          "sprintId",
+          "type",
           "startDate",
           "dueDate",
           "createdAt"
@@ -5204,6 +5231,17 @@
               "null"
             ]
           },
+          "stage": {
+            "type": "string",
+            "enum": [
+              "reading",
+              "sprints",
+              "users",
+              "tasks",
+              "done"
+            ],
+            "description": "The import step this project is currently in."
+          },
           "counts": {
             "$ref": "#/components/schemas/ImportCounts"
           },
@@ -5226,6 +5264,7 @@
           "status",
           "projectId",
           "projectSlug",
+          "stage",
           "counts",
           "warnings",
           "error"
@@ -5252,6 +5291,18 @@
           },
           "relations": {
             "type": "integer"
+          },
+          "attachments": {
+            "type": "integer",
+            "description": "Attachments copied into the storage backend and linked from the task descriptions."
+          },
+          "sprints": {
+            "type": "integer",
+            "description": "Sprints written into the project."
+          },
+          "users": {
+            "type": "integer",
+            "description": "Users invited or created for unknown assignees."
           }
         },
         "required": [
@@ -5981,6 +6032,232 @@
           "image",
           "role",
           "joinedAt"
+        ]
+      },
+      "Branding": {
+        "type": "object",
+        "properties": {
+          "appName": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "Custom application name. Null keeps the default Kaneo name."
+          },
+          "logoLightUrl": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "Logo image URL for the light theme. Null keeps the default logo."
+          },
+          "logoDarkUrl": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "Logo image URL for the dark theme. Null keeps the default logo."
+          },
+          "accentColor": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "Accent color as a #rrggbb hex value. Null keeps the default color."
+          },
+          "footerText": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "Custom footer text replacing the 'Powered by Kaneo' wording. Null keeps the default."
+          },
+          "footerUrl": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "Link target for the footer branding on public pages. Defaults to kaneo.app."
+          },
+          "termsUrl": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "Terms of service URL shown on the sign-in screen. Defaults to kaneo.app/terms."
+          },
+          "privacyUrl": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "Privacy policy URL shown on the sign-in screen. Defaults to kaneo.app/privacy."
+          },
+          "showPoweredBy": {
+            "type": "boolean",
+            "description": "Whether the Kaneo attribution appears on public pages."
+          }
+        },
+        "required": [
+          "appName",
+          "logoLightUrl",
+          "logoDarkUrl",
+          "accentColor",
+          "footerText",
+          "footerUrl",
+          "termsUrl",
+          "privacyUrl",
+          "showPoweredBy"
+        ]
+      },
+      "Sprint": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "projectId": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "goal": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "future",
+              "active",
+              "closed"
+            ],
+            "description": "Future sprints can be edited, reordered and started. Exactly one sprint per project may be active. Closed sprints are immutable and keep their completed tasks as history."
+          },
+          "startDate": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "date-time"
+          },
+          "endDate": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "date-time"
+          },
+          "carryOverTasks": {
+            "type": [
+              "array",
+              "null"
+            ],
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string"
+                },
+                "title": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "id",
+                "title"
+              ]
+            },
+            "description": "Unfinished tasks moved out when the sprint was closed, frozen as a snapshot at close time. Null while the sprint is open."
+          },
+          "position": {
+            "type": "number",
+            "description": "Backlog order, ascending. Sprints are always returned sorted by it."
+          },
+          "taskCount": {
+            "type": "number",
+            "description": "Tasks currently assigned to this sprint."
+          },
+          "completedTaskCount": {
+            "type": "number",
+            "description": "Tasks assigned to this sprint that sit in a final column. After a sprint closes, these remain as its history."
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "id",
+          "projectId",
+          "name",
+          "goal",
+          "status",
+          "startDate",
+          "endDate",
+          "carryOverTasks",
+          "position",
+          "taskCount",
+          "completedTaskCount",
+          "createdAt",
+          "updatedAt"
+        ]
+      },
+      "CloseSprintResult": {
+        "type": "object",
+        "properties": {
+          "sprint": {
+            "$ref": "#/components/schemas/Sprint"
+          },
+          "movedTaskIds": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "Unfinished tasks that were moved to the target."
+          },
+          "targetSprintId": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "The sprint that received the unfinished tasks; null means backlog."
+          }
+        },
+        "required": [
+          "sprint",
+          "movedTaskIds",
+          "targetSprintId"
+        ]
+      },
+      "TaskSprint": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "projectId": {
+            "type": "string"
+          },
+          "sprintId": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "Null means the task sits in the backlog."
+          }
+        },
+        "required": [
+          "id",
+          "projectId",
+          "sprintId"
         ]
       },
       "AdminSystemStatus": {
@@ -10736,7 +11013,7 @@
           "Projects"
         ],
         "summary": "Update project",
-        "description": "Replace a project's name, icon, slug, description, and visibility.",
+        "description": "Replace a project's name, icon, slug, description, and visibility. Optionally set the default sprint length in days.",
         "parameters": [
           {
             "schema": {
@@ -10769,8 +11046,10 @@
                   "isPublic": {
                     "type": "boolean"
                   },
-                  "includeSubtasks": {
-                    "type": "boolean"
+                  "defaultSprintLengthDays": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "description": "Default sprint length in days. Used to prefill a new sprint's end date when starting it. Omit to keep the current value."
                   }
                 },
                 "required": [
@@ -12294,7 +12573,8 @@
                       "delete",
                       "addLabel",
                       "removeLabel",
-                      "updateDueDate"
+                      "updateDueDate",
+                      "updateSprint"
                     ]
                   },
                   "value": {
@@ -12302,7 +12582,7 @@
                       "string",
                       "null"
                     ],
-                    "description": "The new value for the chosen operation. Unused by `delete`; null clears an assignee or due date."
+                    "description": "The new value for the chosen operation. Unused by `delete`; null clears an assignee or due date, or moves tasks to the backlog for `updateSprint`."
                   }
                 },
                 "required": [
@@ -12884,6 +13164,18 @@
                         "value"
                       ]
                     }
+                  },
+                  "type": {
+                    "type": "string",
+                    "enum": [
+                      "task",
+                      "bug"
+                    ],
+                    "description": "Bugs default to the project's active sprint; every other type defaults to the backlog."
+                  },
+                  "sprintId": {
+                    "type": "string",
+                    "description": "Active or future sprint of the project. Omit to apply the type-based default: bugs go to the active sprint, everything else to the backlog."
                   }
                 },
                 "required": [
@@ -25035,6 +25327,20 @@
                     "type": "boolean",
                     "default": true,
                     "description": "Import task comments too. Defaults to true."
+                  },
+                  "includeSprints": {
+                    "type": "boolean",
+                    "default": true,
+                    "description": "Import sprints too, when the source has them, and keep each task in its sprint. Defaults to true."
+                  },
+                  "userHandling": {
+                    "type": "string",
+                    "enum": [
+                      "invite",
+                      "create"
+                    ],
+                    "default": "invite",
+                    "description": "What happens to assignees who are not members of the workspace yet. \"invite\" sends them a workspace invitation and leaves their tasks unassigned until they join; \"create\" creates their account and workspace membership directly. Defaults to \"invite\"."
                   }
                 },
                 "required": [
@@ -26724,6 +27030,914 @@
           },
           "404": {
             "description": "Workspace or member not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "429": {
+            "$ref": "#/components/responses/ApiKeyRateLimited"
+          }
+        }
+      }
+    },
+    "/sprint/{projectId}": {
+      "get": {
+        "operationId": "getSprints",
+        "tags": [
+          "Sprints"
+        ],
+        "summary": "Get sprints",
+        "description": "Get a project's sprints ordered by position, with task and completed-task counts.",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "required": true,
+            "name": "projectId",
+            "in": "path"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of sprints ordered by position",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Sprint"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Unknown project, or its workspace could not be determined",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid credentials",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "No access to the project's workspace",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "429": {
+            "$ref": "#/components/responses/ApiKeyRateLimited"
+          }
+        }
+      },
+      "post": {
+        "operationId": "createSprint",
+        "tags": [
+          "Sprints"
+        ],
+        "summary": "Create sprint",
+        "description": "Add a future sprint to the end of a project's sprint backlog. Omit the name to generate the next free 'Sprint N' name.",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "required": true,
+            "name": "projectId",
+            "in": "path"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string",
+                    "minLength": 1,
+                    "description": "Sprint name, unique per project. Omitted to generate the next free 'Sprint N' name."
+                  },
+                  "goal": {
+                    "type": [
+                      "string",
+                      "null"
+                    ],
+                    "description": "What the team wants to achieve in this sprint."
+                  },
+                  "startDate": {
+                    "type": "string",
+                    "description": "ISO date string, e.g. \"2025-01-15\". Optional until the sprint starts."
+                  },
+                  "endDate": {
+                    "type": "string",
+                    "description": "ISO date string, e.g. \"2025-01-29\". Optional until the sprint starts."
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "The created sprint",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Sprint"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid body, unknown project, or invalid dates",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid credentials",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "No workspace access, or missing project:update permission",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "A sprint with this name already exists in the project",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "429": {
+            "$ref": "#/components/responses/ApiKeyRateLimited"
+          }
+        }
+      }
+    },
+    "/sprint/reorder/{projectId}": {
+      "post": {
+        "operationId": "reorderSprints",
+        "tags": [
+          "Sprints"
+        ],
+        "summary": "Reorder sprints",
+        "description": "Set new positions for a project's future sprints and return the whole sprint list in its new order. Active and closed sprints keep their positions.",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "required": true,
+            "name": "projectId",
+            "in": "path"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "sprints": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "id": {
+                          "type": "string"
+                        },
+                        "position": {
+                          "type": "integer",
+                          "minimum": 0
+                        }
+                      },
+                      "required": [
+                        "id",
+                        "position"
+                      ]
+                    },
+                    "description": "Every sprint keeps its new position. Only future sprints may be reordered; active and closed sprints are rejected."
+                  }
+                },
+                "required": [
+                  "sprints"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "The reordered sprint list",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Sprint"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "A sprint is not a future sprint of this project",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid credentials",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "No workspace access, or missing project:update permission",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "429": {
+            "$ref": "#/components/responses/ApiKeyRateLimited"
+          }
+        }
+      }
+    },
+    "/sprint/{id}": {
+      "put": {
+        "operationId": "updateSprint",
+        "tags": [
+          "Sprints"
+        ],
+        "summary": "Update sprint",
+        "description": "Rename a sprint, edit its goal or dates. Closed sprints are immutable; the active sprint cannot change its start date.",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "required": true,
+            "name": "id",
+            "in": "path"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "goal": {
+                    "type": [
+                      "string",
+                      "null"
+                    ],
+                    "description": "Null clears the sprint goal."
+                  },
+                  "startDate": {
+                    "type": "string",
+                    "description": "Only accepted for future sprints; the active sprint is already running and closed sprints are immutable."
+                  },
+                  "endDate": {
+                    "type": [
+                      "string",
+                      "null"
+                    ],
+                    "description": "Accepted for future and active sprints. Null clears it."
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "The updated sprint",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Sprint"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid body, unknown sprint, invalid dates, or an immutable field",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid credentials",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "No workspace access, or missing project:update permission",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Sprint not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "The sprint is closed, or the name is already taken",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "429": {
+            "$ref": "#/components/responses/ApiKeyRateLimited"
+          }
+        }
+      }
+    },
+    "/sprint/start/{id}": {
+      "post": {
+        "operationId": "startSprint",
+        "tags": [
+          "Sprints"
+        ],
+        "summary": "Start sprint",
+        "description": "Make a future sprint the single active sprint of its project. Dates default to now plus the project's default sprint length. Fails while another sprint is active.",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "required": true,
+            "name": "id",
+            "in": "path"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "startDate": {
+                    "type": "string",
+                    "description": "ISO date string. Defaults to now, or the stored start date."
+                  },
+                  "endDate": {
+                    "type": "string",
+                    "description": "ISO date string. Defaults to the stored end date, or the start date plus the project's default sprint length."
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "The started sprint",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Sprint"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid body, unknown sprint, or invalid dates",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid credentials",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "No workspace access, or missing project:update permission",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Sprint not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Another sprint is already active, or the sprint is not a future sprint",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "429": {
+            "$ref": "#/components/responses/ApiKeyRateLimited"
+          }
+        }
+      }
+    },
+    "/sprint/close/{id}": {
+      "post": {
+        "operationId": "closeSprint",
+        "tags": [
+          "Sprints"
+        ],
+        "summary": "Close sprint",
+        "description": "Close the active sprint. Unfinished tasks move to the chosen future sprint, or to the backlog for a null target. Completed tasks remain in the closed sprint as its history.",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "required": true,
+            "name": "id",
+            "in": "path"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "targetSprintId": {
+                    "type": [
+                      "string",
+                      "null"
+                    ],
+                    "description": "Future sprint of the same project that receives every unfinished task. Null moves them to the backlog. Completed tasks stay in the closed sprint as history."
+                  }
+                },
+                "required": [
+                  "targetSprintId"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "The closed sprint and the moved tasks",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CloseSprintResult"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "The target is not a future sprint of this project",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid credentials",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "No workspace access, or missing project:update permission",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Sprint or target sprint not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "The sprint is not active, or is already closed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "429": {
+            "$ref": "#/components/responses/ApiKeyRateLimited"
+          }
+        }
+      }
+    },
+    "/sprint/task/{taskId}": {
+      "put": {
+        "operationId": "updateTaskSprint",
+        "tags": [
+          "Sprints"
+        ],
+        "summary": "Assign a task to a sprint",
+        "description": "Move a task to an active or future sprint of its project, or to the backlog with null. Closed sprints are immutable in both directions.",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "required": true,
+            "name": "taskId",
+            "in": "path"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "sprintId": {
+                    "type": [
+                      "string",
+                      "null"
+                    ],
+                    "description": "Active or future sprint of the task's project. Null moves the task to the backlog. Closed sprints are rejected in both directions."
+                  }
+                },
+                "required": [
+                  "sprintId"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "The task with its new sprint",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TaskSprint"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid body, or unknown task",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid credentials",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "No workspace access, or missing task:update permission",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Task or target sprint not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "The task or the target belongs to a closed sprint",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "429": {
+            "$ref": "#/components/responses/ApiKeyRateLimited"
+          }
+        }
+      }
+    },
+    "/admin/branding": {
+      "get": {
+        "operationId": "getAdminBranding",
+        "tags": [
+          "Admin"
+        ],
+        "summary": "Get instance branding",
+        "description": "Read the white-label branding applied to this instance: application name, logos, accent color, footer, and legal links. Requires an instance administrator session; API keys are rejected.",
+        "responses": {
+          "200": {
+            "description": "Instance branding",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Branding"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid credentials",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "The caller is not an instance administrator or is authenticated with an API key",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "429": {
+            "$ref": "#/components/responses/ApiKeyRateLimited"
+          }
+        }
+      },
+      "put": {
+        "operationId": "updateAdminBranding",
+        "tags": [
+          "Admin"
+        ],
+        "summary": "Update instance branding",
+        "description": "Replace the white-label branding for this instance. Null values restore the default Kaneo branding. Requires an instance administrator session; API keys are rejected.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "appName": {
+                    "type": [
+                      "string",
+                      "null"
+                    ],
+                    "maxLength": 100,
+                    "description": "Custom application name. Null keeps the default Kaneo name."
+                  },
+                  "logoLightUrl": {
+                    "type": [
+                      "string",
+                      "null"
+                    ],
+                    "format": "uri",
+                    "maxLength": 2048,
+                    "description": "Logo image URL for the light theme. Null keeps the default logo."
+                  },
+                  "logoDarkUrl": {
+                    "type": [
+                      "string",
+                      "null"
+                    ],
+                    "format": "uri",
+                    "maxLength": 2048,
+                    "description": "Logo image URL for the dark theme. Null keeps the default logo."
+                  },
+                  "accentColor": {
+                    "type": [
+                      "string",
+                      "null"
+                    ],
+                    "pattern": "^#[0-9a-fA-F]{6}$",
+                    "description": "Accent color as a #rrggbb hex value. Null keeps the default color."
+                  },
+                  "footerText": {
+                    "type": [
+                      "string",
+                      "null"
+                    ],
+                    "maxLength": 200,
+                    "description": "Custom footer text replacing the 'Powered by Kaneo' wording. Null keeps the default."
+                  },
+                  "footerUrl": {
+                    "type": [
+                      "string",
+                      "null"
+                    ],
+                    "format": "uri",
+                    "maxLength": 2048,
+                    "description": "Link target for the footer branding on public pages. Defaults to kaneo.app."
+                  },
+                  "termsUrl": {
+                    "type": [
+                      "string",
+                      "null"
+                    ],
+                    "format": "uri",
+                    "maxLength": 2048,
+                    "description": "Terms of service URL shown on the sign-in screen. Defaults to kaneo.app/terms."
+                  },
+                  "privacyUrl": {
+                    "type": [
+                      "string",
+                      "null"
+                    ],
+                    "format": "uri",
+                    "maxLength": 2048,
+                    "description": "Privacy policy URL shown on the sign-in screen. Defaults to kaneo.app/privacy."
+                  },
+                  "showPoweredBy": {
+                    "type": "boolean",
+                    "description": "Whether the Kaneo attribution appears on public pages."
+                  }
+                },
+                "required": [
+                  "appName",
+                  "logoLightUrl",
+                  "logoDarkUrl",
+                  "accentColor",
+                  "footerText",
+                  "footerUrl",
+                  "termsUrl",
+                  "privacyUrl",
+                  "showPoweredBy"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Updated instance branding",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Branding"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid branding values",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid credentials",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "The caller is not an instance administrator or is authenticated with an API key",
             "content": {
               "application/json": {
                 "schema": {
