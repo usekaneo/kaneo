@@ -1014,6 +1014,7 @@ export function createApp() {
     adminApi,
     workflowRuleApi,
     workspaceApi,
+    sprintApi,
     customFieldApi,
     importApi,
     oauthApi,
@@ -1150,6 +1151,7 @@ const {
   workflowRuleApi,
   workspaceApi,
   customFieldApi,
+  sprintApi,
   importApi,
   oauthApi,
 } = createdApp;
