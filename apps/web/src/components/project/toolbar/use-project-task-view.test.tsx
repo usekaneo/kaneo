@@ -33,6 +33,12 @@ vi.mock("@/components/project/task-filters/use-task-filter-options", () => ({
     usedCustomFieldValues: {},
   }),
 }));
+// The hook reads the project's sprints for the sprint scope; this suite
+// focuses on the includeSubtasks behaviour.
+vi.mock("@/hooks/queries/sprint/use-get-sprints", () => ({
+  useGetSprints: () => ({ data: [] }),
+}));
+
 afterEach(() => {
   state.includeSubtasks = false;
 });

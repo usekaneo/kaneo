@@ -72,6 +72,14 @@ vi.mock("@/components/shared/modals/create-task-modal", () => ({
 vi.mock("@/components/task/task-details-sheet", () => ({
   default: () => null,
 }));
+// The board's sprint slice is covered by the sprint-planning suites; here it
+// is only chrome around the kanban board under test.
+vi.mock("@/components/project/toolbar/sprint-scope-select", () => ({
+  SprintScopeSelect: () => null,
+}));
+vi.mock("@/components/sprint-planning/board-sprint-banner", () => ({
+  default: () => null,
+}));
 afterEach(cleanup);
 it("keeps cached tasks readable and disables reordering when a refresh fails", () => {
   const Component = (Route as unknown as { component: ComponentType })

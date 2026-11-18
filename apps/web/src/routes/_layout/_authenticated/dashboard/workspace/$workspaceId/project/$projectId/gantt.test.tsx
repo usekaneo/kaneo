@@ -101,6 +101,12 @@ vi.mock(
   }),
 );
 
+// The shared view hook reads the project's sprints; the gantt suite runs
+// without a QueryClient provider, so the sprint query stays isolated.
+vi.mock("@/hooks/queries/sprint/use-get-sprints", () => ({
+  useGetSprints: () => ({ data: [] }),
+}));
+
 vi.mock("@/components/task/task-details-sheet", () => ({
   default: () => null,
 }));
