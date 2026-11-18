@@ -4,6 +4,7 @@ import { boardColumnSchema, boardTaskSchema } from "../task/response";
 
 export const projectSchema = z
   .object({
+    includeSubtasks: z.boolean().optional(),
     id: z.string(),
     workspaceId: z.string(),
     backgroundVersion: z.string().nullable(),
@@ -18,7 +19,6 @@ export const projectSchema = z
       description:
         "When true the project's board is readable without signing in, via /api/public-project/{id}.",
     }),
-    includeSubtasks: z.boolean().optional(),
     archivedAt: nullableResponseTimestamp.openapi({
       description:
         "Non-null once archived; archived projects are hidden by default.",
