@@ -3020,37 +3020,6 @@
 			"then": "然後",
 			"or": "或",
 			"thenEllipsis": "然後…"
-		},
-		"keyboardShortcuts": {
-			"categories": {
-				"create": "建立",
-				"general": "一般",
-				"navigation": "導覽",
-				"quickSelect": "快速選取（在彈出選單中）",
-				"views": "檢視"
-			},
-			"footer": "按 <kbd>Escape</kbd> 關閉",
-			"items": {
-				"backlogView": "切換到待辦事項檢視",
-				"boardView": "切換到看板檢視",
-				"calendarView": "切換到行事曆檢視",
-				"closeModal": "關閉對話框／彈出選單",
-				"createProject": "建立專案",
-				"createTask": "建立任務",
-				"createWorkspace": "建立工作區",
-				"globalSearch": "全域搜尋",
-				"listView": "切換到清單檢視",
-				"nextTask": "下一個任務",
-				"openCommandPalette": "開啟指令面板",
-				"openTask": "開啟選取的任務",
-				"prevTask": "上一個任務",
-				"quickSelectNumber": "依數字選取選項",
-				"showShortcuts": "顯示鍵盤快速鍵",
-				"toggleSidebar": "切換側邊欄"
-			},
-			"searchPlaceholder": "搜尋快速鍵...",
-			"subtitle": "用鍵盤快速鍵加快你的工作流程",
-			"title": "鍵盤快速鍵"
 		}
 	},
 	"notifications": {
@@ -3242,6 +3211,20 @@
 		"movedFromOtherProject": "moved task from another project to \"{{to}}\""
 	},
 	"tasks": {
+		"dateFilter": {
+			"startDate": "開始日期",
+			"noDate": "無日期",
+			"condition": "日期條件",
+			"exact": "指定日期",
+			"range": "日期範圍",
+			"before": "早於",
+			"after": "晚於",
+			"apply": "套用日期篩選",
+			"exactValue": "在 {{date}}",
+			"beforeValue": "早於 {{date}}",
+			"afterValue": "晚於 {{date}}",
+			"rangeValue": "{{date}} – {{end}}"
+		},
 		"title": "任務",
 		"status": {
 			"label": "狀態",
@@ -3781,7 +3764,9 @@
 			"showOnRows": "在列中顯示",
 			"checklistProgress": "檢查清單進度",
 			"projectBackground": "專案背景",
-			"layout": "版面配置"
+			"layout": "版面配置",
+			"includeSubtasks": "包含子任務",
+			"useProjectDefault": "使用專案預設設定"
 		},
 		"filterBar": {
 			"label": "已套用的篩選",
@@ -3822,6 +3807,21 @@
 			"startsOn": "開始於 {{date}}",
 			"beforeStart": "{{date}} 早於開始日期",
 			"afterDue": "{{date}} 晚於截止日期"
+		},
+		"timeTracking": {
+			"empty": "尚未記錄時間。",
+			"loadError": "無法載入時間記錄。",
+			"retry": "重試",
+			"running": "計時中",
+			"start": "啟動計時器",
+			"startError": "無法開始計時。",
+			"stop": "停止計時",
+			"stopError": "無法停止計時。",
+			"title": "時間追蹤",
+			"unknownUser": "未知使用者",
+			"durationSeconds": "{{seconds, number}}秒",
+			"durationMinutes": "{{minutes, number}}分",
+			"durationHoursMinutes": "{{hours, number}}小時 {{minutes, number}}分"
 		},
 		"sprints": {
 			"activeBadge": "進行中",

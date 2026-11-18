@@ -3020,37 +3020,6 @@
 			"then": "rồi",
 			"or": "hoặc",
 			"thenEllipsis": "rồi…"
-		},
-		"keyboardShortcuts": {
-			"categories": {
-				"create": "Tạo",
-				"general": "Chung",
-				"navigation": "Điều hướng",
-				"quickSelect": "Chọn nhanh (trong popover)",
-				"views": "Chế độ xem"
-			},
-			"footer": "Nhấn <kbd>Escape</kbd> để đóng",
-			"items": {
-				"backlogView": "Chuyển sang chế độ xem backlog",
-				"boardView": "Chuyển sang chế độ xem bảng",
-				"calendarView": "Chuyển sang chế độ xem lịch",
-				"closeModal": "Đóng modal/popover",
-				"createProject": "Tạo dự án",
-				"createTask": "Tạo công việc",
-				"createWorkspace": "Tạo không gian làm việc",
-				"globalSearch": "Tìm kiếm toàn cục",
-				"listView": "Chuyển sang chế độ xem danh sách",
-				"nextTask": "Công việc tiếp theo",
-				"openCommandPalette": "Mở bảng lệnh",
-				"openTask": "Mở công việc đã chọn",
-				"prevTask": "Công việc trước đó",
-				"quickSelectNumber": "Chọn tùy chọn theo số",
-				"showShortcuts": "Hiện phím tắt",
-				"toggleSidebar": "Bật/tắt thanh bên"
-			},
-			"searchPlaceholder": "Tìm phím tắt...",
-			"subtitle": "Tăng tốc quy trình làm việc của bạn với phím tắt",
-			"title": "Phím tắt"
 		}
 	},
 	"notifications": {
@@ -3242,6 +3211,20 @@
 		"movedFromOtherProject": "moved task from another project to \"{{to}}\""
 	},
 	"tasks": {
+		"dateFilter": {
+			"startDate": "Ngày bắt đầu",
+			"noDate": "Không có ngày",
+			"condition": "Điều kiện ngày",
+			"exact": "Ngày cụ thể",
+			"range": "Khoảng ngày",
+			"before": "Trước",
+			"after": "Sau",
+			"apply": "Áp dụng bộ lọc ngày",
+			"exactValue": "Vào {{date}}",
+			"beforeValue": "Trước {{date}}",
+			"afterValue": "Sau {{date}}",
+			"rangeValue": "{{date}} – {{end}}"
+		},
 		"title": "Nhiệm vụ",
 		"status": {
 			"label": "Trạng thái",
@@ -3781,7 +3764,9 @@
 			"showOnRows": "Hiện trên hàng",
 			"checklistProgress": "Tiến độ danh sách kiểm tra",
 			"projectBackground": "Hình nền dự án",
-			"layout": "Bố cục"
+			"layout": "Bố cục",
+			"includeSubtasks": "Bao gồm nhiệm vụ phụ",
+			"useProjectDefault": "Dùng thiết lập mặc định của dự án"
 		},
 		"filterBar": {
 			"label": "Bộ lọc đang áp dụng",
@@ -3822,6 +3807,21 @@
 			"startsOn": "Bắt đầu {{date}}",
 			"beforeStart": "{{date}} trước ngày bắt đầu",
 			"afterDue": "{{date}} sau hạn chót"
+		},
+		"timeTracking": {
+			"empty": "Chưa có thời gian nào được ghi lại.",
+			"loadError": "Không thể tải các mục thời gian.",
+			"retry": "Thử lại",
+			"running": "Đang chạy",
+			"start": "Bắt đầu hẹn giờ",
+			"startError": "Không thể bắt đầu bộ hẹn giờ.",
+			"stop": "Dừng bộ hẹn giờ",
+			"stopError": "Không thể dừng bộ hẹn giờ.",
+			"title": "Theo dõi thời gian",
+			"unknownUser": "Không xác định",
+			"durationSeconds": "{{seconds, number}} giây",
+			"durationMinutes": "{{minutes, number}} phút",
+			"durationHoursMinutes": "{{hours, number}} giờ {{minutes, number}} phút"
 		},
 		"sprints": {
 			"activeBadge": "Đang chạy",

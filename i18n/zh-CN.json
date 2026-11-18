@@ -3054,37 +3054,6 @@
 			"or": "或",
 			"thenEllipsis": "然后…",
 			"results_one": "{{count}} result"
-		},
-		"keyboardShortcuts": {
-			"categories": {
-				"create": "创建",
-				"general": "通用",
-				"navigation": "导航",
-				"quickSelect": "快速选择（在弹层中）",
-				"views": "视图"
-			},
-			"footer": "按 <kbd>Esc</kbd> 关闭",
-			"items": {
-				"backlogView": "切换到待办视图",
-				"boardView": "切换到看板视图",
-				"calendarView": "切换到日历视图",
-				"closeModal": "关闭弹窗/弹层",
-				"createProject": "创建项目",
-				"createTask": "创建任务",
-				"createWorkspace": "创建工作区",
-				"globalSearch": "全局搜索",
-				"listView": "切换到列表视图",
-				"nextTask": "下一任务",
-				"openCommandPalette": "打开命令面板",
-				"openTask": "打开所选任务",
-				"prevTask": "上一任务",
-				"quickSelectNumber": "按数字选择选项",
-				"showShortcuts": "显示键盘快捷键",
-				"toggleSidebar": "切换侧边栏"
-			},
-			"searchPlaceholder": "搜索快捷键…",
-			"subtitle": "使用键盘快捷键提升效率",
-			"title": "键盘快捷键"
 		}
 	},
 	"notifications": {
@@ -3280,6 +3249,20 @@
 		"movedFromOtherProject": "将任务从其它项目移动到「{{to}}」"
 	},
 	"tasks": {
+		"dateFilter": {
+			"startDate": "开始日期",
+			"noDate": "无日期",
+			"condition": "日期条件",
+			"exact": "指定日期",
+			"range": "日期范围",
+			"before": "早于",
+			"after": "晚于",
+			"apply": "应用日期筛选",
+			"exactValue": "在 {{date}}",
+			"beforeValue": "早于 {{date}}",
+			"afterValue": "晚于 {{date}}",
+			"rangeValue": "{{date}} – {{end}}"
+		},
 		"title": "任务",
 		"status": {
 			"label": "状态",
@@ -3825,7 +3808,9 @@
 			"showOnRows": "在行中显示",
 			"checklistProgress": "清单进度",
 			"projectBackground": "项目背景",
-			"layout": "布局"
+			"layout": "布局",
+			"includeSubtasks": "包含子任务",
+			"useProjectDefault": "使用项目默认设置"
 		},
 		"filterBar": {
 			"label": "已应用的筛选",
@@ -3869,6 +3854,21 @@
 			"startsOn": "开始于 {{date}}",
 			"beforeStart": "{{date}} 早于开始日期",
 			"afterDue": "{{date}} 晚于截止日期"
+		},
+		"timeTracking": {
+			"empty": "尚未记录时间。",
+			"loadError": "无法加载时间记录。",
+			"retry": "重试",
+			"running": "计时中",
+			"start": "启动计时器",
+			"startError": "无法开始计时。",
+			"stop": "停止计时",
+			"stopError": "无法停止计时。",
+			"title": "时间跟踪",
+			"unknownUser": "未知",
+			"durationSeconds": "{{seconds, number}}秒",
+			"durationMinutes": "{{minutes, number}}分",
+			"durationHoursMinutes": "{{hours, number}}小时 {{minutes, number}}分"
 		},
 		"sprints": {
 			"activeBadge": "进行中",
