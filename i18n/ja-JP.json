@@ -3020,37 +3020,6 @@
 			"then": "次に",
 			"or": "または",
 			"thenEllipsis": "次に…"
-		},
-		"keyboardShortcuts": {
-			"categories": {
-				"create": "作成",
-				"general": "一般",
-				"navigation": "ナビゲーション",
-				"quickSelect": "クイック選択 (ポップオーバー内)",
-				"views": "ビュー"
-			},
-			"footer": "<kbd>Escape</kbd> で閉じる",
-			"items": {
-				"backlogView": "バックログビューに切り替え",
-				"boardView": "ボードビューに切り替え",
-				"calendarView": "カレンダービューに切り替え",
-				"closeModal": "モーダル/ポップオーバーを閉じる",
-				"createProject": "プロジェクトを作成",
-				"createTask": "タスクを作成",
-				"createWorkspace": "ワークスペースを作成",
-				"globalSearch": "全体検索",
-				"listView": "リストビューに切り替え",
-				"nextTask": "次のタスク",
-				"openCommandPalette": "コマンドパレットを開く",
-				"openTask": "選択したタスクを開く",
-				"prevTask": "前のタスク",
-				"quickSelectNumber": "番号で項目を選択",
-				"showShortcuts": "キーボードショートカットを表示",
-				"toggleSidebar": "サイドバーを切り替え"
-			},
-			"searchPlaceholder": "ショートカットを検索...",
-			"subtitle": "キーボードショートカットで作業を効率化",
-			"title": "キーボードショートカット"
 		}
 	},
 	"notifications": {
@@ -3242,6 +3211,20 @@
 		"movedFromOtherProject": "moved task from another project to \"{{to}}\""
 	},
 	"tasks": {
+		"dateFilter": {
+			"startDate": "開始日",
+			"noDate": "日付なし",
+			"condition": "日付の条件",
+			"exact": "指定日",
+			"range": "日付範囲",
+			"before": "指定日より前",
+			"after": "指定日より後",
+			"apply": "日付フィルターを適用",
+			"exactValue": "{{date}}",
+			"beforeValue": "{{date}}より前",
+			"afterValue": "{{date}}より後",
+			"rangeValue": "{{date}} – {{end}}"
+		},
 		"title": "タスク",
 		"status": {
 			"label": "ステータス",
@@ -3781,7 +3764,9 @@
 			"showOnRows": "行に表示",
 			"checklistProgress": "チェックリストの進捗",
 			"projectBackground": "プロジェクトの背景",
-			"layout": "レイアウト"
+			"layout": "レイアウト",
+			"includeSubtasks": "サブタスクを含める",
+			"useProjectDefault": "プロジェクトの既定値を使用"
 		},
 		"filterBar": {
 			"label": "適用中のフィルター",
@@ -3822,6 +3807,21 @@
 			"startsOn": "開始: {{date}}",
 			"beforeStart": "{{date}} は開始日より前です",
 			"afterDue": "{{date}} は期日より後です"
+		},
+		"timeTracking": {
+			"empty": "まだ時間が記録されていません。",
+			"loadError": "時間の記録を読み込めませんでした。",
+			"retry": "再試行",
+			"running": "計測中",
+			"start": "タイマーを開始",
+			"startError": "タイマーを開始できませんでした。",
+			"stop": "タイマーを停止",
+			"stopError": "タイマーを停止できませんでした。",
+			"title": "時間の記録",
+			"unknownUser": "不明なユーザー",
+			"durationSeconds": "{{seconds, number}}秒",
+			"durationMinutes": "{{minutes, number}}分",
+			"durationHoursMinutes": "{{hours, number}}時間 {{minutes, number}}分"
 		},
 		"sprints": {
 			"activeBadge": "進行中",
