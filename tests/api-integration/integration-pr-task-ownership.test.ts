@@ -116,6 +116,18 @@ it.each(cases)(
             : {}),
           statusTransitions: { onPROpen: "in-progress", onPRMerge: "done" },
         }),
+        // RFC 0001 WP2: the github webhook delivery path resolves bindings
+        // by the numeric repository key plus the installation id from the
+        // event; verified bindings of every provider carry the denormalized
+        // identity columns, so the fixture mirrors them.
+        ...(provider === "github"
+          ? {
+              repositoryKey: "github:20",
+              repositoryOwner: "owner",
+              repositoryName: "repo",
+              repositoryId: 20,
+            }
+          : {}),
       })
       .returning();
     if (syncScope === "paused")
