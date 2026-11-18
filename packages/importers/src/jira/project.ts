@@ -33,8 +33,9 @@ export type JiraProjectData = {
   comments: ReadonlyMap<string, JiraComment[]>;
   // Sprint data recovered from the project board, if any was readable.
   sprints?: readonly ImportedSprint[];
-  // Jira issue id to the source key of the sprint it belongs to.
-  issueSprint: ReadonlyMap<string, string>;
+  // Jira issue id to the source key of the sprint it belongs to; boards
+  // without readable sprints simply leave every task unscheduled.
+  issueSprint?: ReadonlyMap<string, string>;
 };
 
 export function mapJiraProject(data: JiraProjectData): ImportedProject {
@@ -45,6 +46,7 @@ export function mapJiraProject(data: JiraProjectData): ImportedProject {
   const placed = sortByColumn(data.issues, plan, categories);
   const { relations, external } = mapRelations(data.issues);
   const description = data.project.description?.trim();
+  const issueSprint = data.issueSprint ?? new Map<string, string>();
 
   return {
     name: data.project.name?.trim() || data.project.key,
@@ -59,7 +61,7 @@ export function mapJiraProject(data: JiraProjectData): ImportedProject {
         comments: mapComments(data.comments.get(issue.id) ?? [], toMarkdown),
         toMarkdown,
       }),
-      sprintKey: data.issueSprint.get(issue.id) ?? null,
+      sprintKey: issueSprint.get(issue.id) ?? null,
     })),
     relations,
     warnings: buildWarnings({

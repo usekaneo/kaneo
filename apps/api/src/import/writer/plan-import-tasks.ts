@@ -31,8 +31,9 @@ type PlanImportTasksInput = {
   columns: ReadonlyMap<string, BoardColumn>;
   fallbackColumn: BoardColumn | null;
   // Source sprint key to the created sprint id; imported sprint membership is
-  // resolved through this map and left empty (backlog) when unknown.
-  sprintIds: ReadonlyMap<string, string>;
+  // resolved through this map and left empty (backlog) when unknown. Sources
+  // without sprints can omit it.
+  sprintIds?: ReadonlyMap<string, string>;
   numbers: readonly number[];
   now: Date;
   newId: () => string;
@@ -75,7 +76,7 @@ export function planImportTasks({
   tasks,
   columns,
   fallbackColumn,
-  sprintIds,
+  sprintIds = new Map(),
   numbers,
   now,
   newId,

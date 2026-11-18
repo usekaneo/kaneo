@@ -115,6 +115,7 @@ export async function writeProjectContent(
       comments,
       assignees: tasks.filter((task) => task.userId).length,
       relations,
+      sprints: sprintPlan.length,
     },
     warnings: [
       ...project.warnings,

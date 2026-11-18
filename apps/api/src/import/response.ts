@@ -30,6 +30,9 @@ const importCountsSchema = z
       description: "Tasks that were assigned to a workspace member.",
     }),
     relations: z.number().int(),
+    sprints: z.number().int().openapi({
+      description: "Sprints written into the project.",
+    }),
   })
   .openapi("ImportCounts");
 

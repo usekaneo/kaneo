@@ -20,7 +20,11 @@ function task(
   };
 }
 
-function plan(tasks: ImportedTask[], numbers = tasks.map((_, i) => 41 + i)) {
+function plan(
+  tasks: ImportedTask[],
+  numbers = tasks.map((_, i) => 41 + i),
+  sprintIds: ReadonlyMap<string, string> = new Map(),
+) {
   let id = 0;
   return planImportTasks({
     tasks,
@@ -29,6 +33,7 @@ function plan(tasks: ImportedTask[], numbers = tasks.map((_, i) => 41 + i)) {
       ["done", { id: "col-done", slug: "done" }],
     ]),
     fallbackColumn: { id: "col-todo", slug: "to-do" },
+    sprintIds,
     numbers,
     now,
     newId: () => `task-${++id}`,
@@ -136,6 +141,24 @@ describe("planImportTasks", () => {
 
   it("dates tasks without a source date now", () => {
     expect(plan([task("a")])[0]?.createdAt).toEqual(now);
+  });
+
+  it("resolves sprint membership through the planned sprint ids", () => {
+    const planned = plan(
+      [
+        task("a", { sprintKey: "s-1" }),
+        task("b"),
+        task("c", { sprintKey: "gone" }),
+      ],
+      [1, 2, 3],
+      new Map([["s-1", "sprint-created-1"]]),
+    );
+
+    expect(planned.map(({ key, sprintId }) => ({ key, sprintId }))).toEqual([
+      { key: "a", sprintId: "sprint-created-1" },
+      { key: "b", sprintId: null },
+      { key: "c", sprintId: null },
+    ]);
   });
 });
 

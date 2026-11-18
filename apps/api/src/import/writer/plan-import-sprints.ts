@@ -34,11 +34,15 @@ export function closedSprintKeys(
 
 // Sprint names are unique per project; a duplicate from the source would abort
 // the whole import on the unique constraint, so conflicting names get a suffix.
+// The same holds for active sprints: the partial unique index allows one active
+// sprint per project, so only the first active sprint keeps that status and the
+// rest are planned as future.
 export function planImportSprints(
   sprints: readonly ImportedSprint[],
   newId: () => string,
 ): PlannedImportSprint[] {
   const usedNames = new Set<string>();
+  let activeClaimed = false;
 
   return sprints.map((sprint, index) => {
     const base = sprint.name.trim() || `Sprint ${index + 1}`;
@@ -48,11 +52,28 @@ export function planImportSprints(
     }
     usedNames.add(name.toLowerCase());
 
+    const status = sprintStatus(sprint.status);
+    if (status === "active" && activeClaimed) {
+      return {
+        key: sprint.key,
+        id: newId(),
+        name,
+        status: "future" as const,
+        goal: sprint.goal?.trim() || null,
+        startDate: parseImportDate(sprint.startDate),
+        endDate: parseImportDate(sprint.endDate),
+        position: index,
+      };
+    }
+    if (status === "active") {
+      activeClaimed = true;
+    }
+
     return {
       key: sprint.key,
       id: newId(),
       name,
-      status: sprintStatus(sprint.status),
+      status,
       goal: sprint.goal?.trim() || null,
       startDate: parseImportDate(sprint.startDate),
       endDate: parseImportDate(sprint.endDate),

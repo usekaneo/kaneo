@@ -80,6 +80,25 @@ describe("planImportSprints", () => {
     expect(planned[0]?.status).toBe("future");
   });
 
+  it("keeps only the first active sprint active", () => {
+    const planned = planImportSprints(
+      [
+        sprint("1", { status: "active" }),
+        sprint("2", { status: "active" }),
+        sprint("3", { status: "closed" }),
+        sprint("4", { status: "active" }),
+      ],
+      () => "id",
+    );
+
+    expect(planned.map(({ key, status }) => ({ key, status }))).toEqual([
+      { key: "1", status: "active" },
+      { key: "2", status: "future" },
+      { key: "3", status: "closed" },
+      { key: "4", status: "future" },
+    ]);
+  });
+
   it("plans no sprints for an empty list", () => {
     expect(planImportSprints([], () => "id")).toEqual([]);
   });

@@ -1,31 +1,39 @@
-import type { ImportedSprint } from "@kaneo/importers";
 import { describe, expect, it } from "vite-plus/test";
+import type { PlannedImportSprint } from "./plan-import-sprints";
 import { writeImportSprints } from "./write-import-sprints";
 
 type Transaction = Parameters<typeof writeImportSprints>[0];
 
 type SprintRow = {
   id: string;
+  projectId: string;
   name: string;
   status: "future" | "active" | "closed";
   position: number;
   goal: string | null;
+  startDate: Date | null;
+  endDate: Date | null;
 };
 
-function sprint(
+function planned(
   key: string,
-  overrides: Partial<ImportedSprint> = {},
-): ImportedSprint {
+  id: string,
+  overrides: Partial<PlannedImportSprint> = {},
+): PlannedImportSprint {
   return {
     key,
-    name: `Sprint ${key}`,
-    state: "future",
-    taskKeys: [],
+    id,
+    name: `Sprint ${Number(key)}`,
+    status: "future",
+    goal: null,
+    startDate: null,
+    endDate: null,
+    position: Number(key) - 1,
     ...overrides,
   };
 }
 
-async function writeSprints(sprints: ImportedSprint[]) {
+async function writeSprints(sprints: PlannedImportSprint[]) {
   const rows: SprintRow[] = [];
   const tx = {
     insert: () => ({
@@ -48,59 +56,64 @@ describe("writeImportSprints", () => {
     expect(sprintIds.size).toBe(0);
   });
 
-  it("inserts sprints and maps sprint keys to their ids", async () => {
+  it("inserts the planned sprints and maps sprint keys to their ids", async () => {
     const { rows, sprintIds } = await writeSprints([
-      sprint("1", { state: "closed", name: "Sprint 1", goal: "Ship it" }),
-      sprint("2", { state: "active", name: "Sprint 2" }),
-      sprint("3", { state: "future", name: "Sprint 3" }),
+      planned("1", "sprint-1", { status: "closed", goal: "Ship it" }),
+      planned("2", "sprint-2", {
+        status: "active",
+        startDate: new Date("2026-01-01T00:00:00.000Z"),
+        endDate: new Date("2026-01-14T00:00:00.000Z"),
+      }),
+      planned("3", "sprint-3", { name: "Sprint 3" }),
     ]);
 
-    expect(
-      rows.map(({ name, status, goal, position }) => ({
-        name,
-        status,
-        goal,
-        position,
-      })),
-    ).toEqual([
-      { name: "Sprint 1", status: "closed", goal: "Ship it", position: 0 },
-      { name: "Sprint 2", status: "active", goal: null, position: 1 },
-      { name: "Sprint 3", status: "future", goal: null, position: 2 },
+    expect(rows).toEqual([
+      {
+        id: "sprint-1",
+        projectId: "project-1",
+        name: "Sprint 1",
+        status: "closed",
+        goal: "Ship it",
+        startDate: null,
+        endDate: null,
+        position: 0,
+      },
+      {
+        id: "sprint-2",
+        projectId: "project-1",
+        name: "Sprint 2",
+        status: "active",
+        goal: null,
+        startDate: new Date("2026-01-01T00:00:00.000Z"),
+        endDate: new Date("2026-01-14T00:00:00.000Z"),
+        position: 1,
+      },
+      {
+        id: "sprint-3",
+        projectId: "project-1",
+        name: "Sprint 3",
+        status: "future",
+        goal: null,
+        startDate: null,
+        endDate: null,
+        position: 2,
+      },
     ]);
 
-    expect(sprintIds.size).toBe(3);
-    expect(sprintIds.get("1")).toBe(rows[0]?.id);
-    expect(sprintIds.get("2")).toBe(rows[1]?.id);
-    expect(sprintIds.get("3")).toBe(rows[2]?.id);
+    expect(sprintIds).toEqual(
+      new Map([
+        ["1", "sprint-1"],
+        ["2", "sprint-2"],
+        ["3", "sprint-3"],
+      ]),
+    );
   });
 
-  it("keeps only the first active sprint active", async () => {
-    const { rows } = await writeSprints([
-      sprint("1", { state: "active" }),
-      sprint("2", { state: "active" }),
-      sprint("3", { state: "active" }),
+  it("keeps the source key of each sprint attached to its created id", async () => {
+    const { sprintIds } = await writeSprints([
+      planned("original-key", "sprint-1"),
     ]);
 
-    expect(rows.map(({ status }) => status)).toEqual([
-      "active",
-      "future",
-      "future",
-    ]);
-  });
-
-  it("uniquifies duplicate sprint names and fallback names", async () => {
-    const { rows } = await writeSprints([
-      sprint("1", { name: "Sprint 1" }),
-      sprint("2", { name: "Sprint 1" }),
-      sprint("3", { name: "  " }),
-      sprint("4", { name: "" }),
-    ]);
-
-    expect(rows.map(({ name }) => name)).toEqual([
-      "Sprint 1",
-      "Sprint 1 (2)",
-      "Sprint 3",
-      "Sprint 4",
-    ]);
+    expect(sprintIds.get("original-key")).toBe("sprint-1");
   });
 });
