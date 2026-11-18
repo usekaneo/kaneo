@@ -248,13 +248,16 @@ describe("sprint filters", () => {
     ["sprint-1", null, false],
     ["backlog", null, true],
     ["backlog", "sprint-1", false],
-  ] as const)("filter %s against sprint %s matches %s", (filter, sprintId, expected) => {
-    expect(
-      taskMatchesFilters(
-        task({ sprintId }),
-        { ...noFilters, sprint: [filter] },
-        context,
-      ),
-    ).toBe(expected);
-  });
+  ] as const)(
+    "filter %s against sprint %s matches %s",
+    (filter, sprintId, expected) => {
+      expect(
+        taskMatchesFilters(
+          task({ sprintId }),
+          { ...noFilters, sprint: [filter] },
+          context,
+        ),
+      ).toBe(expected);
+    },
+  );
 });

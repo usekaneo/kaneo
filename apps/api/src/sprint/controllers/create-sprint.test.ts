@@ -3,17 +3,14 @@ import { beforeEach, describe, expect, it, vi } from "vite-plus/test";
 // The mock handles are hoisted so the vi.mock factories below may reference
 // them: vi.mock calls are hoisted above every top-level const, so plain
 // consts would still be undefined when the factories run.
-const {
-  mockSelect,
-  mockInsert,
-  mockPublishEvent,
-  mockGetSprint,
-} = vi.hoisted(() => ({
-  mockSelect: vi.fn(),
-  mockInsert: vi.fn(),
-  mockPublishEvent: vi.fn(),
-  mockGetSprint: vi.fn(),
-}));
+const { mockSelect, mockInsert, mockPublishEvent, mockGetSprint } = vi.hoisted(
+  () => ({
+    mockSelect: vi.fn(),
+    mockInsert: vi.fn(),
+    mockPublishEvent: vi.fn(),
+    mockGetSprint: vi.fn(),
+  }),
+);
 
 vi.mock("../../database", () => ({
   default: {
