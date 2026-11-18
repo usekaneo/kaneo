@@ -83,7 +83,10 @@ async function setup(actions: string[] = ["create", "update"]) {
     app.request("/api/gitlab-integration/import-issues", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ projectId: project.id }),
+      // RFC 0001 WP4/WP5: the import route keys the binding by integration id;
+      // the project is resolved through that binding by the access
+      // middleware, so the body no longer carries a bare projectId.
+      body: JSON.stringify({ integrationId: integration.id }),
     });
   return { ...member, project, task, integration, request };
 }
