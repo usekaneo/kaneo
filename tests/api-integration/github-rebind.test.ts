@@ -260,26 +260,28 @@ describe("GitHub repository changes preserve link ownership", () => {
       // route still resolves the row through db.query.findFirst before the
       // guarded write, so the plain spy covers that branch.
       const runOriginalTransaction = db.transaction.bind(db);
-      const transactionSpy =
-        operation === "reconnect"
-          ? vi.spyOn(db, "transaction").mockImplementation(async (fn) => {
-              // Run the real transaction, but wrap its reconcile lookup so
-              // the row changes on another connection between the read and
-              // the guarded write; READ COMMITTED then lets the guarded
-              // update see the new config and match zero rows.
-              return runOriginalTransaction(async (tx) => {
-                const original = tx.query.integrationTable.findFirst.bind(
-                  tx.query.integrationTable,
-                );
-                tx.query.integrationTable.findFirst = async (...args) => {
-                  const row = await original(...args);
-                  if (row) await changeRowConcurrently();
-                  return row;
-                };
-                return fn(tx);
-              });
-            } as typeof db.transaction)
-          : null;
+      const transactionSpy = vi.spyOn(db, "transaction");
+      if (operation === "reconnect") {
+        // The implementation runs the real transaction, but wraps its
+        // reconcile lookup so the row changes on another connection
+        // between the read and the guarded write; READ COMMITTED then
+        // lets the guarded update see the new config and match zero rows.
+        transactionSpy.mockImplementation(
+          (async (fn) => {
+            return runOriginalTransaction(async (tx) => {
+              const original = tx.query.integrationTable.findFirst.bind(
+                tx.query.integrationTable,
+              );
+              tx.query.integrationTable.findFirst = async (...args) => {
+                const row = await original(...args);
+                if (row) await changeRowConcurrently();
+                return row;
+              };
+              return fn(tx);
+            });
+          }) as typeof db.transaction,
+        );
+      }
 
       const find = db.query.integrationTable.findFirst.bind(
         db.query.integrationTable,
