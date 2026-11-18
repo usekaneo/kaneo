@@ -3857,6 +3857,11 @@
 			"durationSeconds": "{{seconds, number}} sn",
 			"durationMinutes": "{{minutes, number}} dk",
 			"durationHoursMinutes": "{{hours, number}} sa {{minutes, number}} dk"
+		},
+		"type": {
+			"label": "Tür",
+			"bug": "Hata",
+			"task": "Görev"
 		}
 	},
 	"invitations": {

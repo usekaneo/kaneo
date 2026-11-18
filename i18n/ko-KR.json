@@ -3785,6 +3785,11 @@
 			"durationSeconds": "{{seconds, number}}초",
 			"durationMinutes": "{{minutes, number}}분",
 			"durationHoursMinutes": "{{hours, number}}시간 {{minutes, number}}분"
+		},
+		"type": {
+			"label": "유형",
+			"bug": "버그",
+			"task": "작업"
 		}
 	},
 	"invitations": {
