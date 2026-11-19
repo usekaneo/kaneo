@@ -94,6 +94,10 @@ describe("useDeleteTask", () => {
     const deletedTask = {
       ...makeTask("delete-me"),
       priority: "no-priority",
+      // The delete response validates against taskSchema, where `type` is
+      // required: every stored task has one since migration 0074 back-filled
+      // existing rows with "task". The mock must satisfy the same contract.
+      type: "task" as const,
     };
     queryClient.setQueryData(["tasks", project.id], project);
     queryClient.setQueryData(["task", deletedTask.id], deletedTask);
