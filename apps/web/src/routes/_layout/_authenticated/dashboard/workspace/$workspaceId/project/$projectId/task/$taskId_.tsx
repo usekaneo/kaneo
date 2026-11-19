@@ -94,6 +94,9 @@ function RouteComponent() {
           <TaskPropertiesRailSkeleton />
         ) : isTaskError || !task ? null : (
           <PropertiesRail
+            // Keying by task resets per-task drafts when the page
+            // switches tasks in place (#2149).
+            key={taskId}
             taskId={taskId}
             projectId={projectId}
             workspaceId={workspaceId}
@@ -156,6 +159,9 @@ function RouteComponent() {
         </div>
       ) : (
         <TaskDetailsContent
+          // Same reset as the rail: titles, comments, and custom-field drafts
+          // belong to one task and must not follow an in-place switch (#2149).
+          key={taskId}
           taskId={taskId}
           projectId={projectId}
           workspaceId={workspaceId}
