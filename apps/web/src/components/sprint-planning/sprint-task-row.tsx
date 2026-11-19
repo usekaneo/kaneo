@@ -132,8 +132,6 @@ export function SprintTaskItem({
           data-task-id={task.id}
 
           data-shortcut-surface
-          role="button"
-          tabIndex={0}
           onClick={handleClick}
           className={rowClassName}
           title={task.title}

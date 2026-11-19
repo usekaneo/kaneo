@@ -29,14 +29,23 @@ export default function TaskTypeBadge({ task }: TaskTypeBadgeProps) {
 
   if (!task.type) return null;
 
-  const known = isKnownType(task.type);
-  const label = known ? t(TYPE_LABEL_KEYS[task.type]) : task.type;
-  const Icon = known ? TYPE_ICONS[task.type] : CircleCheckBig;
+  // The icon and label maps only cover the documented types, so a task with
+  // an unknown custom type falls back to the generic icon and its raw label.
+  if (!isKnownType(task.type)) {
+    return (
+      <span className="inline-flex shrink-0 items-center gap-2 text-muted-foreground">
+        <CircleCheckBig className="size-3.5" aria-hidden="true" />
+        <span className="truncate">{task.type}</span>
+      </span>
+    );
+  }
+
+  const Icon = TYPE_ICONS[task.type];
 
   return (
     <span className="inline-flex shrink-0 items-center gap-2 text-muted-foreground">
       <Icon className="size-3.5" aria-hidden="true" />
-      <span className="truncate">{label}</span>
+      <span className="truncate">{t(TYPE_LABEL_KEYS[task.type])}</span>
     </span>
   );
 }
