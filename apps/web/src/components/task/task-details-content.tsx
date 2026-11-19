@@ -42,11 +42,10 @@ export default function TaskDetailsContent({
   const parentTask = relations.find(
     (rel) => rel.relationType === "subtask" && rel.targetTaskId === taskId,
   )?.sourceTask;
-
-  // The parent task can live in a different project than the child; the
-  // "subtask of" link must show the parent's project and open it there.
+  // A parent may live in another project, so the link must use its project.
+  const parentProjectId = parentTask?.projectId ?? projectId;
   const { data: project } = useGetProject({
-    id: parentTask?.projectId ?? projectId,
+    id: parentProjectId,
     workspaceId,
   });
 
@@ -64,7 +63,7 @@ export default function TaskDetailsContent({
                 to: "/dashboard/workspace/$workspaceId/project/$projectId/task/$taskId",
                 params: {
                   workspaceId,
-                  projectId: parentTask.projectId,
+                  projectId: parentProjectId,
                   taskId: parentTask.id,
                 },
               })
