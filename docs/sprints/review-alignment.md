@@ -363,7 +363,7 @@ behind the fixture errors, and realigned the smoke suite with the routes:
   unfinished task returns to the backlog after the sprint closes.
 
 A follow-up round restored a dropped task sheet feature that the smoke suite
-exposed (commit `80292abd`):
+exposed:
 
 - **Task timer restoration.** The smoke run showed the main-parity browser
   test `task timer persists across reloads and stops from task details`
