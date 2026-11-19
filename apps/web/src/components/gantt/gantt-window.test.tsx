@@ -83,10 +83,8 @@ vi.mock(
     default: () => ({ getValuesForTask: noCustomFieldValues }),
   }),
 );
-
-// The shared view hook reads the project's sprints; this suite renders the
-// route component without a QueryClient provider, so the sprint query
-// stays isolated like in the route-level gantt suite.
+// The shared view hook reads the project's sprints; the gantt suite runs
+// without a QueryClient provider, so the sprint query stays isolated.
 vi.mock("@/hooks/queries/sprint/use-get-sprints", () => ({
   useGetSprints: () => ({ data: [] }),
 }));

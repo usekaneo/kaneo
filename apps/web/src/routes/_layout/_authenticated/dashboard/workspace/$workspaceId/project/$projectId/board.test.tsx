@@ -52,6 +52,9 @@ vi.mock("@/components/project/toolbar/use-project-task-view", () => ({
     descriptionSearch: { isLoading: false, isError: false, retry: vi.fn() },
     filters: { filteredProject: m.project, clearFilters: vi.fn() },
     subjects: [],
+    // Mirrors the real hook, which also exposes the sprint-sliced project
+    // top-level; the cached board must stay reachable after a refresh fails.
+    filteredProject: m.project,
   }),
 }));
 vi.mock("@/components/common/project-layout", () => ({
