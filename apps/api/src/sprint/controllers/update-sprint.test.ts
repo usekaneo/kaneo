@@ -84,7 +84,9 @@ describe("updateSprint", () => {
     const result = await updateSprint("sprint-1", { goal: "New goal" });
 
     expect(result).toBe(updated);
-    expect(Object.keys(mockUpdate.mock.calls[0][0])).toEqual(["goal"]);
+    // Reading through an optional chain because index access returns
+    // possibly-undefined entries under the shared strict tsconfig.
+    expect(Object.keys(mockUpdate.mock.calls[0]?.[0] ?? {})).toEqual(["goal"]);
     expect(mockPublishEvent).toHaveBeenCalledWith("sprint.updated", {
       projectId: "project-1",
       sprintId: "sprint-1",
