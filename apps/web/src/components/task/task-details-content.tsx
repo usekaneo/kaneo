@@ -12,6 +12,7 @@ import type { ExternalLink } from "@/types/external-link";
 import { TaskActivity } from "./task-activity";
 import TaskDescription from "./task-description";
 import TaskRelations from "./task-relations";
+import { TaskTimeTracking } from "./task-time-tracking";
 import TaskSubtasks from "./task-subtasks";
 import TaskTitle from "./task-title";
 
@@ -102,6 +103,7 @@ export default function TaskDetailsContent({
           projectId={projectId}
           workspaceId={workspaceId}
         />
+        <TaskTimeTracking key={taskId} taskId={taskId} />
         <ExternalLinksAccordion
           taskId={taskId}
           externalLinks={externalLinks as ExternalLink[]}
