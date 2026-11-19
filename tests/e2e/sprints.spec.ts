@@ -123,9 +123,7 @@ test("plan, run, and close a sprint around one backlog task", async ({
 
   // Close the sprint. With no future sprint the unfinished task returns to
   // the backlog, and the sprint stays visible as closed history.
-  await page
-    .getByRole("button", { name: "Close sprint", exact: true })
-    .click();
+  await page.getByRole("button", { name: "Close sprint", exact: true }).click();
   await page
     .getByRole("button", {
       name: "Close sprint and move unfinished tasks",
