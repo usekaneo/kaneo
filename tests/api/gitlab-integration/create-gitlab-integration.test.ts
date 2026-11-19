@@ -106,11 +106,6 @@ vi.mock("../../../apps/api/src/plugins/gitlab/utils/gitlab-api", () => ({
 const { default: createGitlabIntegration } =
   await import("../../../apps/api/src/gitlab-integration/controllers/create-gitlab-integration");
 
-function insertedConfig() {
-  const values = mocks.insertValues.mock.calls[0]?.[0] as { config: string };
-  return JSON.parse(values.config);
-}
-
 function updatedSet() {
   return mocks.updateSet.mock.calls[0]?.[0] as Record<string, unknown>;
 }
