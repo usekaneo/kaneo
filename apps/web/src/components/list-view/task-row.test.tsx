@@ -128,6 +128,8 @@ const task: Task = {
   description: null,
   status: "to-do",
   priority: null,
+  sprintId: null,
+  type: null,
   startDate: null,
   dueDate: null,
   position: 1,

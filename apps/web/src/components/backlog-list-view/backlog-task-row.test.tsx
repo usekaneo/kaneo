@@ -86,6 +86,8 @@ const task: Task = {
   description: null,
   status: "planned",
   priority: null,
+  sprintId: null,
+  type: null,
   startDate: null,
   dueDate: null,
   position: 0,

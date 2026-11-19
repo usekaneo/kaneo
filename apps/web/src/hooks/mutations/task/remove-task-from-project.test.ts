@@ -10,6 +10,8 @@ function task(id: string, status: string): Task {
     description: null,
     status,
     priority: null,
+    sprintId: null,
+    type: null,
     startDate: null,
     dueDate: null,
     position: 0,

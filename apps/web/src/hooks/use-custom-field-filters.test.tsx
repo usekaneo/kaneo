@@ -48,6 +48,8 @@ const task: Task = {
   description: null,
   status: "to-do",
   priority: "high",
+  sprintId: null,
+  type: null,
   position: 0,
   createdAt: "2026-10-01T00:00:00Z",
   startDate: null,

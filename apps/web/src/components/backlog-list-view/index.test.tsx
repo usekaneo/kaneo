@@ -79,6 +79,8 @@ function makeTasks(status: string, count: number): Task[] {
     number: index,
     description: null,
     priority: null,
+    sprintId: null,
+    type: null,
     startDate: null,
     dueDate: null,
     position: index,

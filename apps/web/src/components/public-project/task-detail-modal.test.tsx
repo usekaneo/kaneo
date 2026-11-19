@@ -46,6 +46,8 @@ const task: Task = {
   descriptionDeferred: true,
   status: "",
   priority: null,
+  sprintId: null,
+  type: null,
   startDate: null,
   dueDate: null,
   position: 0,
