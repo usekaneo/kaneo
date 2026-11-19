@@ -35,7 +35,6 @@ export default function TaskDetailsContent({
   const { t } = useTranslation();
   const navigate = useNavigate();
   const { data: task } = useGetTask(taskId ?? "");
-  const { data: project } = useGetProject({ id: projectId, workspaceId });
   const { data: externalLinks = [], isLoading: isLoadingExternalLinks } =
     useExternalLinks(taskId ?? "");
   const { data: relations = [] } = useGetTaskRelations(taskId ?? "");
@@ -43,6 +42,13 @@ export default function TaskDetailsContent({
   const parentTask = relations.find(
     (rel) => rel.relationType === "subtask" && rel.targetTaskId === taskId,
   )?.sourceTask;
+
+  // The parent task can live in a different project than the child; the
+  // "subtask of" link must show the parent's project and open it there.
+  const { data: project } = useGetProject({
+    id: parentTask?.projectId ?? projectId,
+    workspaceId,
+  });
 
   if (!taskId) return null;
 
@@ -56,7 +62,11 @@ export default function TaskDetailsContent({
             onClick={() =>
               navigate({
                 to: "/dashboard/workspace/$workspaceId/project/$projectId/task/$taskId",
-                params: { workspaceId, projectId, taskId: parentTask.id },
+                params: {
+                  workspaceId,
+                  projectId: parentTask.projectId,
+                  taskId: parentTask.id,
+                },
               })
             }
           >
