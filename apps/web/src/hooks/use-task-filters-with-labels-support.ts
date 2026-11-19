@@ -8,6 +8,10 @@ import {
 import { customFieldSubjectId } from "@/lib/task-filters/filter-subject-id";
 import { setSubjectNegated } from "@/lib/task-filters/set-subject-negated";
 import { taskMatchesFilters } from "@/lib/task-filters/task-matches-filters";
+import {
+  DEFAULT_FILTERS,
+  normalizeFilters,
+} from "@/lib/task-filters/normalize-board-filters";
 import { toggleFilterValue } from "@/lib/task-filters/toggle-filter-value";
 import { useUserPreferencesStore } from "@/store/user-preferences";
 import type { ProjectWithTasks } from "@/types/project";
@@ -17,68 +21,7 @@ import useGetLabelsByWorkspace from "./queries/label/use-get-labels-by-workspace
 import type { BoardFilters } from "./use-task-filters";
 import { useStoredState } from "./use-stored-state";
 
-const DEFAULT_FILTERS: BoardFilters = {
-  status: null,
-  priority: null,
-  assignee: null,
-  dueDate: null,
-  startDate: null,
-  sprint: null,
-  labels: null,
-  customFields: null,
-  negated: null,
-};
-
 const NO_IGNORED_FILTERS: ReadonlyArray<keyof BoardFilters> = [];
-
-const FILTER_KEYS: Array<keyof BoardFilters> = [
-  "status",
-  "priority",
-  "assignee",
-  "dueDate",
-  "startDate",
-  "sprint",
-  "labels",
-  "customFields",
-  "negated",
-];
-
-function normalizeFilters(raw: unknown): BoardFilters {
-  if (!raw || typeof raw !== "object") {
-    return DEFAULT_FILTERS;
-  }
-
-  const candidate = raw as Partial<Record<keyof BoardFilters, unknown>>;
-  const normalized = { ...DEFAULT_FILTERS };
-
-  for (const key of FILTER_KEYS) {
-    if (key === "customFields") {
-      const value = candidate.customFields;
-      if (value && typeof value === "object" && !Array.isArray(value)) {
-        const customFields = Object.fromEntries(
-          Object.entries(value).filter(
-            ([, values]) =>
-              Array.isArray(values) &&
-              values.length > 0 &&
-              values.every((item) => typeof item === "string"),
-          ),
-        ) as Record<string, string[]>;
-
-        normalized.customFields =
-          Object.keys(customFields).length > 0 ? customFields : null;
-      }
-
-      continue;
-    }
-    const value = candidate[key];
-    if (Array.isArray(value)) {
-      const values = value.filter((v): v is string => typeof v === "string");
-      normalized[key] = values.length > 0 ? values : null;
-    }
-  }
-
-  return normalized;
-}
 
 export function useTaskFiltersWithLabelsSupport(
   project: ProjectWithTasks | null | undefined,

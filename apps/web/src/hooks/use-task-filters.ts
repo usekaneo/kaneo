@@ -3,6 +3,10 @@ import { useUserPreferencesStore } from "@/store/user-preferences";
 import type { ProjectWithTasks } from "@/types/project";
 import type Task from "@/types/task";
 import { taskMatchesFilters } from "@/lib/task-filters/task-matches-filters";
+import {
+  DEFAULT_FILTERS,
+  normalizeFilters,
+} from "@/lib/task-filters/normalize-board-filters";
 
 export type BoardFilters = {
   status: string[] | null;
@@ -23,17 +27,6 @@ export { DUE_DATE_FILTER_VALUES } from "@/lib/task-filters/due-date-filter-value
 export const SPRINT_FILTER_VALUES = {
   backlog: "backlog",
 } as const;
-
-const DEFAULT_FILTERS: BoardFilters = {
-  status: null,
-  priority: null,
-  assignee: null,
-  dueDate: null,
-  startDate: null,
-  labels: null,
-  sprint: null,
-  customFields: null,
-};
 
 export function useTaskFilters(
   project: ProjectWithTasks | null | undefined,
