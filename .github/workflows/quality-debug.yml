@@ -1,0 +1,60 @@
+name: quality debug
+
+# Temporary diagnostic workflow for CI failures on this pull request. It
+# runs the same steps as the CI quality job, records exactly which
+# revision the Blacksmith checkout produced, and broadcasts the pnpm lint
+# output as run annotations so the failure is visible without raw log
+# access. Remove once the quality gate is green again.
+on:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  quality-debug:
+    runs-on: blacksmith-4vcpu-ubuntu-2404
+    timeout-minutes: 30
+    steps:
+      - name: Checkout repository
+        uses: useblacksmith/checkout@2b9fe87d796feea153b455ec2f3125b471a7b0e7ad # v1
+        with:
+          persist-credentials: false
+
+      - name: Record the checked-out revision
+        run: |
+          echo "::error title=checkout::checked-out HEAD is $(git rev-parse HEAD)"
+          if grep -q "function insertedConfig" tests/api/gitlab-integration/create-gitlab-integration.test.ts; then
+            echo "::error title=checkout::stale-tree indicator: gitlab create test still contains the removed insertedConfig helper"
+          else
+            echo "::error title=checkout::tree indicator: insertedConfig helper is absent, as expected on this branch head"
+          fi
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@73e46992e05b19abd31f2f3c20e0e7370d762115 # v6.1.1
+        with:
+          version: 12.18.0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7
+        with:
+          node-version: 24.22.2
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Run Vite+ checks and broadcast the output
+        run: |
+          set +e
+          pnpm lint > vp-check.log 2>&1
+          code="$?"
+          set -e
+          counter=0
+          while IFS= read -r line; do
+            counter=$((counter + 1))
+            [ "$counter" -gt 120 ] && break
+            [ -n "$line" ] || continue
+            echo "::error::$(printf '%s' "$line" | sed -e 's/%/%25/g' -e 's/\r//g' | cut -c1-220)"
+          done < vp-check.log
+          exit "$code"
