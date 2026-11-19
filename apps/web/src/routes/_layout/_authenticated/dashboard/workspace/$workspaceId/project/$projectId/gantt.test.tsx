@@ -166,6 +166,8 @@ function makeTask(overrides: Partial<Task>): Task {
     description: null,
     status: "in-progress",
     priority: null,
+    sprintId: null,
+    type: null,
     startDate: null,
     dueDate: null,
     position: null,

@@ -11,6 +11,8 @@ function task(id: string, status = "to-do"): Task {
     number: 1,
     status,
     priority: "low",
+    sprintId: null,
+    type: null,
     startDate: null,
     dueDate: null,
     position: 1,

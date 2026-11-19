@@ -121,6 +121,8 @@ const task: Task = {
   number: 1,
   description: null,
   priority: "high",
+  sprintId: null,
+  type: null,
   startDate: null,
   dueDate: "2030-01-01T00:00:00Z",
   position: 1,

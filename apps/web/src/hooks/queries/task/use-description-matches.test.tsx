@@ -28,6 +28,8 @@ const task: Task = {
   descriptionDeferred: true,
   status: "to-do",
   priority: "high",
+  sprintId: null,
+  type: null,
   startDate: null,
   dueDate: null,
   position: 0,
