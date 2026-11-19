@@ -24,7 +24,7 @@ Sprint API access is covered by colocated tests next to the modules they exercis
 | Test file | Covers |
 |-----------|--------|
 | `src/fetchers/sprint/*.test.ts` | Each of the seven fetchers (create, list, update, start, close with carry-over target, reorder, task assignment): the exact typed-client call for success, and `HttpError` propagation of the API status and message for failures. |
-| `src/hooks/mutations/sprint/*.test.tsx` | Each of the six mutation hooks: the fetcher receives the right arguments, and the `sprints`, `tasks`, and `task` query entries are invalidated exactly as the hook defines (close also invalidates tasks; task assignment also invalidates the single task). |
+| `src/hooks/mutations/sprint/*.test.tsx` | Each of the six mutation hooks: the fetcher receives the right arguments, and the `sprints`, `tasks`, and `task` query entries are invalidated exactly as the hook defines (close also invalidates tasks; task assignment also invalidates the single task). Sprint lists are invalidated with the default refetch type, so inactive caches are only marked stale and refetch on their next mount, matching how the sprints view observes the query while mutations run. |
 | `src/hooks/queries/sprint/use-get-sprints.test.tsx` | Fetching the sprint list for a selected project and staying idle without one, so the backlog view does not fetch. |
 
 ## Running the tests

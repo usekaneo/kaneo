@@ -15,8 +15,8 @@ export function useStartSprint() {
     }) => startSprint(id, data),
     onSuccess: async (_, variables) => {
       await queryClient.invalidateQueries({
+        // Inactive sprint lists are only marked stale; they refetch on mount.
         queryKey: ["sprints", variables.projectId],
-        refetchType: "all",
       });
     },
   });

@@ -17,8 +17,8 @@ export function useCloseSprint() {
       // Closing moves unfinished tasks, so the board must reload as well.
       await Promise.all([
         queryClient.invalidateQueries({
+          // Inactive sprint lists are only marked stale; they refetch on mount.
           queryKey: ["sprints", variables.projectId],
-          refetchType: "all",
         }),
         queryClient.invalidateQueries({
           queryKey: ["tasks", variables.projectId],
