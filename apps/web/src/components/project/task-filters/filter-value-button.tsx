@@ -5,12 +5,14 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
+import { DateFilterEditor } from "./date-filter-editor";
 import { FilterSubjectPanel } from "./filter-subject-panel";
 import type { FilterSubject } from "./filter-subject";
 import { formatChipValue } from "./format-chip-value";
 
 export function FilterValueButton({ subject }: { subject: FilterSubject }) {
   const { t } = useTranslation();
+  // Controlled so applying a date condition can close the popup.
   const [open, setOpen] = useState(false);
   const chosen = subject.selected.map(
     (value) =>
@@ -45,22 +47,24 @@ export function FilterValueButton({ subject }: { subject: FilterSubject }) {
           </span>
         )}
         <span className="truncate">
-          {subject.onDateApply
-            ? chosen.map((option) => option.label).join(", ")
-            : formatChipValue(
-                chosen.map((option) => option.label),
-                (count) => t("tasks:boardFilters.selectedCount", { count }),
-              )}
+          {formatChipValue(
+            chosen.map((option) => option.label),
+            (count) => t("tasks:boardFilters.selectedCount", { count }),
+          )}
         </span>
       </PopoverTrigger>
-      <PopoverContent
-        align="start"
-        className={subject.onDateApply ? "w-80" : "w-64"}
-      >
-        <FilterSubjectPanel
-          subject={subject}
-          onApplied={() => setOpen(false)}
-        />
+      <PopoverContent align="start" className="w-64">
+        {subject.onDateApply ? (
+          <DateFilterEditor
+            selected={subject.selected}
+            onApply={(value) => {
+              subject.onDateApply?.(value);
+              setOpen(false);
+            }}
+          />
+        ) : (
+          <FilterSubjectPanel subject={subject} />
+        )}
       </PopoverContent>
     </Popover>
   );

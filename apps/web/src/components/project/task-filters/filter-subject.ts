@@ -28,9 +28,11 @@ export type FilterSubject = {
   options: FilterOption[];
   selected: string[];
   negated: boolean;
-  onDateApply?: (value: string) => void;
   onToggle: (value: string) => void;
   onNegate: (negated: boolean) => void;
   onClear: () => void;
+  // Present on date subjects: the chip opens the calendar editor instead of
+  // the option list and applies a full date condition string.
+  onDateApply?: (value: string) => void;
   emptyLabel: string;
 };
