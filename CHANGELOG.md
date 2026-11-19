@@ -1,5 +1,37 @@
 ### Features
 
+- **web:** track time from task details: #2218
+- read more secrets from _FILE variables: #2119
+- **task:** add start date and range filters: #2110
+- **site:** link the iOS app from the hero, homepage, footer and pricing: [039d350](https://github.com/usekaneo/kaneo/commit/039d350c31aaad5930cd2e0ef7ff4bde0806530d)
+- **tasks:** add subtasks display toggle: #2140
+- **site:** price managed instances as a plan: [f9ad2b5](https://github.com/usekaneo/kaneo/commit/f9ad2b5ef42ad5c38c3ed11fa624f22d8e6e0589)
+
+### Bug Fixes
+
+- **dev:** build workspace packages before starting dev servers: #2237
+- **web:** use parent project for parent task links: #2211
+- **api:** send notification deliveries in the recipient's language: #2198
+- **api:** skip the issue state write when the issue is already in that state: #2208
+- **web:** close single-choice pickers in the create task modal after a selection: #2118
+- **web:** clear query cache before navigating on sign-out: #2165
+- **web:** remount task details and properties rail on taskId change: #2190
+- **cli:** link the skill's install step to the install guide: #2193
+- **ci:** port contention in ci: #2182
+- **web:** refetch both relation ends after a relation change: #2177
+- **web:** close image preview on clicks beside a small image: #2178
+
+### Documentation
+
+- update sponsors: [5069fb5](https://github.com/usekaneo/kaneo/commit/5069fb56ce309d5572ca3ed60d4d3c322a03a452)
+- add a mobile app guide: [265f1fd](https://github.com/usekaneo/kaneo/commit/265f1fd548d0cfe9686990b692abbcdfc15e3604)
+
+### Credits
+
+Huge thanks to @selfsimilar, @randoneering, @tinsever, @tongtongchuan, @thejdubb02, @VictorOnwukwe, @man-singh-dev, @luantaraschi, and @andrejsshell for helping!
+
+### Features
+
 - **web:** steady boot, navigation and loading: [6a9f671](https://github.com/usekaneo/kaneo/commit/6a9f6715cac94f92b8e0e7e93319af74a4b7a77a)
 - **api:** create pull request links via the api: [d4df89a](https://github.com/usekaneo/kaneo/commit/d4df89a0dbc34adf3926943d9ba4aadd81338b77)
 - **mobile:** edit task descriptions inline with autosave: [9030b0e](https://github.com/usekaneo/kaneo/commit/9030b0e8caddb2c8d44cc427e21d6f8139758151)
