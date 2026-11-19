@@ -12,6 +12,7 @@ const counts = {
   comments: 1032,
   assignees: 30,
   relations: 4,
+  sprints: 3,
 };
 
 describe("summarizeImportCounts", () => {
@@ -56,6 +57,7 @@ describe("sumImportCounts", () => {
       comments: 2064,
       assignees: 60,
       relations: 8,
+      sprints: 6,
     });
   });
 });

@@ -30,6 +30,7 @@ function project(
       comments: 0,
       assignees: 0,
       relations: 0,
+      sprints: 0,
     },
   };
 }
