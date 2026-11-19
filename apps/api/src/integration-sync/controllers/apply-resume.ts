@@ -51,11 +51,15 @@ export async function applySyncResume(
           : provider === "gitlab"
             ? resolveGitlabStatus
             : resolveGithubStatus;
+      // RFC 0001 WP6: pass the resumed link's binding so repository-specific
+      // workflow rules (integration_id = this binding) outrank the type-wide
+      // fallback during conflict resolution, exactly like live webhooks do.
       const slug = await resolveStatus(
         task.projectId,
         review.remote.state === "closed" ? "issue_closed" : "issue_reopened",
         fallback.slug,
         tx,
+        review.integration,
       );
       const target = columns.find((column) => column.slug === slug)!;
       status = { status: target.slug, columnId: target.id };

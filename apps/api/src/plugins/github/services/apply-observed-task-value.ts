@@ -102,7 +102,10 @@ export async function writeInboundTaskField(
   tx: IntegrationDatabase,
   afterCommit: (effect: () => Promise<void>) => void,
   link: { taskId: string },
-  integration: { projectId: string; type: string },
+  // RFC 0001 WP6: `id` is required so repository-specific workflow rules can
+  // be resolved for this binding; callers without a binding should not use
+  // the inbound writer.
+  integration: { id: string; projectId: string; type: string },
   field: IssueField,
   value: string,
 ) {
@@ -115,11 +118,14 @@ export async function writeInboundTaskField(
     if (!task || isStateSyncPaused(task.status)) return;
     const resolveStatus =
       integration.type === "gitea" ? resolveGiteaStatus : resolveGithubStatus;
+    // RFC 0001 WP6: pass the binding so repository-specific rules win over
+    // the type-wide fallback on inbound state changes, like webhooks do.
     const status = await resolveStatus(
       integration.projectId,
       value === "closed" ? "issue_closed" : "issue_reopened",
       value === "closed" ? "done" : "to-do",
       tx,
+      integration,
     );
     const result = await updateTaskStatus(link.taskId, status, tx);
     if (result.applied && result.before.status !== result.after.status)
