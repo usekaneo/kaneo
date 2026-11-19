@@ -19,7 +19,10 @@ vi.mock("@/fetchers/sprint/create-sprint", () => ({
 
 function setup() {
   const client = new QueryClient({
-    defaultOptions: { mutations: { retry: false } },
+    defaultOptions: {
+      mutations: { retry: false },
+      queries: { retry: false },
+    },
   });
   client.setQueryData(["sprints", "project-1"], []);
   const wrapper = ({ children }: { children: ReactNode }) => (

@@ -21,7 +21,10 @@ vi.mock("@/fetchers/sprint/update-task-sprint", () => ({
 
 function setup() {
   const client = new QueryClient({
-    defaultOptions: { mutations: { retry: false } },
+    defaultOptions: {
+      mutations: { retry: false },
+      queries: { retry: false },
+    },
   });
   client.setQueryData(["task", "task-1"], { id: "task-1" });
   client.setQueryData(["tasks", "project-1"], { id: "project-1" });
