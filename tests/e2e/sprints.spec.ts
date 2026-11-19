@@ -67,9 +67,11 @@ test("plan, run, and close a sprint around one backlog task", async ({
 }) => {
   await createWorkspace(page);
   const boardUrl = await createProject(page);
-  await page.goto(boardUrl.replace("/board", "/backlog"));
+  const backlogUrl = boardUrl.replace("/board", "/backlog");
+  const sprintsUrl = boardUrl.replace("/board", "/sprints");
 
   // Seed one task through the real creation modal; it lands in the backlog.
+  await page.goto(backlogUrl);
   await page.getByTitle("Add task", { exact: true }).first().click();
   await page
     .getByPlaceholder("Task title", { exact: true })
@@ -79,7 +81,9 @@ test("plan, run, and close a sprint around one backlog task", async ({
     page.getByText("Sprint planning chore", { exact: true }),
   ).toBeVisible();
 
-  // Plan the first sprint. An empty name generates the next free "Sprint N".
+  // Plan the first sprint on the sprint planning view. An empty name makes the
+  // API pick the next free "Sprint N".
+  await page.goto(sprintsUrl);
   await page
     .getByRole("button", { name: "Create sprint", exact: true })
     .click();
@@ -89,7 +93,8 @@ test("plan, run, and close a sprint around one backlog task", async ({
     .click();
   await expect(page.getByText("Sprint 1", { exact: true })).toBeVisible();
 
-  // Assign the task to the sprint from the task sheet's sprint control.
+  // Assign the task to the sprint from the backlog task sheet's sprint control.
+  await page.goto(backlogUrl);
   await page
     .getByText("Sprint planning chore", { exact: true })
     .first()
@@ -106,14 +111,21 @@ test("plan, run, and close a sprint around one backlog task", async ({
     .click();
   await expect(sprintTrigger).toContainText("Sprint 1");
   await page.getByRole("button", { name: "Close", exact: true }).click();
+  // Scheduled tasks are planned on the sprints view, so they leave the backlog.
+  await expect(
+    page.getByText("Sprint planning chore", { exact: true }),
+  ).toHaveCount(0);
 
   // Start the sprint; it becomes the project's single active sprint.
+  await page.goto(sprintsUrl);
   await page.getByRole("button", { name: "Start sprint", exact: true }).click();
   await expect(page.getByText("Active", { exact: true })).toBeVisible();
 
   // Close the sprint. With no future sprint the unfinished task returns to
   // the backlog, and the sprint stays visible as closed history.
-  await page.getByRole("button", { name: "Close sprint", exact: true }).click();
+  await page
+    .getByRole("button", { name: "Close sprint", exact: true })
+    .click();
   await page
     .getByRole("button", {
       name: "Close sprint and move unfinished tasks",
@@ -123,6 +135,7 @@ test("plan, run, and close a sprint around one backlog task", async ({
   await expect(
     page.getByText("Closed sprints (1)", { exact: true }),
   ).toBeVisible();
+  await page.goto(backlogUrl);
   await expect(
     page.getByText("Sprint planning chore", { exact: true }),
   ).toBeVisible();
