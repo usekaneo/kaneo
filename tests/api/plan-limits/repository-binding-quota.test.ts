@@ -16,10 +16,11 @@ const { publishEvent } = await import("../../../apps/api/src/events");
 // Minimal drizzle-shaped stubs. The helpers chain the same builder two ways:
 //   resolveRepositoryBindingLimits -> select().from().where().limit() (awaited)
 //   countActiveRepositoryBindings  -> select().from().where()         (awaited)
-// The where() stub therefore returns an object that is both chainable
-// (a limit() method) and awaitable (a then() that resolves to the count rows),
-// in any order and any number of times, so tests that call only one helper
-// cannot leave a call-order "stage" behind.
+// The where() stub therefore returns a real Promise (awaitable, resolving to
+// the count rows) that carries an attached limit() method (chainable), so
+// tests that call only one helper cannot leave a call-order "stage" behind.
+// A then property literal is avoided on purpose: unicorn/no-thenable forbids
+// objects that look like thenables.
 function fakeDatabase({
   limitRow,
   countRow,
@@ -30,11 +31,13 @@ function fakeDatabase({
   return {
     select: () => ({
       from: () => ({
-        where: () => ({
-          limit: async () => limitRow,
-          then: (resolve: never, reject: never) =>
-            Promise.resolve([countRow]).then(resolve, reject),
-        }),
+        where: () => {
+          const whereResult = Promise.resolve([countRow]) as Promise<
+            { count: number }[]
+          > & { limit: () => Promise<unknown[]> };
+          Object.assign(whereResult, { limit: async () => limitRow });
+          return whereResult;
+        },
       }),
     }),
   } as never;

@@ -23,15 +23,20 @@ vi.mock("../../../apps/api/src/database", () => {
     },
     // resolveRepositoryBindingLimits chains select().from().where().limit()
     // while countActiveRepositoryBindings awaits select().from().where()
-    // directly; the where() stub is both chainable (limit()) and awaitable
-    // (then()), so any call order and any repetition works.
+    // directly; the where() stub returns a real Promise (awaitable, resolving
+    // to the count rows) with an attached limit() method (chainable), so any
+    // call order and any repetition works. A then property literal is
+    // avoided on purpose: unicorn/no-thenable forbids thenable-looking
+    // objects.
     select: () => ({
       from: () => ({
-        where: () => ({
-          limit: async () => [],
-          then: (resolve: never, reject: never) =>
-            Promise.resolve([{ count: 0 }]).then(resolve, reject),
-        }),
+        where: () => {
+          const whereResult = Promise.resolve([{ count: 0 }]) as Promise<
+            { count: number }[]
+          > & { limit: () => Promise<never[]> };
+          Object.assign(whereResult, { limit: async () => [] });
+          return whereResult;
+        },
       }),
     }),
     insert: () => ({
