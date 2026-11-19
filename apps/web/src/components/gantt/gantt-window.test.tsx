@@ -84,6 +84,13 @@ vi.mock(
   }),
 );
 
+// The shared view hook reads the project's sprints; this suite renders the
+// route component without a QueryClient provider, so the sprint query
+// stays isolated like in the route-level gantt suite.
+vi.mock("@/hooks/queries/sprint/use-get-sprints", () => ({
+  useGetSprints: () => ({ data: [] }),
+}));
+
 await import("@/routes/_layout/_authenticated/dashboard/workspace/$workspaceId/project/$projectId/gantt");
 afterEach(() => {
   cleanup();
