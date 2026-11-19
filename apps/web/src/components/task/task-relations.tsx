@@ -249,6 +249,8 @@ export default function TaskRelations({
     description: null,
     status: item.task.status,
     priority: item.task.priority,
+    sprintId: null,
+    type: null,
     startDate: null,
     dueDate: null,
     position: null,

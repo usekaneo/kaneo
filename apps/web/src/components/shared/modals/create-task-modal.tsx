@@ -127,6 +127,8 @@ function normalizeTask(
     number: task.number ?? null,
     description: task.description ?? null,
     priority: task.priority ?? null,
+    sprintId: task.sprintId ?? null,
+    type: task.type ?? null,
     startDate: task.startDate ?? null,
     dueDate: task.dueDate ?? null,
     position: task.position ?? 0,

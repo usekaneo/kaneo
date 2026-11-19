@@ -112,6 +112,8 @@ export default function TaskSubtasks({
     description: null,
     status: subtask.task.status,
     priority: subtask.task.priority,
+    sprintId: null,
+    type: null,
     startDate: null,
     dueDate: null,
     position: null,
