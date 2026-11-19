@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-import { existsSync, readFileSync } from "node:fs";
+import { existsSync, readdirSync, readFileSync } from "node:fs";
 import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -63,6 +63,26 @@ for (const [index, entry] of journal.entries.entries()) {
   if (newestWhen === null || entry.when > newestWhen) {
     newestWhen = entry.when;
     newestTag = entry.tag;
+  }
+}
+
+// PR #2242 review finding "A stray migration file never runs": the migrator
+// applies only journaled tags, so an .sql file without a journal entry is
+// silently dead code. Once its number slot is published by another entry, it
+// can never be added without renumbering. Every migration file (forward or
+// rollback) must therefore have its forward form in the journal.
+const journaledTags = new Set(journal.entries.map((entry) => entry.tag));
+for (const file of readdirSync(MIGRATIONS_DIR)) {
+  if (!file.endsWith(".sql")) continue; // meta/ directory and other files
+  const isRollback = file.endsWith(".down.sql");
+  const base = file.slice(
+    0,
+    file.length - (isRollback ? ".down.sql" : ".sql").length,
+  );
+  if (!journaledTags.has(base)) {
+    violations.push(
+      `${file}: migration file has no journal entry and would never run`,
+    );
   }
 }
 
