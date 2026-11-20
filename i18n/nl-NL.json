@@ -3798,7 +3798,11 @@
 			"projectBackground": "Projectachtergrond",
 			"layout": "Indeling",
 			"includeSubtasks": "Subtaken opnemen",
-			"useProjectDefault": "Projectstandaard gebruiken"
+			"useProjectDefault": "Projectstandaard gebruiken",
+			"columnBlur": "Column blur",
+			"columnOpacity": "Column opacity",
+			"resetColumnBlur": "Reset column blur to default",
+			"resetColumnOpacity": "Reset column opacity to default"
 		},
 		"filterBar": {
 			"label": "Actieve filters",

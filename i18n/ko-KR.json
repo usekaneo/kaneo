@@ -3729,7 +3729,11 @@
 			"projectBackground": "프로젝트 배경",
 			"layout": "레이아웃",
 			"includeSubtasks": "하위 작업 포함",
-			"useProjectDefault": "프로젝트 기본값 사용"
+			"useProjectDefault": "프로젝트 기본값 사용",
+			"columnBlur": "Column blur",
+			"columnOpacity": "Column opacity",
+			"resetColumnBlur": "Reset column blur to default",
+			"resetColumnOpacity": "Reset column opacity to default"
 		},
 		"filterBar": {
 			"label": "적용된 필터",

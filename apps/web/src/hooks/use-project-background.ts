@@ -13,7 +13,9 @@ export function useProjectBackground({
   viewMode,
   projectId,
 }: UseProjectBackground): string | null {
-  const { showProjectBackgrounds } = useUserPreferencesStore();
+  const showProjectBackgrounds = useUserPreferencesStore(
+    (state) => state.showProjectBackgrounds,
+  );
   const shouldShowBackground =
     showProjectBackgrounds &&
     backgroundVersion &&
