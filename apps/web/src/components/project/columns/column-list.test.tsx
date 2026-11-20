@@ -1,4 +1,5 @@
 import {
+  act,
   cleanup,
   fireEvent,
   render,
@@ -172,6 +173,94 @@ describe("ColumnList", () => {
       }),
     );
     await waitFor(() => expect(input).toHaveValue(""));
+  });
+
+  it("saves a new column when focus leaves the inline row", async () => {
+    render(<ColumnList projectId="p1" />);
+    const addButton = { name: "settings:columnEditor.addColumn" };
+    const inputName = { name: "settings:columnEditor.newColumnPlaceholder" };
+
+    fireEvent.click(screen.getByRole("button", addButton));
+    fireEvent.change(screen.getByRole("textbox", inputName), {
+      target: { value: "  " },
+    });
+    fireEvent.blur(screen.getByRole("textbox", inputName));
+    expect(screen.queryByRole("textbox", inputName)).toBeNull();
+
+    fireEvent.click(screen.getByRole("button", addButton));
+    fireEvent.change(screen.getByRole("textbox", inputName), {
+      target: { value: "Draft" },
+    });
+    const draft = screen.getByRole("textbox", inputName);
+    act(() => {
+      fireEvent.keyDown(draft, { key: "Escape" });
+      fireEvent.blur(draft);
+    });
+    expect(screen.queryByRole("textbox", inputName)).toBeNull();
+    expect(m.createColumn).not.toHaveBeenCalled();
+
+    fireEvent.click(screen.getByRole("button", addButton));
+    const input = screen.getByRole("textbox", inputName);
+    fireEvent.change(input, { target: { value: " Review " } });
+    fireEvent.blur(input);
+    await waitFor(() =>
+      expect(m.createColumn).toHaveBeenCalledWith({
+        projectId: "p1",
+        data: { name: "Review", icon: "Circle" },
+      }),
+    );
+    await waitFor(() =>
+      expect(screen.queryByRole("textbox", inputName)).toBeNull(),
+    );
+    expect(m.createColumn).toHaveBeenCalledTimes(1);
+  });
+
+  it("does not save twice on Enter followed by blur", async () => {
+    let finish: (value: unknown) => void = () => {};
+    m.createColumn.mockReturnValue(
+      new Promise((resolve) => {
+        finish = resolve;
+      }),
+    );
+    render(<ColumnList projectId="p1" />);
+    fireEvent.click(
+      screen.getByRole("button", { name: "settings:columnEditor.addColumn" }),
+    );
+    const input = screen.getByRole("textbox", {
+      name: "settings:columnEditor.newColumnPlaceholder",
+    });
+    fireEvent.change(input, { target: { value: "Review" } });
+    fireEvent.keyDown(input, { key: "Enter" });
+    fireEvent.blur(input);
+    finish({});
+    await waitFor(() => expect(input).toHaveValue(""));
+    fireEvent.blur(input);
+    expect(m.createColumn).toHaveBeenCalledTimes(1);
+  });
+
+  it("does not save while the icon picker has focus", async () => {
+    render(<ColumnList projectId="p1" />);
+    fireEvent.click(
+      screen.getByRole("button", { name: "settings:columnEditor.addColumn" }),
+    );
+    const input = screen.getByRole("textbox", {
+      name: "settings:columnEditor.newColumnPlaceholder",
+    });
+    fireEvent.change(input, { target: { value: "Review" } });
+    const trigger = screen
+      .getAllByRole("button", { name: "settings:columnEditor.pickIconTitle" })
+      .at(-1) as HTMLElement;
+    // Keeps focus on the input where the browser would not focus the button.
+    expect(fireEvent.mouseDown(trigger)).toBe(false);
+    fireEvent.blur(input, { relatedTarget: trigger });
+    fireEvent.click(trigger);
+    const search = await screen.findByRole("textbox", {
+      name: "settings:columnEditor.searchIconsPlaceholder",
+    });
+    fireEvent.blur(input);
+    fireEvent.blur(search);
+    expect(m.createColumn).not.toHaveBeenCalled();
+    expect(input).toHaveValue("Review");
   });
 
   it("is read-only without permission to update projects", () => {
