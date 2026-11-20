@@ -61,10 +61,10 @@ allowBuilds:
   better-sqlite3: true
   esbuild: true
 catalog:
-  vite: npm:@voidzero-dev/vite-plus-core@1.4.0
-  vitest: 5.0.5
-  vite-plus: 1.4.0
-  "@vitest/coverage-v8": 5.0.5
+  vite: npm:@voidzero-dev/vite-plus-core@1.6.0
+  vitest: 5.1.0
+  vite-plus: 1.6.0
+  "@vitest/coverage-v8": 5.1.0
 peerDependencyRules:
   allowAny:
     - vite
