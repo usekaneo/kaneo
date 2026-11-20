@@ -3798,7 +3798,11 @@
 			"projectBackground": "Layihə fonu",
 			"layout": "Düzən",
 			"includeSubtasks": "Alt tapşırıqları daxil et",
-			"useProjectDefault": "Layihənin standart ayarından istifadə et"
+			"useProjectDefault": "Layihənin standart ayarından istifadə et",
+			"columnBlur": "Column blur",
+			"columnOpacity": "Column opacity",
+			"resetColumnBlur": "Reset column blur to default",
+			"resetColumnOpacity": "Reset column opacity to default"
 		},
 		"filterBar": {
 			"label": "Aktiv süzgəclər",

@@ -38,6 +38,7 @@ import type { ProjectWithTasks } from "@/types/project";
 import BulkToolbar from "../bulk-selection/bulk-toolbar";
 import Column from "./column";
 import TaskCardContent from "./task-card/task-card-content";
+import { useColumnBackdropVars } from "./use-column-backdrop-vars";
 import { useBoardMoveQueue } from "./use-board-move-queue";
 import { previewBoardMoves } from "./preview-board-moves";
 
@@ -123,6 +124,7 @@ function KanbanBoard({
   useEffect(() => {
     return () => setBackground(null);
   }, [setBackground]);
+  const columnBackdropRef = useColumnBackdropVars();
 
   useEffect(() => {
     if (project?.columns) {
@@ -339,6 +341,7 @@ function KanbanBoard({
       onDragCancel={resetDrag}
     >
       <div
+        ref={columnBackdropRef}
         className={cn("flex h-full w-full flex-col", {
           "bg-linear-to-b from-muted/20 to-background": !background,
         })}

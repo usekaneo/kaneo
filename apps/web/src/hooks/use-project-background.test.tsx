@@ -12,7 +12,8 @@ import { useProjectBackground } from "./use-project-background";
 const preferences = vi.hoisted(() => ({ showProjectBackgrounds: true }));
 
 vi.mock("@/store/user-preferences", () => ({
-  useUserPreferencesStore: () => preferences,
+  useUserPreferencesStore: <T,>(select: (state: typeof preferences) => T) =>
+    select(preferences),
 }));
 
 describe("useProjectBackground", () => {

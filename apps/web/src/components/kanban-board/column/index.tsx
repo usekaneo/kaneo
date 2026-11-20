@@ -30,7 +30,7 @@ export const columnVariants = cva(
         false: "",
       },
       backgroundImage: {
-        true: "before:content-[''] before:absolute before:inset-0 before:rounded-[calc(var(--radius-xl)-1px)] before:pointer-events-none",
+        true: "",
         false: "",
       },
     },
@@ -49,13 +49,13 @@ export const columnVariants = cva(
         isDropzoneOver: false,
         backgroundImage: true,
         class:
-          "border border-border/70 bg-background shadow-md before:bg-muted before:dark:bg-card",
+          "border border-border/70 bg-background/(--column-backdrop-opacity) shadow-md backdrop-blur-(--column-backdrop-blur)",
       },
       {
         isDropzoneOver: true,
         backgroundImage: true,
         class:
-          "border border-border/70 bg-background ring-2 ring-focus/60 before:bg-accent/60",
+          "border border-border/70 bg-background/(--column-backdrop-opacity) shadow-md ring-2 ring-focus/60 backdrop-blur-(--column-backdrop-blur)",
       },
     ],
   },

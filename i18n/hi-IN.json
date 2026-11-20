@@ -3798,7 +3798,11 @@
 			"projectBackground": "प्रोजेक्ट पृष्ठभूमि",
 			"layout": "लेआउट",
 			"includeSubtasks": "उपकार्य शामिल करें",
-			"useProjectDefault": "प्रोजेक्ट का डिफ़ॉल्ट इस्तेमाल करें"
+			"useProjectDefault": "प्रोजेक्ट का डिफ़ॉल्ट इस्तेमाल करें",
+			"columnBlur": "Column blur",
+			"columnOpacity": "Column opacity",
+			"resetColumnBlur": "Reset column blur to default",
+			"resetColumnOpacity": "Reset column opacity to default"
 		},
 		"filterBar": {
 			"label": "सक्रिय फ़िल्टर",
