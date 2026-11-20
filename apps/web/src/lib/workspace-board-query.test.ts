@@ -94,4 +94,13 @@ describe("toWorkspaceBoardQuery", () => {
     expect(query.dueAfter).toBeUndefined();
     expect(query.dueBefore).toBeUndefined();
   });
+
+  it("keeps a week next to a custom date condition a client-side filter", () => {
+    const query = toWorkspaceBoardQuery(
+      { ...empty, dueDate: ["dueThisWeek", "after:2026-12-01"] },
+      false,
+    );
+    expect(query.dueAfter).toBeUndefined();
+    expect(query.dueBefore).toBeUndefined();
+  });
 });

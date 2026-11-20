@@ -1,5 +1,6 @@
 import type { QueryClient } from "@tanstack/react-query";
 import getLabelsByTask from "@/fetchers/label/get-labels-by-task";
+import type { WorkspaceBoardQuery } from "@/fetchers/task/get-workspace-board";
 import getTask from "@/fetchers/task/get-task";
 import { HttpError } from "@/lib/http-error";
 import type Task from "@/types/task";
@@ -26,13 +27,12 @@ function nextSequence(queryClient: QueryClient, taskId: string) {
   return sequence;
 }
 
-function includeCompletedOf(queryKey: readonly unknown[]) {
+// See workspaceBoardQueryKey: the query is the third part of the key.
+function queryOf(queryKey: readonly unknown[]) {
   const query = queryKey[2];
-  return (
-    typeof query === "object" &&
-    query !== null &&
-    (query as { includeCompleted?: string }).includeCompleted === "true"
-  );
+  return typeof query === "object" && query !== null
+    ? (query as WorkspaceBoardQuery)
+    : undefined;
 }
 
 function applyToBoards(
@@ -42,7 +42,7 @@ function applyToBoards(
 ) {
   updateActiveWorkspaceBoards(queryClient, (board, queryKey) =>
     patchWorkspaceBoardTask(board, taskId, update, {
-      includeCompleted: includeCompletedOf(queryKey),
+      query: queryOf(queryKey),
     }),
   );
 }

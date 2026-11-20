@@ -1,7 +1,9 @@
+import type { WorkspaceBoardQuery } from "@/fetchers/task/get-workspace-board";
 import { boundBoardDescription } from "@/lib/bound-board-description";
 import type { ProjectWithTasks } from "@/types/project";
 import type Task from "@/types/task";
 import { insertWorkspaceTask } from "./compare-workspace-tasks";
+import { matchesWorkspaceBoardQuery } from "./matches-workspace-board-query";
 
 type WorkspaceBoardLike = ProjectWithTasks & {
   projects?: Array<{
@@ -16,9 +18,18 @@ type WorkspaceBoardLike = ProjectWithTasks & {
 };
 
 type PatchOptions = {
-  /** Whether the board shows tasks sitting in final columns. */
-  includeCompleted?: boolean;
+  /** The server query the board was loaded with. */
+  query?: WorkspaceBoardQuery;
 };
+
+function sameLabels(left: Task["labels"], right: Task["labels"]) {
+  const key = (labels: Task["labels"]) =>
+    (labels ?? [])
+      .map((label) => `${label.name}\u0000${label.color}`)
+      .sort()
+      .join("\u0001");
+  return key(left) === key(right);
+}
 
 function withoutTask<T extends WorkspaceBoardLike>(board: T, taskId: string) {
   return {
@@ -39,8 +50,10 @@ function withTotal<T extends WorkspaceBoardLike>(board: T, delta: number): T {
 /**
  * Apply one task's new state to a merged workspace board. Columns are keyed
  * by slug across projects, so the task's status alone decides its lane.
- * Returns the same board when nothing changes, and `null` when the new state
- * needs a column the board does not have, which asks for a reload.
+ * Returns the same board when nothing changes, and `null` to ask for a reload
+ * when the new state needs a column the board does not have, or when the
+ * board cannot tell whether the task belongs on it: a task missing from a
+ * board that did not load every match, or a label filter.
  */
 export function patchWorkspaceBoardTask<T extends WorkspaceBoardLike>(
   board: T,
@@ -53,11 +66,19 @@ export function patchWorkspaceBoardTask<T extends WorkspaceBoardLike>(
     .find((task) => task.id === taskId);
   const removed = () =>
     existing ? withTotal(withoutTask(board, taskId), -1) : board;
-  if (!update) return removed();
+  const loaded = board.columns.reduce(
+    (count, column) => count + column.tasks.length,
+    0,
+  );
+  // A task the board does not show may still be counted in its total.
+  const maybeCounted =
+    !existing && typeof board.total === "number" && board.total > loaded;
+  if (!update) return maybeCounted ? null : removed();
 
   // Partial fields cannot create a card; the task is simply not on this board.
   const complete = update.title !== undefined && update.status !== undefined;
   if (!existing && !complete) return board;
+  if (maybeCounted) return null;
   if (
     update.projectId &&
     board.projects &&
@@ -93,7 +114,17 @@ export function patchWorkspaceBoardTask<T extends WorkspaceBoardLike>(
   // task's own project, and so does this.
   const finalSlugs = project?.finalColumnSlugs;
   const isDone = finalSlugs ? finalSlugs.includes(task.status) : column.isFinal;
-  if (isDone && !options.includeCompleted) return removed();
+  const query = options.query ?? {};
+  if (isDone && query.includeCompleted !== "true") return removed();
+  const matches = matchesWorkspaceBoardQuery(task, query);
+  if (matches === false) return removed();
+  if (
+    matches === undefined &&
+    (!existing ||
+      ("labels" in patch && !sameLabels(existing.labels, patch.labels)))
+  ) {
+    return null;
+  }
   return withTotal(
     {
       ...stripped,

@@ -90,7 +90,7 @@ describe("patchWorkspaceBoardTask", () => {
       board(),
       "a",
       { status: "done" },
-      { includeCompleted: true },
+      { query: { includeCompleted: "true" } },
     );
     expect(shown?.columns[2].tasks.map((task) => task.id)).toEqual(["a"]);
   });
@@ -171,13 +171,20 @@ describe("patchWorkspaceBoardTask", () => {
 });
 
 describe("patchWorkspaceBoardTask bookkeeping", () => {
-  const withTotal = () => ({ ...board(), total: 5 });
+  const withTotal = () => ({ ...board(), total: 2 });
+  const fresh = {
+    id: "c",
+    projectId: "p1",
+    status: "doing",
+    title: "fresh",
+    createdAt: "2026-02-01",
+  };
 
   it("keeps the server total in step with tasks that join or leave", () => {
     expect(
       patchWorkspaceBoardTask(withTotal(), "a", { status: "done" })?.total,
-    ).toBe(4);
-    expect(patchWorkspaceBoardTask(withTotal(), "a")?.total).toBe(4);
+    ).toBe(1);
+    expect(patchWorkspaceBoardTask(withTotal(), "a")?.total).toBe(1);
     expect(
       patchWorkspaceBoardTask(withTotal(), "c", {
         id: "c",
@@ -186,11 +193,59 @@ describe("patchWorkspaceBoardTask bookkeeping", () => {
         title: "fresh",
         createdAt: "2026-02-01",
       })?.total,
-    ).toBe(6);
+    ).toBe(3);
     expect(
       patchWorkspaceBoardTask(withTotal(), "a", { title: "x" })?.total,
-    ).toBe(5);
-    expect(patchWorkspaceBoardTask(withTotal(), "zzz")?.total).toBe(5);
+    ).toBe(2);
+    expect(patchWorkspaceBoardTask(withTotal(), "zzz")?.total).toBe(2);
+  });
+
+  it("drops a task that no longer matches the board's server filters", () => {
+    const next = patchWorkspaceBoardTask(
+      withTotal(),
+      "a",
+      { userId: "other" },
+      { query: { assigneeIds: "u" } },
+    );
+    expect(next?.columns[0].tasks.map((task) => task.id)).toEqual(["b"]);
+    expect(next?.total).toBe(1);
+  });
+
+  it("leaves out a new task the server filters would not return", () => {
+    const source = withTotal();
+    expect(
+      patchWorkspaceBoardTask(source, "c", fresh, {
+        query: { projectIds: "p2" },
+      }),
+    ).toBe(source);
+  });
+
+  it("reloads when a task is missing from a board that did not load every match", () => {
+    const truncated = () => ({ ...board(), total: 1500 });
+    expect(patchWorkspaceBoardTask(truncated(), "c", fresh)).toBeNull();
+    expect(patchWorkspaceBoardTask(truncated(), "c")).toBeNull();
+    expect(
+      patchWorkspaceBoardTask(truncated(), "a", { title: "x" })?.total,
+    ).toBe(1500);
+  });
+
+  it("reloads when a label filter decides whether the task belongs", () => {
+    const query = { labelIds: "l1" };
+    expect(
+      patchWorkspaceBoardTask(withTotal(), "c", fresh, { query }),
+    ).toBeNull();
+    expect(
+      patchWorkspaceBoardTask(
+        withTotal(),
+        "a",
+        { labels: [{ id: "x", name: "Bug", color: "red" }] },
+        { query },
+      ),
+    ).toBeNull();
+    expect(
+      patchWorkspaceBoardTask(withTotal(), "a", { title: "x" }, { query })
+        ?.total,
+    ).toBe(2);
   });
 
   it("defers descriptions too large for a board", () => {

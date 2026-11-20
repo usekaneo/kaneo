@@ -61,10 +61,12 @@ export function toWorkspaceBoardQuery(
       to: endOfWeek(nextWeek, { weekStartsOn }),
     });
   }
-  // A mixed selection that also wants undated tasks cannot be a date range.
-  const wantsUndated = dueDate.includes(DUE_DATE_FILTER_VALUES.noDueDate);
+  // Selected values are alternatives, so the server may only narrow by date
+  // when every one of them is a week: "no due date" and custom conditions
+  // match tasks outside the weeks.
+  const onlyWeeks = dueDate.length === ranges.length;
   const range =
-    ranges.length > 0 && !wantsUndated
+    ranges.length > 0 && onlyWeeks
       ? {
           from: new Date(Math.min(...ranges.map((r) => r.from.getTime()))),
           to: new Date(Math.max(...ranges.map((r) => r.to.getTime()))),
