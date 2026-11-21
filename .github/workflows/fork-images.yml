@@ -1,0 +1,70 @@
+name: Fork Images
+
+# Manual only until a published image has been pulled and smoke-tested.
+on:
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: "Image tag for ghcr.io/<owner>/kaneo (blank uses sha-<short sha>)"
+        required: false
+        type: string
+        default: ""
+
+concurrency:
+  group: fork-images-${{ github.ref }}
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  publish:
+    name: Publish bundled image
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Resolve image tag
+        id: tag
+        env:
+          INPUT_TAG: ${{ inputs.tag }}
+        run: |
+          tag="$INPUT_TAG"
+          if [ -z "$tag" ]; then
+            tag="sha-$(git rev-parse --short=12 HEAD)"
+          fi
+          printf 'tag=%s\n' "$tag" >> "$GITHUB_OUTPUT"
+          printf 'image=ghcr.io/%s/kaneo\n' "$GITHUB_REPOSITORY_OWNER" >> "$GITHUB_OUTPUT"
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@99012661954931238ded8c8b007157a8430204e1 # v4
+      - name: Set up Buildx
+        uses: docker/setup-buildx-action@f87e5991a6d7451dcb8d9637bfbc97413f497069 # v4
+      - name: Log in to GHCR
+        uses: docker/login-action@8aa5831fb8d48d8f76594c7ddde61ae58019f550 # v4
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Build and push
+        uses: docker/build-push-action@c3c9e263c25d99ce0380d002d59b67737d91b0dc # v7
+        with:
+          context: .
+          file: ./Dockerfile.kaneo
+          platforms: linux/amd64,linux/arm64
+          push: true
+          tags: ${{ steps.tag.outputs.image }}:${{ steps.tag.outputs.tag }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+      - name: Report published image
+        env:
+          IMAGE: ${{ steps.tag.outputs.image }}
+          TAG: ${{ steps.tag.outputs.tag }}
+        run: |
+          printf 'Published `%s:%s` for linux/amd64 and linux/arm64.\n' \
+            "$IMAGE" "$TAG" >> "$GITHUB_STEP_SUMMARY"
