@@ -5,10 +5,15 @@ on:
   workflow_dispatch:
     inputs:
       tag:
-        description: "Image tag for ghcr.io/<owner>/kaneo (blank uses sha-<short sha>)"
+        description: "Image tag for ghcr.io/<owner>/<image> (blank uses sha-<short sha>)"
         required: false
         type: string
         default: ""
+      image:
+        description: "GHCR package name under the fork owner"
+        required: false
+        type: string
+        default: "kaneo-fork"
 
 concurrency:
   group: fork-images-${{ github.ref }}
@@ -34,13 +39,17 @@ jobs:
         id: tag
         env:
           INPUT_TAG: ${{ inputs.tag }}
+          INPUT_IMAGE: ${{ inputs.image }}
         run: |
           tag="$INPUT_TAG"
           if [ -z "$tag" ]; then
             tag="sha-$(git rev-parse --short=12 HEAD)"
           fi
+          if [ -z "$INPUT_IMAGE" ]; then
+            INPUT_IMAGE="kaneo-fork"
+          fi
           printf 'tag=%s\n' "$tag" >> "$GITHUB_OUTPUT"
-          printf 'image=ghcr.io/%s/kaneo\n' "$GITHUB_REPOSITORY_OWNER" >> "$GITHUB_OUTPUT"
+          printf 'image=ghcr.io/%s/%s\n' "$GITHUB_REPOSITORY_OWNER" "$INPUT_IMAGE" >> "$GITHUB_OUTPUT"
       - name: Set up QEMU
         uses: docker/setup-qemu-action@99012661954931238ded8c8b007157a8430204e1 # v4
       - name: Set up Buildx
