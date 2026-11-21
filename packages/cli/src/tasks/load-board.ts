@@ -1,7 +1,8 @@
 import { Effect } from "effect";
 import { getBoardPage } from "../api/endpoints.js";
 import type { Query } from "../api/kaneo-api.js";
-import type { BoardLabel, BoardTask } from "../api/schemas.js";
+import type { BoardLabel, BoardPage, BoardTask } from "../api/schemas.js";
+import { BACKLOG_STATUS, backlogColumn } from "./backlog.js";
 
 export type TaskSortField =
   | "createdAt"
@@ -39,6 +40,11 @@ export type LoadedBoard = {
 
 const PAGE_SIZE = 100;
 
+const pageTasks = (data: BoardPage["data"]): BoardTask[] => [
+  ...data.columns.flatMap((column) => column.tasks),
+  ...(data.plannedTasks ?? []),
+];
+
 const loadExtraLabels = Effect.fnUntraced(function* (
   projectId: string,
   query: Query,
@@ -47,11 +53,9 @@ const loadExtraLabels = Effect.fnUntraced(function* (
   const labels = new Map<string, BoardLabel[]>();
   for (let relatedPage = 2; relatedPage <= relatedTotalPages; relatedPage++) {
     const response = yield* getBoardPage(projectId, { ...query, relatedPage });
-    for (const column of response.data.columns) {
-      for (const task of column.tasks) {
-        if (!task.labels || task.labels.length === 0) continue;
-        labels.set(task.id, [...(labels.get(task.id) ?? []), ...task.labels]);
-      }
+    for (const task of pageTasks(response.data)) {
+      if (!task.labels || task.labels.length === 0) continue;
+      labels.set(task.id, [...(labels.get(task.id) ?? []), ...task.labels]);
     }
   }
   return labels;
@@ -100,14 +104,16 @@ export const loadBoard = Effect.fn("tasks.loadBoard")(function* (
           isFinal: column.isFinal,
         });
       }
-      for (const task of column.tasks) {
-        const extra = extraLabels.get(task.id);
-        tasks.push(
-          extra
-            ? { ...task, labels: [...(task.labels ?? []), ...extra] }
-            : task,
-        );
-      }
+    }
+    if (response.data.plannedTasks?.length && !columns.has(BACKLOG_STATUS)) {
+      const { slug, name, isFinal } = backlogColumn(projectId);
+      columns.set(slug, { slug, name, isFinal });
+    }
+    for (const task of pageTasks(response.data)) {
+      const extra = extraLabels.get(task.id);
+      tasks.push(
+        extra ? { ...task, labels: [...(task.labels ?? []), ...extra] } : task,
+      );
     }
     total = response.pagination.total;
     totalPages = response.pagination.totalPages;

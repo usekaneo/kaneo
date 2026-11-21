@@ -35,6 +35,16 @@ describe("resolveBulkStatus", () => {
     );
   });
 
+  it("moves tasks to the backlog", () => {
+    const projects = [
+      { name: "Kaneo Web", columns: standard },
+      { name: "Mobile App", columns: standard },
+    ];
+    expect(Result.getOrThrow(resolveBulkStatus(projects, "planned")).slug).toBe(
+      "planned",
+    );
+  });
+
   it("names the project without a matching column", () => {
     const result = resolveBulkStatus(
       [
@@ -47,7 +57,7 @@ describe("resolveBulkStatus", () => {
       'No column in Mobile App matches "done".',
     );
     expect(Result.isFailure(result) && result.failure.hint).toBe(
-      "Use one of: to-do.",
+      "Use one of: to-do, planned.",
     );
   });
 

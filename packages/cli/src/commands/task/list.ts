@@ -140,7 +140,7 @@ export const taskList = Command.make(
     status: Flag.String("status").pipe(
       Flag.withAlias("s"),
       Flag.withDescription(
-        "Only tasks in this column, by slug (for example in-progress)",
+        "Only tasks in this column, by slug (for example in-progress), or planned for the backlog",
       ),
       Flag.optional,
     ),
