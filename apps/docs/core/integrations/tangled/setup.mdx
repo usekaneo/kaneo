@@ -1,0 +1,72 @@
+---
+title: Connect Tangled
+description: Link Tangled branches to Kaneo tasks and configure branch-push workflow rules.
+---
+
+Connect one Tangled repository to a Kaneo project.
+Matching branches appear on tasks, and an optional workflow rule moves tasks when a matching branch is processed.
+Pull request links can be added manually; automatic PR linking and issue synchronization are not available.
+
+## Before you start
+
+- You need permission to manage workspace settings and administer the Tangled repository's hooks.
+- Select a spindle for the Tangled repository.
+- Expose the Kaneo API at a public HTTPS URL without a redirect.
+  Tangled spindles reject private webhook destinations.
+- Set `KANEO_API_URL` to the public Kaneo API URL so the settings page shows the right webhook address.
+- Use a Tangled read API that serves `org.tangled.repo.getRepoByRepoDid`, `org.tangled.temp.git.getRef`, and `org.tangled.temp.git.listBranches`.
+  The public read API is `https://api.tangled.org`.
+  Kaneo accepts public HTTPS API origins on port 443; private destinations are blocked.
+  Periodic reconciliation supports repositories with up to 1,000 branches.
+
+## Connect the repository
+
+1. Open **Settings → Projects → your project → Integrations → Tangled**.
+2. Enter the Tangled read API origin and repository URL.
+3. Enter the repository DID and webhook repository identity, formatted as `owner DID/lowercase repository name`.
+4. Choose a branch naming pattern and enter a webhook secret that you will also enter in Tangled.
+5. Select **Connect Tangled**.
+   Kaneo checks that the DID and webhook identity refer to the same repository.
+6. Copy the webhook URL shown after connecting.
+7. In Tangled, open the repository's **Settings → Hooks**, create a webhook with that URL and the same secret, and select **Push events**.
+   Save and activate the hook.
+
+The repository DID identifies the repository and differs from the owner's DID.
+For a public repository, Tangled's read API can return the repository manifest:
+
+```sh
+curl --get 'https://api.tangled.org/xrpc/org.tangled.repo.getRepoByName' \
+  --data-urlencode 'owner=did:plc:YOUR_OWNER_DID' \
+  --data-urlencode 'name=YOUR_REPOSITORY_NAME'
+```
+
+The DID between `at://` and `/org.tangled.repo.manifest/self` in the returned `uri` is the repository DID.
+The manifest's `declaration.owner` and lowercased `declaration.name`, joined by `/`, form the webhook repository identity.
+Use the read API for your Tangled deployment if it differs from the public API.
+
+## Link branches and move tasks
+
+A branch name must match the configured pattern and the Kaneo project slug and task number.
+For example, pattern `{slug}-{number}` matches `KAN-12` for task `KAN-12`.
+Kaneo reads the current branch head before creating or updating a link.
+A periodic check also finds missed pushes and removes links to deleted branches after confirming deletion.
+A delayed push for a deleted branch is skipped; the periodic check removes its link.
+Manual links and task status remain when a branch is deleted.
+
+To move tasks, open the project's **Automations** settings and choose a target column for Tangled's **Branch push** event.
+Without a rule, branch updates do not change task status.
+The first periodic check links existing matching branches without moving their tasks.
+Later signed pushes or detected branch head changes can apply the rule.
+If the first webhook for a new branch is missed, its first periodic check links it without moving the task.
+Once a person changes a task's status after its scan baseline or an automatic move, later Tangled processing preserves that manual change, even if the person moves it back to its earlier status.
+Disconnecting the integration clears that ownership record; reconnecting establishes a new baseline.
+
+## Check or disconnect
+
+The Tangled settings panel shows the most recent sanitized processing result.
+If repository identity changes after a rename or transfer, update the connection after checking the repository DID.
+If the read API is unavailable, Kaneo leaves task data unchanged and retries through periodic reconciliation.
+Tangled's **Deliveries** page can also retry failed webhook deliveries.
+
+Turn off the connection to pause processing.
+Select **Disconnect** to remove the connection and its managed branch links; manual links and tasks remain.

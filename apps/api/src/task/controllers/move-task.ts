@@ -8,6 +8,7 @@ import {
   externalLinkTable,
   integrationTable,
   projectTable,
+  tangledTaskOwnershipTable,
   taskTable,
 } from "../../database/schema";
 import { publishEvent } from "../../events";
@@ -214,6 +215,10 @@ async function moveTask({
           ),
         ),
       );
+
+    await tx
+      .delete(tangledTaskOwnershipTable)
+      .where(eq(tangledTaskOwnershipTable.taskId, taskId));
 
     await tx
       .update(assetTable)

@@ -8,6 +8,7 @@ import { checkDueDateReminders } from "./due-date-reminders";
 import { checkProjectWebhookReminders } from "./project-webhook-reminders";
 import { reconcileWorkspaceSeats } from "./seat-reconciliation";
 import { checkTrialReminders } from "./trial-reminders";
+import { reconcileTangledRepositories } from "./tangled-branch-reconciliation";
 
 const jobs: Cron[] = [];
 
@@ -49,6 +50,16 @@ function withCheckIn<T>(name: string, fn: () => Promise<T>) {
 }
 
 export function initializeScheduler(): void {
+  jobs.push(
+    new Cron(
+      "* * * * *",
+      { protect: true },
+      withCheckIn(
+        "tangled-branch-reconciliation",
+        reconcileTangledRepositories,
+      ),
+    ),
+  );
   jobs.push(
     new Cron(
       "* * * * *",
