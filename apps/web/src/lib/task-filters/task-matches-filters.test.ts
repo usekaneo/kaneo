@@ -13,6 +13,7 @@ const noFilters: BoardFilters = {
   dueDate: null,
   labels: null,
   customFields: null,
+  project: null,
 };
 
 const context: TaskFilterContext = {
@@ -33,6 +34,7 @@ function task(overrides: Partial<Task>): Task {
     priority: "high",
     dueDate: "2026-10-16",
     userId: "u1",
+    projectId: "p1",
     labels: [{ id: "l1", name: "Engineering", color: "blue" }],
     ...overrides,
   } as Task;
@@ -53,6 +55,31 @@ describe("taskMatchesFilters", () => {
     );
   });
 
+  it("treats a task without assignee as unassigned", () => {
+    expect(
+      taskMatchesFilters(
+        task({ userId: null }),
+        { ...noFilters, assignee: ["unassigned"] },
+        context,
+      ),
+    ).toBe(true);
+  });
+
+  it("prefers the task's own project slug for identifiers", () => {
+    expect(
+      taskMatchesFilters(task({ projectSlug: "API" }), noFilters, {
+        ...context,
+        query: "api-18",
+      }),
+    ).toBe(true);
+    expect(
+      taskMatchesFilters(task({ projectSlug: "API" }), noFilters, {
+        ...context,
+        query: "web-18",
+      }),
+    ).toBe(false);
+  });
+
   it("matches tasks the server found by description", () => {
     expect(
       taskMatchesFilters(task({ description: null }), noFilters, {
@@ -70,6 +97,9 @@ describe("taskMatchesFilters", () => {
     [{ priority: ["low"] }, false],
     [{ assignee: ["u1"] }, true],
     [{ assignee: ["u2"] }, false],
+    [{ assignee: ["unassigned"] }, false],
+    [{ project: ["p1"] }, true],
+    [{ project: ["p2"] }, false],
     [{ labels: ["l2", "l1"] }, true],
     [{ labels: ["l2"] }, false],
     [{ customFields: { size: ["L", "XL"] } }, true],

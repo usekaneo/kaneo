@@ -2821,7 +2821,8 @@
 			"home": "首頁",
 			"inbox": "收件匣",
 			"myTasks": "我的任務",
-			"invitePeople": "邀請成員"
+			"invitePeople": "邀請成員",
+			"tasks": "Tasks"
 		},
 		"projectList": {
 			"viewProject": "檢視專案",
@@ -2979,7 +2980,8 @@
 				"editorNumberedList": "編號清單",
 				"editorCodeBlock": "程式碼區塊",
 				"editorUndo": "復原",
-				"editorRedo": "重做"
+				"editorRedo": "重做",
+				"goToWorkspaceTasks": "Go to workspace tasks"
 			},
 			"title": "鍵盤快速鍵",
 			"searchPlaceholder": "依動作或按鍵搜尋",
@@ -3515,7 +3517,8 @@
 				"priority": "優先順序",
 				"assignee": "負責人",
 				"dueDate": "截止日期",
-				"labels": "標籤"
+				"labels": "標籤",
+				"project": "Project"
 			},
 			"operators": {
 				"isAnyOf": "為以下任一",
@@ -3528,7 +3531,10 @@
 			},
 			"allCustomFieldValues": "所有值",
 			"noCustomFieldValues": "沒有自訂欄位值",
-			"noValuesUsedYet": "尚未使用任何值"
+			"noValuesUsedYet": "尚未使用任何值",
+			"moreMembers_other": "{{count}} more people",
+			"quickFilterLabel": "Filter by assignee",
+			"unassigned": "Unassigned"
 		},
 		"calendar": {
 			"pageTitle": "{{name}} - 行事曆",
@@ -3942,6 +3948,18 @@
 			"manage": "Manage workspaces",
 			"otherWorkspaces": "Go to workspaces",
 			"title": "Workspace archived"
+		},
+		"tasks": {
+			"empty": "No open tasks",
+			"emptyDescription": "Tasks from every project you can see in this workspace show up here.",
+			"emptyFiltered": "No tasks match the current filters.",
+			"loadError": "Tasks couldn't be loaded.",
+			"moveFailed": "The task could not be moved.",
+			"moveNotAvailable": "{{project}} has no \"{{column}}\" column. Open the task to change its status.",
+			"pageTitle": "Tasks",
+			"retry": "Retry",
+			"showCompleted": "Show completed tasks",
+			"truncated": "Showing {{shown}} of {{total}} tasks. Narrow the filters to see the rest."
 		}
 	},
 	"team": {

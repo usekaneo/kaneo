@@ -2821,7 +2821,8 @@
 			"home": "Home",
 			"inbox": "Inbox",
 			"invitePeople": "Invite people",
-			"myTasks": "My tasks"
+			"myTasks": "My tasks",
+			"tasks": "Tasks"
 		},
 		"projectList": {
 			"viewProject": "Lihat Proyek",
@@ -2979,7 +2980,8 @@
 				"editorNumberedList": "Daftar bernomor",
 				"editorCodeBlock": "Blok kode",
 				"editorUndo": "Urungkan",
-				"editorRedo": "Ulangi"
+				"editorRedo": "Ulangi",
+				"goToWorkspaceTasks": "Go to workspace tasks"
 			},
 			"title": "Pintasan Keyboard",
 			"searchPlaceholder": "Cari berdasarkan aksi atau tombol",
@@ -3515,7 +3517,8 @@
 				"priority": "Prioritas",
 				"assignee": "Penanggung jawab",
 				"dueDate": "Tenggat",
-				"labels": "Label"
+				"labels": "Label",
+				"project": "Project"
 			},
 			"operators": {
 				"isAnyOf": "adalah salah satu dari",
@@ -3528,7 +3531,10 @@
 			},
 			"allCustomFieldValues": "All values",
 			"noCustomFieldValues": "No custom field values",
-			"noValuesUsedYet": "No values used yet"
+			"noValuesUsedYet": "No values used yet",
+			"moreMembers_other": "{{count}} more people",
+			"quickFilterLabel": "Filter by assignee",
+			"unassigned": "Unassigned"
 		},
 		"gantt": {
 			"searchPlaceholder": "Cari tiket terjadwal...",
@@ -3942,6 +3948,18 @@
 			"manage": "Manage workspaces",
 			"otherWorkspaces": "Go to workspaces",
 			"title": "Workspace archived"
+		},
+		"tasks": {
+			"empty": "No open tasks",
+			"emptyDescription": "Tasks from every project you can see in this workspace show up here.",
+			"emptyFiltered": "No tasks match the current filters.",
+			"loadError": "Tasks couldn't be loaded.",
+			"moveFailed": "The task could not be moved.",
+			"moveNotAvailable": "{{project}} has no \"{{column}}\" column. Open the task to change its status.",
+			"pageTitle": "Tasks",
+			"retry": "Retry",
+			"showCompleted": "Show completed tasks",
+			"truncated": "Showing {{shown}} of {{total}} tasks. Narrow the filters to see the rest."
 		}
 	},
 	"team": {

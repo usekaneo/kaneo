@@ -476,14 +476,14 @@ describe("cross-column dragging", () => {
 });
 
 describe.each([
-  ["sortedByNumber", "tasks:sort.fields.number"],
-  ["sortedByPriority", "tasks:sort.fields.priority"],
-])("%s boards", (sortProp, sortLabel) => {
+  ["number", "tasks:sort.fields.number"],
+  ["priority", "tasks:sort.fields.priority"],
+] as const)("boards sorted by %s", (sortField, sortLabel) => {
   it("hints at the sort and appends the dropped card", () => {
     const project = crossColumnBoard();
     mocks.project = project;
     const view = render(
-      <KanbanBoard project={project} {...{ [sortProp]: true }} />,
+      <KanbanBoard project={project} automaticSort={sortField} />,
     );
 
     fireEvent.click(view.getByText("start"));
@@ -512,5 +512,50 @@ describe.each([
     expect(view.getByTestId("column-doing")).not.toHaveAttribute(
       "data-sort-hint",
     );
+  });
+});
+
+describe("status-only boards", () => {
+  it("changes the status when a card is dropped on a card in another column", () => {
+    const project = crossColumnBoard();
+    mocks.project = project;
+    const onTaskStatusChange = vi.fn();
+    const view = render(
+      <KanbanBoard
+        project={project}
+        automaticSort="dueDate"
+        onTaskStatusChange={onTaskStatusChange}
+      />,
+    );
+
+    fireEvent.click(view.getByText("start"));
+    fireEvent.click(view.getByText("over-c"));
+    fireEvent.click(view.getByText("drop-c"));
+
+    expect(onTaskStatusChange).toHaveBeenCalledWith(
+      expect.objectContaining({ id: "a" }),
+      expect.objectContaining({ slug: "doing" }),
+    );
+    expect(mocks.reorder).not.toHaveBeenCalled();
+    expect(mocks.setQueryData).not.toHaveBeenCalled();
+  });
+
+  it("ignores drops that stay in the same column", () => {
+    const project = crossColumnBoard();
+    mocks.project = project;
+    const onTaskStatusChange = vi.fn();
+    const view = render(
+      <KanbanBoard
+        project={project}
+        automaticSort="dueDate"
+        onTaskStatusChange={onTaskStatusChange}
+      />,
+    );
+
+    fireEvent.click(view.getByText("start"));
+    fireEvent.click(view.getByText("drop-on-card"));
+
+    expect(onTaskStatusChange).not.toHaveBeenCalled();
+    expect(mocks.reorder).not.toHaveBeenCalled();
   });
 });

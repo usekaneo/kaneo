@@ -10,6 +10,7 @@ import {
 } from "@/components/ui/select";
 import type { SortConfig, SortField } from "@/lib/sort-tasks";
 import { nextSortForField, SORT_FIELDS } from "./sort-fields";
+import { useSortFieldLabels } from "./use-sort-field-labels";
 
 type SortOrderControlProps = {
   sort: SortConfig;
@@ -23,14 +24,7 @@ export function SortOrderControl({
   const { t } = useTranslation();
   const label = t("tasks:display.sortBy");
   const isManual = sort.field === "position";
-  const fieldLabels: Record<SortField, string> = {
-    position: t("tasks:sort.fields.position"),
-    createdAt: t("tasks:sort.fields.createdAt"),
-    priority: t("tasks:sort.fields.priority"),
-    dueDate: t("tasks:sort.fields.dueDate"),
-    title: t("tasks:sort.fields.title"),
-    number: t("tasks:sort.fields.number"),
-  };
+  const fieldLabels = useSortFieldLabels();
   const directionLabel =
     sort.direction === "asc"
       ? t("tasks:sort.ascending")

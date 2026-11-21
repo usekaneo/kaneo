@@ -7,7 +7,10 @@ interface BulkSelectionState {
   selectionAnchorId: string | null;
   focusedTaskId: string | null;
   focusedTaskRowId: string | null;
+  /** Views without bulk actions turn selection off so nothing is selected invisibly. */
+  selectionEnabled: boolean;
 
+  setSelectionEnabled: (enabled: boolean) => void;
   selectTask: (taskId: string) => void;
   deselectTask: (taskId: string) => void;
   toggleSelection: (taskId: string) => void;
@@ -30,13 +33,29 @@ const useBulkSelectionStore = create<BulkSelectionState>((set, get) => ({
   selectionAnchorId: null,
   focusedTaskId: null,
   focusedTaskRowId: null,
+  selectionEnabled: true,
+
+  setSelectionEnabled: (enabled: boolean) =>
+    set(
+      enabled
+        ? { selectionEnabled: true }
+        : {
+            selectionEnabled: false,
+            selectedTaskIds: new Set(),
+            isSelectMode: false,
+          },
+    ),
 
   selectTask: (taskId: string) =>
-    set((state) => ({
-      selectedTaskIds: new Set([...state.selectedTaskIds, taskId]),
-      isSelectMode: true,
-      selectionAnchorId: taskId,
-    })),
+    set((state) =>
+      state.selectionEnabled
+        ? {
+            selectedTaskIds: new Set([...state.selectedTaskIds, taskId]),
+            isSelectMode: true,
+            selectionAnchorId: taskId,
+          }
+        : {},
+    ),
 
   deselectTask: (taskId: string) =>
     set((state) => {
@@ -62,6 +81,7 @@ const useBulkSelectionStore = create<BulkSelectionState>((set, get) => ({
 
   selectRange: (taskId: string) =>
     set((state) => {
+      if (!state.selectionEnabled) return {};
       const end = state.availableTaskIds.indexOf(taskId);
       const start = state.availableTaskIds.indexOf(
         state.selectionAnchorId ?? "",
@@ -89,17 +109,25 @@ const useBulkSelectionStore = create<BulkSelectionState>((set, get) => ({
     }),
 
   selectAll: () =>
-    set((state) => ({
-      selectedTaskIds: new Set(state.availableTaskIds),
-      isSelectMode: true,
-      selectionAnchorId: null,
-    })),
+    set((state) =>
+      state.selectionEnabled
+        ? {
+            selectedTaskIds: new Set(state.availableTaskIds),
+            isSelectMode: true,
+            selectionAnchorId: null,
+          }
+        : {},
+    ),
 
   selectTasks: (taskIds: string[]) =>
-    set((state) => ({
-      selectedTaskIds: new Set([...state.selectedTaskIds, ...taskIds]),
-      isSelectMode: true,
-    })),
+    set((state) =>
+      state.selectionEnabled
+        ? {
+            selectedTaskIds: new Set([...state.selectedTaskIds, ...taskIds]),
+            isSelectMode: true,
+          }
+        : {},
+    ),
 
   setAvailableTasks: (taskIds: string[]) =>
     set((state) => ({

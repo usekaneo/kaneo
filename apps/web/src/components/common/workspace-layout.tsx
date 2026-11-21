@@ -3,6 +3,7 @@ import { Link } from "@tanstack/react-router";
 import type { ReactNode } from "react";
 import { useTranslation } from "react-i18next";
 import Layout from "@/components/common/layout";
+import { ViewToolbarRow } from "@/components/common/view-toolbar-row";
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -23,6 +24,10 @@ import { cn } from "@/lib/cn";
 type WorkspaceLayoutProps = {
   title: string;
   headerActions?: ReactNode;
+  /** Task views add the same toolbar row project views have. */
+  toolbar?: ReactNode;
+  summary?: ReactNode;
+  filterBar?: ReactNode;
   children: ReactNode;
   onCreateProject?: () => void;
   className?: string;
@@ -31,6 +36,9 @@ type WorkspaceLayoutProps = {
 export default function WorkspaceLayout({
   title,
   headerActions,
+  toolbar,
+  summary,
+  filterBar,
   children,
   className,
 }: WorkspaceLayoutProps) {
@@ -92,6 +100,13 @@ export default function WorkspaceLayout({
           </div>
         </div>
       </Layout.Header>
+      {toolbar && (
+        <ViewToolbarRow
+          summary={summary}
+          toolbar={toolbar}
+          filterBar={filterBar}
+        />
+      )}
       <Layout.Content>{children}</Layout.Content>
     </>
   );

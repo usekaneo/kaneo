@@ -4,6 +4,7 @@ import { invalidateMyWork } from "@/lib/invalidate-my-work";
 import { useTranslation } from "react-i18next";
 import duplicateTask from "@/fetchers/task/duplicate-task";
 import { toast } from "@/lib/toast";
+import { WORKSPACE_BOARD_KEY } from "@/lib/workspace-board/update-active-workspace-boards";
 
 export function useDuplicateTask() {
   const { t } = useTranslation();
@@ -13,6 +14,7 @@ export function useDuplicateTask() {
     mutationFn: duplicateTask,
     onSuccess: (task) => {
       invalidateMyWork(queryClient);
+      queryClient.invalidateQueries({ queryKey: WORKSPACE_BOARD_KEY });
       void queryClient.invalidateQueries({ queryKey: ["projects"] });
       toast.success(t("tasks:duplicate.success"), { icon: CopyPlusIcon });
       queryClient.invalidateQueries({

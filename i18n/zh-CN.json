@@ -2821,7 +2821,8 @@
 			"home": "首页",
 			"inbox": "收件箱",
 			"invitePeople": "邀请成员",
-			"myTasks": "我的任务"
+			"myTasks": "我的任务",
+			"tasks": "Tasks"
 		},
 		"projectList": {
 			"viewProject": "查看项目",
@@ -2979,7 +2980,8 @@
 				"editorNumberedList": "有序列表",
 				"editorCodeBlock": "代码块",
 				"editorUndo": "撤销",
-				"editorRedo": "重做"
+				"editorRedo": "重做",
+				"goToWorkspaceTasks": "Go to workspace tasks"
 			},
 			"title": "键盘快捷键",
 			"searchPlaceholder": "按操作或按键搜索",
@@ -3515,7 +3517,8 @@
 				"priority": "优先级",
 				"assignee": "负责人",
 				"dueDate": "截止日期",
-				"labels": "标签"
+				"labels": "标签",
+				"project": "Project"
 			},
 			"operators": {
 				"isAnyOf": "为以下任一",
@@ -3528,7 +3531,10 @@
 			},
 			"allCustomFieldValues": "所有值",
 			"noCustomFieldValues": "没有自定义字段的值",
-			"noValuesUsedYet": "还没有使用过任何值"
+			"noValuesUsedYet": "还没有使用过任何值",
+			"moreMembers_other": "{{count}} more people",
+			"quickFilterLabel": "Filter by assignee",
+			"unassigned": "Unassigned"
 		},
 		"calendar": {
 			"pageTitle": "{{name}} / 日历",
@@ -3942,6 +3948,18 @@
 			"manage": "Manage workspaces",
 			"otherWorkspaces": "Go to workspaces",
 			"title": "Workspace archived"
+		},
+		"tasks": {
+			"empty": "No open tasks",
+			"emptyDescription": "Tasks from every project you can see in this workspace show up here.",
+			"emptyFiltered": "No tasks match the current filters.",
+			"loadError": "Tasks couldn't be loaded.",
+			"moveFailed": "The task could not be moved.",
+			"moveNotAvailable": "{{project}} has no \"{{column}}\" column. Open the task to change its status.",
+			"pageTitle": "Tasks",
+			"retry": "Retry",
+			"showCompleted": "Show completed tasks",
+			"truncated": "Showing {{shown}} of {{total}} tasks. Narrow the filters to see the rest."
 		}
 	},
 	"team": {

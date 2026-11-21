@@ -12,8 +12,11 @@ export type BoardFilters = {
   startDate?: string[] | null;
   labels: string[] | null;
   customFields: Record<string, string[]> | null;
+  project: string[] | null;
   negated?: string[] | null;
 };
+
+export { UNASSIGNED_ASSIGNEE_FILTER } from "@/lib/task-filters/unassigned-assignee-filter";
 
 export { DUE_DATE_FILTER_VALUES } from "@/lib/task-filters/due-date-filter-values";
 
@@ -25,6 +28,7 @@ const DEFAULT_FILTERS: BoardFilters = {
   startDate: null,
   labels: null,
   customFields: null,
+  project: null,
 };
 
 const FILTER_KEYS: Array<keyof BoardFilters> = [
@@ -35,6 +39,7 @@ const FILTER_KEYS: Array<keyof BoardFilters> = [
   "startDate",
   "labels",
   "customFields",
+  "project",
 ];
 
 function normalizeFilters(raw: unknown): BoardFilters {

@@ -321,3 +321,64 @@ export const assignedTasksSchema = z
     }),
   })
   .openapi("AssignedTasks");
+
+export const workspaceBoardTaskSchema = boardTaskSchema
+  .extend({
+    projectSlug: z.string(),
+    projectName: z.string(),
+    projectIcon: z.string().nullable(),
+    workspaceId: z.string(),
+  })
+  .openapi("WorkspaceBoardTask");
+
+export const workspaceBoardSchema = z
+  .object({
+    data: z
+      .object({
+        id: z.string().openapi({
+          description: "Synthetic board id: workspace-board:{workspaceId}.",
+        }),
+        name: z.string(),
+        slug: z.string(),
+        icon: z.string().nullable(),
+        description: z.string().nullable(),
+        isPublic: z.boolean().nullable(),
+        workspaceId: z.string(),
+        backgroundVersion: z.string().nullable(),
+        columns: z.array(
+          boardColumnSchema
+            .extend({ tasks: z.array(workspaceBoardTaskSchema) })
+            .openapi("WorkspaceBoardColumn"),
+        ),
+        archivedTasks: z.array(workspaceBoardTaskSchema),
+        plannedTasks: z.array(workspaceBoardTaskSchema),
+        projects: z.array(
+          z
+            .object({
+              id: z.string(),
+              name: z.string(),
+              slug: z.string(),
+              icon: z.string().nullable(),
+              columnSlugs: z.array(z.string()).openapi({
+                description:
+                  "Column slugs this project defines; a task can only be moved into one of them.",
+              }),
+              finalColumnSlugs: z.array(z.string()).openapi({
+                description:
+                  "Column slugs that mark a task done in this project; merged columns can differ between projects.",
+              }),
+            })
+            .openapi("WorkspaceBoardProject"),
+        ),
+      })
+      .openapi("WorkspaceBoard"),
+    pagination: z
+      .object({
+        total: z.number(),
+        page: z.number(),
+        pageSize: z.number(),
+        totalPages: z.number(),
+      })
+      .openapi("WorkspaceBoardPagination"),
+  })
+  .openapi("WorkspaceBoardResponse");

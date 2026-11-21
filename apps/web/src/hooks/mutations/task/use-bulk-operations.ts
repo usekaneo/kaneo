@@ -2,6 +2,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { invalidateMyWork } from "@/lib/invalidate-my-work";
 import bulkOperation from "@/fetchers/task/bulk-operation";
 import deleteTask from "@/fetchers/task/delete-task";
+import { WORKSPACE_BOARD_KEY } from "@/lib/workspace-board/update-active-workspace-boards";
 import { removeTasksFromRelations } from "./remove-task-from-relations";
 
 export function useBulkOperations() {
@@ -9,6 +10,7 @@ export function useBulkOperations() {
 
   const invalidateCommon = () => {
     queryClientRef.invalidateQueries({ queryKey: ["tasks"] });
+    queryClientRef.invalidateQueries({ queryKey: WORKSPACE_BOARD_KEY });
     queryClientRef.invalidateQueries({ queryKey: ["projects"] });
     invalidateMyWork(queryClientRef);
   };

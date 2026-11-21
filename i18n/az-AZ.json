@@ -2870,7 +2870,8 @@
 			"home": "Home",
 			"inbox": "Inbox",
 			"invitePeople": "Invite people",
-			"myTasks": "My tasks"
+			"myTasks": "My tasks",
+			"tasks": "Tasks"
 		},
 		"projectList": {
 			"viewProject": "Layihəyə bax",
@@ -3028,7 +3029,8 @@
 				"editorNumberedList": "Nömrəli siyahı",
 				"editorCodeBlock": "Kod bloku",
 				"editorUndo": "Geri al",
-				"editorRedo": "Təkrarla"
+				"editorRedo": "Təkrarla",
+				"goToWorkspaceTasks": "Go to workspace tasks"
 			},
 			"title": "Klaviatura qısayolları",
 			"searchPlaceholder": "Əməliyyat və ya düymə ilə axtar",
@@ -3573,7 +3575,8 @@
 				"priority": "Prioritet",
 				"assignee": "İcraçı",
 				"dueDate": "Son tarix",
-				"labels": "Etiketlər"
+				"labels": "Etiketlər",
+				"project": "Project"
 			},
 			"operators": {
 				"isAnyOf": "Bunlardan biridir",
@@ -3586,7 +3589,11 @@
 			},
 			"allCustomFieldValues": "All values",
 			"noCustomFieldValues": "No custom field values",
-			"noValuesUsedYet": "No values used yet"
+			"noValuesUsedYet": "No values used yet",
+			"moreMembers_one": "{{count}} more person",
+			"moreMembers_other": "{{count}} more people",
+			"quickFilterLabel": "Filter by assignee",
+			"unassigned": "Unassigned"
 		},
 		"calendar": {
 			"pageTitle": "{{name}} / Təqvim",
@@ -4018,6 +4025,18 @@
 			"manage": "Manage workspaces",
 			"otherWorkspaces": "Go to workspaces",
 			"title": "Workspace archived"
+		},
+		"tasks": {
+			"empty": "No open tasks",
+			"emptyDescription": "Tasks from every project you can see in this workspace show up here.",
+			"emptyFiltered": "No tasks match the current filters.",
+			"loadError": "Tasks couldn't be loaded.",
+			"moveFailed": "The task could not be moved.",
+			"moveNotAvailable": "{{project}} has no \"{{column}}\" column. Open the task to change its status.",
+			"pageTitle": "Tasks",
+			"retry": "Retry",
+			"showCompleted": "Show completed tasks",
+			"truncated": "Showing {{shown}} of {{total}} tasks. Narrow the filters to see the rest."
 		}
 	},
 	"team": {

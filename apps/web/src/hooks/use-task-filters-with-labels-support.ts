@@ -25,6 +25,7 @@ const DEFAULT_FILTERS: BoardFilters = {
   startDate: null,
   labels: null,
   customFields: null,
+  project: null,
   negated: null,
 };
 
@@ -38,6 +39,7 @@ const FILTER_KEYS: Array<keyof BoardFilters> = [
   "startDate",
   "labels",
   "customFields",
+  "project",
   "negated",
 ];
 
@@ -84,6 +86,8 @@ export function useTaskFiltersWithLabelsSupport(
   textQuery?: string,
   descriptionMatches?: ReadonlySet<string>,
   ignore: ReadonlyArray<keyof BoardFilters> = NO_IGNORED_FILTERS,
+  /** Cross-project views have no project to take the workspace from. */
+  workspaceId?: string,
 ) {
   const [includeSubtasksOverride, setIncludeSubtasks] = useStoredState<
     boolean | null
@@ -101,7 +105,7 @@ export function useTaskFiltersWithLabelsSupport(
     DEFAULT_FILTERS,
   );
   const { data: workspaceLabels } = useGetLabelsByWorkspace(
-    project?.workspaceId ?? "",
+    project?.workspaceId ?? workspaceId ?? "",
   );
   const labels = useMemo(() => {
     if (!filters.labels?.length) return [];
@@ -225,7 +229,8 @@ export function useTaskFiltersWithLabelsSupport(
       | "assignee"
       | "dueDate"
       | "startDate"
-      | "labels",
+      | "labels"
+      | "project",
     value: string,
   ) => {
     setFilters((prev) => {

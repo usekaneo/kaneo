@@ -314,7 +314,7 @@ function TaskRow({
           <TaskCardContextMenuContent
             task={task}
             taskCardContext={{
-              projectId: project.id,
+              projectId: task.projectId,
               worskpaceId: workspace.id,
               workspaceSlug: workspace.slug,
             }}

@@ -10212,6 +10212,9 @@
 						},
 						"invitePeople": {
 							"type": "string"
+						},
+						"tasks": {
+							"type": "string"
 						}
 					},
 					"required": [
@@ -10223,7 +10226,8 @@
 						"home",
 						"inbox",
 						"myTasks",
-						"invitePeople"
+						"invitePeople",
+						"tasks"
 					]
 				},
 				"projectList": {
@@ -12775,6 +12779,9 @@
 								},
 								"labels": {
 									"type": "string"
+								},
+								"project": {
+									"type": "string"
 								}
 							},
 							"required": [
@@ -12782,7 +12789,8 @@
 								"priority",
 								"assignee",
 								"dueDate",
-								"labels"
+								"labels",
+								"project"
 							]
 						},
 						"operators": {
@@ -12797,6 +12805,30 @@
 								}
 							},
 							"required": ["isAnyOf", "includeAnyOf"]
+						},
+						"moreMembers_one": {
+							"type": "string"
+						},
+						"moreMembers_zero": {
+							"type": "string"
+						},
+						"moreMembers_two": {
+							"type": "string"
+						},
+						"moreMembers_few": {
+							"type": "string"
+						},
+						"moreMembers_many": {
+							"type": "string"
+						},
+						"moreMembers_other": {
+							"type": "string"
+						},
+						"quickFilterLabel": {
+							"type": "string"
+						},
+						"unassigned": {
+							"type": "string"
 						}
 					},
 					"required": [
@@ -12811,7 +12843,9 @@
 						"allCustomFieldValues",
 						"all",
 						"subjects",
-						"operators"
+						"operators",
+						"quickFilterLabel",
+						"unassigned"
 					]
 				},
 				"calendar": {
@@ -14419,9 +14453,65 @@
 						}
 					},
 					"required": ["pageTitle", "emptyDescription", "groupBy", "truncated"]
+				},
+				"tasks": {
+					"type": "object",
+					"additionalProperties": false,
+					"properties": {
+						"pageTitle": {
+							"type": "string"
+						},
+						"showCompleted": {
+							"type": "string"
+						},
+						"empty": {
+							"type": "string"
+						},
+						"emptyDescription": {
+							"type": "string"
+						},
+						"emptyFiltered": {
+							"type": "string"
+						},
+						"loadError": {
+							"type": "string"
+						},
+						"retry": {
+							"type": "string"
+						},
+						"moveNotAvailable": {
+							"type": "string"
+						},
+						"moveFailed": {
+							"type": "string"
+						},
+						"truncated": {
+							"type": "string"
+						}
+					},
+					"required": [
+						"pageTitle",
+						"showCompleted",
+						"empty",
+						"emptyDescription",
+						"emptyFiltered",
+						"loadError",
+						"retry",
+						"moveNotAvailable",
+						"moveFailed",
+						"truncated"
+					]
 				}
 			},
-			"required": ["projects", "search", "create", "home", "myWork", "myTasks"]
+			"required": [
+				"projects",
+				"search",
+				"create",
+				"home",
+				"myWork",
+				"myTasks",
+				"tasks"
+			]
 		},
 		"team": {
 			"type": "object",

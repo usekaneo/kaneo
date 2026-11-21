@@ -54,3 +54,30 @@ describe.each(stores)("%s range selection", (_name, store) => {
     expect(store.getState().selectedTaskIds).toEqual(new Set(["d"]));
   });
 });
+
+describe("board selection switch", () => {
+  beforeEach(() => {
+    useBulkSelectionStore.setState(useBulkSelectionStore.getInitialState());
+    useBulkSelectionStore.getState().setAvailableTasks(["a", "b", "c"]);
+  });
+
+  it("ignores every way of selecting while switched off", () => {
+    const store = useBulkSelectionStore.getState();
+    store.toggleSelection("a");
+    store.setSelectionEnabled(false);
+    expect(useBulkSelectionStore.getState().selectedTaskIds.size).toBe(0);
+
+    store.toggleSelection("b");
+    store.selectRange("c");
+    store.selectTasks(["a", "b"]);
+    store.selectAll();
+    expect(useBulkSelectionStore.getState().selectedTaskIds.size).toBe(0);
+    expect(useBulkSelectionStore.getState().isSelectMode).toBe(false);
+
+    store.setSelectionEnabled(true);
+    store.toggleSelection("b");
+    expect([...useBulkSelectionStore.getState().selectedTaskIds]).toEqual([
+      "b",
+    ]);
+  });
+});

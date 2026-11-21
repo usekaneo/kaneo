@@ -20,6 +20,7 @@ export function GlobalShortcuts() {
   useShortcut("goToHome", () => go(""), { enabled });
   useShortcut("goToInbox", () => go("/inbox"), { enabled });
   useShortcut("goToMyTasks", () => go("/my-tasks"), { enabled });
+  useShortcut("goToWorkspaceTasks", () => go("/tasks"), { enabled });
   useShortcut("goToProjects", () => go("/projects"), { enabled });
   useShortcut("goToSettings", () =>
     navigate({ to: "/dashboard/settings/account/information" }),

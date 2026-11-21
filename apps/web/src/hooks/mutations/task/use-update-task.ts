@@ -1,5 +1,6 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { invalidateMyWork } from "@/lib/invalidate-my-work";
+import { syncWorkspaceBoardTask } from "@/lib/workspace-board/sync-workspace-board-task";
 import updateTask from "@/fetchers/task/update-task";
 import type Task from "@/types/task";
 
@@ -10,6 +11,7 @@ export function useUpdateTask() {
     mutationFn: (task: Task) => updateTask(task.id, task),
     onSuccess: (_, variables) => {
       invalidateMyWork(queryClient);
+      syncWorkspaceBoardTask(queryClient, variables, variables);
       queryClient.invalidateQueries({
         queryKey: ["task", variables.id],
       });
