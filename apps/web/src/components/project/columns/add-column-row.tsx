@@ -18,10 +18,15 @@ export function AddColumnRow({ onCreate }: AddColumnRowProps) {
   const [saving, setSaving] = useState(false);
   const pickerOpen = useRef(false);
   const closed = useRef(false);
+  // Bumped on every open and close, so a create that finishes after the
+  // row was closed or reopened does not touch the new draft or its state.
+  const session = useRef(0);
   const inputRef = useRef<HTMLInputElement>(null);
 
   const close = () => {
     closed.current = true;
+    session.current += 1;
+    setSaving(false);
     setEditing(false);
     setName("");
     setIcon(DEFAULT_ICON);
@@ -32,7 +37,9 @@ export function AddColumnRow({ onCreate }: AddColumnRowProps) {
     if (!trimmed || saving) return;
 
     setSaving(true);
+    const started = session.current;
     const created = await onCreate({ name: trimmed, icon });
+    if (session.current !== started) return;
     setSaving(false);
     if (created) {
       setName("");
@@ -66,6 +73,7 @@ export function AddColumnRow({ onCreate }: AddColumnRowProps) {
         type="button"
         onClick={() => {
           closed.current = false;
+          session.current += 1;
           setEditing(true);
         }}
         className="flex h-11 w-full items-center gap-2.5 px-4 text-left text-sm text-muted-foreground outline-none transition-colors hover:bg-accent/40 hover:text-foreground focus-visible:bg-accent/40 focus-visible:text-foreground"

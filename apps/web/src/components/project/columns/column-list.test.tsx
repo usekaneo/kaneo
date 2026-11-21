@@ -238,6 +238,43 @@ describe("ColumnList", () => {
     expect(m.createColumn).toHaveBeenCalledTimes(1);
   });
 
+  it("keeps a new draft when an earlier save finishes after reopening", async () => {
+    let finish: (value: unknown) => void = () => {};
+    m.createColumn.mockReturnValue(
+      new Promise((resolve) => {
+        finish = resolve;
+      }),
+    );
+    render(<ColumnList projectId="p1" />);
+    const addButton = { name: "settings:columnEditor.addColumn" };
+    const inputName = { name: "settings:columnEditor.newColumnPlaceholder" };
+
+    fireEvent.click(screen.getByRole("button", addButton));
+    const first = screen.getByRole("textbox", inputName);
+    fireEvent.change(first, { target: { value: "Review" } });
+    fireEvent.blur(first);
+    expect(m.createColumn).toHaveBeenCalledTimes(1);
+    fireEvent.keyDown(first, { key: "Escape" });
+    expect(screen.queryByRole("textbox", inputName)).toBeNull();
+
+    fireEvent.click(screen.getByRole("button", addButton));
+    const next = screen.getByRole("textbox", inputName);
+    expect(next).not.toHaveAttribute("readonly");
+    fireEvent.change(next, { target: { value: "Next" } });
+    m.createColumn.mockReturnValue(new Promise(() => {}));
+    fireEvent.keyDown(next, { key: "Enter" });
+    expect(m.createColumn).toHaveBeenLastCalledWith({
+      projectId: "p1",
+      data: { name: "Next", icon: "Circle" },
+    });
+
+    await act(async () => finish({}));
+    expect(next).toHaveValue("Next");
+    expect(next).toHaveAttribute("readonly");
+    fireEvent.keyDown(next, { key: "Enter" });
+    expect(m.createColumn).toHaveBeenCalledTimes(2);
+  });
+
   it("does not save while the icon picker has focus", async () => {
     render(<ColumnList projectId="p1" />);
     fireEvent.click(
