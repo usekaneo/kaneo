@@ -36,7 +36,7 @@
 	"scripts": {
 		"build": "vp run compile",
 		"prepublishOnly": "pnpm run build",
-		"dev": "tsx src/bin.ts",
+		"dev": "tsx src/dev/run.ts",
 		"lint": "vp check .",
 		"test": "vp run test:run",
 		"test:watch": "vp test --config vitest.config.ts",

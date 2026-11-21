@@ -170,6 +170,8 @@ pnpm --filter @kaneo/cli test
 pnpm --filter @kaneo/cli typecheck
 ```
 
+By default, `pnpm --filter @kaneo/cli dev <command>` connects to the API set by `KANEO_API_URL` in the root `.env` (`http://localhost:1337` if unset). Start the API first, then sign in with `pnpm --filter @kaneo/cli dev login`.
+
 The CLI is written with [Effect](https://effect.website) 4 (`effect/cli`, `effect/http`, `effect/schema`) and bundled into one file with no runtime dependencies, so `kaneo --version` starts in about 50 ms. Commands are `Effect.fn` functions, failures are tagged errors mapped in one place (`src/errors/describe.ts`), and the API client, config store and terminal are services that tests replace with layers.
 
 ## Releasing
