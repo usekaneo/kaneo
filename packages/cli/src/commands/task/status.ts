@@ -9,7 +9,7 @@ import { withSpinner } from "../../output/spinner.js";
 import { pick } from "../../prompts/pick.js";
 import { renderCell, text } from "../../render/cell.js";
 import { statusDot } from "../../render/task-format.js";
-import { matchColumn } from "../../tasks/match-column.js";
+import { backlogColumn, matchStatus } from "../../tasks/backlog.js";
 import {
   renderStatusChange,
   type StatusRef,
@@ -39,16 +39,12 @@ export const runTaskStatus = Effect.fn("command.task.status")(
     const columns = [...resolved.columns].sort(
       (a, b) => a.position - b.position,
     );
-    const slugs = columns.map((column) => column.slug).join(", ");
-    if (columns.length === 0) {
-      return yield* new InvalidArgument({
-        message: `${resolved.project.name} has no columns to move ${label} to.`,
-      });
-    }
+    const targets = [...columns, backlogColumn(resolved.project.id)];
+    const slugs = targets.map((column) => column.slug).join(", ");
 
     const target: Column = yield* Option.match(options.status, {
       onSome: (reference) => {
-        const match = matchColumn(columns, reference);
+        const match = matchStatus(columns, reference);
         return match
           ? Effect.succeed(match)
           : Effect.fail(
@@ -62,7 +58,7 @@ export const runTaskStatus = Effect.fn("command.task.status")(
         output.interactive
           ? pick(
               `Move ${label} to`,
-              columns.map((column) => ({
+              targets.map((column) => ({
                 title: renderCell(
                   [
                     statusDot(output.ui, column.slug, column.isFinal),
@@ -85,7 +81,7 @@ export const runTaskStatus = Effect.fn("command.task.status")(
             ),
     });
 
-    const from = statusRef(columns, resolved.task.status);
+    const from = statusRef(targets, resolved.task.status);
     if (target.slug !== resolved.task.status) {
       yield* withSpinner(`Moving ${label}`)(
         updateTaskStatus(resolved.task.id, target.slug),
@@ -118,7 +114,7 @@ export const taskStatus = Command.make(
     ),
     status: Argument.String("status").pipe(
       Argument.withDescription(
-        "Column slug or name, for example in-progress or Done",
+        "Column slug or name, for example in-progress or Done, or planned for the backlog",
       ),
       Argument.optional,
     ),

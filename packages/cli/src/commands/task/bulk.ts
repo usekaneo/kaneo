@@ -186,7 +186,9 @@ export const taskBulk = Command.make(
     ),
     status: Flag.String("status").pipe(
       Flag.withAlias("s"),
-      Flag.withDescription("Move every task to this column, for example done"),
+      Flag.withDescription(
+        "Move every task to this column, for example done, or planned for the backlog",
+      ),
       Flag.optional,
     ),
     priority: Flag.Literals("priority", PRIORITIES).pipe(
