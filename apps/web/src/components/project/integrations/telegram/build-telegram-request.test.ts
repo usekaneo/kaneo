@@ -8,6 +8,7 @@ const token = "123456789:AAExampleBotTokenValue1234";
 function values(overrides: Partial<TelegramFormValues> = {}) {
   return {
     botToken: token,
+    serverUrl: "",
     chatId: "-1001234567890",
     threadId: "",
     chatLabel: "",
@@ -69,5 +70,60 @@ describe("buildTelegramRequest", () => {
         events: toChatEvents(),
       },
     });
+  });
+
+  it("rejects a server URL without http or https", () => {
+    expect(
+      buildTelegramRequest(values({ serverUrl: "tg.example.com" }), false),
+    ).toEqual({
+      kind: "invalid",
+      field: "serverUrl",
+      messageKey: "settings:telegramIntegration.validation.serverUrlInvalid",
+    });
+  });
+
+  it("creates with the server URL without trailing slashes", () => {
+    expect(
+      buildTelegramRequest(
+        values({ serverUrl: " https://tg.example.com/proxy/ " }),
+        false,
+      ),
+    ).toMatchObject({
+      kind: "create",
+      data: { serverUrl: "https://tg.example.com/proxy" },
+    });
+  });
+
+  it("requires the bot token to switch servers", () => {
+    expect(
+      buildTelegramRequest(
+        values({ botToken: "", serverUrl: "https://other.example.com" }),
+        true,
+        "https://tg.example.com",
+      ),
+    ).toEqual({
+      kind: "invalid",
+      field: "botToken",
+      messageKey:
+        "settings:telegramIntegration.validation.botTokenRequiredForServer",
+    });
+  });
+
+  it("sends the server URL only when it changes", () => {
+    const unchanged = buildTelegramRequest(
+      values({ botToken: "", serverUrl: "https://tg.example.com/" }),
+      true,
+      "https://tg.example.com",
+    );
+    expect(unchanged.kind === "update" && unchanged.json).not.toHaveProperty(
+      "serverUrl",
+    );
+    expect(
+      buildTelegramRequest(
+        values({ serverUrl: "" }),
+        true,
+        "https://tg.example.com",
+      ),
+    ).toMatchObject({ kind: "update", json: { serverUrl: null } });
   });
 });
