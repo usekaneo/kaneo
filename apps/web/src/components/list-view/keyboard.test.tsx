@@ -59,7 +59,7 @@ vi.mock("../shared/modals/archive-tasks-modal", () => ({
   ArchiveTasksModal: () => null,
 }));
 
-function mount() {
+function mount({ hideSubtasks = false }: { hideSubtasks?: boolean } = {}) {
   writeExpandedRows("keyboard-project", { parent: true });
   const project = {
     id: "keyboard-project",
@@ -85,10 +85,19 @@ function mount() {
       },
     ],
   } as ProjectWithTasks;
+  const shown = hideSubtasks
+    ? {
+        ...project,
+        columns: project.columns.map((column) => ({
+          ...column,
+          tasks: column.tasks.filter((task) => task.id !== "child"),
+        })),
+      }
+    : project;
   render(
     <QueryClientProvider client={new QueryClient()}>
       <ShortcutTestWrapper>
-        <ListView project={project} />
+        <ListView project={shown} subtaskSource={project} />
       </ShortcutTestWrapper>
     </QueryClientProvider>,
   );
@@ -171,4 +180,12 @@ it("reorders a repeated child within its own status group and retains its occurr
   ]);
   await act(() => new Promise((resolve) => requestAnimationFrame(resolve)));
   expect(row).toHaveFocus();
+});
+
+it("nests a hidden subtask under its parent without giving it its own row", () => {
+  mount({ hideSubtasks: true });
+  const rows = [...document.querySelectorAll("[data-task-row-id]")].map((row) =>
+    row.getAttribute("data-task-row-id"),
+  );
+  expect(rows).toEqual(["parent", "parent/child", "sibling", "last"]);
 });
