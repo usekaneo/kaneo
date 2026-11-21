@@ -66,7 +66,7 @@ export const loadBoard = Effect.fn("tasks.loadBoard")(function* (
   filters: TaskFilters,
   limit: number,
 ) {
-  const columns = new Map<string, BoardColumnSummary>();
+  let columns = new Map<string, BoardColumnSummary>();
   const tasks: BoardTask[] = [];
   let page = 1;
   let totalPages = 1;
@@ -107,7 +107,7 @@ export const loadBoard = Effect.fn("tasks.loadBoard")(function* (
     }
     if (response.data.plannedTasks?.length && !columns.has(BACKLOG_STATUS)) {
       const { slug, name, isFinal } = backlogColumn(projectId);
-      columns.set(slug, { slug, name, isFinal });
+      columns = new Map([[slug, { slug, name, isFinal }], ...columns]);
     }
     for (const task of pageTasks(response.data)) {
       const extra = extraLabels.get(task.id);

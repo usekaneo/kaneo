@@ -41,11 +41,6 @@ export const runTaskStatus = Effect.fn("command.task.status")(
     );
     const targets = [...columns, backlogColumn(resolved.project.id)];
     const slugs = targets.map((column) => column.slug).join(", ");
-    if (columns.length === 0) {
-      return yield* new InvalidArgument({
-        message: `${resolved.project.name} has no columns to move ${label} to.`,
-      });
-    }
 
     const target: Column = yield* Option.match(options.status, {
       onSome: (reference) => {
