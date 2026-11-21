@@ -1,5 +1,6 @@
 require 'yaml'
 require 'open3'
+require 'json'
 
 def render(*args)
   stdout, stderr, status = Open3.capture3('helm', 'template', 'security-test', 'charts/kaneo', *args)
@@ -58,3 +59,20 @@ end
   verify(client['value'] == url.strip.sub(%r{/$}, ''), 'Public origin must be trimmed and safe for API URL derivation')
 end
 puts 'Helm required-origin validation and URL rendering checks passed'
+
+extra_volume = { 'name' => 'identity', 'projected' => { 'sources' => [{ 'serviceAccountToken' => { 'audience' => 'identity.example', 'path' => 'token' } }] } }
+extra_mount = { 'name' => 'identity', 'mountPath' => '/var/run/identity', 'readOnly' => true }
+labels = { 'identity.example/enabled' => 'true', 'app.kubernetes.io/name' => 'wrong', 'app.kubernetes.io/component' => 'wrong' }
+extended = render(*args,
+  '--set-json', "podLabels=#{JSON.generate(labels)}",
+  '--set-json', "extraVolumes=#{JSON.generate([extra_volume])}",
+  '--set-json', "kaneo.extraVolumeMounts=#{JSON.generate([extra_mount])}")
+deployment = extended.find { |item| item['kind'] == 'Deployment' && !item['metadata']['name'].end_with?('-postgresql') }
+pod = deployment.fetch('spec').fetch('template')
+verify(pod.dig('metadata', 'labels', 'identity.example/enabled') == 'true', 'Additional Pod label was not rendered')
+verify(pod.dig('metadata', 'labels', 'app.kubernetes.io/component') == 'kaneo', 'Extra labels must not replace the component label')
+verify(deployment.dig('spec', 'selector', 'matchLabels').all? { |key, value| pod.dig('metadata', 'labels', key) == value }, 'Extra labels must not change workload selectors')
+verify(pod.dig('spec', 'volumes').include?(extra_volume), 'Extra projected volume was not rendered')
+verify(pod.dig('spec', 'containers').first.fetch('volumeMounts').include?(extra_mount), 'Extra read-only mount was not rendered')
+verify(pod.dig('spec', 'volumes').include?({ 'name' => 'runtime', 'emptyDir' => {} }), 'Extra volumes must not remove writable runtime storage')
+puts 'Helm Pod labels and additional volume checks passed'

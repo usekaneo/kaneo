@@ -62,6 +62,8 @@ helm uninstall my-kaneo
 | `fullnameOverride`       | String to fully override the fullname template                                                                     | `""`        |
 | `replicaCount`           | Number of replicas (ignored if autoscaling is enabled)                                                             | `1`         |
 | `enableServiceLinks`     | Controls Pod's enableServiceLinks field                                                                            | `false`   |
+| `podLabels` | Additional Pod labels. Chart selector and component labels take precedence. | `{}` |
+| `extraVolumes` | Additional Kubernetes volumes, such as projected identity tokens and CA Secrets. | `[]` |
 | `topologySpreadConstraints` | Controls Pod's topologySpreadConstraints field                                                                         | `[]`   |
 ### Autoscaling parameters
 | Name                                | Description                                                                                                        | Value       |
@@ -119,6 +121,7 @@ When CPU autoscaling is enabled, set `kaneo.resources.requests.cpu`; Kubernetes 
 | `kaneo.env.database.external.existingSecret.passwordKey` | Key in the secret whose value is a full PostgreSQL connection URI                       | `postgres_uri`                  |
 | `kaneo.extraEnv`                    | Additional Kubernetes EnvVar entries appended to the Kaneo container                                               | `[]`                            |
 | `kaneo.extraEnvFrom`                | Additional Kubernetes EnvFromSource entries appended to the Kaneo container                                        | `[]`                            |
+| `kaneo.extraVolumeMounts` | Additional container volume mounts. The writable runtime mount is retained. | `[]` |
 | `kaneo.resources`                   | Resource requests and limits for the Kaneo container (optional, disabled by default)                               | `{}`                            |
 | `podSecurityContext`                | Security context applied at the Pod level                                                                          | `{}`                            |
 | `kaneo.securityContext`             | Security context applied at the Kaneo container level                                                              | `{}`                            |
