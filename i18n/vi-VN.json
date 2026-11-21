@@ -2888,6 +2888,7 @@
 			"items": {
 				"openCommandMenu": "Mở bảng lệnh",
 				"openSearch": "Tìm kiếm toàn cục",
+				"saveTask": "Lưu công việc",
 				"openShortcuts": "Hiện phím tắt",
 				"submit": "Lưu hoặc gửi",
 				"back": "Đóng modal/popover",

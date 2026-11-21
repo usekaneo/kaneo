@@ -671,6 +671,7 @@
 			"items": {
 				"openCommandMenu": "Otwórz paletę poleceń",
 				"openSearch": "Globalne wyszukiwanie",
+				"saveTask": "Zapisz zadanie",
 				"openShortcuts": "Pokaż skróty klawiszowe",
 				"submit": "Zapisz lub wyślij",
 				"back": "Zamknij okno lub menu",

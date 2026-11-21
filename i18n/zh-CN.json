@@ -2888,6 +2888,7 @@
 			"items": {
 				"openCommandMenu": "打开命令面板",
 				"openSearch": "全局搜索",
+				"saveTask": "保存任务",
 				"openShortcuts": "显示键盘快捷键",
 				"submit": "保存或提交",
 				"back": "关闭弹窗/弹层",

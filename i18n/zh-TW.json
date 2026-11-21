@@ -2888,6 +2888,7 @@
 			"items": {
 				"openCommandMenu": "開啟指令面板",
 				"openSearch": "全域搜尋",
+				"saveTask": "儲存任務",
 				"openShortcuts": "顯示鍵盤快速鍵",
 				"submit": "儲存或送出",
 				"back": "關閉對話框／彈出選單",

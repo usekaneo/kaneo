@@ -2937,6 +2937,7 @@
 			"items": {
 				"openCommandMenu": "Opdrachtpalet openen",
 				"openSearch": "Globaal zoeken",
+				"saveTask": "Taak opslaan",
 				"openShortcuts": "Sneltoetsen tonen",
 				"submit": "Opslaan of verzenden",
 				"back": "Venster/popover sluiten",

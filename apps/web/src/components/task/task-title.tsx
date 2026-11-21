@@ -9,6 +9,7 @@ import { useAutoGrowTextarea } from "@/hooks/use-auto-grow-textarea";
 import { useWorkspacePermission } from "@/hooks/use-workspace-permission";
 import { cn } from "@/lib/cn";
 import debounce from "@/lib/debounce";
+import { useSaveTaskShortcut } from "@/lib/shortcuts/use-save-task-shortcut";
 import { stripLineBreaks } from "@/lib/strip-line-breaks";
 
 type TaskTitleProps = {
@@ -69,6 +70,8 @@ export default function TaskTitle({ taskId, size = "md" }: TaskTitleProps) {
       }, 800),
     [],
   );
+
+  useSaveTaskShortcut(() => debouncedUpdate.flush());
 
   const title = form.watch("title");
   const textareaRef = useAutoGrowTextarea(title);
