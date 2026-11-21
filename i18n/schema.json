@@ -12818,6 +12818,12 @@
 					"type": "object",
 					"additionalProperties": false,
 					"properties": {
+						"wrapTaskTitles": {
+							"type": "string"
+						},
+						"showAllTasks": {
+							"type": "string"
+						},
 						"pageTitle": {
 							"type": "string"
 						},
@@ -12874,6 +12880,8 @@
 						}
 					},
 					"required": [
+						"wrapTaskTitles",
+						"showAllTasks",
 						"pageTitle",
 						"title",
 						"previousMonth",

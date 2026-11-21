@@ -3531,6 +3531,8 @@
 			"noValuesUsedYet": "No values used yet"
 		},
 		"calendar": {
+			"wrapTaskTitles": "Wrap task titles",
+			"showAllTasks": "Show all tasks per day",
 			"pageTitle": "{{name}} / 캘린더",
 			"title": "캘린더",
 			"previousMonth": "이전 달",

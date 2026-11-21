@@ -76,6 +76,23 @@ describe("CalendarTaskBar", () => {
     );
   });
 
+  it("wraps the full task title only when enabled", () => {
+    const { rerender } = render(
+      <CalendarTaskBar segment={segment} onOpenTask={vi.fn()} />,
+    );
+    expect(screen.getByText("Design review")).toHaveClass("truncate");
+
+    rerender(
+      <CalendarTaskBar segment={segment} wrapTitle onOpenTask={vi.fn()} />,
+    );
+    expect(screen.getByText("Design review")).toHaveClass("whitespace-normal");
+    expect(screen.getByRole("button")).toHaveClass(
+      "h-auto",
+      "self-start",
+      "py-0.5",
+    );
+  });
+
   it("leaves no interpolation placeholder unresolved", () => {
     render(
       <CalendarTaskBar

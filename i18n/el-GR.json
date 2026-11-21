@@ -3727,6 +3727,8 @@
 			}
 		},
 		"calendar": {
+			"wrapTaskTitles": "Wrap task titles",
+			"showAllTasks": "Show all tasks per day",
 			"dayTasksAriaLabel": "Εμφάνιση όλων των εργασιών για {{date}}",
 			"moreTasks": "+{{count}} ακόμη",
 			"nextMonth": "Επόμενος μήνας",

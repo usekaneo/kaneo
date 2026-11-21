@@ -153,6 +153,19 @@ describe("packWeekLanes", () => {
     expect(hiddenCountByDay).toEqual([0, 1, 1, 1, 0, 0, 0]);
   });
 
+  it("shows all 18 overlapping tasks without overflow when uncapped", () => {
+    const tasks = Array.from({ length: 18 }, (_, index) =>
+      scheduled(`task-${index}`, day(2026, 7, 2), day(2026, 7, 2)),
+    );
+    const layout = packWeekLanes(week, tasks, Infinity);
+
+    expect(layout.segments).toHaveLength(18);
+    expect(layout.hiddenCountByDay).toEqual(Array(7).fill(0));
+    expect(Math.max(...layout.segments.map((segment) => segment.lane))).toBe(
+      17,
+    );
+  });
+
   it("is deterministic for tasks sharing a start column and span", () => {
     const tasks = [
       scheduled("b", day(2026, 7, 2), day(2026, 7, 3)),

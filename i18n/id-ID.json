@@ -3666,6 +3666,8 @@
 			}
 		},
 		"calendar": {
+			"wrapTaskTitles": "Wrap task titles",
+			"showAllTasks": "Show all tasks per day",
 			"dayTasksAriaLabel": "Tampilkan semua tugas untuk {{date}}",
 			"moreTasks": "+{{count}} lainnya",
 			"nextMonth": "Bulan berikutnya",

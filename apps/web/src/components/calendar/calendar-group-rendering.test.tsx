@@ -75,3 +75,34 @@ it.each(["grid", "agenda", "overflow"])(
     expect(onOpenTask).toHaveBeenCalledWith("parent");
   },
 );
+
+it("does not allow dragging grouped parent cards without moving their children", () => {
+  const onStartDrag = vi.fn();
+  const task = {
+    id: "parent",
+    title: "Parent",
+    number: 1,
+    status: "to-do",
+    scheduleStart: new Date(2026, 7, 10),
+    scheduleEnd: new Date(2026, 7, 12),
+    subtasks: [{ id: "child", title: "Child" }],
+  };
+  render(
+    <CalendarTaskBar
+      segment={{
+        task,
+        lane: 0,
+        columnStart: 1,
+        columnEnd: 4,
+        continuesBefore: false,
+        continuesAfter: false,
+      }}
+      onStartDrag={onStartDrag}
+      onOpenTask={vi.fn()}
+    />,
+  );
+  const card = screen.getByText("Parent").closest("button");
+  expect(card).toHaveAttribute("draggable", "false");
+  fireEvent.dragStart(card!);
+  expect(onStartDrag).not.toHaveBeenCalled();
+});
