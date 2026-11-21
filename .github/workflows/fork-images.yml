@@ -1,7 +1,9 @@
 name: Fork Images
 
-# Manual only until a published image has been pulled and smoke-tested.
+# Publishes an image on every push to main, plus manual runs.
 on:
+  push:
+    branches: [main]
   workflow_dispatch:
     inputs:
       tag:
@@ -16,7 +18,7 @@ on:
         default: "kaneo-fork"
 
 concurrency:
-  group: fork-images-${{ github.ref }}
+  group: fork-images-${{ github.sha }}
   cancel-in-progress: false
 
 permissions:
@@ -35,11 +37,12 @@ jobs:
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
-      - name: Resolve image tag
+      - name: Resolve image tags
         id: tag
         env:
           INPUT_TAG: ${{ inputs.tag }}
           INPUT_IMAGE: ${{ inputs.image }}
+          EVENT_NAME: ${{ github.event_name }}
         run: |
           tag="$INPUT_TAG"
           if [ -z "$tag" ]; then
@@ -48,8 +51,14 @@ jobs:
           if [ -z "$INPUT_IMAGE" ]; then
             INPUT_IMAGE="kaneo-fork"
           fi
+          image="ghcr.io/$GITHUB_REPOSITORY_OWNER/$INPUT_IMAGE"
+          tags="$image:$tag"
+          if [ "$EVENT_NAME" = "push" ] && [ -z "$INPUT_TAG" ]; then
+            tags="$tags,$image:latest"
+          fi
           printf 'tag=%s\n' "$tag" >> "$GITHUB_OUTPUT"
-          printf 'image=ghcr.io/%s/%s\n' "$GITHUB_REPOSITORY_OWNER" "$INPUT_IMAGE" >> "$GITHUB_OUTPUT"
+          printf 'image=%s\n' "$image" >> "$GITHUB_OUTPUT"
+          printf 'tags=%s\n' "$tags" >> "$GITHUB_OUTPUT"
       - name: Set up QEMU
         uses: docker/setup-qemu-action@99012661954931238ded8c8b007157a8430204e1 # v4
       - name: Set up Buildx
@@ -67,13 +76,12 @@ jobs:
           file: ./Dockerfile.kaneo
           platforms: linux/amd64,linux/arm64
           push: true
-          tags: ${{ steps.tag.outputs.image }}:${{ steps.tag.outputs.tag }}
+          tags: ${{ steps.tag.outputs.tags }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
       - name: Report published image
         env:
-          IMAGE: ${{ steps.tag.outputs.image }}
-          TAG: ${{ steps.tag.outputs.tag }}
+          TAGS: ${{ steps.tag.outputs.tags }}
         run: |
-          printf 'Published `%s:%s` for linux/amd64 and linux/arm64.\n' \
-            "$IMAGE" "$TAG" >> "$GITHUB_STEP_SUMMARY"
+          printf 'Published `%s` for linux/amd64 and linux/arm64.\n' "$TAGS" \
+            >> "$GITHUB_STEP_SUMMARY"
