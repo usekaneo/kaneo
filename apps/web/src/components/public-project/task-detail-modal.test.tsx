@@ -32,9 +32,27 @@ vi.mock("./markdown-renderer", () => ({
 vi.mock("@/components/ui/dialog", () => ({
   Dialog: ({ open, children }: { open: boolean; children: ReactNode }) =>
     open ? <div>{children}</div> : null,
-  DialogPopup: ({ children }: { children: ReactNode }) => <div>{children}</div>,
-  DialogClose: ({ children }: { children: ReactNode }) => (
-    <button type="button">{children}</button>
+  DialogPopup: ({
+    children,
+    showCloseButton = true,
+  }: {
+    children: ReactNode;
+    showCloseButton?: boolean;
+  }) => (
+    <div>
+      {children}
+      {showCloseButton && (
+        <button type="button" aria-label="common:actions.close" />
+      )}
+    </div>
+  ),
+  DialogClose: ({
+    children,
+    ...props
+  }: { children: ReactNode } & Record<string, unknown>) => (
+    <button type="button" {...props}>
+      {children}
+    </button>
   ),
 }));
 const task: Task = {
@@ -114,5 +132,13 @@ describe("public deferred task details", () => {
     );
     expect(screen.getByText("Small text")).toBeTruthy();
     expect(getPublicTaskDescription).not.toHaveBeenCalled();
+  });
+  it("renders a single close button", () => {
+    render(
+      modal({ ...task, descriptionDeferred: false, description: "Small text" }),
+    );
+    expect(
+      screen.getAllByRole("button", { name: "common:actions.close" }),
+    ).toHaveLength(1);
   });
 });
