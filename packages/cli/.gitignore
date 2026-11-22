@@ -1,0 +1,5 @@
+# Transpiled output emitted next to TypeScript sources.
+# Real build artifacts belong in dist/.
+src/**/*.js
+vite.config.js
+vitest.config.js
