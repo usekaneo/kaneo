@@ -767,7 +767,14 @@
 			"priority": "प्राथमिकता",
 			"projectBackgrounds": "Project backgrounds",
 			"projectBackgroundsDescription": "प्रोजेक्ट द्वारा अपने बोर्ड के पीछे सेट की गई छवि दिखाएँ।",
-			"advancedTitle": "उन्नत"
+			"advancedTitle": "उन्नत",
+			"palette": "Palette",
+			"paletteDescription": "The colors Kaneo uses. Theme still controls light and dark.",
+			"paletteKaneo": "Kaneo",
+			"paletteKaneoDescription": "The original neutral palette.",
+			"paletteModern": "Modern",
+			"paletteModernDescription": "Cool neutrals with even OKLCH accents.",
+			"selectPalette": "Select a color palette"
 		},
 		"managedProfile": {
 			"note": "आपके संगठन द्वारा प्रबंधित।",

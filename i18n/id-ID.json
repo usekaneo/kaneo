@@ -759,7 +759,14 @@
 			"priority": "Prioritas",
 			"projectBackgrounds": "Project backgrounds",
 			"projectBackgroundsDescription": "Tampilkan gambar yang diatur proyek di belakang papannya.",
-			"advancedTitle": "Lanjutan"
+			"advancedTitle": "Lanjutan",
+			"palette": "Palette",
+			"paletteDescription": "The colors Kaneo uses. Theme still controls light and dark.",
+			"paletteKaneo": "Kaneo",
+			"paletteKaneoDescription": "The original neutral palette.",
+			"paletteModern": "Modern",
+			"paletteModernDescription": "Cool neutrals with even OKLCH accents.",
+			"selectPalette": "Select a color palette"
 		},
 		"managedProfile": {
 			"note": "Dikelola oleh organisasi Anda.",

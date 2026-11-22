@@ -1,5 +1,6 @@
 import { create } from "zustand";
 import { createJSONStorage, persist } from "zustand/middleware";
+import { type ColorPalette, normalizePalette } from "./color-palette";
 
 export const WEEK_START_DAYS = [0, 1, 6] as const;
 export type WeekStartDay = (typeof WEEK_START_DAYS)[number];
@@ -18,6 +19,9 @@ type UserPreferencesStore = {
     theme: "light" | "dark" | "system",
     coordinates?: { x: number; y: number },
   ) => void;
+
+  palette: ColorPalette;
+  setPalette: (palette: ColorPalette) => void;
 
   viewMode: "board" | "list";
   setViewMode: (mode: "board" | "list") => void;
@@ -96,6 +100,9 @@ export const useUserPreferencesStore = create<UserPreferencesStore>()(
         }
       },
 
+      palette: "kaneo",
+      setPalette: (palette) => set({ palette }),
+
       viewMode: "board",
       setViewMode: (mode) => set({ viewMode: mode }),
 
@@ -167,6 +174,10 @@ export const useUserPreferencesStore = create<UserPreferencesStore>()(
       onRehydrateStorage: () => (state) => {
         if (state && !isWeekStartDay(state.weekStartsOn)) {
           state.setWeekStartsOn(0);
+        }
+        if (state) {
+          const palette = normalizePalette(state.palette);
+          if (palette !== state.palette) state.setPalette(palette);
         }
       },
     },

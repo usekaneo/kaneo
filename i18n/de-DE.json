@@ -930,7 +930,14 @@
 			"priority": "Priorität",
 			"projectBackgrounds": "Projekthintergründe",
 			"projectBackgroundsDescription": "Das Hintergrundbild eines Projekts hinter seinem Board anzeigen.",
-			"advancedTitle": "Erweitert"
+			"advancedTitle": "Erweitert",
+			"palette": "Palette",
+			"paletteDescription": "The colors Kaneo uses. Theme still controls light and dark.",
+			"paletteKaneo": "Kaneo",
+			"paletteKaneoDescription": "The original neutral palette.",
+			"paletteModern": "Modern",
+			"paletteModernDescription": "Cool neutrals with even OKLCH accents.",
+			"selectPalette": "Select a color palette"
 		},
 		"managedProfile": {
 			"note": "Von deiner Organisation verwaltet.",

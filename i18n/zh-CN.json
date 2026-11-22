@@ -759,7 +759,14 @@
 			"priority": "优先级",
 			"projectBackgrounds": "项目背景",
 			"projectBackgroundsDescription": "显示项目为看板设置的背景图片。",
-			"advancedTitle": "高级"
+			"advancedTitle": "高级",
+			"palette": "Palette",
+			"paletteDescription": "The colors Kaneo uses. Theme still controls light and dark.",
+			"paletteKaneo": "Kaneo",
+			"paletteKaneoDescription": "The original neutral palette.",
+			"paletteModern": "Modern",
+			"paletteModernDescription": "Cool neutrals with even OKLCH accents.",
+			"selectPalette": "Select a color palette"
 		},
 		"managedProfile": {
 			"note": "由你的组织管理。",

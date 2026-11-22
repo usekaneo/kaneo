@@ -767,7 +767,14 @@
 			"priority": "Öncelik",
 			"projectBackgrounds": "Project backgrounds",
 			"projectBackgroundsDescription": "Projenin panosunun arkasına ayarladığı görseli göster.",
-			"advancedTitle": "Gelişmiş"
+			"advancedTitle": "Gelişmiş",
+			"palette": "Palette",
+			"paletteDescription": "The colors Kaneo uses. Theme still controls light and dark.",
+			"paletteKaneo": "Kaneo",
+			"paletteKaneoDescription": "The original neutral palette.",
+			"paletteModern": "Modern",
+			"paletteModernDescription": "Cool neutrals with even OKLCH accents.",
+			"selectPalette": "Select a color palette"
 		},
 		"managedProfile": {
 			"note": "Kuruluşunuz tarafından yönetiliyor.",

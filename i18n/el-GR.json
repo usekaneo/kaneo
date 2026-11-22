@@ -767,7 +767,14 @@
 			"priority": "Προτεραιότητα",
 			"projectBackgrounds": "Project backgrounds",
 			"projectBackgroundsDescription": "Εμφάνιση της εικόνας που ορίζει ένα έργο πίσω από τον πίνακά του.",
-			"advancedTitle": "Σύνθετα"
+			"advancedTitle": "Σύνθετα",
+			"palette": "Palette",
+			"paletteDescription": "The colors Kaneo uses. Theme still controls light and dark.",
+			"paletteKaneo": "Kaneo",
+			"paletteKaneoDescription": "The original neutral palette.",
+			"paletteModern": "Modern",
+			"paletteModernDescription": "Cool neutrals with even OKLCH accents.",
+			"selectPalette": "Select a color palette"
 		},
 		"managedProfile": {
 			"note": "Διαχειρίζεται από τον οργανισμό σας.",

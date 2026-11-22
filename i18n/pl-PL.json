@@ -1701,7 +1701,14 @@
 			"weekStartsOnSunday": "Niedziela",
 			"projectBackgrounds": "Project backgrounds",
 			"projectBackgroundsDescription": "Pokazuj obraz ustawiony przez projekt za jego tablicą.",
-			"advancedTitle": "Zaawansowane"
+			"advancedTitle": "Zaawansowane",
+			"palette": "Palette",
+			"paletteDescription": "The colors Kaneo uses. Theme still controls light and dark.",
+			"paletteKaneo": "Kaneo",
+			"paletteKaneoDescription": "The original neutral palette.",
+			"paletteModern": "Modern",
+			"paletteModernDescription": "Cool neutrals with even OKLCH accents.",
+			"selectPalette": "Select a color palette"
 		},
 		"managedProfile": {
 			"note": "Zarządzane przez Twoją organizację.",

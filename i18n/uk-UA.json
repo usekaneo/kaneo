@@ -783,7 +783,14 @@
 			"priority": "Пріоритет",
 			"projectBackgrounds": "Project backgrounds",
 			"projectBackgroundsDescription": "Показувати зображення, яке проєкт задає за своєю дошкою.",
-			"advancedTitle": "Додатково"
+			"advancedTitle": "Додатково",
+			"palette": "Palette",
+			"paletteDescription": "The colors Kaneo uses. Theme still controls light and dark.",
+			"paletteKaneo": "Kaneo",
+			"paletteKaneoDescription": "The original neutral palette.",
+			"paletteModern": "Modern",
+			"paletteModernDescription": "Cool neutrals with even OKLCH accents.",
+			"selectPalette": "Select a color palette"
 		},
 		"managedProfile": {
 			"note": "Керується вашою організацією.",

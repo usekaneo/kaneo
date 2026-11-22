@@ -4,6 +4,7 @@ import PageTitle from "@/components/page-title";
 import { AdvancedSettingsSwitch } from "@/components/settings/advanced-settings-switch";
 import { AutosaveNote } from "@/components/settings/autosave-note";
 import { GeneralPreferencesSection } from "@/components/settings/preferences/general-preferences-section";
+import { PaletteRow } from "@/components/settings/preferences/palette-row";
 import { TaskDetailsSection } from "@/components/settings/preferences/task-details-section";
 import { SettingsCard } from "@/components/settings/settings-card";
 import { SettingsPage } from "@/components/settings/settings-page";
@@ -24,6 +25,9 @@ export function PreferencesPage() {
       <PageTitle title={t("settings:preferencesPage.title")} />
       <SettingsSection title={t("settings:preferencesPage.theme")}>
         <ThemePicker value={theme} onChange={setTheme} />
+        <SettingsCard>
+          <PaletteRow />
+        </SettingsCard>
       </SettingsSection>
       <GeneralPreferencesSection />
       <TaskDetailsSection />
