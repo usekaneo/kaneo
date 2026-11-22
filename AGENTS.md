@@ -49,4 +49,6 @@ The common mistake is finishing one path while leaving another stale. Check the 
 
 Use the smallest proof that covers the behavior. Focused tests and the affected package's typecheck usually suffice; use integration tests for routing, authorization, PostgreSQL, and migrations. For realtime changes, check the event-to-WebSocket-to-cache path. Use a real browser for user-visible flows when requested or when it is the only meaningful proof. Run repo-wide checks for broad cross-package changes or before a requested commit or pull request. Report what ran.
 
+This checkout runs in WSL with about 9.7 GB RAM. Full `apps/web` suites and package-wide `tsc` can exhaust memory and stall the session; run one heavy job at a time and prefer focused tests. See `docs/superpowers/notes/session-learnings.md` before running full-suite, build, or repo-wide lint commands.
+
 Keep comments for constraints and surprising decisions. Update this guide only when a recurring failure shows that an agent needs a durable rule.
