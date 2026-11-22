@@ -1,9 +1,10 @@
 name: Fork CI
 
 on:
+  # Run only when the fork's remote main branch is updated (or manually).
+  # Pull requests do not trigger this workflow.
   push:
     branches: [main]
-  pull_request:
   workflow_dispatch:
 
 concurrency:
