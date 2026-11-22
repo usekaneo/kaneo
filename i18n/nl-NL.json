@@ -645,7 +645,14 @@
 			"priority": "Prioriteit",
 			"projectBackgrounds": "Project backgrounds",
 			"projectBackgroundsDescription": "Toon de afbeelding die een project achter het bord instelt.",
-			"advancedTitle": "Geavanceerd"
+			"advancedTitle": "Geavanceerd",
+			"palette": "Palette",
+			"paletteDescription": "The colors Kaneo uses. Theme still controls light and dark.",
+			"paletteKaneo": "Kaneo",
+			"paletteKaneoDescription": "The original neutral palette.",
+			"paletteModern": "Modern",
+			"paletteModernDescription": "Cool neutrals with even OKLCH accents.",
+			"selectPalette": "Select a color palette"
 		},
 		"managedProfile": {
 			"note": "Beheerd door je organisatie.",

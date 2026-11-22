@@ -767,7 +767,14 @@
 			"priority": "Приоритет",
 			"projectBackgrounds": "Project backgrounds",
 			"projectBackgroundsDescription": "Прикажи ја сликата што проектот ја поставува зад својата табла.",
-			"advancedTitle": "Напредно"
+			"advancedTitle": "Напредно",
+			"palette": "Palette",
+			"paletteDescription": "The colors Kaneo uses. Theme still controls light and dark.",
+			"paletteKaneo": "Kaneo",
+			"paletteKaneoDescription": "The original neutral palette.",
+			"paletteModern": "Modern",
+			"paletteModernDescription": "Cool neutrals with even OKLCH accents.",
+			"selectPalette": "Select a color palette"
 		},
 		"managedProfile": {
 			"note": "Се управува од твојата организација.",

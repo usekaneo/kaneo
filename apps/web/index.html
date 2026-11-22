@@ -34,6 +34,24 @@
   <link rel="canonical" href="https://kaneo.app">
 
   <script>
+    // Apply the stored appearance before first paint so the app never flashes
+    // the wrong scheme. Mirrors the defaults and the "system" resolution in
+    // the theme provider; blocked storage falls back to the dark default.
+    try {
+      var prefs = JSON.parse(localStorage.getItem('user-preferences') || '{}');
+      var state = prefs.state || {};
+      var theme = state.theme;
+      if (theme === 'system') {
+        theme = matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+      }
+      document.documentElement.classList.add(theme === 'light' ? 'light' : 'dark');
+      if (state.palette === 'modern') document.documentElement.dataset.palette = 'modern';
+    } catch (e) {
+      document.documentElement.classList.add('dark');
+    }
+  </script>
+
+  <script>
     if (window.location.hostname === 'demo.kaneo.app') {
       const script = document.createElement('script');
       script.defer = true;

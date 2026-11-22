@@ -759,7 +759,14 @@
 			"priority": "Mức ưu tiên",
 			"projectBackgrounds": "Project backgrounds",
 			"projectBackgroundsDescription": "Hiển thị hình ảnh mà dự án đặt làm nền bảng.",
-			"advancedTitle": "Nâng cao"
+			"advancedTitle": "Nâng cao",
+			"palette": "Palette",
+			"paletteDescription": "The colors Kaneo uses. Theme still controls light and dark.",
+			"paletteKaneo": "Kaneo",
+			"paletteKaneoDescription": "The original neutral palette.",
+			"paletteModern": "Modern",
+			"paletteModernDescription": "Cool neutrals with even OKLCH accents.",
+			"selectPalette": "Select a color palette"
 		},
 		"managedProfile": {
 			"note": "Được quản lý bởi tổ chức của bạn.",
