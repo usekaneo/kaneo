@@ -1,8 +1,8 @@
 name: Android APK
 
-# Builds a release APK of apps/mobile and uploads it as a workflow artifact. With the signing
-# secrets set, the APK is signed with the Kaneo release key, so later builds install as updates.
-# Without them (forks, or before the key exists) it falls back to the debug key.
+# Builds a release APK of apps/mobile and uploads it as a workflow artifact. Pull requests always
+# use the debug key. Manual runs from main use the Kaneo release key when its secrets are set, so
+# later builds install as updates, and fall back to the debug key before the key exists.
 
 on:
   pull_request:
@@ -65,7 +65,20 @@ jobs:
       - name: Setup Android SDK
         uses: android-actions/setup-android@be39fa834029ff78f1a44aa3bb0819b8fc2bd8fd # v4.0.4
 
+      - name: Use the debug key for pull requests
+        if: github.event_name == 'pull_request'
+        run: echo "SIGNED_WITH=debug" >> "$GITHUB_ENV"
+
+      - name: Require a reviewed release source
+        if: github.event_name == 'workflow_dispatch'
+        run: |
+          if [ "$GITHUB_REF" != "refs/heads/main" ]; then
+            echo "::error::Release-signed APKs must be dispatched from main (current ref: $GITHUB_REF)."
+            exit 1
+          fi
+
       - name: Prepare the release key
+        if: github.event_name == 'workflow_dispatch'
         env:
           KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
           KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
