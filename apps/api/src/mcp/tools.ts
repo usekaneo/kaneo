@@ -7,7 +7,11 @@ export type McpToolRegistrar = ToolRegistrar;
 type ShapeToolServer = {
   registerTool(
     name: string,
-    config: { description: string; inputSchema: z.ZodRawShape },
+    config: {
+      description: string;
+      inputSchema: z.ZodRawShape;
+      annotations?: { readOnlyHint?: boolean };
+    },
     callback: (args: unknown) => Promise<CallToolResult>,
   ): unknown;
 };
@@ -20,6 +24,7 @@ export function toMcpToolRegistrar(server: ShapeToolServer): McpToolRegistrar {
         {
           description: config.description,
           inputSchema: config.inputSchema.shape,
+          ...(config.annotations ? { annotations: config.annotations } : {}),
         },
         (args) => callback(args),
       ),
