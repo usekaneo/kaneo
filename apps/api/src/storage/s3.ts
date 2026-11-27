@@ -18,6 +18,7 @@ import {
   headUploadedObject,
   isMissingObjectError,
 } from "./head-uploaded-object";
+import { withPresignedUrlOrigin } from "./presigned-url-origin";
 
 config();
 
@@ -49,6 +50,7 @@ type StorageConfig = {
   accessKeyId: string;
   secretAccessKey: string;
   publicBaseUrl?: string;
+  presignedUrlOrigin?: string;
   keyPrefix: string;
   forcePathStyle: boolean;
   maxImageUploadBytes: number;
@@ -178,6 +180,7 @@ function getStorageConfig(): StorageConfig {
     accessKeyId,
     secretAccessKey,
     publicBaseUrl: env("S3_PUBLIC_BASE_URL") || undefined,
+    presignedUrlOrigin: env("S3_PRESIGNED_URL_ORIGIN") || undefined,
     keyPrefix: env("S3_KEY_PREFIX"),
     forcePathStyle: parseBoolean(process.env.S3_FORCE_PATH_STYLE, true),
     maxImageUploadBytes: parsePositiveInt(
@@ -394,7 +397,7 @@ export async function createTaskImageUploadUrl(
 
   return {
     key,
-    uploadUrl,
+    uploadUrl: withPresignedUrlOrigin(uploadUrl, config.presignedUrlOrigin),
     headers: {
       // The browser supplies Content-Length from the File body. It is signed,
       // but must not be set by JS because it is a forbidden request header.
@@ -426,7 +429,7 @@ export async function createProjectBackgroundUploadUrl(
 
   return {
     key,
-    uploadUrl,
+    uploadUrl: withPresignedUrlOrigin(uploadUrl, config.presignedUrlOrigin),
     version,
     headers: {
       "Content-Type": context.contentType,

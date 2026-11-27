@@ -74,7 +74,7 @@ Name | Description | Default |
 
 Kaneo uses S3-compatible object storage for private uploads in task descriptions and task comments.
 
-For self-hosted storage, follow the [Silo setup](/core/installation/silo). For managed storage, see [AWS S3 and other providers](/core/installation/storage-backends). The endpoint must be reachable by both the API and the browser.
+For self-hosted storage, follow the [Silo setup](/core/installation/silo). For managed storage, see [AWS S3 and other providers](/core/installation/storage-backends). The endpoint must be reachable by both the API and the browser, unless browsers upload through `S3_PRESIGNED_URL_ORIGIN`.
 
 Name | Description | Default |
 --- | --- | --- |
@@ -84,6 +84,7 @@ Name | Description | Default |
 | `S3_SECRET_ACCESS_KEY` | Secret key used by the Kaneo API to create presigned upload URLs. Must be set together with `S3_ACCESS_KEY_ID`, or left unset for IAM-role-based access. |  |
 | `S3_REGION` | The storage region used for request signing. | `us-east-1` |
 | `S3_PUBLIC_BASE_URL` | Optional public base URL for uploaded assets. Kaneo does not require this for the current private asset flow. |  |
+| `S3_PRESIGNED_URL_ORIGIN` | Optional origin the browser uploads to instead of `S3_ENDPOINT`, such as a reverse proxy on the Kaneo host (`https://kaneo.example.com`, without a path). Upload URLs are still signed for `S3_ENDPOINT`; Kaneo replaces only their origin, so the proxy must pass the path and query through unchanged and send the host the URL was signed for as `Host`: the `S3_ENDPOINT` host with path-style URLs, `<bucket>.<endpoint host>` otherwise. An invalid value makes upload requests fail; downloads keep working. |  |
 | `S3_FORCE_PATH_STYLE` | Use path-style S3 URLs. Set to `true` for Silo. Check other providers' endpoint requirements. | `true` |
 | `S3_MAX_IMAGE_UPLOAD_BYTES` | Maximum allowed upload size in bytes for images and other uploaded files. | `10485760` |
 | `S3_KEY_PREFIX` | Optional prefix prepended to all S3 object keys. Useful for sharing a single bucket across multiple environments (e.g. `staging/`, `prod/kaneo/`). Trailing slashes are trimmed automatically. |  |
