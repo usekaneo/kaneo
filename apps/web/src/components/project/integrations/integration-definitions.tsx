@@ -7,6 +7,7 @@ import { GitlabIcon } from "@/components/icons/gitlab-icon";
 import { MattermostIcon } from "@/components/icons/mattermost-icon";
 import { SlackIcon } from "@/components/icons/slack-icon";
 import { TelegramIcon } from "@/components/icons/telegram-icon";
+import { TangledIcon } from "@/components/icons/tangled-icon";
 import { DiscordIntegrationSettings } from "@/components/project/discord-integration-settings";
 import { GenericWebhookIntegrationSettings } from "@/components/project/generic-webhook-integration-settings";
 import { GiteaIntegrationSettings } from "@/components/project/gitea-integration/gitea-integration-settings";
@@ -15,11 +16,13 @@ import { GitlabIntegrationSettings } from "@/components/project/gitlab-integrati
 import { MattermostIntegrationSettings } from "@/components/project/mattermost-integration-settings";
 import { SlackIntegrationSettings } from "@/components/project/slack-integration-settings";
 import { TelegramIntegrationSettings } from "@/components/project/telegram-integration-settings";
+import { TangledIntegrationSettings } from "@/components/project/tangled-integration/tangled-integration-settings";
 
 export type IntegrationId =
   | "github"
   | "gitea"
   | "gitlab"
+  | "tangled"
   | "slack"
   | "discord"
   | "mattermost"
@@ -37,6 +40,15 @@ export type IntegrationDefinition = {
 };
 
 export const INTEGRATIONS: IntegrationDefinition[] = [
+  {
+    id: "tangled",
+    category: "code",
+    name: "Tangled",
+    descriptionKey: "settings:projectIntegrations.tangledSectionSubtitle",
+    icon: TangledIcon,
+    iconClassName: "text-foreground",
+    Settings: TangledIntegrationSettings,
+  },
   {
     id: "github",
     category: "code",
