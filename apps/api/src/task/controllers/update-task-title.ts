@@ -1,6 +1,7 @@
 import { eq } from "drizzle-orm";
 import { HTTPException } from "hono/http-exception";
 import db from "../../database";
+import { getProjectWorkspaceId } from "../../utils/assert-assignable-user";
 import { taskTable } from "../../database/schema";
 import {
   publishTaskMutation,
@@ -31,7 +32,7 @@ async function updateTaskTitle({
   // Audit history is not best-effort. Commit the title and its immutable
   // history row atomically; event subscribers remain notifications/integrations
   // only and cannot make the audit trail disappear.
-  const updatedTask = await db.transaction(async (tx) => {
+  const { updatedTask, workspaceId } = await db.transaction(async (tx) => {
     const [locked] = await tx
       .select()
       .from(taskTable)
@@ -39,6 +40,7 @@ async function updateTaskTitle({
       .for("update");
     if (!locked) throw new HTTPException(404, { message: "Task not found" });
     existingTask = locked;
+    const workspaceId = await getProjectWorkspaceId(locked.projectId, tx);
 
     const [task] = await tx
       .update(taskTable)
@@ -54,10 +56,11 @@ async function updateTaskTitle({
 
     await recordTaskMutation(tx, existingTask, { title }, currentUserId);
 
-    return task;
+    return { updatedTask: task, workspaceId };
   });
 
   await publishTaskMutation(existingTask, updatedTask, currentUserId, {
+    workspaceId,
     fields: ["title"],
   });
 

@@ -356,6 +356,7 @@ async function importSingleIssue(
   if (!createdTask) return "skipped";
 
   await publishEvent("task.created", {
+    workspaceId,
     ...createdTask,
     taskId: createdTask.id,
     userId: createdTask.userId ?? "",

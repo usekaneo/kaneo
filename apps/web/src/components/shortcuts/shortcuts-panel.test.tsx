@@ -13,6 +13,8 @@ import {
   it,
   vi,
 } from "vite-plus/test";
+import { parseBinding } from "@/lib/shortcuts/key-combo";
+import { shortcutRegistry } from "@/lib/shortcuts/registry";
 import { ShortcutTestWrapper } from "@/lib/shortcuts/shortcut-test-wrapper";
 import { ShortcutsPanel } from "./shortcuts-panel";
 import { useShortcutsPanelStore } from "./shortcuts-panel-store";
@@ -93,5 +95,26 @@ describe("ShortcutsPanel", () => {
     fireEvent.keyDown(search(), { key: "Escape" });
     await act(async () => {});
     expect(useShortcutsPanelStore.getState().open).toBe(false);
+  });
+
+  it("lists plugin layout shortcuts while they are active", async () => {
+    const unregister = shortcutRegistry.register({
+      id: "plugin:gantt:timeline",
+      bindings: [parseBinding("v g")],
+      scope: "view",
+      listing: { label: "Timeline", keys: ["v g"], category: "views" },
+      handler: vi.fn(),
+    });
+    useShortcutsPanelStore.setState({ open: true });
+    renderPanel();
+
+    expect(await screen.findByText("Timeline")).toBeInTheDocument();
+    fireEvent.change(search(), { target: { value: "timeline" } });
+    expect(hasRow("Timeline")).toBe(true);
+    expect(hasRow("navigation:shortcuts.items.goToInbox")).toBe(false);
+
+    act(() => unregister());
+    fireEvent.change(search(), { target: { value: "" } });
+    expect(hasRow("Timeline")).toBe(false);
   });
 });

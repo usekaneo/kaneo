@@ -12,6 +12,7 @@ import getTask from "./get-task";
 
 async function deleteTask(taskId: string, currentUserId: string) {
   const task = await getTask(taskId);
+  const workspaceId = "workspaceId" in task ? task.workspaceId : undefined;
 
   const relations = await db
     .select()
@@ -59,6 +60,7 @@ async function deleteTask(taskId: string, currentUserId: string) {
   await publishEvent("task.deleted", {
     taskId: task.id,
     projectId: task.projectId,
+    workspaceId,
     userId: currentUserId,
     title: task.title,
   });

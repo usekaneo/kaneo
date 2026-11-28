@@ -52,6 +52,8 @@ export const REQUIRED_OPERATIONS: ReadonlyArray<RequiredOperation> = [
   { method: "GET", path: "/api/notification" },
   { method: "PATCH", path: "/api/notification/read-all" },
   { method: "PATCH", path: "/api/notification/{id}/read" },
+  { method: "GET", path: "/api/plugins" },
+  { method: "DELETE", path: "/api/plugins/{pluginId}/data" },
   { method: "GET", path: "/api/project" },
   { method: "POST", path: "/api/project" },
   { method: "DELETE", path: "/api/project/{id}" },

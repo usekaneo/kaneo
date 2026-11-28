@@ -46,6 +46,7 @@ import getTask from "./controllers/get-task";
 import getTasks from "./controllers/get-tasks";
 import importTasks from "./controllers/import-tasks";
 import moveTask from "./controllers/move-task";
+import { patchTask } from "./controllers/patch-task";
 import reorderTasks from "./controllers/reorder-tasks";
 import {
   stageTaskAssetUpload,
@@ -99,6 +100,7 @@ import {
   importTasksBody,
   listTasksQuery,
   moveTaskBody,
+  patchTaskBody,
   projectIdParam,
   reorderTasksBody,
   taskParam,
@@ -449,6 +451,37 @@ const updateTaskRoute = createRoute({
       "No access to the project, or missing task:update or task:assign permission",
     ),
     404: errorResponse("Task not found"),
+  },
+});
+
+const patchTaskRoute = createRoute({
+  method: "patch",
+  operationId: "patchTask",
+  path: "/{id}",
+  tags: ["Tasks"],
+  summary: "Update selected task fields",
+  description:
+    "Apply all supplied fields together. Omitted fields retain their values. Send null to clear an assignee, description, or date.",
+  middleware: [
+    workspaceAccess.fromTask(),
+    requireWorkspacePermission({ task: ["update"] }),
+    requireEntitlement,
+  ] as const,
+  request: {
+    params: taskParam,
+    body: {
+      required: true,
+      content: { "application/json": { schema: patchTaskBody } },
+    },
+  },
+  responses: {
+    200: jsonResponse("The updated task", taskSchema),
+    400: errorResponse("Invalid body or task fields"),
+    403: errorResponse(
+      "No project access or missing task:update or task:assign permission",
+    ),
+    404: errorResponse("Task not found"),
+    409: errorResponse("Task changed projects; retry the update"),
   },
 });
 
@@ -1065,6 +1098,26 @@ const task = apiRouter<BaseVariables & { workspaceId: string }>()
       currentUserId,
     );
 
+    return c.json(task, 200);
+  })
+  .openapi(patchTaskRoute, async (c) => {
+    const { id } = c.req.valid("param");
+    const changes = c.req.valid("json");
+    if (
+      changes.userId !== undefined &&
+      !(await hasWorkspacePermission(c, { task: ["assign"] }))
+    ) {
+      throw new HTTPException(403, {
+        message: "Missing task:assign permission",
+      });
+    }
+
+    const task = await patchTask(
+      id,
+      c.get("workspaceId"),
+      c.get("userId"),
+      changes,
+    );
     return c.json(task, 200);
   })
   .openapi(exportTasksRoute, async (c) => {

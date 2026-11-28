@@ -145,7 +145,7 @@ jobs:
 
   release:
     name: Release
-    needs: [plan, images, chart]
+    needs: [plan, images, chart, npm]
     if: ${{ !inputs.dry_run && needs.plan.outputs.version != '' }}
     timeout-minutes: 15
     runs-on: blacksmith-4vcpu-ubuntu-2404
@@ -253,3 +253,73 @@ jobs:
     uses: ./.github/workflows/helm-chart.yml # zizmor: ignore[self-repository] $/-syntax not parsed by pinned actionlint v1.7.12; revisit when supported
     with:
       version: ${{ needs.plan.outputs.version }}
+
+  npm:
+    name: Publish npm packages
+    needs: [plan, images, chart]
+    timeout-minutes: 15
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@73e46992e05b19abd31f2f3c20e0e7370d762115 # v6.1.1
+        with:
+          version: 12.18.0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7
+        with:
+          node-version: 24.22.2
+          package-manager-cache: false
+
+      - name: Verify npm publication source
+        env:
+          VERSION: ${{ needs.plan.outputs.version }}
+        run: node scripts/security/verify-release-source.mjs planned "$VERSION"
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Stamp release version
+        env:
+          RELEASE_VERSION: ${{ needs.plan.outputs.version }}
+        run: node scripts/release/apply-version.mjs "$RELEASE_VERSION"
+
+      - name: Build @kaneo/plugin-sdk and @kaneo/config
+        run: pnpm --filter @kaneo/plugin-sdk --filter @kaneo/config build
+
+      # Bootstrap both package names and allow direct trusted publishing
+      # from usekaneo/kaneo release.yml in npm before the first release.
+      - name: Publish @kaneo/plugin-sdk and @kaneo/config
+        env:
+          VERSION: ${{ needs.plan.outputs.version }}
+        run: |
+          set -euo pipefail
+          pending_packages=()
+          for package in plugin-sdk config; do
+            name="@kaneo/$package"
+            if published_source="$(npm view "$name@$VERSION" kaneoReleaseCommit --json 2>/dev/null)"; then
+              if [[ "$published_source" != "\"$GITHUB_SHA\"" ]]; then
+                echo "::error::$name@$VERSION was published for a different or unknown source. Plan a new version."
+                exit 1
+              fi
+              echo "$name@$VERSION is already published for $GITHUB_SHA."
+            else
+              pending_packages+=("$package")
+            fi
+          done
+
+          [[ -n "${pending_packages[0]:-}" ]] || exit 0
+          for package in "${pending_packages[@]}"; do
+            npm pkg set "kaneoReleaseCommit=$GITHUB_SHA" --prefix "packages/$package"
+            pnpm --dir "packages/$package" pack --pack-destination "$RUNNER_TEMP/npm"
+            npm publish "$RUNNER_TEMP/npm/kaneo-$package-$VERSION.tgz" --access public --provenance --ignore-scripts
+          done

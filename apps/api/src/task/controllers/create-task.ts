@@ -8,7 +8,6 @@ import {
   customFieldDefinitionTable,
   customFieldValueTable,
   taskTable,
-  projectTable,
   userTable,
 } from "../../database/schema";
 import {
@@ -160,8 +159,9 @@ async function createTask({
       message: "Create the task in an open column to make it repeat",
     });
 
-  const createdTask = await db.transaction(async (tx) => {
+  const { createdTask, workspaceId } = await db.transaction(async (tx) => {
     const taskNumber = await claimTaskNumber(projectId, tx);
+    const workspaceId = await getProjectWorkspaceId(projectId, tx);
     const nextPosition = await nextTaskPosition(
       tx,
       projectId,
@@ -193,19 +193,12 @@ async function createTask({
         referenced.has(id),
       );
       if (ids.length) {
-        // claimTaskNumber already holds the project row lock in this transaction.
-        const project = await tx.query.projectTable.findFirst({
-          columns: { workspaceId: true },
-          where: eq(projectTable.id, projectId),
-        });
-        if (!project)
-          throw new HTTPException(404, { message: "Project not found" });
         const claimed = await tx
           .update(assetTable)
           .set({
             taskId: task.id,
             surface: "description",
-            workspaceId: project.workspaceId,
+            workspaceId,
           })
           .where(
             and(
@@ -235,7 +228,7 @@ async function createTask({
       );
     }
 
-    return task;
+    return { createdTask: task, workspaceId };
   });
 
   if (!createdTask) {
@@ -246,6 +239,7 @@ async function createTask({
 
   await publishEvent("task.created", {
     ...createdTask,
+    workspaceId,
     taskId: createdTask.id,
     userId: createdTask.userId ?? "",
     currentUserId: currentUserId,

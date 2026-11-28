@@ -35,9 +35,12 @@
     "@hono/node-ws": "^1.3.1",
     "@hono/zod-openapi": "^1.6.3",
     "@kaneo/email": "workspace:*",
+    "@kaneo/gantt": "workspace:*",
     "@kaneo/importers": "workspace:*",
     "@kaneo/mcp": "workspace:*",
     "@kaneo/permissions": "workspace:*",
+    "@kaneo/plugin-loader": "workspace:*",
+    "@kaneo/plugin-sdk": "workspace:*",
     "@modelcontextprotocol/sdk": "1.32.2",
     "@modelcontextprotocol/server": "2.4.0",
     "@octokit/webhooks": "^14.2.0",
@@ -56,6 +59,7 @@
     "ioredis": "^6.0.0",
     "octokit": "^5.0.5",
     "pg": "^8.23.1",
+    "semver": "^7.8.5",
     "undici": "^8.12.3",
     "valibot": "^1.5.0",
     "zod": "^4.6.7"
@@ -63,6 +67,7 @@
   "devDependencies": {
     "@types/node": "^26.6.5",
     "@types/pg": "^8.23.1",
+    "@types/semver": "^7.8.0",
     "@vitest/coverage-v8": "catalog:",
     "esbuild": "0.28.2",
     "tsx": "^4.23.15",

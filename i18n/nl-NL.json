@@ -156,6 +156,13 @@
 				"statusLoadError": "Project statuses couldn’t be loaded."
 			}
 		},
+		"plugins": {
+			"commandFailed": "Het commando van de plug-in is mislukt",
+			"failedToLoad": "Deze plug-in kon niet worden geladen",
+			"openTaskFailed": "Kan de taak niet openen",
+			"unavailable": "Deze weergave van de plug-in is niet beschikbaar",
+			"layoutPageTitle": "{{name}} / {{view}}"
+		},
 		"editor": {
 			"link": {
 				"label": "Link-URL",
@@ -629,7 +636,6 @@
 			"selectViewMode": "Selecteer een weergavemodus",
 			"board": "Bord",
 			"list": "Lijst",
-			"gantt": "Gantt",
 			"priorityIcons": "Prioriteitspictogrammen",
 			"priorityIconsDescription": "Hoe taakprioriteit eruitziet op kaarten, rijen en in menu's.",
 			"priorityIconsMarks": "Streepjes",
@@ -1482,7 +1488,9 @@
 			"validation": {
 				"botTokenInvalid": "Voer een geldig Telegram-bottoken in",
 				"chatIdRequired": "Chat-ID is verplicht",
-				"threadIdInvalid": "Voer een geldig topic-ID in"
+				"threadIdInvalid": "Voer een geldig topic-ID in",
+				"botTokenRequiredForServer": "Enter the bot token again to use a different server",
+				"serverUrlInvalid": "Enter a valid server URL, for example https://tg.example.com"
 			},
 			"toast": {
 				"saved": "Telegram-integratie succesvol opgeslagen",
@@ -1497,6 +1505,9 @@
 			"botTokenPlaceholder": "123456789:AAExampleBotToken",
 			"botTokenHint": "Maak een bot aan met BotFather en plak het token hier.",
 			"botTokenHintConfigured": "Huidig token: {{token}}",
+			"serverUrlHint": "Optional. Set this if you run your own Bot API server. Leave empty to use api.telegram.org.",
+			"serverUrlLabel": "Bot API server URL",
+			"serverUrlPlaceholder": "https://api.telegram.org",
 			"chatIdLabel": "Chat-ID",
 			"chatIdPlaceholder": "-1001234567890 of @team_updates",
 			"threadIdLabel": "Topic-ID",
@@ -1975,6 +1986,43 @@
 				"title": "Bedankt voor je abonnement",
 				"description": "Betaling ontvangen. Het abonnement hieronder wordt bijgewerkt zodra die is bevestigd."
 			}
+		},
+		"workspacePlugins": {
+			"empty": {
+				"description": "Plug-ins worden door de instantiebeheerder toegevoegd in kaneo.config.ts. Zodra een plug-in is geïnstalleerd, verschijnt deze hier zodat werkruimtebeheerders hem kunnen inschakelen.",
+				"link": "Meer over plug-ins",
+				"title": "Geen plug-ins geïnstalleerd"
+			},
+			"enable": "{{name}} inschakelen",
+			"form": {
+				"none": "Geen",
+				"save": "Instellingen opslaan",
+				"secretCancel": "Annuleren",
+				"secretClear": "Wissen",
+				"secretConfigured": "Geconfigureerd",
+				"secretPlaceholder": "Voer een nieuwe waarde in",
+				"secretReplace": "Vervangen",
+				"secretUndo": "Ongedaan maken",
+				"secretWillClear": "Wordt gewist bij opslaan",
+				"selectPlaceholder": "Selecteer een optie"
+			},
+			"loadError": "Kan plug-ins niet laden. Vernieuw de pagina om het opnieuw te proberen.",
+			"pageTitle": "Instellingen voor plug-ins",
+			"status": {
+				"failed": "Laden mislukt",
+				"loaded": "Actief",
+				"loading": "Laden"
+			},
+			"subtitle": "Kies welke geïnstalleerde plug-ins deze werkruimte gebruikt en configureer ze.",
+			"title": "Plug-ins",
+			"toast": {
+				"disabled": "{{name}} uitgeschakeld",
+				"enabled": "{{name}} ingeschakeld",
+				"invalid": "Sommige instellingen vereisen aandacht",
+				"saved": "Instellingen van plug-in opgeslagen",
+				"updateError": "Kan de plug-in niet bijwerken"
+			},
+			"builtIn": "Ingebouwd"
 		},
 		"syncRules": {
 			"addLabel": "Add label",
@@ -2521,6 +2569,7 @@
 				"roleDeleted": "Role deleted",
 				"roleUpdated": "Role updated",
 				"instanceSettingsUpdated": "Updated instance settings",
+				"pluginDataPurged": "Plug-ingegevens verwijderd",
 				"webhookCreated": "Created webhook",
 				"webhookDeleted": "Deleted webhook",
 				"webhookSecretRotated": "Rotated webhook secret",
@@ -2859,7 +2908,8 @@
 				"navigate": "Navigeren",
 				"open": "Openen",
 				"close": "Sluiten"
-			}
+			},
+			"plugins": "Plug-ins"
 		},
 		"sidebar": {
 			"projects": "Projecten",

@@ -70,6 +70,15 @@ Name | Description | Default |
 --- | --- | --- |
 | `KANEO_INTERNAL_API_URL` | API origin used only for server-side requests from the built-in HTTP MCP endpoint. Override it only if the API is not reachable at the default loopback address from its own process. | `http://127.0.0.1:1337` |
 
+### Plugins
+
+Kaneo loads the plugins declared in a config file when it starts. See [Plugins](/core/plugins/index) for setup.
+
+Name | Description | Default |
+--- | --- | --- |
+| `KANEO_CONFIG` | Path to the config file that declares plugins. Accepts `.ts`, `.js`, or `.mjs`. When unset, Kaneo looks for `kaneo.config.ts`, `kaneo.config.js`, or `kaneo.config.mjs` in `/kaneo`, and starts without plugins if there is none. | `/kaneo/kaneo.config.ts` |
+| `DISABLE_PLUGINS` | Set to `true` to start without loading any plugins, even when a config file exists. Workspace plugin settings and plugin data are kept. | `false` |
+
 ### Object Storage
 
 Kaneo uses S3-compatible object storage for private uploads in task descriptions and task comments.
@@ -127,7 +136,7 @@ Name | Description | Default |
 Name | Description | Default |
 --- | --- | --- |
 | `NOTIFICATION_SECRET_ENCRYPTION_KEY` | Required to store personal notification tokens and webhook signing secrets. Generate a random value, keep it stable, and include it in protected configuration backups. Changing or losing it prevents decryption of existing secrets. | Unset |
-| `KANEO_ALLOW_PRIVATE_WEBHOOK_DESTINATIONS` | Allow outbound notification destinations (ntfy, Gotify, generic webhooks), self-managed Gitea or GitLab instances, and [import sources](/core/migrations) that resolve to private or non-routable addresses. Off by default to prevent SSRF; the `http`/`https` requirement still applies. Only enable on a trusted, isolated deployment. | `false` |
+| `KANEO_ALLOW_PRIVATE_WEBHOOK_DESTINATIONS` | Allow outbound notification destinations (ntfy, Gotify, generic webhooks), self-managed Gitea or GitLab instances, custom Telegram Bot API servers, and [import sources](/core/migrations) that resolve to private or non-routable addresses. Off by default to prevent SSRF; the `http`/`https` requirement still applies. Also lets GitLab and Telegram use plain `http`. Only enable on a trusted, isolated deployment. | `false` |
 
 ### Imports
 

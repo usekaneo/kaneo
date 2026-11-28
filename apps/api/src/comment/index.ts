@@ -2,6 +2,7 @@ import { HTTPException } from "hono/http-exception";
 import { activitySchema } from "../activity/response";
 import {
   apiRouter,
+  type BaseVariables,
   createRoute,
   errorResponse,
   jsonResponse,
@@ -117,7 +118,7 @@ const deleteTaskCommentRoute = createRoute({
   },
 });
 
-const comment = apiRouter()
+const comment = apiRouter<BaseVariables & { workspaceId: string }>()
   .openapi(getTaskCommentsRoute, async (c) =>
     c.json(await getComments(c.req.valid("param").taskId), 200),
   )
@@ -141,7 +142,10 @@ const comment = apiRouter()
         ? { userName: externalUserName, source: externalSource }
         : undefined;
     return c.json(
-      await createComment(taskId, c.get("userId"), content, external),
+      await createComment(taskId, c.get("userId"), content, {
+        external,
+        workspaceId: c.get("workspaceId"),
+      }),
       200,
     );
   })

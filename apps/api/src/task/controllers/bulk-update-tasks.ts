@@ -175,6 +175,7 @@ async function bulkUpdateTasks({
       for (const updatedTask of updatedTasks) {
         const before = beforeById.get(updatedTask.id)!;
         await publishTaskMutation(before, updatedTask, userId, {
+          workspaceId,
           fields: ["status"],
           skipRelationRefresh: true,
 
@@ -238,7 +239,7 @@ async function bulkUpdateTasks({
             priority: value,
           },
           userId,
-          { fields: ["priority"] },
+          { workspaceId, fields: ["priority"] },
         );
       break;
     }
@@ -299,7 +300,11 @@ async function bulkUpdateTasks({
             userId: assigneeId,
           },
           userId,
-          { fields: ["userId"], assigneeName: assignee?.name ?? null },
+          {
+            workspaceId,
+            fields: ["userId"],
+            assigneeName: assignee?.name ?? null,
+          },
         );
       break;
     }
@@ -341,6 +346,7 @@ async function bulkUpdateTasks({
 
       for (const task of tasks) {
         await publishEvent("task.deleted", {
+          workspaceId,
           taskId: task.id,
           projectId: task.projectId,
           userId,
@@ -532,7 +538,7 @@ async function bulkUpdateTasks({
           beforeById.get(updatedTask.id)!,
           updatedTask,
           userId,
-          { fields: ["dueDate"] },
+          { workspaceId, fields: ["dueDate"] },
         );
       break;
     }

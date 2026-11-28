@@ -530,8 +530,22 @@
     {
       "idx": 75,
       "version": "7",
-      "when": 1795806906995,
-      "tag": "0075_durable_label_deletion_effects",
+      "when": 1795859344312,
+      "tag": "0075_plugins",
+      "breakpoints": true
+    },
+    {
+      "idx": 76,
+      "version": "7",
+      "when": 1795859806847,
+      "tag": "0076_scheduled_job_occurrence",
+      "breakpoints": true
+    },
+    {
+      "idx": 77,
+      "version": "7",
+      "when": 1795863592749,
+      "tag": "0077_durable_label_deletion_effects",
       "breakpoints": true
     }
   ]

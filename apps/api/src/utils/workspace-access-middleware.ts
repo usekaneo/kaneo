@@ -25,6 +25,7 @@ type WorkspaceIdSource =
       type: "lookup";
       resource: LookupResource;
       idKey: string;
+      projectParam?: string;
     }
   | {
       type: "lookupMany";
@@ -99,7 +100,11 @@ export function workspaceAccessMiddleware(
         if (id) {
           notFoundMessage = RESOURCE_NOT_FOUND[source.resource];
           const scope = await lookupScope(source.resource, id);
-          if (!scope) {
+          if (
+            !scope ||
+            (source.projectParam !== undefined &&
+              scope.projectId !== c.req.param(source.projectParam))
+          ) {
             throw new HTTPException(404, { message: notFoundMessage });
           }
           workspaceId = scope.workspaceId;

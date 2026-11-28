@@ -80,9 +80,9 @@ async function updateTask(
 
   const initialPosition = existingTask.position;
   const initialStatus = existingTask.status;
-  const updatedTask = await db.transaction(async (tx) => {
+  const { updatedTask, workspaceId } = await db.transaction(async (tx) => {
     const [project] = await tx
-      .select({ id: projectTable.id })
+      .select({ workspaceId: projectTable.workspaceId })
       .from(projectTable)
       .where(eq(projectTable.id, projectId))
       .for("update");
@@ -142,7 +142,7 @@ async function updateTask(
         { title, dueDate: dueDate ?? null },
         currentUserId,
       );
-    return task;
+    return { updatedTask: task, workspaceId: project.workspaceId };
   });
 
   if (!updatedTask) {
@@ -159,6 +159,7 @@ async function updateTask(
     },
     { ...updatedTask, description: description ?? updatedTask.description },
     currentUserId,
+    { workspaceId },
   );
 
   await publishEvent("task.updated", {

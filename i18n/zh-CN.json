@@ -156,6 +156,13 @@
 				"statusLoadError": "项目状态加载失败。"
 			}
 		},
+		"plugins": {
+			"commandFailed": "插件命令执行失败",
+			"failedToLoad": "此插件加载失败",
+			"openTaskFailed": "无法打开任务",
+			"unavailable": "此插件视图不可用",
+			"layoutPageTitle": "{{name}} / {{view}}"
+		},
 		"editor": {
 			"link": {
 				"label": "链接 URL",
@@ -264,7 +271,7 @@
 			"invitation": {
 				"description": "请使用收到邀请的邮箱。注册后你将立即加入该工作区。"
 			},
-			"verifyEmail": "Check your email to confirm your address, then sign in."
+			"verifyEmail": "请查收邮件以确认你的邮箱地址，然后登录。"
 		},
 		"verifyOtp": {
 			"pageTitle": "验证码",
@@ -292,7 +299,7 @@
 		},
 		"signInForm": {
 			"failedSignIn": "登录失败",
-			"emailNotVerified": "Confirm your email address first. We sent you a new link."
+			"emailNotVerified": "请先确认你的邮箱地址。我们已向你发送新的链接。"
 		},
 		"invitation": {
 			"pageTitleAccept": "接受邀请",
@@ -533,7 +540,7 @@
 				"description": "登录后会立即返回此处进行批准。",
 				"submit": "登录"
 			},
-			"openApp": "Open Kaneo"
+			"openApp": "打开 Kaneo"
 		},
 		"mcp": {
 			"authorize": {
@@ -743,7 +750,6 @@
 			"selectViewMode": "选择视图模式",
 			"board": "看板",
 			"list": "列表",
-			"gantt": "甘特图",
 			"priorityIcons": "优先级图标",
 			"priorityIconsDescription": "任务优先级在卡片、行和菜单中的显示方式。",
 			"priorityIconsMarks": "标记",
@@ -1189,7 +1195,7 @@
 			"connect": "连接",
 			"configure": "配置",
 			"done": "完成",
-			"turnedOffByAdmin": "Turned off by an administrator"
+			"turnedOffByAdmin": "已被管理员关闭"
 		},
 		"projectVisibility": {
 			"pageTitle": "项目可见性",
@@ -1418,7 +1424,9 @@
 			"validation": {
 				"botTokenInvalid": "请输入有效的 Telegram Bot 令牌",
 				"chatIdRequired": "聊天 ID 不能为空",
-				"threadIdInvalid": "请输入有效的话题 ID"
+				"threadIdInvalid": "请输入有效的话题 ID",
+				"botTokenRequiredForServer": "Enter the bot token again to use a different server",
+				"serverUrlInvalid": "Enter a valid server URL, for example https://tg.example.com"
 			},
 			"toast": {
 				"saved": "Telegram 集成保存成功",
@@ -1433,6 +1441,9 @@
 			"botTokenPlaceholder": "123456789:AAExampleBotToken",
 			"botTokenHint": "使用 BotFather 创建机器人，然后粘贴其令牌。",
 			"botTokenHintConfigured": "当前令牌：{{token}}",
+			"serverUrlHint": "Optional. Set this if you run your own Bot API server. Leave empty to use api.telegram.org.",
+			"serverUrlLabel": "Bot API server URL",
+			"serverUrlPlaceholder": "https://api.telegram.org",
 			"chatIdLabel": "聊天 ID",
 			"chatIdPlaceholder": "-1001234567890 或 @team_updates",
 			"threadIdLabel": "话题 ID",
@@ -1590,10 +1601,10 @@
 				"edit": "编辑",
 				"open": "{{name}} 的操作",
 				"reactivate": "恢复",
-				"markEmailVerified": "Mark email as verified",
-				"sendPasswordReset": "Send password reset link",
-				"sendVerification": "Resend verification email",
-				"security": "Sessions & API keys"
+				"markEmailVerified": "将邮箱标记为已验证",
+				"sendPasswordReset": "发送密码重置链接",
+				"sendVerification": "重新发送验证邮件",
+				"security": "会话与 API 密钥"
 			},
 			"clearSearch": "清除搜索",
 			"columns": {
@@ -1602,7 +1613,7 @@
 				"role": "角色",
 				"status": "状态",
 				"user": "用户",
-				"lastActive": "Last active"
+				"lastActive": "最近活跃"
 			},
 			"confirm": {
 				"deactivate": {
@@ -1622,16 +1633,16 @@
 				},
 				"working": "处理中…",
 				"markEmailVerified": {
-					"action": "Mark as verified",
-					"title": "Mark this email as verified?"
+					"action": "标记为已验证",
+					"title": "将此邮箱标记为已验证？"
 				},
 				"sendPasswordReset": {
-					"action": "Send link",
-					"title": "Send a password reset link?"
+					"action": "发送链接",
+					"title": "发送密码重置链接？"
 				},
 				"sendVerification": {
-					"action": "Send email",
-					"title": "Resend the verification email?"
+					"action": "发送邮件",
+					"title": "重新发送验证邮件？"
 				}
 			},
 			"directoryTitle": "所有用户",
@@ -1673,76 +1684,76 @@
 				"reactivated": "用户已恢复",
 				"updated": "用户已更新",
 				"updateError": "更新用户失败",
-				"avatarChanged": "Profile picture updated",
-				"avatarError": "Failed to update the profile picture",
-				"avatarRemoved": "Profile picture removed",
-				"createdForSso": "User created for single sign-on.",
-				"createdLinkFailed": "User created. Password email failed; retry “Send password reset link”.",
-				"createdLinkSent": "User created. Password link sent to {{email}}.",
-				"createdNoSmtp": "User created. Set SMTP_HOST to send a password link.",
-				"createError": "Failed to create user",
-				"emailError": "The email could not be sent",
-				"emailVerified": "Email marked as verified",
-				"passwordResetSent": "Password reset link sent to {{email}}",
-				"verificationSent": "Verification email sent to {{email}}"
+				"avatarChanged": "头像已更新",
+				"avatarError": "更新头像失败",
+				"avatarRemoved": "头像已移除",
+				"createdForSso": "已为单点登录创建用户。",
+				"createdLinkFailed": "用户已创建。密码邮件发送失败；请重试“发送密码重置链接”。",
+				"createdLinkSent": "用户已创建。密码链接已发送至 {{email}}。",
+				"createdNoSmtp": "用户已创建。请设置 SMTP_HOST 以发送密码链接。",
+				"createError": "创建用户失败",
+				"emailError": "邮件无法发送",
+				"emailVerified": "邮箱已标记为已验证",
+				"passwordResetSent": "密码重置链接已发送至 {{email}}",
+				"verificationSent": "验证邮件已发送至 {{email}}"
 			},
 			"you": "你",
 			"create": {
-				"creating": "Creating…",
-				"open": "Create user",
-				"submit": "Create user",
-				"title": "Create user",
-				"nameRequired": "Enter a name",
-				"hintNoEmail": "Set SMTP_HOST to send password links."
+				"creating": "创建中…",
+				"open": "创建用户",
+				"submit": "创建用户",
+				"title": "创建用户",
+				"nameRequired": "请输入名称",
+				"hintNoEmail": "设置 SMTP_HOST 以发送密码链接。"
 			},
 			"details": {
-				"emailStatus": "Email",
+				"emailStatus": "邮箱",
 				"methods": {
-					"password": "Password"
+					"password": "密码"
 				},
-				"noSignInMethods": "No password or linked account yet",
-				"notVerified": "Not verified",
-				"removeAvatar": "Remove",
-				"signInMethods": "Sign-in methods",
-				"uploadAvatar": "Upload",
-				"verified": "Verified"
+				"noSignInMethods": "尚无密码或关联账号",
+				"notVerified": "未验证",
+				"removeAvatar": "移除",
+				"signInMethods": "登录方式",
+				"uploadAvatar": "上传",
+				"verified": "已验证"
 			},
 			"filters": {
-				"anyEmail": "Any email",
-				"anyRole": "Any role",
-				"anyStatus": "Any status",
-				"clear": "Clear filters",
-				"email": "Email verification",
-				"label": "Filter users",
-				"role": "Role",
-				"status": "Status",
-				"unverified": "Unverified email",
-				"verified": "Verified email"
+				"anyEmail": "任意邮箱",
+				"anyRole": "任意角色",
+				"anyStatus": "任意状态",
+				"clear": "清除筛选",
+				"email": "邮箱验证",
+				"label": "筛选用户",
+				"role": "角色",
+				"status": "状态",
+				"unverified": "未验证邮箱",
+				"verified": "已验证邮箱"
 			},
-			"never": "Never",
-			"unverified": "Unverified",
+			"never": "从不",
+			"unverified": "未验证",
 			"security": {
-				"apiKeysEmpty": "No API keys.",
-				"apiKeysLoadError": "Couldn't load API keys.",
-				"apiKeysTitle": "API keys",
-				"disabled": "Disabled",
-				"lastUsed": "Last used {{time}}",
-				"neverUsed": "Never used",
-				"revokeAll": "Sign out everywhere",
-				"revokeAllConfirmDescription": "They'll be signed out everywhere right away.",
-				"revokeAllConfirmTitle": "Sign {{name}} out everywhere?",
-				"revokeAllSelfDescription": "Your other sessions will be signed out right away.",
-				"revokeKey": "Revoke",
-				"revokeKeyConfirmDescription": "Requests using this key will fail right away.",
-				"revokeKeyConfirmTitle": "Revoke {{name}}?",
-				"revokeKeyLabel": "Revoke {{name}}",
-				"revokingKey": "Revoking...",
-				"sessionsEmpty": "Not signed in anywhere.",
-				"sessionsTitle": "Sessions",
-				"title": "Sessions & API keys: {{name}}",
-				"toastKeyRevoked": "API key revoked.",
-				"toastKeyRevokeError": "Couldn't revoke the API key.",
-				"toastRevokedAll": "Sessions signed out."
+				"apiKeysEmpty": "暂无 API 密钥。",
+				"apiKeysLoadError": "无法加载 API 密钥。",
+				"apiKeysTitle": "API 密钥",
+				"disabled": "已禁用",
+				"lastUsed": "上次使用于 {{time}}",
+				"neverUsed": "从未使用",
+				"revokeAll": "退出所有设备",
+				"revokeAllConfirmDescription": "对方将立即在所有设备上退出登录。",
+				"revokeAllConfirmTitle": "让 {{name}} 退出所有设备？",
+				"revokeAllSelfDescription": "你的其他会话将立即退出登录。",
+				"revokeKey": "撤销",
+				"revokeKeyConfirmDescription": "使用此密钥的请求将立即失败。",
+				"revokeKeyConfirmTitle": "撤销 {{name}}？",
+				"revokeKeyLabel": "撤销 {{name}}",
+				"revokingKey": "正在撤销...",
+				"sessionsEmpty": "未在任何地方登录。",
+				"sessionsTitle": "会话",
+				"title": "会话与 API 密钥：{{name}}",
+				"toastKeyRevoked": "API 密钥已撤销。",
+				"toastKeyRevokeError": "无法撤销 API 密钥。",
+				"toastRevokedAll": "已退出所有会话。"
 			}
 		},
 		"security": "安全",
@@ -1778,11 +1789,11 @@
 			"passwordHint": "请使用至少 8 个字符、且未在其他地方使用过的密码。",
 			"passwordTitle": "密码",
 			"sessions": {
-				"revokeOthers": "Sign out other sessions",
-				"revokeOthersConfirmDescription": "Your other sessions will be signed out right away.",
-				"revokeOthersConfirmTitle": "Sign out all other sessions?",
-				"title": "Active sessions",
-				"toastRevokedOthers": "Other sessions signed out."
+				"revokeOthers": "退出其他会话",
+				"revokeOthersConfirmDescription": "你的其他会话将立即退出。",
+				"revokeOthersConfirmTitle": "退出所有其他会话？",
+				"title": "活跃会话",
+				"toastRevokedOthers": "其他会话已退出。"
 			}
 		},
 		"gitlabIntegration": {
@@ -1963,6 +1974,43 @@
 				"description": "已收到付款。确认后，下方的方案会随即更新。"
 			}
 		},
+		"workspacePlugins": {
+			"empty": {
+				"description": "插件由实例管理员在 kaneo.config.ts 中添加。插件安装后会显示在这里，供工作区管理员启用。",
+				"link": "了解插件",
+				"title": "未安装插件"
+			},
+			"enable": "启用 {{name}}",
+			"form": {
+				"none": "无",
+				"save": "保存设置",
+				"secretCancel": "取消",
+				"secretClear": "清除",
+				"secretConfigured": "已配置",
+				"secretPlaceholder": "输入新值",
+				"secretReplace": "替换",
+				"secretUndo": "撤销",
+				"secretWillClear": "保存后将清除",
+				"selectPlaceholder": "选择一个选项"
+			},
+			"loadError": "无法加载插件。请刷新页面后重试。",
+			"pageTitle": "插件设置",
+			"status": {
+				"failed": "加载失败",
+				"loaded": "运行中",
+				"loading": "加载中"
+			},
+			"subtitle": "选择此工作区使用哪些已安装的插件，并进行配置。",
+			"title": "插件",
+			"toast": {
+				"disabled": "已停用 {{name}}",
+				"enabled": "已启用 {{name}}",
+				"invalid": "部分设置需要处理",
+				"saved": "插件设置已保存",
+				"updateError": "无法更新插件"
+			},
+			"builtIn": "内置"
+		},
 		"syncRules": {
 			"addLabel": "添加标签",
 			"advancedHint": "开启「偏好设置」里的高级设置后，才能编辑这些规则。",
@@ -2065,19 +2113,19 @@
 				},
 				"working": "处理中…",
 				"archive": {
-					"action": "Archive workspace",
-					"description": "Members will lose access until it's restored.",
-					"title": "Archive {{name}}?"
+					"action": "归档工作区",
+					"description": "在恢复之前，成员将无法访问。",
+					"title": "归档 {{name}}？"
 				},
 				"delete": {
-					"action": "Delete workspace",
-					"description": "Its projects, tasks, and files will be permanently deleted.",
-					"title": "Delete {{name}}?",
-					"typeName": "Type {{name}} to confirm"
+					"action": "删除工作区",
+					"description": "其项目、任务和文件将被永久删除。",
+					"title": "删除 {{name}}？",
+					"typeName": "输入 {{name}} 以确认"
 				},
 				"restore": {
-					"action": "Restore workspace",
-					"title": "Restore {{name}}?"
+					"action": "恢复工作区",
+					"title": "恢复 {{name}}？"
 				}
 			},
 			"directoryTitle": "所有工作区",
@@ -2119,19 +2167,19 @@
 				"roleError": "更新角色失败",
 				"roleUpdated": "角色已更新",
 				"transferError": "转移所有权失败",
-				"archived": "Workspace archived",
-				"archiveError": "Could not archive workspace",
-				"deleted": "Workspace deleted",
-				"deleteError": "Could not delete workspace",
-				"restored": "Workspace restored",
-				"restoreError": "Could not restore workspace"
+				"archived": "工作区已归档",
+				"archiveError": "无法归档工作区",
+				"deleted": "工作区已删除",
+				"deleteError": "无法删除工作区",
+				"restored": "工作区已恢复",
+				"restoreError": "无法恢复工作区"
 			},
 			"actions": {
-				"archive": "Archive workspace",
-				"open": "Actions for {{name}}",
-				"restore": "Restore workspace"
+				"archive": "归档工作区",
+				"open": "{{name}} 的操作",
+				"restore": "恢复工作区"
 			},
-			"archived": "Archived"
+			"archived": "已归档"
 		},
 		"workspaceImport": {
 			"back": {
@@ -2451,343 +2499,344 @@
 		},
 		"adminAuditLog": {
 			"actions": {
-				"sessionRevoked": "Revoked a session",
-				"sessionRevokedAll": "Revoked all sessions",
-				"userCreated": "Created user",
-				"userDeactivated": "Deactivated user",
-				"userDeleted": "Deleted user",
-				"userImpersonated": "Signed in as user",
-				"userPasswordSet": "Set user password",
-				"userReactivated": "Reactivated user",
-				"userRoleChanged": "Changed instance role",
-				"userUpdated": "Updated user details",
-				"workspaceMemberAdded": "Added workspace member",
-				"workspaceMemberRemoved": "Removed workspace member",
-				"workspaceMemberRoleChanged": "Changed workspace member role",
-				"workspaceOwnerTransferred": "Transferred workspace ownership",
-				"userAvatarChanged": "Changed profile picture",
-				"userAvatarRemoved": "Removed profile picture",
-				"userEmailVerified": "Marked email as verified",
-				"userPasswordResetSent": "Sent password reset link",
-				"userVerificationSent": "Sent verification email",
-				"apiKeyRevoked": "Revoked an API key",
-				"emailTestSent": "Sent test email",
-				"workspaceArchived": "Archived workspace",
-				"workspaceDeleted": "Deleted workspace",
-				"workspaceRestored": "Restored workspace",
-				"roleCreated": "Role created",
-				"roleDeleted": "Role deleted",
-				"roleUpdated": "Role updated",
-				"instanceSettingsUpdated": "Updated instance settings",
-				"webhookCreated": "Created webhook",
-				"webhookDeleted": "Deleted webhook",
-				"webhookSecretRotated": "Rotated webhook secret",
-				"webhookUpdated": "Updated webhook"
+				"sessionRevoked": "撤销会话",
+				"sessionRevokedAll": "撤销全部会话",
+				"userCreated": "创建用户",
+				"userDeactivated": "停用用户",
+				"userDeleted": "删除用户",
+				"userImpersonated": "以用户身份登录",
+				"userPasswordSet": "设置用户密码",
+				"userReactivated": "重新启用用户",
+				"userRoleChanged": "变更实例角色",
+				"userUpdated": "更新用户信息",
+				"workspaceMemberAdded": "添加工作区成员",
+				"workspaceMemberRemoved": "移除工作区成员",
+				"workspaceMemberRoleChanged": "变更工作区成员角色",
+				"workspaceOwnerTransferred": "转移工作区所有权",
+				"userAvatarChanged": "更换头像",
+				"userAvatarRemoved": "移除头像",
+				"userEmailVerified": "将邮箱标记为已验证",
+				"userPasswordResetSent": "发送密码重置链接",
+				"userVerificationSent": "发送验证邮件",
+				"apiKeyRevoked": "撤销了 API 密钥",
+				"emailTestSent": "发送测试邮件",
+				"workspaceArchived": "归档了工作区",
+				"workspaceDeleted": "删除了工作区",
+				"workspaceRestored": "恢复了工作区",
+				"roleCreated": "创建了角色",
+				"roleDeleted": "删除了角色",
+				"roleUpdated": "更新了角色",
+				"instanceSettingsUpdated": "更新了实例设置",
+				"pluginDataPurged": "已清除插件数据",
+				"webhookCreated": "创建了 Webhook",
+				"webhookDeleted": "删除了 Webhook",
+				"webhookSecretRotated": "轮换了 Webhook 密钥",
+				"webhookUpdated": "更新了 Webhook"
 			},
 			"categories": {
-				"all": "All actions",
-				"session": "Sessions",
-				"user": "Users",
-				"workspace": "Workspaces",
-				"apiKey": "API keys",
-				"email": "Email",
-				"role": "Roles",
-				"instance": "Instance settings",
-				"webhook": "Webhooks"
-			},
-			"categoryLabel": "Filter by category",
-			"clearFilter": "Show all actions",
-			"columns": {
-				"action": "Action",
-				"actor": "Administrator",
-				"target": "Target",
-				"time": "Time and IP"
-			},
-			"deletedActor": "Account deleted",
-			"details": {
-				"change": "{{from}} → {{to}}",
-				"fields": "Changed {{fields}}",
-				"memberChange": "{{member}}: {{from}} → {{to}}",
-				"memberWithRole": "{{member}} as {{role}}",
-				"noRole": "No role",
-				"reason": "Reason: {{reason}}",
-				"createdWithRole": "Role: {{role}}",
-				"sessionCount_other": "{{count}} sessions",
-				"workspaceContents": "{{members}} members, {{projects}} projects",
-				"permissionsChanged": "{{added}} permissions added, {{removed}} removed"
-			},
-			"directoryTitle": "Recorded actions",
-			"emptyTitle": "No actions recorded",
-			"fields": {
-				"email": "email",
-				"emailVerified": "email verification",
-				"image": "avatar",
-				"name": "name"
-			},
-			"loadError": "The audit log could not be loaded.",
-			"mobileSummary": "{{actor}} · {{target}} · {{time}}",
-			"next": "Next",
-			"pagination": "Page {{current}} of {{total}}",
-			"previous": "Previous",
-			"refreshing": "Refreshing audit log",
-			"retry": "Retry",
-			"targetTypes": {
-				"user": "User",
-				"workspace": "Workspace",
-				"role": "Role",
-				"instance": "Instance",
+				"all": "所有操作",
+				"session": "会话",
+				"user": "用户",
+				"workspace": "工作区",
+				"apiKey": "API 密钥",
+				"email": "邮件",
+				"role": "角色",
+				"instance": "实例设置",
 				"webhook": "Webhook"
 			},
-			"title": "Audit log",
-			"unknownActor": "Unknown"
+			"categoryLabel": "按类别筛选",
+			"clearFilter": "显示全部操作",
+			"columns": {
+				"action": "操作",
+				"actor": "管理员",
+				"target": "对象",
+				"time": "时间与 IP"
+			},
+			"deletedActor": "账号已删除",
+			"details": {
+				"change": "{{from}} → {{to}}",
+				"fields": "更改了 {{fields}}",
+				"memberChange": "{{member}}: {{from}} → {{to}}",
+				"memberWithRole": "{{member}}（角色：{{role}}）",
+				"noRole": "无角色",
+				"reason": "原因：{{reason}}",
+				"createdWithRole": "角色：{{role}}",
+				"sessionCount_other": "{{count}} 个会话",
+				"workspaceContents": "{{members}} 名成员，{{projects}} 个项目",
+				"permissionsChanged": "新增 {{added}} 项权限，移除 {{removed}} 项"
+			},
+			"directoryTitle": "已记录的操作",
+			"emptyTitle": "暂无操作记录",
+			"fields": {
+				"email": "邮箱",
+				"emailVerified": "邮箱验证",
+				"image": "头像",
+				"name": "名称"
+			},
+			"loadError": "无法加载审计日志。",
+			"mobileSummary": "{{actor}} · {{target}} · {{time}}",
+			"next": "下一页",
+			"pagination": "第 {{current}} 页，共 {{total}} 页",
+			"previous": "上一页",
+			"refreshing": "正在刷新审计日志",
+			"retry": "重试",
+			"targetTypes": {
+				"user": "用户",
+				"workspace": "工作区",
+				"role": "角色",
+				"instance": "实例",
+				"webhook": "Webhook"
+			},
+			"title": "审计日志",
+			"unknownActor": "未知"
 		},
 		"sessions": {
-			"device": "{{browser}} on {{os}}",
-			"lastActive": "Active {{time}}",
-			"loadError": "Couldn't load sessions.",
-			"revoke": "Sign out",
-			"revokeConfirmDescription": "They'll be signed out right away.",
-			"revokeConfirmTitle": "Sign out {{device}}?",
-			"revokeLabel": "Sign out {{device}}",
-			"revoking": "Signing out...",
-			"signedIn": "Signed in {{date}}",
-			"thisDevice": "This device",
-			"toastRevoked": "Session signed out.",
-			"toastRevokeError": "Couldn't sign out the session.",
-			"unknownDevice": "Unknown device"
+			"device": "{{os}} 上的 {{browser}}",
+			"lastActive": "{{time}}活跃",
+			"loadError": "无法加载会话。",
+			"revoke": "退出登录",
+			"revokeConfirmDescription": "该设备将立即退出登录。",
+			"revokeConfirmTitle": "退出 {{device}}？",
+			"revokeLabel": "退出 {{device}}",
+			"revoking": "正在退出登录...",
+			"signedIn": "{{date}}登录",
+			"thisDevice": "此设备",
+			"toastRevoked": "会话已退出登录。",
+			"toastRevokeError": "无法退出该会话。",
+			"unknownDevice": "未知设备"
 		},
 		"adminSystem": {
-			"checkedAt": "Checked {{time}}",
+			"checkedAt": "检查于 {{time}}",
 			"email": {
-				"down": "Can't connect to the mail server ({{code}})",
-				"notConfigured": "Set SMTP_HOST and SMTP_FROM to turn on email.",
-				"ok": "Connected to the mail server",
-				"send": "Send test email",
-				"sending": "Sending…",
-				"sendTest": "Test email",
+				"down": "无法连接邮件服务器（{{code}}）",
+				"notConfigured": "设置 SMTP_HOST 和 SMTP_FROM 以启用电子邮件。",
+				"ok": "已连接到邮件服务器",
+				"send": "发送测试邮件",
+				"sending": "发送中…",
+				"sendTest": "测试邮件",
 				"smtp": "SMTP",
-				"title": "Email"
+				"title": "电子邮件"
 			},
 			"instance": {
 				"api": "API",
-				"apiDescription": "Up {{uptime}} · Node {{node}}",
-				"database": "Database",
-				"databaseDown": "Can't reach PostgreSQL ({{code}})",
+				"apiDescription": "已运行 {{uptime}} · Node {{node}}",
+				"database": "数据库",
+				"databaseDown": "无法连接 PostgreSQL（{{code}}）",
 				"databaseVersion": "PostgreSQL {{version}}",
-				"latency": "{{ms}} ms",
-				"migrations_other": "{{count}} migrations applied",
-				"realtime": "Live updates",
-				"realtimeConnections_other": "{{count}} open connections on this instance",
-				"realtimeInMemory": "delivered in memory",
-				"realtimeNotStarted": "WebSockets haven't started",
-				"realtimeRedis": "shared with other instances through Redis",
-				"realtimeRedisDown": "Redis is down, so only people on this instance get live updates",
+				"latency": "{{ms}} 毫秒",
+				"migrations_other": "已应用 {{count}} 个迁移",
+				"realtime": "实时更新",
+				"realtimeConnections_other": "此实例上有 {{count}} 个打开的连接",
+				"realtimeInMemory": "在内存中传递",
+				"realtimeNotStarted": "WebSocket 尚未启动",
+				"realtimeRedis": "通过 Redis 与其他实例共享",
+				"realtimeRedisDown": "Redis 已宕机，因此只有此实例上的用户能收到实时更新",
 				"redis": "Redis",
-				"redisDown": "Can't reach Redis ({{code}})",
+				"redisDown": "无法连接 Redis（{{code}}）",
 				"redisModes": {
-					"cluster": "Cluster",
-					"sentinel": "Sentinel",
-					"standalone": "Standalone"
+					"cluster": "集群",
+					"sentinel": "哨兵",
+					"standalone": "单机"
 				},
-				"redisNotConfigured": "Set REDIS_URL to share live updates across API instances.",
-				"redisOk": "{{mode}}, reachable",
-				"storage": "File storage",
-				"storageDown": "Can't reach the bucket ({{code}})",
-				"storageIncomplete": "Some S3 settings are missing, so uploads are off.",
-				"storageNotConfigured": "Set S3_ENDPOINT and S3_BUCKET to turn on uploads.",
-				"storageOk": "Bucket reachable",
-				"storageWarning": "Can't check the bucket with these credentials ({{code}}).",
-				"title": "Instance",
-				"version": "Kaneo version",
-				"versionUnknown": "Unknown"
+				"redisNotConfigured": "设置 REDIS_URL 以在各 API 实例间共享实时更新。",
+				"redisOk": "{{mode}}，可访问",
+				"storage": "文件存储",
+				"storageDown": "无法连接存储桶（{{code}}）",
+				"storageIncomplete": "部分 S3 设置缺失，上传功能已关闭。",
+				"storageNotConfigured": "设置 S3_ENDPOINT 和 S3_BUCKET 以启用上传。",
+				"storageOk": "存储桶可访问",
+				"storageWarning": "无法使用这些凭据检查存储桶（{{code}}）。",
+				"title": "实例",
+				"version": "Kaneo 版本",
+				"versionUnknown": "未知"
 			},
 			"integrations": {
-				"available": "Available",
-				"connectedProjects_other": "Connected in {{count}} projects",
-				"connectedUnknown": "Project count unavailable",
+				"available": "可用",
+				"connectedProjects_other": "已在 {{count}} 个项目中连接",
+				"connectedUnknown": "项目数量不可用",
 				"instanceSetup": {
-					"down": "GitHub App unavailable",
-					"not_configured": "GitHub App not set up",
-					"ok": "GitHub App set up",
-					"warning": "Some GitHub App settings are missing"
+					"down": "GitHub App 不可用",
+					"not_configured": "GitHub App 未设置",
+					"ok": "GitHub App 已设置",
+					"warning": "部分 GitHub App 设置缺失"
 				},
-				"title": "Integrations"
+				"title": "集成"
 			},
-			"loadError": "System status could not be loaded.",
-			"refresh": "Refresh",
-			"refreshing": "Checking…",
-			"retry": "Retry",
+			"loadError": "无法加载系统状态。",
+			"refresh": "刷新",
+			"refreshing": "检查中…",
+			"retry": "重试",
 			"setupStatus": {
-				"down": "Down",
-				"not_configured": "Not configured",
-				"ok": "Configured",
-				"warning": "Incomplete"
+				"down": "不可用",
+				"not_configured": "未配置",
+				"ok": "已配置",
+				"warning": "不完整"
 			},
 			"signIn": {
-				"emailOtpSignIn": "Email sign-in codes",
-				"guestAccess": "Guest access",
-				"off": "Off",
-				"on": "On",
-				"passwordRegistration": "Sign-up with a password",
-				"passwordSignIn": "Email and password sign-in",
-				"registration": "Registration",
-				"title": "Sign-in",
-				"workspaceCreation": "Workspace creation",
-				"customProvider": "OAuth or OpenID Connect"
+				"emailOtpSignIn": "邮箱登录验证码",
+				"guestAccess": "访客访问",
+				"off": "已关闭",
+				"on": "已开启",
+				"passwordRegistration": "使用密码注册",
+				"passwordSignIn": "邮箱和密码登录",
+				"registration": "注册",
+				"title": "登录",
+				"workspaceCreation": "创建工作区",
+				"customProvider": "OAuth 或 OpenID Connect"
 			},
 			"status": {
-				"down": "Down",
-				"not_configured": "Not configured",
-				"ok": "Operational",
-				"warning": "Warning"
+				"down": "不可用",
+				"not_configured": "未配置",
+				"ok": "运行正常",
+				"warning": "警告"
 			},
-			"title": "System",
+			"title": "系统",
 			"toast": {
-				"testEmailError": "The test email could not be sent.",
-				"testEmailSent": "Test email sent to {{to}}"
+				"testEmailError": "测试邮件发送失败。",
+				"testEmailSent": "测试邮件已发送至 {{to}}"
 			}
 		},
 		"adminOverview": {
-			"activeUsers": "Active (30 days)",
-			"archivedWorkspaces": "Archived",
-			"configurationWarnings": "Configuration warnings",
-			"disabledUsers": "Disabled users",
-			"loadError": "Could not load the overview.",
-			"noActions": "No administrative actions",
-			"noUsers": "No users",
-			"recentActions": "Recent administrative actions",
-			"recentUsers": "Recent users",
-			"services": "Services",
-			"title": "Overview",
-			"totalUsers": "Total users",
-			"viewAuditLog": "View audit log",
-			"viewSystem": "View system",
-			"viewUsers": "View users",
+			"activeUsers": "活跃（30 天）",
+			"archivedWorkspaces": "已归档",
+			"configurationWarnings": "配置警告",
+			"disabledUsers": "已禁用用户",
+			"loadError": "无法加载概览。",
+			"noActions": "暂无管理操作",
+			"noUsers": "暂无用户",
+			"recentActions": "最近管理操作",
+			"recentUsers": "最近用户",
+			"services": "服务",
+			"title": "概览",
+			"totalUsers": "用户总数",
+			"viewAuditLog": "查看审计日志",
+			"viewSystem": "查看系统",
+			"viewUsers": "查看用户",
 			"warnings": {
-				"noSecondAdmin": "Only one administrator has access. Assign a second admin in User management.",
-				"redisUnreachable": "Redis is unavailable. Check the connection.",
-				"registrationWithoutEmail": "Registration is open without email. Configure SMTP or set DISABLE_REGISTRATION=true.",
-				"smtpNotConfigured": "Email is not configured. Set SMTP_HOST and SMTP_FROM.",
-				"smtpUnreachable": "Email is unavailable. Check SMTP settings.",
-				"storageIncomplete": "Storage setup is incomplete. Check S3 settings.",
-				"storageUnreachable": "Storage needs attention. Check S3 access."
+				"noSecondAdmin": "仅有一位管理员可访问。请在用户管理中指定第二位管理员。",
+				"redisUnreachable": "Redis 不可用。请检查连接。",
+				"registrationWithoutEmail": "注册已开放但未配置邮件。请配置 SMTP 或设置 DISABLE_REGISTRATION=true。",
+				"smtpNotConfigured": "邮件未配置。请设置 SMTP_HOST 和 SMTP_FROM。",
+				"smtpUnreachable": "邮件服务不可用。请检查 SMTP 设置。",
+				"storageIncomplete": "存储设置不完整。请检查 S3 设置。",
+				"storageUnreachable": "存储需要处理。请检查 S3 访问权限。"
 			},
-			"workspaces": "Workspaces"
+			"workspaces": "工作区"
 		},
 		"adminRoles": {
-			"actions": "Actions for {{name}}",
-			"allPermissions": "All permissions",
-			"builtIn": "Built-in",
-			"create": "New role",
-			"deleteTitle": "Delete {{name}}?",
+			"actions": "{{name}} 的操作",
+			"allPermissions": "所有权限",
+			"builtIn": "内置",
+			"create": "新建角色",
+			"deleteTitle": "删除 {{name}}？",
 			"dialog": {
-				"create": "Create role",
-				"createTitle": "New role",
-				"editTitle": "Edit role",
-				"name": "Name",
-				"nameHint": "Use 2–32 lowercase letters, digits, or hyphens, starting with a letter.",
-				"save": "Save"
+				"create": "创建角色",
+				"createTitle": "新建角色",
+				"editTitle": "编辑角色",
+				"name": "名称",
+				"nameHint": "使用 2–32 个小写字母、数字或连字符，并以字母开头。",
+				"save": "保存"
 			},
-			"edit": "Edit",
+			"edit": "编辑",
 			"groups": {
-				"instance": "Instance",
-				"users": "Users",
-				"workspaces": "Workspaces"
+				"instance": "实例",
+				"users": "用户",
+				"workspaces": "工作区"
 			},
-			"listTitle": "All roles",
-			"loadError": "Roles could not be loaded.",
-			"noPermissions": "No permissions",
-			"permissionCount_other": "{{count}} permissions",
+			"listTitle": "所有角色",
+			"loadError": "无法加载角色。",
+			"noPermissions": "无权限",
+			"permissionCount_other": "{{count}} 项权限",
 			"permissions": {
-				"auditRead": "View the audit log",
-				"instanceSettings": "Change instance settings",
-				"systemRead": "View system status",
-				"usersApiKeys": "View and revoke API keys",
-				"usersCreate": "Create users",
-				"usersCredentials": "Send password reset and verification emails",
-				"usersDelete": "Delete users",
-				"usersDisable": "Deactivate and reactivate users",
-				"usersRead": "View users",
-				"usersSessions": "View and end sessions",
-				"usersUpdate": "Edit users and their roles",
-				"workspacesArchive": "Archive and restore workspaces",
-				"workspacesDelete": "Delete workspaces",
-				"workspacesManage": "Manage workspace members",
-				"workspacesRead": "View workspaces and members"
+				"auditRead": "查看审计日志",
+				"instanceSettings": "更改实例设置",
+				"systemRead": "查看系统状态",
+				"usersApiKeys": "查看和撤销 API 密钥",
+				"usersCreate": "创建用户",
+				"usersCredentials": "发送密码重置和验证邮件",
+				"usersDelete": "删除用户",
+				"usersDisable": "停用和重新启用用户",
+				"usersRead": "查看用户",
+				"usersSessions": "查看和结束会话",
+				"usersUpdate": "编辑用户及其角色",
+				"workspacesArchive": "归档和恢复工作区",
+				"workspacesDelete": "删除工作区",
+				"workspacesManage": "管理工作区成员",
+				"workspacesRead": "查看工作区和成员"
 			},
-			"title": "Roles",
+			"title": "角色",
 			"toast": {
-				"created": "Role created",
-				"deleted": "Role deleted",
-				"error": "The role could not be saved.",
-				"updated": "Role updated"
+				"created": "角色已创建",
+				"deleted": "角色已删除",
+				"error": "无法保存该角色。",
+				"updated": "角色已更新"
 			},
-			"userCount_other": "{{count}} users",
-			"viewUsers": "View users"
+			"userCount_other": "{{count}} 位用户",
+			"viewUsers": "查看用户"
 		},
 		"adminSettings": {
-			"defaultRole": "Default role for new users",
-			"general": "General",
-			"instanceName": "Instance name",
-			"instanceUrl": "Instance URL",
-			"instanceUrlMissing": "Set KANEO_CLIENT_URL",
-			"integrations": "Integrations",
-			"loadError": "Couldn't load instance settings.",
-			"lockedByEnv": "Set by {{name}}",
-			"passwordRegistrationEnabled": "Email and password sign-up",
-			"registration": "Registration",
-			"registrationEnabled": "Open registration",
-			"requireEmailVerification": "Require email verification",
-			"requiresSmtp": "Requires SMTP",
-			"signInProviders": "Sign-in providers",
-			"title": "Settings",
+			"defaultRole": "新用户默认角色",
+			"general": "常规",
+			"instanceName": "实例名称",
+			"instanceUrl": "实例 URL",
+			"instanceUrlMissing": "设置 KANEO_CLIENT_URL",
+			"integrations": "集成",
+			"loadError": "无法加载实例设置。",
+			"lockedByEnv": "由 {{name}} 设置",
+			"passwordRegistrationEnabled": "邮箱和密码注册",
+			"registration": "注册",
+			"registrationEnabled": "开放注册",
+			"requireEmailVerification": "要求邮箱验证",
+			"requiresSmtp": "需要 SMTP",
+			"signInProviders": "登录方式",
+			"title": "设置",
 			"toast": {
-				"error": "Couldn't save settings",
-				"saved": "Settings saved"
+				"error": "无法保存设置",
+				"saved": "设置已保存"
 			},
-			"workspaceCreationRestricted": "Only administrators can create workspaces",
-			"workspaces": "Workspaces",
-			"save": "Save"
+			"workspaceCreationRestricted": "仅管理员可创建工作区",
+			"workspaces": "工作区",
+			"save": "保存"
 		},
 		"adminWebhooks": {
-			"actions": "Actions for {{url}}",
-			"add": "Add webhook",
-			"attempts_other": "{{count}} attempts",
-			"categories": "Events",
-			"deleteTitle": "Delete webhook?",
-			"deliveries": "Recent deliveries",
-			"disabled": "Disabled",
-			"edit": "Edit webhook",
-			"empty": "No webhooks",
-			"enabled": "Enabled",
+			"actions": "{{url}} 的操作",
+			"add": "添加 Webhook",
+			"attempts_other": "{{count}} 次尝试",
+			"categories": "事件",
+			"deleteTitle": "删除 Webhook？",
+			"deliveries": "最近投递",
+			"disabled": "已禁用",
+			"edit": "编辑 Webhook",
+			"empty": "暂无 Webhook",
+			"enabled": "已启用",
 			"errors": {
-				"destination": "Destination blocked",
-				"disabled": "Webhook disabled",
-				"http": "HTTP error",
-				"interrupted": "Delivery interrupted",
-				"network": "Connection failed",
-				"response": "Invalid response",
-				"signing": "Signing failed",
-				"timeout": "Timed out"
+				"destination": "目标地址被阻止",
+				"disabled": "Webhook 已禁用",
+				"http": "HTTP 错误",
+				"interrupted": "投递中断",
+				"network": "连接失败",
+				"response": "响应无效",
+				"signing": "签名失败",
+				"timeout": "超时"
 			},
-			"failed": "Failed",
+			"failed": "失败",
 			"httpStatus": "HTTP {{status}}",
-			"loadError": "Webhooks could not be loaded.",
-			"noDeliveries": "No deliveries",
-			"pending": "Pending",
-			"rotate": "Rotate secret",
-			"rotateTitle": "Rotate signing secret?",
-			"saveError": "The webhook could not be saved.",
-			"secretTitle": "Signing secret — save it now",
-			"sendTest": "Send test",
-			"setup": "Set NOTIFICATION_SECRET_ENCRYPTION_KEY to create webhooks.",
-			"signingSecret": "Signing secret",
-			"succeeded": "Delivered",
-			"testEvent": "Test event",
-			"testQueued": "Test event queued.",
-			"title": "Webhooks",
+			"loadError": "无法加载 Webhook。",
+			"noDeliveries": "暂无投递",
+			"pending": "待处理",
+			"rotate": "轮换密钥",
+			"rotateTitle": "轮换签名密钥？",
+			"saveError": "无法保存 Webhook。",
+			"secretTitle": "签名密钥 — 请立即保存",
+			"sendTest": "发送测试",
+			"setup": "设置 NOTIFICATION_SECRET_ENCRYPTION_KEY 以创建 Webhook。",
+			"signingSecret": "签名密钥",
+			"succeeded": "已投递",
+			"testEvent": "测试事件",
+			"testQueued": "测试事件已加入队列。",
+			"title": "Webhook",
 			"url": "URL",
-			"save": "Save"
+			"save": "保存"
 		}
 	},
 	"navigation": {
@@ -2810,7 +2859,8 @@
 				"navigate": "导航",
 				"open": "打开",
 				"close": "关闭"
-			}
+			},
+			"plugins": "插件"
 		},
 		"sidebar": {
 			"projects": "项目",
@@ -3735,9 +3785,9 @@
 			"label": "已应用的筛选",
 			"removeFilter": "移除“{{name}}”筛选",
 			"noMatches": "没有任务符合你的搜索或筛选条件。",
-			"customFieldsLoading": "Loading custom-field values. Results are shown without custom-field filters.",
-			"customFieldsRefreshError": "Custom-field values could not be refreshed. Results may be out of date.",
-			"customFieldsUnavailable": "Custom-field values could not be loaded. Results are shown without custom-field filters."
+			"customFieldsLoading": "正在加载自定义字段值。结果未应用自定义字段筛选。",
+			"customFieldsRefreshError": "无法刷新自定义字段值。结果可能已过期。",
+			"customFieldsUnavailable": "无法加载自定义字段值。结果未应用自定义字段筛选。"
 		},
 		"filterMenu": {
 			"addFilter": "添加筛选…",
@@ -3938,10 +3988,10 @@
 			"loadError": "你的任务加载失败。"
 		},
 		"archived": {
-			"description": "Contact an administrator to restore access.",
-			"manage": "Manage workspaces",
-			"otherWorkspaces": "Go to workspaces",
-			"title": "Workspace archived"
+			"description": "请联系管理员恢复访问权限。",
+			"manage": "管理工作区",
+			"otherWorkspaces": "前往工作区",
+			"title": "工作区已归档"
 		}
 	},
 	"team": {
@@ -4120,7 +4170,7 @@
 			"title": "项目管理",
 			"titleAccent": "不该变成另一个项目。",
 			"description": "开源项目管理工具，带看板、甘特图和 GitHub 集成。免费自托管，内置 SSO；也可以交给 Kaneo Cloud 托管。",
-			"pricingCta": "See pricing",
+			"pricingCta": "查看价格",
 			"appStore": "App Store"
 		},
 		"navigation": {
@@ -4224,8 +4274,8 @@
 				"description": "看看在托管方式、授权许可和工作流上的差别。"
 			},
 			"startups": {
-				"description": "What a startup needs from a tracker, and what Kaneo Cloud costs as you hire.",
-				"title": "Project management for startups"
+				"description": "初创公司对任务追踪工具的需求，以及随着团队扩张 Kaneo Cloud 的费用。",
+				"title": "面向初创公司的项目管理"
 			}
 		},
 		"product": {
@@ -4253,9 +4303,9 @@
 				"link": "阅读 MCP 指南"
 			},
 			"mobile": {
-				"answer": "Yes. Kaneo is on the App Store for iPhone and iPad, and Android is coming soon. The app is free for Kaneo Cloud accounts. Connecting it to a self-hosted server is a one-time $9.99 unlock per person, and like the rest of Kaneo, the app is open source.",
-				"link": "Download on the App Store",
-				"question": "Is there a mobile app?"
+				"answer": "有。你可以在 App Store 下载适用于 iPhone 和 iPad 的 Kaneo 应用，Android 版即将推出。Kaneo Cloud 用户可以免费使用该应用。连接自托管服务器需每人一次性支付 $9.99 解锁。该应用和 Kaneo 的其他部分一样开源。",
+				"link": "在 App Store 下载",
+				"question": "有移动应用吗？"
 			}
 		},
 		"comparison": {
@@ -4331,19 +4381,19 @@
 				"photoUpdated": "照片已更新"
 			},
 			"deleteAccount": {
-				"confirm": "Delete account",
-				"confirmLabel": "Type {{email}} to confirm",
-				"description": "Permanently delete your account and its data.",
-				"modalDescription": "This permanently deletes your account and cannot be undone. Workspaces only you belong to are deleted with it. Elsewhere, your tasks stay and become unassigned, and your comments are removed.",
-				"modalTitle": "Delete your account?",
-				"noPassword": "This account has no password. Leave the field empty.",
-				"password": "Password",
-				"passwordHint": "Leave empty if you sign in without a password.",
-				"sectionTitle": "Danger zone",
-				"sessionTooOld": "For your security, enter your password, or sign out and sign in again before deleting your account.",
-				"success": "Your account was deleted",
-				"title": "Delete account",
-				"wrongPassword": "That password is not correct."
+				"confirm": "删除账户",
+				"confirmLabel": "请输入 {{email}} 以确认",
+				"description": "永久删除你的账户及其数据。",
+				"modalDescription": "此操作将永久删除你的账户，且无法撤销。仅有你一名成员的工作区也会被删除。在其他工作区中，你的任务将保留并取消指派，你发表的评论将被移除。",
+				"modalTitle": "删除你的账户？",
+				"noPassword": "此账户未设置密码，请将此字段留空。",
+				"password": "密码",
+				"passwordHint": "如果你不使用密码登录，请留空。",
+				"sectionTitle": "危险区域",
+				"sessionTooOld": "为保障账户安全，请输入密码，或退出后重新登录，再删除账户。",
+				"success": "账户已删除",
+				"title": "删除账户",
+				"wrongPassword": "密码不正确。"
 			}
 		},
 		"activity": {
@@ -4430,13 +4480,13 @@
 			"link": "链接",
 			"list": "列表",
 			"placeholder": "添加描述…支持 Markdown。",
-			"applyLink": "Apply",
-			"checklist": "Checklist",
+			"applyLink": "应用",
+			"checklist": "待办清单",
 			"linkUrl": "URL",
-			"numberedList": "Numbered list",
-			"quote": "Quote",
-			"removeLink": "Remove link",
-			"hideKeyboard": "Hide keyboard"
+			"numberedList": "有序列表",
+			"quote": "引用",
+			"removeLink": "移除链接",
+			"hideKeyboard": "隐藏键盘"
 		},
 		"errors": {
 			"apiKeyRejected": "此 API 密钥被拒绝。",
@@ -4892,13 +4942,13 @@
 			"togglePassword": "切换密码显示",
 			"useApiKey": "使用 API 密钥",
 			"unlock": {
-				"buy": "Unlock for {{price}}",
-				"buyNoPrice": "Unlock",
-				"message": "Signing in to Kaneo Cloud is always included. Connecting the app to a self-hosted server is a one-time purchase that supports Kaneo's development.",
-				"nothingToRestore": "No earlier purchase was found for this store account.",
-				"restore": "Restore purchase",
-				"title": "Connect your own server",
-				"unavailable": "Purchases aren't available right now. Try again later."
+				"buy": "解锁（{{price}}）",
+				"buyNoPrice": "解锁",
+				"message": "登录 Kaneo Cloud 始终免费。将应用连接到自托管服务器需一次性购买，以支持 Kaneo 的开发。",
+				"nothingToRestore": "未在此商店账户中找到之前的购买记录。",
+				"restore": "恢复购买",
+				"title": "连接你自己的服务器",
+				"unavailable": "当前无法购买，请稍后再试。"
 			}
 		},
 		"taskDetail": {
@@ -4926,7 +4976,7 @@
 				"title": "链接",
 				"titleLabel": "标题",
 				"url": "URL",
-				"openFailed": "Couldn’t open this link."
+				"openFailed": "无法打开此链接。"
 			},
 			"menu": {
 				"delete": "删除任务",

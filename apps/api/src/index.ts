@@ -69,6 +69,16 @@ import notification from "./notification";
 import notificationPreferences from "./notification-preferences";
 import oauth from "./oauth";
 import { createRoute, errorResponse, jsonResponse, z } from "./openapi";
+import {
+  dispatchPluginRoute,
+  dispatchPluginWebhook,
+  loadConfiguredPlugins,
+  PluginLoadError,
+  pluginRoutes,
+  servePluginAsset,
+  startPluginEventBridge,
+  stopPluginJobs,
+} from "./plugin-host";
 import { initializePlugins, integrationPlugins } from "./plugins";
 import { migrateGitHubIntegration } from "./plugins/github/migration";
 import project from "./project";
@@ -463,6 +473,9 @@ export function createApp() {
     "/gitlab-integration/webhook/:integrationId",
     handleGitlabWebhookRoute,
   );
+
+  api.get("/plugins/:pluginId/assets/*", servePluginAsset);
+  api.all("/plugins/:pluginId/webhooks/*", dispatchPluginWebhook);
 
   api.post(
     "/auth/oauth2/backchannel-logout/custom",
@@ -885,6 +898,8 @@ export function createApp() {
   const importApi = api.route("/import", importRoutes);
   const userApi = api.route("/user", user);
   const adminApi = api.route("/admin", admin);
+  const pluginApi = api.route("/plugins", pluginRoutes);
+  api.all("/plugins/:pluginId/*", dispatchPluginRoute);
 
   app.route(
     "/",
@@ -1026,6 +1041,7 @@ export function createApp() {
     customFieldApi,
     importApi,
     oauthApi,
+    pluginApi,
   };
 }
 
@@ -1062,6 +1078,8 @@ export async function runStartupTasks() {
   await seedDefaultWorkspaceRoles();
 
   initializePlugins();
+  await loadConfiguredPlugins();
+  startPluginEventBridge();
   initializeScheduler();
   await initializeWebSocketAdapter();
 }
@@ -1073,7 +1091,11 @@ export async function startServer(
   try {
     await runStartupTasks();
   } catch (error) {
-    console.error("❌ Database migration failed!", error);
+    if (error instanceof PluginLoadError) {
+      console.error(error.format());
+    } else {
+      console.error("❌ Database migration failed!", error);
+    }
     process.exit(1);
   }
 
@@ -1102,6 +1124,7 @@ export async function startServer(
     server.close();
     const requestLeasesStopped = stopActiveRequestLeases();
     shutdownScheduler();
+    stopPluginJobs();
     await stopWebhookWorker();
     await shutdownWebSocketAdapter();
     const [, signInEmailsDrained, , requestLeasesReleased] = await Promise.all([
@@ -1168,6 +1191,7 @@ const {
   customFieldApi,
   importApi,
   oauthApi,
+  pluginApi,
 } = createdApp;
 
 const entrypoint = process.argv[1];
@@ -1214,6 +1238,7 @@ export type AppType =
   | typeof adminApi
   | typeof publicProjectApi
   | typeof invitationPublicApi
-  | typeof oauthApi;
+  | typeof oauthApi
+  | typeof pluginApi;
 
 export default app;

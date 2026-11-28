@@ -182,6 +182,7 @@ export async function handleGiteaPush(
           ) {
             afterCommit(() =>
               publishEvent("task.status_changed", {
+                workspaceId: integration.project?.workspaceId,
                 taskId: statusResult.after.id,
                 projectId: statusResult.after.projectId,
                 userId: null,
