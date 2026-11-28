@@ -2498,7 +2498,7 @@
 				"email": "邮件",
 				"role": "角色",
 				"instance": "实例设置",
-				"webhook": "Webhooks"
+				"webhook": "Webhook"
 			},
 			"categoryLabel": "按类别筛选",
 			"clearFilter": "显示全部操作",
@@ -2513,7 +2513,7 @@
 				"change": "{{from}} → {{to}}",
 				"fields": "更改了 {{fields}}",
 				"memberChange": "{{member}}: {{from}} → {{to}}",
-				"memberWithRole": "{{member}} as {{role}}",
+				"memberWithRole": "{{member}}（角色：{{role}}）",
 				"noRole": "无角色",
 				"reason": "原因：{{reason}}",
 				"createdWithRole": "角色：{{role}}",
@@ -2631,8 +2631,8 @@
 			"signIn": {
 				"emailOtpSignIn": "邮箱登录验证码",
 				"guestAccess": "访客访问",
-				"off": "Off",
-				"on": "On",
+				"off": "已关闭",
+				"on": "已开启",
 				"passwordRegistration": "使用密码注册",
 				"passwordSignIn": "邮箱和密码登录",
 				"registration": "注册",
@@ -2790,7 +2790,7 @@
 			"succeeded": "已投递",
 			"testEvent": "测试事件",
 			"testQueued": "测试事件已加入队列。",
-			"title": "Webhooks",
+			"title": "Webhook",
 			"url": "URL",
 			"save": "保存"
 		}
@@ -4258,9 +4258,9 @@
 				"link": "阅读 MCP 指南"
 			},
 			"mobile": {
-				"answer": "Yes. Kaneo is on the App Store for iPhone and iPad, and Android is coming soon. The app is free for Kaneo Cloud accounts. Connecting it to a self-hosted server is a one-time $9.99 unlock per person, and like the rest of Kaneo, the app is open source.",
-				"link": "Download on the App Store",
-				"question": "Is there a mobile app?"
+				"answer": "有。你可以在 App Store 下载适用于 iPhone 和 iPad 的 Kaneo 应用，Android 版即将推出。Kaneo Cloud 用户可以免费使用该应用。连接自托管服务器需每人一次性支付 $9.99 解锁。该应用和 Kaneo 的其他部分一样开源。",
+				"link": "在 App Store 下载",
+				"question": "有移动应用吗？"
 			}
 		},
 		"comparison": {
@@ -4336,19 +4336,19 @@
 				"photoUpdated": "照片已更新"
 			},
 			"deleteAccount": {
-				"confirm": "Delete account",
-				"confirmLabel": "Type {{email}} to confirm",
-				"description": "Permanently delete your account and its data.",
-				"modalDescription": "This permanently deletes your account and cannot be undone. Workspaces only you belong to are deleted with it. Elsewhere, your tasks stay and become unassigned, and your comments are removed.",
-				"modalTitle": "Delete your account?",
-				"noPassword": "This account has no password. Leave the field empty.",
-				"password": "Password",
-				"passwordHint": "Leave empty if you sign in without a password.",
-				"sectionTitle": "Danger zone",
-				"sessionTooOld": "For your security, enter your password, or sign out and sign in again before deleting your account.",
-				"success": "Your account was deleted",
-				"title": "Delete account",
-				"wrongPassword": "That password is not correct."
+				"confirm": "删除账户",
+				"confirmLabel": "请输入 {{email}} 以确认",
+				"description": "永久删除你的账户及其数据。",
+				"modalDescription": "此操作将永久删除你的账户，且无法撤销。仅有你一名成员的工作区也会被删除。在其他工作区中，你的任务将保留并取消指派，你发表的评论将被移除。",
+				"modalTitle": "删除你的账户？",
+				"noPassword": "此账户未设置密码，请将此字段留空。",
+				"password": "密码",
+				"passwordHint": "如果你不使用密码登录，请留空。",
+				"sectionTitle": "危险区域",
+				"sessionTooOld": "为保障账户安全，请输入密码，或退出后重新登录，再删除账户。",
+				"success": "账户已删除",
+				"title": "删除账户",
+				"wrongPassword": "密码不正确。"
 			}
 		},
 		"activity": {
@@ -4435,13 +4435,13 @@
 			"link": "链接",
 			"list": "列表",
 			"placeholder": "添加描述…支持 Markdown。",
-			"applyLink": "Apply",
-			"checklist": "Checklist",
+			"applyLink": "应用",
+			"checklist": "待办清单",
 			"linkUrl": "URL",
-			"numberedList": "Numbered list",
-			"quote": "Quote",
-			"removeLink": "Remove link",
-			"hideKeyboard": "Hide keyboard"
+			"numberedList": "有序列表",
+			"quote": "引用",
+			"removeLink": "移除链接",
+			"hideKeyboard": "隐藏键盘"
 		},
 		"errors": {
 			"apiKeyRejected": "此 API 密钥被拒绝。",
