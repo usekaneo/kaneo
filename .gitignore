@@ -37,6 +37,9 @@ yarn-error.log*
 
 # Misc
 .DS_Store
+
+# Kaneo CLI login used by `pnpm --filter @kaneo/cli dev`
+.kaneo-dev/
 *.pem
 
 # DB
