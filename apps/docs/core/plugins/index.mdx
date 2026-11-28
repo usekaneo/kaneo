@@ -5,7 +5,7 @@ description: "Add npm packages that extend Kaneo's API and web app, then turn th
 
 A plugin is an npm package that extends both Kaneo's API and its web app. It can react to task activity, store its own data, add API routes, and add views, task panels, pages, and commands to the app.
 
-You declare the plugins for your whole instance in one file, `kaneo.config.ts`. Kaneo loads them when it starts, without rebuilding anything. Each workspace then decides whether to use them.
+You declare the plugins for your whole instance in a Kaneo config file. Kaneo loads them when it starts, without rebuilding anything. Each workspace then decides whether to use them.
 
 Instances without plugins need nothing: no config file, no extra variables, and no build step.
 
@@ -17,7 +17,7 @@ Some of Kaneo's own features are plugins built on the same contract as everyone 
 | --- | --- |
 | `gantt` | The Gantt view in every project |
 
-Workspace admins can turn a built-in plugin off in **Settings → Workspace → Plugins**. To remove one from the whole instance, turn it off in `kaneo.config.ts`:
+Workspace admins can turn a built-in plugin off in **Settings → Workspace → Plugins**. To remove one from the whole instance, turn it off in your Kaneo config:
 
 ```ts
 import { defineConfig } from "@kaneo/config";
@@ -51,7 +51,7 @@ The [Kaneo CLI](/cli) adds plugins for you, and Kaneo's image ships it, so you n
 ```bash
 mkdir my-kaneo
 cd my-kaneo
-docker run --rm -v "$PWD:/kaneo" --user "$(id -u):$(id -g)" ghcr.io/usekaneo/kaneo:<version> kaneo plugin add your-plugin-package
+docker run --rm -it -v "$PWD:/kaneo" --user "$(id -u):$(id -g)" ghcr.io/usekaneo/kaneo:<version> kaneo plugin add your-plugin-package
 ```
 
 Use the image tag you deploy, because `kaneo plugin add` picks plugin versions for that Kaneo release. It:
@@ -59,7 +59,7 @@ Use the image tag you deploy, because `kaneo plugin add` picks plugin versions f
 1. Asks npm for the plugin's releases and picks the newest stable, non-deprecated one whose `engines.kaneo` range includes your Kaneo version. It stops if no release declares a range or none fits, and shows the newest release's range.
 2. Checks the package against the [plugin catalog](https://kaneo.app/plugins). For a package that is not listed, or when the catalog cannot be reached, it warns and asks before going on. Without a terminal, for example without `docker run -it`, it needs `--yes` to go on.
 3. Creates `package.json` if the folder has none, then runs `npm install --save-exact --ignore-scripts` for the plugin, plus `@kaneo/config` for your Kaneo version the first time. Plugins and their dependencies never run install scripts.
-4. Adds the import and the plugin to `kaneo.config.ts`, and creates the file if needed. If it cannot change your config safely, it leaves it as is and prints the lines to add.
+4. Adds the import and plugin to your Kaneo config. If there is no config, it creates `kaneo.config.mjs`. If it cannot change your config safely, it leaves it as is and prints the lines to add.
 
 `--user` makes the new files yours instead of the container user's. npm reads `.npmrc` in the folder, so private registries and tokens work. Running `kaneo plugin add` again for an installed plugin moves it to the newest release that supports your Kaneo. Without a terminal, the command prints its result as JSON; add `-it` to `docker run` for the styled output and the prompt.
 
@@ -157,7 +157,7 @@ docker compose up -d kaneo
 docker compose logs --tail=100 kaneo
 ```
 
-Kaneo reads the config only at startup. After changing `kaneo.config.ts` or installing a plugin, run `docker compose restart kaneo`.
+Kaneo reads the config only at startup. After changing the config or installing a plugin, run `docker compose restart kaneo`.
 
 #### Kubernetes, Coolify, and Railway
 
@@ -227,7 +227,7 @@ Plugins you add are off in every workspace until someone turns them on. Built-in
 
 Settings belong to one workspace, unlike the options in `kaneo.config.ts`, which apply to the whole instance. Secret fields are write-only: after you save one, Kaneo shows that it is set but never shows the value again. Enter a new value to replace it.
 
-When a plugin is off in a workspace, its views, panels, pages, and commands disappear there, it stops receiving that workspace's activity, and its routes reject requests for that workspace. Turning it back on restores everything, including its data.
+When a plugin is off in a workspace, its views, panels, pages, and commands disappear there, and its guarded routes reject requests for that workspace. Activity events stop, but a project move can still reach the plugin if it has [retained storage](/core/plugins/reference#events) in the source workspace. Turning it back on restores everything, including its data.
 
 ## Upgrade Kaneo
 
@@ -250,7 +250,7 @@ To upgrade:
 4. For each plugin that fails at the compatibility stage, install a release that supports the new version with the new image, then check again:
 
    ```bash
-   docker run --rm -v "$PWD:/kaneo" --user "$(id -u):$(id -g)" ghcr.io/usekaneo/kaneo:<new version> kaneo plugin add your-plugin-package
+   docker run --rm -it -v "$PWD:/kaneo" --user "$(id -u):$(id -g)" ghcr.io/usekaneo/kaneo:<new version> kaneo plugin add your-plugin-package
    ```
 
 5. Deploy as usual.
@@ -265,14 +265,14 @@ Plugins run inside Kaneo with full access, like any npm dependency. A plugin can
 - Commit `package-lock.json`. It pins every version, and npm checks each package against its integrity hash on install.
 - Review changes to the lockfile like code changes.
 
-Plugins can only be added by editing `kaneo.config.ts`. There is no way to install one from the Kaneo interface.
+Instance operators install plugins using the CLI or by editing the Kaneo config and installing the package. Workspace admins use the Kaneo interface to enable and configure installed plugins.
 
 ## Data
 
 Plugin data is stored in Kaneo's PostgreSQL database, so your regular [backups](/core/operations/backups) include it.
 
 - Turning a plugin off in a workspace keeps its data.
-- Removing a plugin from `kaneo.config.ts` keeps its data. Adding the same plugin back restores it.
+- Removing a plugin from the Kaneo config keeps its data. Adding the same plugin back restores it.
 - Deleting a workspace deletes the data plugins stored for it.
 
 To delete a removed plugin's data for good, [install the CLI](/cli/install), [sign in](/cli/sign-in) to your instance with an account that has the `instance:settings` permission (admins have it), and run `kaneo plugin purge` with the plugin's ID:
@@ -282,7 +282,7 @@ kaneo login --api-url https://kaneo.example.com
 kaneo plugin purge kaneo-plugin-task-progress
 ```
 
-It deletes the plugin's stored data and its settings in every workspace, then prints how many rows it deleted from each table. Kaneo refuses while the plugin is installed: remove it from `kaneo.config.ts` and restart Kaneo first. For a built-in plugin, turn it off with `official: { gantt: false }` instead. It also refuses while `DISABLE_PLUGINS=true`, because Kaneo cannot tell then which plugins are installed. Purging needs the `instance:settings` permission and a login, not an API key. Each purge is recorded in the [audit log](/core/operations/administration#review-the-audit-log) as **Purged plugin data**, with the number of rows deleted. The command asks you to confirm; without a terminal, pass `--yes`. Take a [backup](/core/operations/backups) first, because a purge cannot be undone.
+It deletes the plugin's stored data and its settings in every workspace, then prints how many rows it deleted from each table. Kaneo refuses while the plugin is installed: remove it from the Kaneo config and restart Kaneo first. For a built-in plugin, turn it off with `official: { gantt: false }` instead. It also refuses while `DISABLE_PLUGINS=true`, because Kaneo cannot tell then which plugins are installed. Purging needs the `instance:settings` permission and a login, not an API key. Each purge is recorded in the [audit log](/core/operations/administration#review-the-audit-log) as **Purged plugin data**, with the number of rows deleted. The command asks you to confirm; without a terminal, pass `--yes`. Take a [backup](/core/operations/backups) first, because a purge cannot be undone.
 
 ## Build a plugin
 
