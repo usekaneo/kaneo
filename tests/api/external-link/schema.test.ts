@@ -10,14 +10,22 @@ describe("manual resource URL validation", () => {
     "https://example.com",
     "HTTPS://example.com",
     "HtTp://example.com",
+    "ftp://example.com",
+    "obsidian://open?vault=Agents&file=%2B%2F2026-08-23%20Notes",
+    "vscode://file/home/user/project",
   ])("accepts %s", (url) => {
     expect(createExternalLinkBody.safeParse({ url }).success).toBe(true);
   });
 
   it.each([
-    "ftp://example.com",
     "javascript:alert(1)",
+    "JavaScript:alert(1)",
+    " javascript:alert(1)",
+    "java\tscript:alert(1)",
     "data:text/plain,test",
+    "vbscript:msgbox(1)",
+    "file:///etc/passwd",
+    "blob:https://example.com/uuid",
     "not a URL",
   ])("rejects %s", (url) => {
     expect(createExternalLinkBody.safeParse({ url }).success).toBe(false);
@@ -42,6 +50,15 @@ describe("pull request links", () => {
       merged: false,
       draft: true,
     });
+  });
+
+  it("requires an HTTP or HTTPS URL for pull request links", () => {
+    expect(
+      createExternalLinkBody.safeParse({
+        url: "obsidian://open",
+        resourceType: "pull_request",
+      }).success,
+    ).toBe(false);
   });
 
   it.each([

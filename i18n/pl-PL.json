@@ -4657,7 +4657,8 @@
 				"empty": "Brak linków",
 				"url": "URL",
 				"titleLabel": "Tytuł",
-				"optional": "Opcjonalnie"
+				"optional": "Opcjonalnie",
+				"openFailed": "Couldn’t open this link."
 			},
 			"time": {
 				"title": "Czas",

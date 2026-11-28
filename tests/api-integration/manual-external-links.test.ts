@@ -96,48 +96,57 @@ describe("manual external resource links", () => {
     });
   });
 
-  it("creates, lists and removes a manual link and publishes both updates", async () => {
-    const own = await context();
-    mockAuthenticatedSession(own.user);
-    const created = await request(`/${own.task.id}`, "POST", {
-      url: "https://example.com/design",
-      title: "Design",
-    });
-    expect(created.status).toBe(200);
-    const entry = (await created.json()) as { id: string };
-    const board = await getTasks(own.project.id);
-    const tasks = [
-      ...board.data.columns.flatMap((column) => column.tasks),
-      ...board.data.plannedTasks,
-      ...board.data.archivedTasks,
-    ];
-    const boardTask = tasks.find((task) => task.id === own.task.id);
-    expect(boardTask?.externalLinks).toMatchObject([
-      { id: entry.id, integrationId: null },
-    ]);
-    expect(boardTaskSchema.safeParse(boardTask).success).toBe(true);
-    const listed = await request(`/${own.task.id}`, "GET");
-    expect(await listed.json()).toMatchObject([
-      { id: entry.id, integrationId: null, integration: null, title: "Design" },
-    ]);
-    expect(
-      (await request(`/${own.task.id}/${entry.id}`, "DELETE")).status,
-    ).toBe(200);
-    expect(await db.query.externalLinkTable.findMany()).toHaveLength(0);
-    expect(m.publish).toHaveBeenCalledTimes(2);
-    expect(m.publish).toHaveBeenLastCalledWith(
-      "task.updated",
-      expect.objectContaining({
-        taskId: own.task.id,
-        projectId: own.project.id,
-        userId: own.user.id,
-      }),
-    );
-    expect(
-      (await request(`/${own.task.id}/${entry.id}`, "DELETE")).status,
-    ).toBe(404);
-    expect(m.publish).toHaveBeenCalledTimes(2);
-  });
+  it.each(["https://example.com/design", "obsidian://open?vault=Design"])(
+    "creates, lists and removes %s and publishes both updates",
+    async (url) => {
+      const own = await context();
+      mockAuthenticatedSession(own.user);
+      const created = await request(`/${own.task.id}`, "POST", {
+        url,
+        title: "Design",
+      });
+      expect(created.status).toBe(200);
+      const entry = (await created.json()) as { id: string };
+      const board = await getTasks(own.project.id);
+      const tasks = [
+        ...board.data.columns.flatMap((column) => column.tasks),
+        ...board.data.plannedTasks,
+        ...board.data.archivedTasks,
+      ];
+      const boardTask = tasks.find((task) => task.id === own.task.id);
+      expect(boardTask?.externalLinks).toMatchObject([
+        { id: entry.id, integrationId: null },
+      ]);
+      expect(boardTaskSchema.safeParse(boardTask).success).toBe(true);
+      const listed = await request(`/${own.task.id}`, "GET");
+      expect(await listed.json()).toMatchObject([
+        {
+          id: entry.id,
+          integrationId: null,
+          integration: null,
+          title: "Design",
+          url,
+        },
+      ]);
+      expect(
+        (await request(`/${own.task.id}/${entry.id}`, "DELETE")).status,
+      ).toBe(200);
+      expect(await db.query.externalLinkTable.findMany()).toHaveLength(0);
+      expect(m.publish).toHaveBeenCalledTimes(2);
+      expect(m.publish).toHaveBeenLastCalledWith(
+        "task.updated",
+        expect.objectContaining({
+          taskId: own.task.id,
+          projectId: own.project.id,
+          userId: own.user.id,
+        }),
+      );
+      expect(
+        (await request(`/${own.task.id}/${entry.id}`, "DELETE")).status,
+      ).toBe(404);
+      expect(m.publish).toHaveBeenCalledTimes(2);
+    },
+  );
 
   it("requires authentication for creation and removal", async () => {
     const own = await context();
@@ -227,7 +236,7 @@ describe("manual external resource links", () => {
   it.each([
     "javascript:alert(1)",
     "data:text/html,hello",
-    "ftp://example.com/file",
+    "file:///etc/passwd",
   ])("rejects unsafe URL %s", async (url) => {
     const own = await context();
     mockAuthenticatedSession(own.user);

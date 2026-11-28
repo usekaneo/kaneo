@@ -1,3 +1,4 @@
+import * as Linking from "expo-linking";
 import * as WebBrowser from "expo-web-browser";
 import { CornerLeftUp, Link2, Play, Plus, X } from "lucide-react-native";
 import { useQuery } from "@tanstack/react-query";
@@ -22,6 +23,7 @@ import {
   Sheet,
 } from "@/components/sheet";
 import { Txt } from "@/components/text";
+import { useToast } from "@/components/toast";
 import {
   Button,
   Checkbox,
@@ -60,6 +62,7 @@ import {
   relationLink,
   type LinkKind,
 } from "./relation-link";
+import { isWebUrl, normalizeLinkUrl } from "./link-url";
 import { entrySeconds, type TaskExtras } from "./use-task";
 
 export function SectionTitle({
@@ -620,6 +623,7 @@ export function Links({
 }) {
   const { t } = useTranslation(["mobile"]);
   const c = useColors();
+  const toast = useToast();
   const { run } = useAction();
   const [adding, setAdding] = useState(false);
 
@@ -636,7 +640,14 @@ export function Links({
           return (
             <Touch
               key={l.id}
-              onPress={() => WebBrowser.openBrowserAsync(l.url)}
+              onPress={() =>
+                (isWebUrl(l.url)
+                  ? WebBrowser.openBrowserAsync(l.url)
+                  : Linking.openURL(l.url)
+                ).catch(() =>
+                  toast.show(t("mobile:taskDetail.links.openFailed"), "error"),
+                )
+              }
               style={{
                 flexDirection: "row",
                 alignItems: "center",
@@ -747,14 +758,7 @@ function AddLinkForm({
           label={t("mobile:taskDetail.links.add")}
           grow
           disabled={!url.trim()}
-          onPress={() =>
-            onAdd(
-              /^https?:\/\//i.test(url.trim())
-                ? url.trim()
-                : `https://${url.trim()}`,
-              title.trim() || null,
-            )
-          }
+          onPress={() => onAdd(normalizeLinkUrl(url), title.trim() || null)}
         />
       </View>
     </View>

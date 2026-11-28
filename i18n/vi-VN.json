@@ -4426,7 +4426,8 @@
 				"empty": "Không có đường dẫn",
 				"url": "URL",
 				"titleLabel": "Tiêu đề",
-				"optional": "Không bắt buộc"
+				"optional": "Không bắt buộc",
+				"openFailed": "Couldn’t open this link."
 			},
 			"time": {
 				"title": "Thời gian",
