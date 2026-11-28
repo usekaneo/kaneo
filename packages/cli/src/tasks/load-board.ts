@@ -42,7 +42,11 @@ const PAGE_SIZE = 100;
 
 const pageTasks = (data: BoardPage["data"]): BoardTask[] => [
   ...data.columns.flatMap((column) => column.tasks),
-  ...(data.plannedTasks ?? []),
+  // Older projects can have a real planned column. The API already includes
+  // its tasks above when that column is on the current metadata page.
+  ...(data.columns.some((column) => column.slug === BACKLOG_STATUS)
+    ? []
+    : (data.plannedTasks ?? [])),
 ];
 
 const loadExtraLabels = Effect.fnUntraced(function* (
