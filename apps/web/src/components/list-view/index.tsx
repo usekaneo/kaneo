@@ -12,17 +12,23 @@ import {
   useSensors,
 } from "@dnd-kit/core";
 import { snapCenterToCursor } from "@dnd-kit/modifiers";
+import { useQueryClient } from "@tanstack/react-query";
 import { produce } from "immer";
 import { Flag, ArchiveIcon } from "lucide-react";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useReducedMotion } from "motion/react";
 import { useTranslation } from "react-i18next";
+import { moveBoardTask } from "@/components/kanban-board/move-task";
+import { selectReorderBoard } from "@/components/kanban-board/select-reorder-board";
+import { useBoardMoveQueue } from "@/components/kanban-board/use-board-move-queue";
 import { Button } from "@/components/ui/button";
 import { priorityColorsTaskCard } from "@/constants/priority-colors";
+import { useReorderTasks } from "@/hooks/mutations/task/use-reorder-tasks";
 import { useUpdateTask } from "@/hooks/mutations/task/use-update-task";
 import useGetProjectTaskRelations from "@/hooks/queries/task-relation/use-get-project-task-relations";
 import { useTaskViewShortcuts } from "@/components/project/task-view-keys/use-task-view-shortcuts";
 import { useCollapsedSections } from "@/hooks/use-collapsed-sections";
+import { markBoardCacheChanged } from "@/lib/board-cache-version";
 import { cn } from "@/lib/cn";
 import {
   readExpandedRows,
@@ -40,16 +46,22 @@ import ListColumnSection from "./list-column-section";
 
 type ListViewProps = {
   project: ProjectWithTasks;
+  /** Where nested subtasks are looked up; defaults to `project`. */
+  subtaskSource?: ProjectWithTasks | null;
+  completeProject?: ProjectWithTasks;
   disableDragDrop?: boolean;
   disableCollectionActions?: boolean;
 };
 
 function ListView({
   project,
+  subtaskSource,
+  completeProject = project,
   disableDragDrop = false,
   disableCollectionActions = false,
 }: ListViewProps) {
   const { t } = useTranslation();
+  const queryClient = useQueryClient();
   const reduceMotion = useReducedMotion();
   const { setProject } = useProjectStore();
   const setAvailableTasks = useBulkSelectionStore(
@@ -57,6 +69,7 @@ function ListView({
   );
   const clearFocus = useBulkSelectionStore((state) => state.clearFocus);
   const { mutate: updateTask } = useUpdateTask();
+  const { mutate: reorder, isPending: isReordering } = useReorderTasks();
   const [activeId, setActiveId] = useState<UniqueIdentifier | null>(null);
   const [overColumnId, setOverColumnId] = useState<string | null>(null);
   const { isExpanded, toggleSection, toggleAllSections } = useCollapsedSections(
@@ -90,13 +103,13 @@ function ListView({
       string,
       ProjectWithTasks["columns"][number]["tasks"][number]
     >();
-    for (const column of project?.columns ?? []) {
+    for (const column of (subtaskSource ?? project)?.columns ?? []) {
       for (const task of column.tasks) {
         index.set(task.id, task);
       }
     }
     return index;
-  }, [project?.columns]);
+  }, [subtaskSource, project]);
 
   // Per browser and per project, and only a convenience: a row that cannot be
   // restored simply starts collapsed.
@@ -212,76 +225,43 @@ function ListView({
     }
   };
 
-  const moveTask = (activeTaskId: string, overId: string) => {
-    if (disableDragDrop || !project?.columns) return;
-
-    const updatedProject = produce(project, (draft) => {
-      const sourceColumn = draft?.columns?.find((col) =>
-        col.tasks.some((task) => task.id === activeTaskId),
+  const { queueMove } = useBoardMoveQueue({
+    projectId,
+    waiting: isReordering,
+    disabled: disableDragDrop,
+    onMove: ({ activeId, overId }, onSettled) => {
+      const queryKey = ["tasks", projectId];
+      const previousBoard = selectReorderBoard(
+        projectId,
+        activeId,
+        queryClient.getQueryData<ProjectWithTasks>(queryKey),
+        completeProject,
       );
-      const destinationColumn = draft?.columns?.find(
-        (col) =>
-          col.id === overId || col.tasks.some((task) => task.id === overId),
-      );
-
-      if (!sourceColumn || !destinationColumn) return;
-
-      const sourceTaskIndex = sourceColumn.tasks.findIndex(
-        (task) => task.id === activeTaskId,
-      );
-      const task = sourceColumn.tasks[sourceTaskIndex];
-
-      sourceColumn.tasks = sourceColumn.tasks.filter(
-        (t) => t.id !== activeTaskId,
-      );
-
-      if (sourceColumn.id === destinationColumn.id) {
-        let destinationIndex = destinationColumn.tasks.findIndex(
-          (t) => t.id === overId,
-        );
-        if (sourceTaskIndex <= destinationIndex) {
-          destinationIndex += 1;
-        }
-        destinationColumn.tasks.splice(destinationIndex, 0, task);
-
-        destinationColumn.tasks.forEach((t, index) => {
-          updateTask({
-            ...t,
-            status: destinationColumn.slug,
-            position: index,
-          });
-        });
-      } else {
-        // A task's status is a column slug. The column id is only the
-        // droppable identity here, and the two are interchangeable only
-        // because the tasks endpoint happens to return `id: column.slug`.
-        task.status = destinationColumn.slug;
-        const destinationIndex =
-          overId === destinationColumn.id
-            ? destinationColumn.tasks.length
-            : destinationColumn.tasks.findIndex((t) => t.id === overId) + 1;
-
-        destinationColumn.tasks.splice(destinationIndex, 0, task);
-
-        destinationColumn.tasks.forEach((t, index) => {
-          updateTask({
-            ...t,
-            status: destinationColumn.slug,
-            position: index,
-          });
-        });
-
-        sourceColumn.tasks.forEach((t, index) => {
-          updateTask({
-            ...t,
-            position: index,
-          });
-        });
+      const moved =
+        previousBoard && moveBoardTask(previousBoard, activeId, overId);
+      if (!previousBoard || !moved || !moved.tasks.length) {
+        onSettled();
+        return;
       }
-    });
+      for (const task of moved.tasks)
+        markBoardCacheChanged(queryClient, projectId, task.id);
+      setProject(moved.project);
+      queryClient.setQueryData(queryKey, moved.project);
+      reorder(
+        {
+          projectId,
+          tasks: moved.tasks,
+          expectedTasks: moved.expectedTasks,
+          previousBoard,
+        },
+        { onSettled: (_result, error) => onSettled(Boolean(error)) },
+      );
+    },
+    onCancel: () => toast.error(t("tasks:board.reorderFailed")),
+  });
 
-    setProject(updatedProject);
-  };
+  const moveTask = (activeId: string, overId: string) =>
+    queueMove({ activeId, overId });
 
   const handleDragEnd = ({ active, over }: DragEndEvent) => {
     setActiveId(null);
@@ -312,7 +292,7 @@ function ListView({
     // Repeated children follow their parent for navigation, but reordering
     // must use their actual status and position rather than their nested row.
     getMoveGroups: () =>
-      project.columns.map((column) => ({
+      (subtaskSource ?? project).columns.map((column) => ({
         id: column.id,
         taskIds: column.tasks.map((task) => task.id),
       })),
@@ -347,20 +327,23 @@ function ListView({
   const handleConfirmArchive = () => {
     if (disableCollectionActions || !archiveColumn?.isFinal) return;
 
-    const updatedProject = produce(project, (draft) => {
+    const archivedTaskIds = new Set(archiveColumn.tasks.map((task) => task.id));
+    const updatedProject = produce(completeProject, (draft) => {
       const archivedColumn = draft?.columns?.find(
         (col) => col.id === columnToArchive,
       );
       if (!archivedColumn) return;
 
-      for (const task of archivedColumn.tasks) {
+      for (const task of archiveColumn.tasks) {
         updateTask({
           ...task,
           status: "archived",
         });
       }
 
-      archivedColumn.tasks = [];
+      archivedColumn.tasks = archivedColumn.tasks.filter(
+        (task) => !archivedTaskIds.has(task.id),
+      );
     });
 
     setProject(updatedProject);

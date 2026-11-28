@@ -140,7 +140,7 @@ export function useTaskFiltersWithLabelsSupport(
   );
   const { getValuesForTask, hasData } = customFieldValues;
 
-  const createMatcher = useCallback(() => {
+  const createFilterMatcher = useCallback(() => {
     const context = {
       query: textQuery,
       projectSlug: project?.slug,
@@ -154,9 +154,7 @@ export function useTaskFiltersWithLabelsSupport(
     const readyFilters = !hasData
       ? { ...effectiveFilters, customFields: null }
       : effectiveFilters;
-    return (task: Task) =>
-      (includeSubtasks || !task.isSubtask) &&
-      taskMatchesFilters(task, readyFilters, context);
+    return (task: Task) => taskMatchesFilters(task, readyFilters, context);
   }, [
     effectiveFilters,
     project?.slug,
@@ -166,8 +164,13 @@ export function useTaskFiltersWithLabelsSupport(
     hasData,
     descriptionMatches,
     matchingLabelIds,
-    includeSubtasks,
   ]);
+
+  const createMatcher = useCallback(() => {
+    const matchesFilters = createFilterMatcher();
+    return (task: Task) =>
+      (includeSubtasks || !task.isSubtask) && matchesFilters(task);
+  }, [createFilterMatcher, includeSubtasks]);
 
   const filterTasks = useCallback(
     (tasks: Task[]): Task[] => tasks.filter(createMatcher()),
@@ -177,6 +180,16 @@ export function useTaskFiltersWithLabelsSupport(
   const filteredProject = useMemo(
     () => (project ? filterProjectTasks(project, createMatcher()) : null),
     [project, createMatcher],
+  );
+
+  // Hiding subtasks only removes their own rows. The list still nests them
+  // under their parents, filtered like every other task.
+  const subtaskSource = useMemo(
+    () =>
+      includeSubtasks || !project
+        ? filteredProject
+        : filterProjectTasks(project, createFilterMatcher()),
+    [includeSubtasks, project, filteredProject, createFilterMatcher],
   );
 
   const activeFilterCount = countActiveFilters(effectiveFilters);
@@ -288,6 +301,7 @@ export function useTaskFiltersWithLabelsSupport(
     updateCustomFieldFilter,
     filterTasks,
     filteredProject,
+    subtaskSource,
     activeFilterCount,
     hasActiveFilters,
     clearFilters,

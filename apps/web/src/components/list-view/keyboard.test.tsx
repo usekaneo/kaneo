@@ -5,6 +5,7 @@ import {
   fireEvent,
   render,
   screen,
+  waitFor,
 } from "@testing-library/react";
 import { afterEach, expect, it, vi } from "vite-plus/test";
 import { writeExpandedRows } from "@/lib/expanded-rows-storage";
@@ -12,9 +13,10 @@ import { shortcutRegistry } from "@/lib/shortcuts/registry";
 import { ShortcutTestWrapper } from "@/lib/shortcuts/shortcut-test-wrapper";
 import useBulkSelectionStore from "@/store/bulk-selection";
 import type { ProjectWithTasks } from "@/types/project";
+import useProjectStore from "@/store/project";
 import ListView from ".";
 
-const mocks = vi.hoisted(() => ({ mutate: vi.fn(), setProject: vi.fn() }));
+const mocks = vi.hoisted(() => ({ reorder: vi.fn() }));
 vi.mock("@tanstack/react-router", () => ({
   useNavigate: () => vi.fn(),
   useRouter: () => ({ preloadRoute: () => Promise.resolve() }),
@@ -22,11 +24,11 @@ vi.mock("@tanstack/react-router", () => ({
 vi.mock("react-i18next", () => ({
   useTranslation: () => ({ t: (key: string) => key }),
 }));
-vi.mock("@/hooks/mutations/task/use-update-task", () => ({
-  useUpdateTask: () => ({ mutate: mocks.mutate }),
+vi.mock("@/hooks/queries/task/prefetch-task", () => ({
+  prefetchTask: vi.fn(),
 }));
-vi.mock("@/store/project", () => ({
-  default: () => ({ setProject: mocks.setProject }),
+vi.mock("@/fetchers/task/reorder-tasks", () => ({
+  default: mocks.reorder,
 }));
 vi.mock("@/hooks/queries/task-relation/use-get-project-task-relations", () => ({
   default: () => ({
@@ -42,10 +44,18 @@ vi.mock("@/hooks/queries/task-relation/use-get-project-task-relations", () => ({
   }),
 }));
 vi.mock("./task-row", () => ({
-  default: ({ task, rowId }: { task: { id: string }; rowId: string }) => (
+  default: ({
+    task,
+    rowId,
+  }: {
+    task: { id: string; status: string; position: number };
+    rowId: string;
+  }) => (
     <button
       type="button"
       data-task-id={task.id}
+      data-task-status={task.status}
+      data-task-position={task.position}
       data-task-row-id={rowId}
       onFocus={() =>
         useBulkSelectionStore.getState().setFocusedTask(task.id, rowId)
@@ -59,9 +69,9 @@ vi.mock("../shared/modals/archive-tasks-modal", () => ({
   ArchiveTasksModal: () => null,
 }));
 
-function mount() {
+function mount({ hideSubtasks = false }: { hideSubtasks?: boolean } = {}) {
   writeExpandedRows("keyboard-project", { parent: true });
-  const project = {
+  const originalProject = {
     id: "keyboard-project",
     workspaceId: "workspace",
     columns: [
@@ -79,19 +89,50 @@ function mount() {
         slug: "doing",
         name: "Doing",
         tasks: [
-          { id: "child", status: "doing", position: 0 },
+          {
+            id: "child",
+            status: "doing",
+            position: 0,
+            title: "Hidden child",
+            description: "Keep the hidden description",
+            priority: "high",
+            userId: "assigned-user",
+          },
           { id: "last", status: "doing", position: 1 },
         ],
       },
     ],
   } as ProjectWithTasks;
+  function ListFixture() {
+    const project =
+      useProjectStore((state) => state.project) ?? originalProject;
+    const shown = hideSubtasks
+      ? {
+          ...project,
+          columns: project.columns.map((column) => ({
+            ...column,
+            tasks: column.tasks.filter((task) => task.id !== "child"),
+          })),
+        }
+      : project;
+    return (
+      <ListView
+        project={shown}
+        subtaskSource={project}
+        completeProject={project}
+      />
+    );
+  }
+
+  const queryClient = new QueryClient();
   render(
-    <QueryClientProvider client={new QueryClient()}>
+    <QueryClientProvider client={queryClient}>
       <ShortcutTestWrapper>
-        <ListView project={project} />
+        <ListFixture />
       </ShortcutTestWrapper>
     </QueryClientProvider>,
   );
+  return { originalProject, queryClient };
 }
 const press = (key: string, code: string, altKey = false) =>
   fireEvent.keyDown(document.body, { key, code, altKey });
@@ -102,6 +143,7 @@ afterEach(() => {
   localStorage.clear();
   useBulkSelectionStore.getState().clearFocus();
   useBulkSelectionStore.getState().clearSelection();
+  useProjectStore.getState().setProject(undefined);
   vi.clearAllMocks();
 });
 
@@ -160,15 +202,67 @@ it("reorders a repeated child within its own status group and retains its occurr
   )!;
   act(() => row.focus());
   press("ArrowDown", "ArrowDown", true);
-  expect(
-    mocks.mutate.mock.calls.map(([task]) => ({
-      id: task.id,
-      status: task.status,
-    })),
-  ).toEqual([
-    { id: "last", status: "doing" },
-    { id: "child", status: "doing" },
-  ]);
+  await waitFor(() =>
+    expect(mocks.reorder).toHaveBeenCalledWith({
+      projectId: "keyboard-project",
+      tasks: [{ id: "child", position: 2 }],
+      expectedTasks: [
+        { id: "child", position: 0, status: "doing" },
+        { id: "last", position: 1, status: "doing" },
+      ],
+    }),
+  );
   await act(() => new Promise((resolve) => requestAnimationFrame(resolve)));
   expect(row).toHaveFocus();
+});
+
+it("nests a hidden subtask under its parent without giving it its own row", () => {
+  mount({ hideSubtasks: true });
+  const rows = [...document.querySelectorAll("[data-task-row-id]")].map((row) =>
+    row.getAttribute("data-task-row-id"),
+  );
+  expect(rows).toEqual(["parent", "parent/child", "sibling", "last"]);
+});
+
+it("moves a nested-only subtask optimistically and sends only reorder fields", async () => {
+  const { originalProject, queryClient } = mount({ hideSubtasks: true });
+  press("j", "KeyJ");
+  press("j", "KeyJ");
+  press("ArrowDown", "ArrowDown", true);
+
+  expect(
+    document.querySelector('[data-task-row-id="parent/child"]'),
+  ).toHaveAttribute("data-task-position", "2");
+  expect(document.querySelector('[data-task-row-id="child"]')).toBeNull();
+  const optimistic = useProjectStore.getState().project;
+  expect(queryClient.getQueryData(["tasks", originalProject.id])).toEqual(
+    optimistic,
+  );
+  expect(optimistic?.columns[1].tasks).toEqual([
+    originalProject.columns[1].tasks[1],
+    { ...originalProject.columns[1].tasks[0], position: 2 },
+  ]);
+  await waitFor(() =>
+    expect(mocks.reorder).toHaveBeenCalledWith({
+      projectId: "keyboard-project",
+      tasks: [{ id: "child", position: 2 }],
+      expectedTasks: [
+        { id: "child", position: 0, status: "doing" },
+        { id: "last", position: 1, status: "doing" },
+      ],
+    }),
+  );
+});
+
+it("keeps hidden subtasks in the optimistic project after moving a visible row", async () => {
+  const { originalProject } = mount({ hideSubtasks: true });
+  press("j", "KeyJ");
+  press("ArrowDown", "ArrowDown", true);
+  expect(useProjectStore.getState().project?.columns[1]).toBe(
+    originalProject.columns[1],
+  );
+  expect(
+    document.querySelector('[data-task-row-id="parent/child"]'),
+  ).toBeVisible();
+  await waitFor(() => expect(mocks.reorder).toHaveBeenCalledTimes(1));
 });

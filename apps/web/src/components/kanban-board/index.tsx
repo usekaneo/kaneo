@@ -1,4 +1,3 @@
-import { invalidateMyWork } from "@/lib/invalidate-my-work";
 import { markBoardCacheChanged } from "@/lib/board-cache-version";
 import { selectReorderBoard } from "./select-reorder-board";
 import {
@@ -16,17 +15,15 @@ import {
   useSensors,
 } from "@dnd-kit/core";
 import { useIsFetching, useQueryClient } from "@tanstack/react-query";
-import { useMutation } from "@tanstack/react-query";
-import reorderTasks, { type TaskReorder } from "@/fetchers/task/reorder-tasks";
 import { toast } from "@/lib/toast";
 import { useTranslation } from "react-i18next";
-import { rollbackBoardReorder } from "./apply-reorder";
 import { boardCollisionDetection } from "./board-collision-detection";
 import { findTaskColumn } from "./drag-preview/find-task-column";
 import { moveBoardTask } from "./move-task";
 import { useDragPreview } from "./drag-preview/use-drag-preview";
 import { useReducedMotion } from "motion/react";
 import { useEffect, useMemo, useState } from "react";
+import { useReorderTasks } from "@/hooks/mutations/task/use-reorder-tasks";
 import { useTaskViewShortcuts } from "@/components/project/task-view-keys/use-task-view-shortcuts";
 import { useProjectBackground } from "@/hooks/use-project-background";
 import { cn } from "@/lib/cn";
@@ -71,44 +68,7 @@ function KanbanBoard({
   const [activeId, setActiveId] = useState<UniqueIdentifier | null>(null);
   const [sortHintColumnId, setSortHintColumnId] = useState<string | null>(null);
   const { t } = useTranslation();
-  const { mutate: reorder, isPending: isReordering } = useMutation({
-    mutationFn: ({
-      previousBoard: _previousBoard,
-      ...request
-    }: TaskReorder & { previousBoard: ProjectWithTasks }) =>
-      reorderTasks(request),
-    onMutate: (variables) => ({ previousBoard: variables.previousBoard }),
-    onSuccess: (_result, variables) => {
-      if (variables.tasks.some((task) => task.status !== undefined)) {
-        invalidateMyWork(queryClient);
-        void queryClient.invalidateQueries({ queryKey: ["projects"] });
-      }
-      void queryClient.invalidateQueries({
-        queryKey: ["tasks", variables.projectId],
-      });
-      for (const task of variables.tasks)
-        void queryClient.invalidateQueries({ queryKey: ["task", task.id] });
-    },
-    onError: (_error, variables, context) => {
-      const previous = context?.previousBoard;
-      if (previous) {
-        const current = queryClient.getQueryData<ProjectWithTasks>([
-          "tasks",
-          variables.projectId,
-        ]);
-        const restored = current
-          ? rollbackBoardReorder(current, previous, variables.tasks)
-          : null;
-        if (restored) {
-          queryClient.setQueryData(["tasks", variables.projectId], restored);
-          if (useProjectStore.getState().project?.id === variables.projectId)
-            setProject(restored);
-        }
-      }
-      toast.error(t("tasks:board.reorderFailed"));
-      void queryClient.invalidateQueries({ queryKey: ["tasks", project.id] });
-    },
-  });
+  const { mutate: reorder, isPending: isReordering } = useReorderTasks();
   const background = useProjectBackground({
     backgroundVersion: project.backgroundVersion,
     projectId: project.id,

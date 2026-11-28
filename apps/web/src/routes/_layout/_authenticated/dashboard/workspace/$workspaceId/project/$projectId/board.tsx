@@ -236,9 +236,13 @@ function RouteComponent() {
               <ListView
                 key={projectId}
                 project={sortedProject}
+                subtaskSource={filters.subtaskSource}
+                completeProject={project}
                 disableCollectionActions={boardFetching || boardError}
                 disableDragDrop={
-                  boardFetching || boardError || sort.field !== "position"
+                  (boardFetching && !boardLoaded) ||
+                  boardError ||
+                  sort.field !== "position"
                 }
               />
             )

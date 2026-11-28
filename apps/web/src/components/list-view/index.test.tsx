@@ -6,6 +6,7 @@ import {
   fireEvent,
   render,
   screen,
+  waitFor,
   within,
 } from "@testing-library/react";
 import { afterEach, expect, it, vi } from "vite-plus/test";
@@ -33,6 +34,7 @@ const m = vi.hoisted(() => ({
     taskCount?: number;
   },
   mutate: vi.fn(),
+  reorder: vi.fn(),
   setProject: vi.fn(),
   relations: { data: [] as unknown[], isLoading: false, isError: false },
   refetchRelations: vi.fn(),
@@ -51,11 +53,12 @@ vi.mock("@tanstack/react-router", () => ({
 vi.mock("@/hooks/mutations/task/use-update-task", () => ({
   useUpdateTask: () => ({ mutate: m.mutate }),
 }));
+vi.mock("@/fetchers/task/reorder-tasks", () => ({
+  default: m.reorder,
+}));
 vi.mock("@/store/project", () => ({
   default: () => ({ setProject: m.setProject }),
 }));
-// This view groups subtasks under their parents, so it reads the project's
-// relations. The suite mounts ListView without a QueryClientProvider.
 vi.mock("@/hooks/queries/task-relation/use-get-project-task-relations", () => ({
   default: () => ({ ...m.relations, refetch: m.refetchRelations }),
 }));
@@ -70,6 +73,7 @@ vi.mock("../shared/modals/archive-tasks-modal", () => ({
 }));
 afterEach(() => {
   cleanup();
+  queryClient.clear();
   vi.clearAllMocks();
   m.relations = { data: [], isLoading: false, isError: false };
   window.localStorage.clear();
@@ -106,6 +110,68 @@ it("disables keyboard sensors and rejects drag completion on a partial board", (
   );
   expect(m.mutate).not.toHaveBeenCalled();
   expect(m.setProject).not.toHaveBeenCalled();
+});
+
+it("sends only the moved card's status and position on a filtered cross-column drop", async () => {
+  const moving = { id: "moving", status: "todo", position: 0 };
+  const hidden = {
+    id: "hidden",
+    status: "todo",
+    position: 1,
+    title: "Hidden child",
+    description: "Keep this text",
+    priority: "urgent",
+  };
+  const target = { id: "target", status: "doing", position: 0 };
+  const columns = [
+    { id: "todo", slug: "todo", name: "To do", tasks: [moving, hidden] },
+    { id: "doing", slug: "doing", name: "Doing", tasks: [target] },
+  ];
+  const completeProject = {
+    id: "p",
+    workspaceId: "w",
+    columns,
+    plannedTasks: [],
+    archivedTasks: [],
+  } as unknown as ProjectWithTasks;
+  const shown = {
+    ...completeProject,
+    columns: [
+      {
+        ...completeProject.columns[0],
+        tasks: [completeProject.columns[0].tasks[0]],
+      },
+      completeProject.columns[1],
+    ],
+  };
+  render(<ListView project={shown} completeProject={completeProject} />, {
+    wrapper: Providers,
+  });
+  act(() =>
+    m.props.onDragEnd?.({
+      active: { id: "moving" },
+      over: { id: "target" },
+    } as DragEndEvent),
+  );
+  const optimistic = m.setProject.mock.lastCall?.[0];
+  expect(
+    optimistic.columns.map((column: { tasks: unknown[] }) => column.tasks),
+  ).toEqual([[hidden], [target, { ...moving, position: 1, status: "doing" }]]);
+  expect(queryClient.getQueryData(["tasks", "p"])).toBe(optimistic);
+  await waitFor(() =>
+    expect(m.reorder).toHaveBeenCalledExactlyOnceWith({
+      projectId: "p",
+      tasks: [{ id: "moving", position: 1, status: "doing" }],
+      expectedTasks: [moving, hidden, target].map(
+        ({ id, status, position }) => ({
+          id,
+          status,
+          position,
+        }),
+      ),
+    }),
+  );
+  expect(m.mutate).not.toHaveBeenCalled();
 });
 
 it("blocks archive-all during pagination or errors, including an already-open confirmation", () => {

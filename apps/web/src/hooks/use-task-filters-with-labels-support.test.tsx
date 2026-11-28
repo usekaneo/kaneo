@@ -375,3 +375,37 @@ it("restores, updates, and clears date conditions with other saved filters", asy
   unmount();
   window.localStorage.removeItem(key);
 });
+
+it("keeps hidden subtasks in the nesting source, filtered like other tasks", () => {
+  window.localStorage.clear();
+  const parent = { id: "parent", title: "Parent" } as Task;
+  const child = { id: "child", title: "Child", isSubtask: true } as Task;
+  const other = { id: "other", title: "Other", isSubtask: true } as Task;
+  const project = {
+    id: "nesting-project",
+    includeSubtasks: false,
+    columns: [{ id: "todo", tasks: [parent, child, other] }],
+    plannedTasks: [],
+    archivedTasks: [],
+  } as unknown as ProjectWithTasks;
+  const { result, rerender, unmount } = renderHook(
+    ({ query }: { query?: string }) =>
+      useTaskFiltersWithLabelsSupport(project, project.id, query),
+    { initialProps: {}, wrapper: createWrapper() },
+  );
+  expect(result.current.filteredProject?.columns[0].tasks).toEqual([parent]);
+  expect(result.current.subtaskSource?.columns[0].tasks).toEqual([
+    parent,
+    child,
+    other,
+  ]);
+
+  rerender({ query: "Child" });
+  expect(result.current.subtaskSource?.columns[0].tasks).toEqual([child]);
+
+  rerender({});
+  act(() => result.current.setIncludeSubtasks(true));
+  expect(result.current.subtaskSource).toBe(result.current.filteredProject);
+  unmount();
+  window.localStorage.clear();
+});
