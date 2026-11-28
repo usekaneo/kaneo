@@ -266,6 +266,7 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
+          fetch-depth: 0
           persist-credentials: false
 
       - name: Setup pnpm
@@ -278,6 +279,11 @@ jobs:
         with:
           node-version: 24.22.2
           package-manager-cache: false
+
+      - name: Verify npm publication source
+        env:
+          VERSION: ${{ needs.plan.outputs.version }}
+        run: node scripts/security/verify-release-source.mjs planned "$VERSION"
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
@@ -299,10 +305,15 @@ jobs:
           set -euo pipefail
           for package in plugin-sdk config; do
             name="@kaneo/$package"
-            if npm view "$name@$VERSION" version > /dev/null 2>&1; then
-              echo "$name@$VERSION is already published; skipping publish."
+            if published_source="$(npm view "$name@$VERSION" kaneoReleaseCommit --json 2>/dev/null)"; then
+              if [[ "$published_source" != "\"$GITHUB_SHA\"" ]]; then
+                echo "::error::$name@$VERSION was published for a different or unknown source. Plan a new version."
+                exit 1
+              fi
+              echo "$name@$VERSION is already published for $GITHUB_SHA."
               continue
             fi
+            npm pkg set "kaneoReleaseCommit=$GITHUB_SHA" --prefix "packages/$package"
             pnpm --dir "packages/$package" pack --pack-destination "$RUNNER_TEMP/npm"
             npm publish "$RUNNER_TEMP/npm/kaneo-$package-$VERSION.tgz" --access public --provenance --ignore-scripts
           done

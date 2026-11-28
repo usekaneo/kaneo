@@ -1,4 +1,4 @@
-import { eq } from "drizzle-orm";
+import { eq, sql } from "drizzle-orm";
 import {
   afterAll,
   beforeAll,
@@ -517,6 +517,8 @@ describe("plugin host API", () => {
       "text/javascript; charset=utf-8",
     );
 
+    expect(await asset.text()).toBe("export default {};\n");
+
     const missing = await app.request(
       `/api/plugins/${PLUGIN_ID}/assets/server.js`,
     );
@@ -796,6 +798,49 @@ describe("project.moved", () => {
         content,
       },
     ]);
+  });
+
+  it("rejects a comment authorized in the old workspace while a move commits", async () => {
+    const { project, task, user, workspace, target } =
+      await projectBetweenWorkspaces();
+    const locked = Promise.withResolvers<void>();
+    const release = Promise.withResolvers<void>();
+    const move = db.transaction(async (tx) => {
+      await tx
+        .update(schema.projectTable)
+        .set({ workspaceId: target.id })
+        .where(eq(schema.projectTable.id, project.id));
+      locked.resolve();
+      await release.promise;
+    });
+    await locked.promise;
+
+    const content = "Comment authorized before move";
+    const attempt = createComment(task.id, user.id, content, {
+      workspaceId: workspace.id,
+    }).catch((error: unknown) => error);
+    try {
+      await vi.waitFor(async () => {
+        const pending = await db.execute(sql`
+          SELECT 1 FROM pg_stat_activity
+          WHERE datname = current_database() AND pid <> pg_backend_pid()
+            AND wait_event_type = 'Lock' AND query LIKE '%for share of%'
+        `);
+        expect(pending.rows).toHaveLength(1);
+      });
+    } finally {
+      release.resolve();
+      await move;
+    }
+
+    expect(await attempt).toMatchObject({ status: 404 });
+    expect(
+      await db
+        .select()
+        .from(schema.activityTable)
+        .where(eq(schema.activityTable.content, content)),
+    ).toEqual([]);
+    expect(receivedEvents()).toEqual([]);
   });
 
   it("bridges a real project move made through the API", async () => {
