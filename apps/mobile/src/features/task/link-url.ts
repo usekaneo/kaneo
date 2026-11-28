@@ -18,9 +18,7 @@ function hasHostPort(url: string) {
 // already name one (https://, obsidian://, mailto:, ...) are kept as typed.
 export function normalizeLinkUrl(input: string) {
   const url = input.trim();
-  return schemePattern.test(url) && !hasHostPort(url)
-    ? url
-    : `https://${url}`;
+  return schemePattern.test(url) && !hasHostPort(url) ? url : `https://${url}`;
 }
 
 export function isWebUrl(url: string) {
