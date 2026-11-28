@@ -9243,12 +9243,20 @@
 								},
 								"threadIdInvalid": {
 									"type": "string"
+								},
+								"serverUrlInvalid": {
+									"type": "string"
+								},
+								"botTokenRequiredForServer": {
+									"type": "string"
 								}
 							},
 							"required": [
 								"botTokenInvalid",
 								"chatIdRequired",
-								"threadIdInvalid"
+								"threadIdInvalid",
+								"serverUrlInvalid",
+								"botTokenRequiredForServer"
 							]
 						},
 						"toast": {
@@ -9299,6 +9307,15 @@
 						"botTokenHintConfigured": {
 							"type": "string"
 						},
+						"serverUrlLabel": {
+							"type": "string"
+						},
+						"serverUrlPlaceholder": {
+							"type": "string"
+						},
+						"serverUrlHint": {
+							"type": "string"
+						},
 						"chatIdLabel": {
 							"type": "string"
 						},
@@ -9334,6 +9351,9 @@
 						"botTokenPlaceholder",
 						"botTokenHint",
 						"botTokenHintConfigured",
+						"serverUrlLabel",
+						"serverUrlPlaceholder",
+						"serverUrlHint",
 						"chatIdLabel",
 						"chatIdPlaceholder",
 						"threadIdLabel",
@@ -18829,6 +18849,9 @@
 								},
 								"optional": {
 									"type": "string"
+								},
+								"openFailed": {
+									"type": "string"
 								}
 							},
 							"required": [
@@ -18839,7 +18862,8 @@
 								"empty",
 								"url",
 								"titleLabel",
-								"optional"
+								"optional",
+								"openFailed"
 							]
 						},
 						"time": {
