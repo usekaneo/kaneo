@@ -49,20 +49,24 @@ const pageTasks = (data: BoardPage["data"]): BoardTask[] => [
     : (data.plannedTasks ?? [])),
 ];
 
-const loadExtraLabels = Effect.fnUntraced(function* (
+const loadRelatedMetadata = Effect.fnUntraced(function* (
   projectId: string,
   query: Query,
   relatedTotalPages: number,
 ) {
   const labels = new Map<string, BoardLabel[]>();
+  const columns: BoardColumnSummary[] = [];
   for (let relatedPage = 2; relatedPage <= relatedTotalPages; relatedPage++) {
     const response = yield* getBoardPage(projectId, { ...query, relatedPage });
+    for (const { slug, name, isFinal } of response.data.columns) {
+      columns.push({ slug, name, isFinal });
+    }
     for (const task of pageTasks(response.data)) {
       if (!task.labels || task.labels.length === 0) continue;
       labels.set(task.id, [...(labels.get(task.id) ?? []), ...task.labels]);
     }
   }
-  return labels;
+  return { labels, columns };
 });
 
 export const loadBoard = Effect.fn("tasks.loadBoard")(function* (
@@ -70,7 +74,8 @@ export const loadBoard = Effect.fn("tasks.loadBoard")(function* (
   filters: TaskFilters,
   limit: number,
 ) {
-  let columns = new Map<string, BoardColumnSummary>();
+  const columns = new Map<string, BoardColumnSummary>();
+  let hasPlannedTasks = false;
   const tasks: BoardTask[] = [];
   let page = 1;
   let totalPages = 1;
@@ -96,25 +101,19 @@ export const loadBoard = Effect.fn("tasks.loadBoard")(function* (
       name: response.data.name,
     };
     const relatedTotalPages = response.pagination.relatedTotalPages ?? 1;
-    const extraLabels =
+    const related =
       relatedTotalPages > 1
-        ? yield* loadExtraLabels(projectId, query, relatedTotalPages)
-        : new Map<string, BoardLabel[]>();
-    for (const column of response.data.columns) {
-      if (!columns.has(column.slug)) {
-        columns.set(column.slug, {
-          slug: column.slug,
-          name: column.name,
-          isFinal: column.isFinal,
-        });
-      }
+        ? yield* loadRelatedMetadata(projectId, query, relatedTotalPages)
+        : undefined;
+    for (const { slug, name, isFinal } of response.data.columns) {
+      if (!columns.has(slug)) columns.set(slug, { slug, name, isFinal });
     }
-    if (response.data.plannedTasks?.length && !columns.has(BACKLOG_STATUS)) {
-      const { slug, name, isFinal } = backlogColumn(projectId);
-      columns = new Map([[slug, { slug, name, isFinal }], ...columns]);
+    for (const column of related?.columns ?? []) {
+      if (!columns.has(column.slug)) columns.set(column.slug, column);
     }
+    hasPlannedTasks ||= Boolean(response.data.plannedTasks?.length);
     for (const task of pageTasks(response.data)) {
-      const extra = extraLabels.get(task.id);
+      const extra = related?.labels.get(task.id);
       tasks.push(
         extra ? { ...task, labels: [...(task.labels ?? []), ...extra] } : task,
       );
@@ -124,12 +123,18 @@ export const loadBoard = Effect.fn("tasks.loadBoard")(function* (
     page += 1;
   }
 
+  const columnSummaries = [...columns.values()];
+  if (hasPlannedTasks && !columns.has(BACKLOG_STATUS)) {
+    const { slug, name, isFinal } = backlogColumn(projectId);
+    columnSummaries.unshift({ slug, name, isFinal });
+  }
+
   return {
     projectId,
     workspaceId: meta.workspaceId,
     projectSlug: meta.slug,
     projectName: meta.name,
-    columns: [...columns.values()],
+    columns: columnSummaries,
     tasks: tasks.slice(0, limit),
     total,
   } satisfies LoadedBoard;

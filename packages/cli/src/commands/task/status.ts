@@ -9,7 +9,7 @@ import { withSpinner } from "../../output/spinner.js";
 import { pick } from "../../prompts/pick.js";
 import { renderCell, text } from "../../render/cell.js";
 import { statusDot } from "../../render/task-format.js";
-import { backlogColumn, matchStatus } from "../../tasks/backlog.js";
+import { matchStatus, statusTargets } from "../../tasks/backlog.js";
 import {
   renderStatusChange,
   type StatusRef,
@@ -39,7 +39,7 @@ export const runTaskStatus = Effect.fn("command.task.status")(
     const columns = [...resolved.columns].sort(
       (a, b) => a.position - b.position,
     );
-    const targets = [...columns, backlogColumn(resolved.project.id)];
+    const targets = statusTargets(columns, resolved.project.id);
     const slugs = targets.map((column) => column.slug).join(", ");
 
     const target: Column = yield* Option.match(options.status, {

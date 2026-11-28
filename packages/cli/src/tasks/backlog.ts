@@ -15,13 +15,22 @@ export function backlogColumn(projectId: string): Column {
   };
 }
 
+export function statusTargets(
+  columns: ReadonlyArray<Column>,
+  projectId: string,
+): ReadonlyArray<Column> {
+  return columns.some((column) => column.slug === BACKLOG_STATUS)
+    ? columns
+    : [...columns, backlogColumn(projectId)];
+}
+
 // the backlog is a task status, not a column, so real columns win any tie.
 export function matchStatus(
   columns: ReadonlyArray<Column>,
   reference: string,
 ): Column | undefined {
-  return (
-    matchColumn(columns, reference) ??
-    matchColumn([backlogColumn(columns[0]?.projectId ?? "")], reference)
-  );
+  const backlog = backlogColumn(columns[0]?.projectId ?? "");
+  const match = matchColumn(columns, reference);
+  if (match || !matchColumn([backlog], reference)) return match;
+  return columns.find((column) => column.slug === BACKLOG_STATUS) ?? backlog;
 }
