@@ -60,13 +60,13 @@ WHERE "provider_id" = 'credential'
 --> statement-breakpoint
 -- Better Auth 1.7+ lowercases email addresses during credential sign-in.
 -- Normalize legacy mixed-case user emails when doing so does not collide with
--- an existing account.
+-- an existing account. Use ASCII folding independent of the database locale.
 UPDATE "user" AS u
-SET "email" = lower(u."email")
-WHERE u."email" <> lower(u."email")
+SET "email" = lower(u."email" COLLATE "C")
+WHERE u."email" <> lower(u."email" COLLATE "C")
   AND NOT EXISTS (
     SELECT 1
     FROM "user" AS existing
-    WHERE lower(existing."email") = lower(u."email")
+    WHERE lower(existing."email" COLLATE "C") = lower(u."email" COLLATE "C")
       AND existing."id" <> u."id"
   );

@@ -209,7 +209,12 @@ async function getUserLocale(email: string) {
   const matches = await db
     .select({ locale: schema.userTable.locale })
     .from(schema.userTable)
-    .where(eq(sql`lower(${schema.userTable.email})`, address.toLowerCase()))
+    .where(
+      eq(
+        sql`lower(${schema.userTable.email} COLLATE "C")`,
+        sql`lower(${address} COLLATE "C")`,
+      ),
+    )
     .limit(2);
 
   return matches.length === 1 ? (matches[0]?.locale ?? null) : null;
