@@ -13,6 +13,7 @@ import {
   workspaceUserTable,
 } from "../../database/schema";
 import { publishEvent } from "../../events";
+import { retryLabelTransaction } from "../../label/retry-label-transaction";
 import { removeLabelFromGitea } from "../../plugins/gitea/utils/sync-label-to-gitea";
 import { removeLabelFromGitHub } from "../../plugins/github/utils/sync-label-to-github";
 import { removeLabelFromGitlab } from "../../plugins/gitlab/utils/sync-label-to-gitlab";
@@ -363,49 +364,56 @@ async function bulkUpdateTasks({
         throw new HTTPException(400, { message: "Label ID is required" });
       }
 
-      const label = await db.query.labelTable.findFirst({
-        where: eq(labelTable.id, value),
-      });
-
-      if (!label) {
-        throw new HTTPException(404, { message: "Label not found" });
-      }
-
-      if (label.workspaceId && label.workspaceId !== workspaceId) {
-        throw new HTTPException(400, {
-          message: "Label and tasks must belong to the same workspace",
-        });
-      }
-
-      for (const task of tasks) {
-        const existingAssignment = await db.query.labelTable.findFirst({
-          where: and(
-            eq(labelTable.name, label.name),
-            eq(labelTable.taskId, task.id),
-          ),
-        });
-
-        if (!existingAssignment) {
-          await db
-            .insert(labelTable)
-            .values({
-              name: label.name,
-              color: label.color,
-              workspaceId: workspaceId,
-              taskId: task.id,
-            })
-            .onConflictDoNothing({
-              target: [labelTable.taskId, labelTable.name],
+      const assigned = await retryLabelTransaction(
+        () =>
+          db.transaction(async (tx) => {
+            const label = await tx.query.labelTable.findFirst({
+              where: eq(labelTable.id, value),
             });
-          updatedCount++;
 
-          await publishEvent("task.label_assigned", {
-            projectId: task.projectId,
-            taskId: task.id,
-            userId,
-            type: "label_assigned",
-          });
-        }
+            if (!label) {
+              throw new HTTPException(404, { message: "Label not found" });
+            }
+
+            if (label.workspaceId && label.workspaceId !== workspaceId) {
+              throw new HTTPException(400, {
+                message: "Label and tasks must belong to the same workspace",
+              });
+            }
+
+            const insertedTasks: typeof tasks = [];
+            for (const task of [...tasks].sort((a, b) =>
+              a.id.localeCompare(b.id),
+            )) {
+              const [inserted] = await tx
+                .insert(labelTable)
+                .values({
+                  name: label.name,
+                  color: label.color,
+                  workspaceId: workspaceId,
+                  taskId: task.id,
+                })
+                .onConflictDoNothing({
+                  target: [labelTable.taskId, labelTable.name],
+                })
+                .returning({ id: labelTable.id });
+              if (inserted) insertedTasks.push(task);
+            }
+            return insertedTasks;
+          }),
+        () =>
+          new HTTPException(409, {
+            message: "Labels changed concurrently; retry the bulk assignment",
+          }),
+      );
+      updatedCount = assigned.length;
+      for (const task of assigned) {
+        await publishEvent("task.label_assigned", {
+          projectId: task.projectId,
+          taskId: task.id,
+          userId,
+          type: "label_assigned",
+        });
       }
       break;
     }

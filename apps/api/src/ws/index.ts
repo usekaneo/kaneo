@@ -942,6 +942,32 @@ export function broadcastToProject(
   projectBroadcastTimeouts.set(projectId, timeout);
 }
 
+async function publishRequiredProjectBroadcast(
+  message: ProjectBroadcastMessage,
+  excludeInitiatorId?: string,
+) {
+  if (!adapter) throw new Error("WebSocket broadcast adapter is unavailable");
+  let timer: ReturnType<typeof setTimeout> | undefined;
+  const deadline = new Promise<never>((_, reject) => {
+    timer = setTimeout(
+      () => reject(new Error("WebSocket broadcast handoff timed out")),
+      5_000,
+    );
+  });
+  try {
+    await Promise.race([
+      adapter.publish({
+        projectId: message.projectId,
+        message,
+        excludeInitiatorId,
+      }),
+      deadline,
+    ]);
+  } finally {
+    clearTimeout(timer);
+  }
+}
+
 type TaskEvent = {
   titleChanged?: boolean;
   skipSubtaskParentRefresh?: boolean;
@@ -1127,23 +1153,22 @@ subscribeToEvent<{
   projectId: string;
   initiatorId?: string;
   linksChanged?: boolean;
-}>("project.updated", async (data) => {
+}>("project.updated", async (data, options) => {
   const { projectId, initiatorId } = data;
   if (!projectId) return;
 
-  broadcastToProject(
+  const message = {
+    type: "PROJECT_UPDATED",
     projectId,
-    {
-      type: "PROJECT_UPDATED",
-      projectId,
-      ...(data.linksChanged ? { linksChanged: true } : {}),
-    },
-    initiatorId,
-  );
+    ...(data.linksChanged ? { linksChanged: true } : {}),
+  };
+  if (options?.requireDelivery)
+    await publishRequiredProjectBroadcast(message, initiatorId);
+  else broadcastToProject(projectId, message, initiatorId);
 });
 
 for (const eventName of taskUpdateEvents) {
-  subscribeToEvent<TaskEvent>(eventName, async (data) => {
+  subscribeToEvent<TaskEvent>(eventName, async (data, options) => {
     const { projectId, initiatorId } = data;
     const taskId = data.taskId;
 
@@ -1187,20 +1212,19 @@ for (const eventName of taskUpdateEvents) {
       return;
     }
 
-    broadcastToProject(
+    const message = {
+      type,
       projectId,
-      {
-        type,
-        projectId,
-        taskId: taskId,
-        sourceTaskId: data.sourceTaskId,
-        targetTaskId: data.targetTaskId,
-        ...(eventName === "task.title_changed" || data.titleChanged
-          ? { taskTitleChanged: true }
-          : {}),
-      },
-      initiatorId,
-    );
+      taskId,
+      sourceTaskId: data.sourceTaskId,
+      targetTaskId: data.targetTaskId,
+      ...(eventName === "task.title_changed" || data.titleChanged
+        ? { taskTitleChanged: true }
+        : {}),
+    };
+    if (options?.requireDelivery)
+      await publishRequiredProjectBroadcast(message, initiatorId);
+    else broadcastToProject(projectId, message, initiatorId);
     if (eventName === "task.status_changed" && !data.skipSubtaskParentRefresh) {
       refreshParentBoards(await getSubtaskParentProjects([taskId]), projectId);
     } else if (eventName === "task-relation.deleted" && data.sourceTaskId) {

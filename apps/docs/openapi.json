@@ -10846,7 +10846,7 @@
             }
           },
           "409": {
-            "description": "Project key conflict or cross-project task relationships",
+            "description": "Project key conflict, cross-project task relationships, or pending task label deletion",
             "content": {
               "application/json": {
                 "schema": {
@@ -12751,7 +12751,7 @@
             }
           },
           "409": {
-            "description": "Tasks changed projects; retry the operation",
+            "description": "Tasks changed projects or labels changed concurrently; retry the operation. If a label is being deleted, finish its deletion before assigning it again",
             "content": {
               "application/json": {
                 "schema": {
@@ -17062,7 +17062,7 @@
             }
           },
           "409": {
-            "description": "The workspace label is being deleted",
+            "description": "The label or its task assignment is being deleted",
             "content": {
               "application/json": {
                 "schema": {
@@ -17232,7 +17232,7 @@
             }
           },
           "409": {
-            "description": "The workspace label is being deleted",
+            "description": "The label is being deleted or changed concurrently; retry the update",
             "content": {
               "application/json": {
                 "schema": {
@@ -17315,7 +17315,7 @@
             }
           },
           "429": {
-            "description": "Deletion capacity is busy; retry after Retry-After",
+            "description": "Deletion is busy; retry after Retry-After",
             "content": {
               "application/json": {
                 "schema": {
@@ -17415,7 +17415,7 @@
             }
           },
           "409": {
-            "description": "The workspace label is being deleted",
+            "description": "The label or its task assignment is being deleted",
             "content": {
               "application/json": {
                 "schema": {
@@ -19926,7 +19926,7 @@
             }
           },
           "409": {
-            "description": "Integration or import changed; refresh before resuming",
+            "description": "Integration or import changed, or an imported label is being deleted; retry after resolving the conflict",
             "content": {
               "application/json": {
                 "schema": {

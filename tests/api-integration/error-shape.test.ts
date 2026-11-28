@@ -1,6 +1,7 @@
 import { createHash } from "node:crypto";
+import { eq, sql } from "drizzle-orm";
 import { beforeEach, describe, expect, it } from "vite-plus/test";
-import db, { getDatabasePool, schema } from "../../apps/api/src/database";
+import db, { schema } from "../../apps/api/src/database";
 import { createApp } from "../../apps/api/src/index";
 import { MAX_LABEL_DELETIONS_IN_FLIGHT } from "../../apps/api/src/label/deletion-lock";
 import { mockAuthenticatedSession } from "./helpers/auth";
@@ -230,11 +231,14 @@ describe("API integration: error shape", () => {
       .returning();
     mockAuthenticatedSession(member.user);
     const { app } = createApp();
-    const other = await getDatabasePool().connect();
+    await db.insert(schema.jobLeaseTable).values(
+      Array.from({ length: MAX_LABEL_DELETIONS_IN_FLIGHT }, (_, slot) => ({
+        name: `request:label-delete:slot:${slot}`,
+        owner: "other-process",
+        expiresAt: sql`timezone('UTC', clock_timestamp()) + interval '1 minute'`,
+      })),
+    );
     try {
-      for (let slot = 0; slot < MAX_LABEL_DELETIONS_IN_FLIGHT; slot++)
-        await other.query("SELECT pg_advisory_lock(773622, $1::int)", [slot]);
-
       const response = await app.request(`/api/label/${label.id}`, {
         method: "DELETE",
       });
@@ -246,8 +250,9 @@ describe("API integration: error shape", () => {
         code: "RATE_LIMITED",
       });
     } finally {
-      await other.query("SELECT pg_advisory_unlock_all()");
-      other.release();
+      await db
+        .delete(schema.jobLeaseTable)
+        .where(eq(schema.jobLeaseTable.owner, "other-process"));
     }
   });
 

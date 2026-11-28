@@ -9,6 +9,7 @@ type LookupResource =
   | "project"
   | "task"
   | "label"
+  | "labelDeletion"
   | "timeEntry"
   | "activity"
   | "comment"
@@ -39,6 +40,7 @@ const RESOURCE_NOT_FOUND: Record<LookupResource, string> = {
   project: "Project not found",
   task: "Task not found",
   label: "Label not found",
+  labelDeletion: "Label not found",
   timeEntry: "Time entry not found",
   activity: "Activity not found",
   comment: "Comment not found",
@@ -231,6 +233,39 @@ async function lookupScope(
       };
     }
 
+    case "labelDeletion": {
+      const label = await lookupScope("label", id);
+      if (label) return label;
+      const [pending] = await db
+        .select({
+          workspaceId: schema.labelDeletionTable.workspaceId,
+          taskWorkspaceId: schema.projectTable.workspaceId,
+          projectId: schema.projectTable.id,
+        })
+        .from(schema.labelDeletionTable)
+        .innerJoin(
+          schema.taskTable,
+          eq(schema.labelDeletionTable.taskId, schema.taskTable.id),
+        )
+        .innerJoin(
+          schema.projectTable,
+          eq(schema.taskTable.projectId, schema.projectTable.id),
+        )
+        .where(
+          and(
+            eq(schema.labelDeletionTable.id, id),
+            eq(schema.labelDeletionTable.deletionId, id),
+          ),
+        )
+        .limit(1);
+      if (
+        !pending?.workspaceId ||
+        pending.workspaceId !== pending.taskWorkspaceId
+      )
+        return null;
+      return { workspaceId: pending.workspaceId, projectId: pending.projectId };
+    }
+
     case "timeEntry": {
       const [timeEntry] = await db
         .select({
@@ -394,6 +429,11 @@ export const workspaceAccess = {
         { type: "lookup", resource: "label", idKey },
         { type: "query", key: "workspaceId" },
       ],
+    }),
+
+  fromLabelDeletion: (idKey = "id") =>
+    workspaceAccessMiddleware({
+      sources: [{ type: "lookup", resource: "labelDeletion", idKey }],
     }),
 
   fromTimeEntry: (idKey = "id") =>

@@ -32,8 +32,8 @@ beforeEach(async () => {
   github.mockReset().mockResolvedValue();
 });
 
-describe("session locks with DATABASE_POOL_MAX=2", () => {
-  it("returns 429 to a lock holder beyond pool size - 1 instead of timing out its queries", async () => {
+describe("request leases with DATABASE_POOL_MAX=2", () => {
+  it("admits other requests on a small pool while a provider request is pending", async () => {
     expect(getDatabasePool().options.max).toBe(2);
     const member = await createWorkspaceMember({ role: "admin" });
     const { project } = await createProjectFixture({
@@ -69,18 +69,15 @@ describe("session locks with DATABASE_POOL_MAX=2", () => {
     const admitted = remove(first.id);
     try {
       await vi.waitFor(() => expect(github).toHaveBeenCalledTimes(1));
-      const busy = await remove(second.id);
-      expect(busy.status).toBe(429);
-      expect(busy.headers.get("Retry-After")).toBe("1");
+      expect((await remove(second.id)).status).toBe(200);
       await expect(
-        withGithubImportLock(project.id, async () => "must not run"),
-      ).rejects.toMatchObject({ status: 429 });
+        withGithubImportLock(project.id, () => db.query.labelTable.findMany()),
+      ).resolves.toEqual([]);
     } finally {
       gate.resolve();
     }
     expect((await admitted).status).toBe(200);
 
-    expect((await remove(second.id)).status).toBe(200);
     expect(
       await withGithubImportLock(project.id, () =>
         db.query.labelTable.findMany(),
