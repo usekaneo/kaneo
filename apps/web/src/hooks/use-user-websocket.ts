@@ -190,6 +190,18 @@ export function useUserWebSocket() {
               void queryClient.invalidateQueries({ queryKey });
             reconcileProjectAccess(queryClient, workspaceId, () => !disposed);
           }
+          if (
+            message.type === "WORKSPACE_PROJECTS_CHANGED" &&
+            message.workspaceId
+          ) {
+            const { workspaceId } = message;
+            void queryClient.invalidateQueries({
+              queryKey: ["projects", workspaceId],
+            });
+            void queryClient.invalidateQueries({
+              queryKey: ["assigned-tasks", workspaceId],
+            });
+          }
           if (message.type === "NOTIFICATION_CREATED") {
             queryClient.invalidateQueries({ queryKey: ["notifications"] });
           }

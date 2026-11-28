@@ -355,6 +355,23 @@ describe("user WebSocket lifecycle", () => {
     expect(auth.notify).toHaveBeenCalledWith("$sessionSignal");
   });
 
+  it("refreshes project lists and assigned work when a project is archived or restored", () => {
+    renderHook(useUserWebSocket);
+    act(() => {
+      TestSocket.instances[0].onmessage?.({
+        data: JSON.stringify({
+          type: "WORKSPACE_PROJECTS_CHANGED",
+          workspaceId: "workspace",
+        }),
+      });
+    });
+    expect(client.invalidateQueries.mock.calls).toEqual([
+      [{ queryKey: ["projects", "workspace"] }],
+      [{ queryKey: ["assigned-tasks", "workspace"] }],
+    ]);
+    expect(navigate).not.toHaveBeenCalled();
+  });
+
   it("refreshes project lists in every tab after a project access change", () => {
     renderHook(useUserWebSocket);
     act(() => projectAccessChanged(TestSocket.instances[0]));

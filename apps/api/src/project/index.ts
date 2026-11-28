@@ -564,12 +564,20 @@ const project = apiRouter<BaseVariables & { workspaceId: string }>()
     const { id } = c.req.valid("param");
     const workspaceId = c.get("workspaceId");
     const archivedProject = await archiveProjectCtrl(id, workspaceId);
+    await publishEvent("project.archive_changed", {
+      projectId: id,
+      workspaceId,
+    });
     return c.json(toPublicProject(archivedProject), 200);
   })
   .openapi(unarchiveProjectRoute, async (c) => {
     const { id } = c.req.valid("param");
     const workspaceId = c.get("workspaceId");
     const unarchivedProject = await unarchiveProjectCtrl(id, workspaceId);
+    await publishEvent("project.archive_changed", {
+      projectId: id,
+      workspaceId,
+    });
     return c.json(toPublicProject(unarchivedProject), 200);
   })
   .openapi(uploadProjectBackgroundRoute, async (c) => {
