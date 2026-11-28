@@ -75,4 +75,9 @@ verify(deployment.dig('spec', 'selector', 'matchLabels').all? { |key, value| pod
 verify(pod.dig('spec', 'volumes').include?(extra_volume), 'Extra projected volume was not rendered')
 verify(pod.dig('spec', 'containers').first.fetch('volumeMounts').include?(extra_mount), 'Extra read-only mount was not rendered')
 verify(pod.dig('spec', 'volumes').include?({ 'name' => 'runtime', 'emptyDir' => {} }), 'Extra volumes must not remove writable runtime storage')
+
+without_labels = render(*args, '--set', 'podLabels=null').find do |item|
+  item['kind'] == 'Deployment' && item['metadata']['name'] == deployment['metadata']['name']
+end
+verify(without_labels.dig('spec', 'template', 'metadata', 'labels') == deployment.dig('spec', 'selector', 'matchLabels').merge('app.kubernetes.io/component' => 'kaneo'), 'Null podLabels must preserve chart labels')
 puts 'Helm Pod labels and additional volume checks passed'
