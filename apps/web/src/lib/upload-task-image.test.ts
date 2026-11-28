@@ -71,6 +71,10 @@ describe("uploadTaskImage", () => {
     expect(mocks.finalizeImageUpload).toHaveBeenCalledWith(
       expect.objectContaining({ contentType: "image/png" }),
     );
+    expect(fetch).toHaveBeenCalledWith(
+      "https://storage.example/upload",
+      expect.objectContaining({ method: "PUT", credentials: "omit" }),
+    );
     expect(asset.mimeType).toBe("image/png");
     expect(asset.kind).toBe("image");
   });

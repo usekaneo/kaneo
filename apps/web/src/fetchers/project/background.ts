@@ -12,6 +12,7 @@ export async function uploadProjectBackground(projectId: string, file: File) {
 
   const storageResponse = await fetch(upload.uploadUrl, {
     method: "PUT",
+    credentials: "omit",
     headers: upload.headers,
     body: file,
   });

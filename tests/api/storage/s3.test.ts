@@ -1,3 +1,4 @@
+import { createHash, createHmac } from "node:crypto";
 import { S3Client } from "@aws-sdk/client-s3";
 import {
   afterEach,
@@ -21,6 +22,7 @@ import {
   createTaskImageUploadUrl,
   getFileExtension,
   isImageContentType,
+  isStorageConfigured,
   parseBoolean,
   parsePositiveInt,
   resolveS3Credentials,
@@ -29,6 +31,49 @@ import {
   validateTaskAssetUploadInput,
   verifyTaskAssetUpload,
 } from "../../../apps/api/src/storage/s3";
+
+// Recomputes the SigV4 query signature of a presigned PUT for a given Host, from
+// the path and query exactly as they appear in the URL.
+function presignedPutSignatureFor(
+  uploadUrl: string,
+  headers: { host: string; contentLength: number; contentType: string },
+  secretAccessKey: string,
+) {
+  const afterScheme = uploadUrl.indexOf("//") + 2;
+  const [path, query = ""] = uploadUrl
+    .slice(uploadUrl.indexOf("/", afterScheme))
+    .split("?");
+  const params = new URLSearchParams(query);
+  const canonicalQuery = query
+    .split("&")
+    .filter((pair) => !pair.startsWith("X-Amz-Signature="))
+    .sort()
+    .join("&");
+  const canonicalHeaders = `content-length:${headers.contentLength}\ncontent-type:${headers.contentType}\nhost:${headers.host}\n`;
+  const canonicalRequest = [
+    "PUT",
+    path,
+    canonicalQuery,
+    canonicalHeaders,
+    params.get("X-Amz-SignedHeaders"),
+    "UNSIGNED-PAYLOAD",
+  ].join("\n");
+  const amzDate = params.get("X-Amz-Date") ?? "";
+  const scope = (params.get("X-Amz-Credential") ?? "").split("/").slice(1);
+  const stringToSign = [
+    "AWS4-HMAC-SHA256",
+    amzDate,
+    scope.join("/"),
+    createHash("sha256").update(canonicalRequest).digest("hex"),
+  ].join("\n");
+  const signingKey = scope
+    .slice(0, 4)
+    .reduce<Buffer | string>(
+      (key, part) => createHmac("sha256", key).update(part).digest(),
+      `AWS4${secretAccessKey}`,
+    );
+  return createHmac("sha256", signingKey).update(stringToSign).digest("hex");
+}
 
 describe("S3 helpers", () => {
   it("binds project background upload URLs to the declared content length", async () => {
@@ -375,6 +420,80 @@ describe("S3 helpers", () => {
     expect(upload.headers).not.toHaveProperty("Content-Length");
     expect(searchParams.has("x-amz-checksum-crc32")).toBe(false);
     expect(searchParams.has("x-amz-sdk-checksum-algorithm")).toBe(false);
+  });
+
+  it("hands out upload URLs on S3_PRESIGNED_URL_ORIGIN with the signed path and query", async () => {
+    process.env.S3_ENDPOINT = "https://storage.example.test";
+    process.env.S3_BUCKET = "kaneo";
+    process.env.S3_ACCESS_KEY_ID = "test-access-key";
+    process.env.S3_SECRET_ACCESS_KEY = "test-secret-key";
+    // No other test uses this region, so the cached S3 client is built from
+    // this config.
+    process.env.S3_REGION = "eu-central-1";
+    process.env.S3_FORCE_PATH_STYLE = "true";
+    process.env.S3_KEY_PREFIX = "uploads";
+    process.env.S3_PRESIGNED_URL_ORIGIN = "https://kaneo.example.test/";
+
+    try {
+      const task = await createTaskImageUploadUrl({
+        workspaceId: "workspace-1",
+        projectId: "project-1",
+        taskId: "task-1",
+        surface: "description",
+        filename: "report.png",
+        contentType: "image/png",
+        size: 512,
+      });
+      const background = await createProjectBackgroundUploadUrl({
+        workspaceId: "workspace-1",
+        projectId: "project-1",
+        contentType: "image/png",
+        size: 512,
+      });
+
+      for (const upload of [task, background]) {
+        const url = new URL(upload.uploadUrl);
+        expect(url.origin).toBe("https://kaneo.example.test");
+        expect(url.pathname).toBe(`/kaneo/${upload.key}`);
+        // Still signed for S3_ENDPOINT: a proxy must send that Host to S3.
+        const signedFor = (host: string) =>
+          presignedPutSignatureFor(
+            upload.uploadUrl,
+            { host, contentLength: 512, contentType: "image/png" },
+            "test-secret-key",
+          );
+        expect(url.searchParams.get("X-Amz-Signature")).toBe(
+          signedFor("storage.example.test"),
+        );
+        expect(url.searchParams.get("X-Amz-Signature")).not.toBe(
+          signedFor("kaneo.example.test"),
+        );
+      }
+    } finally {
+      delete process.env.S3_PRESIGNED_URL_ORIGIN;
+    }
+  });
+
+  it("refuses uploads, but keeps storage configured, when S3_PRESIGNED_URL_ORIGIN has a path", async () => {
+    process.env.S3_ENDPOINT = "https://storage.example.test";
+    process.env.S3_BUCKET = "kaneo";
+    process.env.S3_ACCESS_KEY_ID = "test-access-key";
+    process.env.S3_SECRET_ACCESS_KEY = "test-secret-key";
+    process.env.S3_PRESIGNED_URL_ORIGIN = "https://kaneo.example.test/uploads";
+
+    try {
+      expect(isStorageConfigured()).toBe(true);
+      await expect(
+        createProjectBackgroundUploadUrl({
+          workspaceId: "workspace-1",
+          projectId: "project-1",
+          contentType: "image/png",
+          size: 512,
+        }),
+      ).rejects.toThrow("S3_PRESIGNED_URL_ORIGIN must be an origin");
+    } finally {
+      delete process.env.S3_PRESIGNED_URL_ORIGIN;
+    }
   });
 
   it("logs a safe summary when an uploaded object cannot be verified", async () => {

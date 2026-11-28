@@ -18,6 +18,7 @@ export async function uploadDraftAsset(projectId: string, file: File) {
   const upload = await response.json();
   const stored = await fetch(upload.uploadUrl, {
     method: "PUT",
+    credentials: "omit",
     headers: upload.headers,
     body: file,
   });

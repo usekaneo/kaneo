@@ -58,6 +58,7 @@ export async function uploadTaskImage({
 
   const response = await fetch(upload.uploadUrl, {
     method: "PUT",
+    credentials: "omit",
     headers: upload.headers,
     body: file,
   });

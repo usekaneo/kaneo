@@ -62,6 +62,7 @@ describe("project background fetchers", () => {
       "https://storage.example.test/upload",
       {
         method: "PUT",
+        credentials: "omit",
         headers: { "Content-Type": "image/png" },
         body: file,
       },
