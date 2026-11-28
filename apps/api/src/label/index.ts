@@ -263,7 +263,7 @@ const label = apiRouter()
   .openapi(deleteLabelRoute, async (c) => {
     const { id } = c.req.valid("param");
     const userId = c.get("userId");
-    const result = await deleteLabel(id, userId);
+    const result = await deleteLabel(id, userId, c.get("workspaceId"));
     if (result.pendingDeletion)
       return c.json({ ...result, pendingDeletion: true as const }, 202);
     return c.json(result, 200);

@@ -105,6 +105,55 @@ async function labelsFor(workspaceId: string) {
 }
 
 describe("bounded, resumable label deletion", () => {
+  it.each(["task", "workspace"] as const)(
+    "allows a project move after a pending %s label deletion finishes",
+    async (scope) => {
+      const { app, member, project, root, tasks } = await fixture(
+        scope === "workspace" ? LABEL_DELETE_BATCH_SIZE + 1 : 1,
+      );
+      const { workspace: target } = await createWorkspaceMember();
+      await db.insert(schema.workspaceUserTable).values({
+        workspaceId: target.id,
+        userId: member.user.id,
+        role: "owner",
+        joinedAt: new Date(),
+      });
+      const move = () =>
+        app.request(`/api/project/${project.id}/move`, {
+          method: "PUT",
+          headers: { "content-type": "application/json" },
+          body: JSON.stringify({ workspaceId: target.id }),
+        });
+      const copy = await db.query.labelTable.findFirst({
+        where: eq(schema.labelTable.taskId, tasks[0].id),
+      });
+      const id = scope === "workspace" ? root.id : copy!.id;
+      const remove = () =>
+        app.request(`/api/label/${id}`, { method: "DELETE" });
+      const gate = deferred();
+      github.mockImplementationOnce(() => gate.promise);
+      const deleting = remove();
+      try {
+        await vi.waitFor(() => expect(github).toHaveBeenCalledTimes(1));
+        expect((await move()).status).toBe(409);
+        expect(await db.query.labelDeletionTable.findFirst()).toMatchObject({
+          deletionId: id,
+          workspaceId: member.workspace.id,
+        });
+      } finally {
+        gate.resolve();
+      }
+      expect((await deleting).status).toBe(scope === "workspace" ? 202 : 200);
+      if (scope === "workspace") {
+        expect(await db.query.labelDeletionTable.findMany()).toEqual([]);
+        expect((await move()).status).toBe(409);
+        expect((await remove()).status).toBe(200);
+      }
+      expect((await move()).status).toBe(200);
+      expect(eventCalls).toHaveLength(tasks.length);
+    },
+  );
+
   it("leaves no leases or advisory locks after three rounds of 24 concurrent deletes", async () => {
     for (let round = 0; round < 3; round++) {
       const { app, member, root } = await fixture(0);

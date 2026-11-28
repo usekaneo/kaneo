@@ -1,12 +1,18 @@
 import { and, eq, sql } from "drizzle-orm";
 import { beforeEach, describe, expect, it, vi } from "vite-plus/test";
 import db, { schema } from "../../apps/api/src/database";
+import type { publishEvent } from "../../apps/api/src/events";
 import { importIssues } from "../../apps/api/src/github-integration/controllers/import-issues";
 import { withGithubImportLock } from "../../apps/api/src/github-integration/import-lock";
 import { IMPORT_PAGES_PER_REQUEST } from "../../apps/api/src/github-integration/import-pages";
 import { createApp } from "../../apps/api/src/index";
 import moveTask from "../../apps/api/src/task/controllers/move-task";
 import { handleIssueOpened } from "../../apps/api/src/plugins/github/webhooks/issue-opened";
+import {
+  initializeWebSocketAdapter,
+  shutdownWebSocketAdapter,
+} from "../../apps/api/src/ws";
+import { InMemoryBroadcastAdapter } from "../../apps/api/src/ws/in-memory-broadcast-adapter";
 import { mockAuthenticatedSession } from "./helpers/auth";
 import { resetTestDatabase } from "./helpers/database";
 import {
@@ -19,8 +25,11 @@ const mocks = vi.hoisted(() => ({
   verify: vi.fn(),
   comment: vi.fn(),
   publish: vi.fn(
-    async (_name: string, _payload: { projectId: string; taskId?: string }) =>
-      undefined,
+    async (
+      _name: string,
+      _payload: { projectId: string; taskId?: string },
+      _options?: Parameters<typeof publishEvent>[2],
+    ) => {},
   ),
 }));
 vi.mock("../../apps/api/src/plugins/github/utils/github-app", () => ({
@@ -158,6 +167,54 @@ async function saved() {
 }
 
 describe("bounded resumable GitHub import", () => {
+  it("keeps a notification pending until the broadcast adapter accepts it", async () => {
+    const { project } = await setup();
+    serveIssues(1);
+    const events = await vi.importActual<
+      typeof import("../../apps/api/src/events")
+    >("../../apps/api/src/events");
+    mocks.publish.mockImplementation(events.publishEvent);
+    await initializeWebSocketAdapter();
+    const gate = deferred();
+    const publish = vi
+      .spyOn(InMemoryBroadcastAdapter.prototype, "publish")
+      .mockImplementationOnce(async () => {
+        await gate.promise;
+        throw new Error("Broadcast failed");
+      });
+    const importing = importIssues(project.id);
+    const rejected = expect(importing).rejects.toThrow("Broadcast failed");
+    try {
+      try {
+        await vi.waitFor(() => expect(publish).toHaveBeenCalledTimes(1));
+        const run = await saved();
+        expect(run?.state.pendingNotifications?.[0]?.type).toBe("task.updated");
+        expect(mocks.graphql).toHaveBeenCalledTimes(1);
+      } finally {
+        gate.resolve();
+      }
+      await rejected;
+      const run = await saved();
+      expect(run?.state.pendingNotifications?.[0]?.type).toBe("task.updated");
+      expect(await importIssues(project.id, run!.runId)).toMatchObject({
+        runId: run!.runId,
+        pending: false,
+        imported: 1,
+      });
+      expect((await saved())?.state.pendingNotifications).toEqual([]);
+      expect(publish.mock.calls.map(([msg]) => msg.message.type)).toEqual([
+        "TASK_UPDATED",
+        "TASK_UPDATED",
+        "TASK_LABEL_UPDATED",
+        "COMMENT_UPDATED",
+        "PROJECT_UPDATED",
+        "PROJECT_UPDATED",
+      ]);
+    } finally {
+      await shutdownWebSocketAdapter();
+    }
+  });
+
   it.each(["issues", "complete"])(
     "replays durable notifications after lease loss in the %s phase",
     async (phase) => {
@@ -188,21 +245,30 @@ describe("bounded resumable GitHub import", () => {
         pending: true,
       });
       mocks.publish.mockClear();
-      expect(await importIssues(project.id, run!.runId)).toMatchObject({
+      expect(
+        await importIssues(
+          project.id,
+          phase === "complete" ? undefined : run!.runId,
+        ),
+      ).toMatchObject({
+        runId: run!.runId,
         pending: false,
         imported: 1,
       });
       expect((await saved())?.state.pendingNotifications).toEqual([]);
-      expect(mocks.publish).toHaveBeenCalledWith("project.updated", {
-        projectId: project.id,
-      });
+      expect(mocks.publish).toHaveBeenCalledWith(
+        "project.updated",
+        { projectId: project.id },
+        { requireDelivery: true },
+      );
       if (phase === "issues") {
         const [task] = await db.query.taskTable.findMany();
         for (const type of ["task.updated", "task.labels_updated"]) {
-          expect(mocks.publish).toHaveBeenCalledWith(type, {
-            projectId: project.id,
-            taskId: task.id,
-          });
+          expect(mocks.publish).toHaveBeenCalledWith(
+            type,
+            { projectId: project.id, taskId: task.id },
+            { requireDelivery: true },
+          );
         }
       }
     },

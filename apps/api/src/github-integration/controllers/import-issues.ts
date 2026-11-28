@@ -131,10 +131,12 @@ export async function importIssues(projectId: string, runId?: string) {
       (!run || run.runId !== runId || run.state.repositoryId !== repositoryId)
     )
       throw conflict();
-    if (run && run.state.repositoryId === repositoryId)
+    if (run && run.state.repositoryId === repositoryId) {
+      const resuming = runId || run.state.pendingNotifications?.length;
       run = await publishImportNotifications(run, projectId, lease);
-    if (runId && run?.state.phase === "complete")
-      return importProgress(run.runId, run.state);
+      if (resuming && run.state.phase === "complete")
+        return importProgress(run.runId, run.state);
+    }
     if (
       !run ||
       run.state.phase === "complete" ||

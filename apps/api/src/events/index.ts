@@ -11,6 +11,8 @@ export type EventPayload<T = unknown> = {
   timestamp: string;
 };
 
+type EventOptions = { waitForHandlers?: boolean; requireDelivery?: boolean };
+
 export async function shutdownEventBus(): Promise<void> {
   EVENTS.removeAllListeners();
 }
@@ -18,7 +20,7 @@ export async function shutdownEventBus(): Promise<void> {
 export async function publishEvent(
   eventType: string,
   data: unknown,
-  options?: { waitForHandlers?: boolean },
+  options?: EventOptions,
 ): Promise<void> {
   let enhancedData = null;
   if (typeof data === "object" && data !== null) {
@@ -33,11 +35,11 @@ export async function publishEvent(
   };
 
   try {
-    if (options?.waitForHandlers) {
+    if (options?.waitForHandlers || options?.requireDelivery) {
       // EventEmitter.emit discards promises. Bounded producers must await the
       // actual subscriber wrappers before starting their next item.
       for (const listener of EVENTS.listeners(eventType))
-        await listener(payload);
+        await listener(payload, options);
     } else {
       EVENTS.emit(eventType, payload);
     }
@@ -49,16 +51,20 @@ export async function publishEvent(
 
 export async function subscribeToEvent<T>(
   eventType: string,
-  handler: (data: T) => Promise<void>,
+  handler: (data: T, options?: EventOptions) => Promise<void>,
 ): Promise<void> {
   try {
-    EVENTS.on(eventType, async (payload: EventPayload<T>) => {
-      try {
-        await handler(payload.data);
-      } catch (error) {
-        console.error(`Error processing event ${eventType}:`, error);
-      }
-    });
+    EVENTS.on(
+      eventType,
+      async (payload: EventPayload<T>, options?: EventOptions) => {
+        try {
+          await handler(payload.data, options);
+        } catch (error) {
+          if (options?.requireDelivery) throw error;
+          console.error(`Error processing event ${eventType}:`, error);
+        }
+      },
+    );
   } catch (error) {
     console.error("Failed to subscribe to event:", error);
     throw error;

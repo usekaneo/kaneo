@@ -8,6 +8,7 @@ import {
   taskTable,
 } from "../../database/schema";
 import { notifySyncWorkspaceLabelChanged } from "../../plugins/sync/workspace-label-changed";
+import { lockProjectOrdering } from "../../project/controllers/project-placement";
 import { completeLabelDeletion } from "../complete-label-deletion";
 import { withLabelDeletionLock } from "../deletion-lock";
 
@@ -17,16 +18,25 @@ type Label = typeof labelTable.$inferSelect;
 async function deleteLabel(
   id: string,
   userId: string,
+  authorizedWorkspaceId?: string,
 ): Promise<Label & { pendingDeletion?: true }> {
   return withLabelDeletionLock(id, async (lease) => {
     const label = await db.query.labelTable.findFirst({
-      where: eq(labelTable.id, id),
+      where: and(
+        eq(labelTable.id, id),
+        authorizedWorkspaceId
+          ? eq(labelTable.workspaceId, authorizedWorkspaceId)
+          : undefined,
+      ),
     });
     if (!label) {
       const pending = await db.query.labelDeletionTable.findFirst({
         where: and(
           eq(labelDeletionTable.id, id),
           eq(labelDeletionTable.deletionId, id),
+          authorizedWorkspaceId
+            ? eq(labelDeletionTable.workspaceId, authorizedWorkspaceId)
+            : undefined,
         ),
       });
       if (!pending)
@@ -35,25 +45,35 @@ async function deleteLabel(
     }
 
     if (label.taskId) {
-      const [task] = await db
-        .select({ workspaceId: projectTable.workspaceId })
-        .from(taskTable)
-        .innerJoin(projectTable, eq(taskTable.projectId, projectTable.id))
-        .where(eq(taskTable.id, label.taskId))
-        .limit(1);
-      if (!task || task.workspaceId !== label.workspaceId)
+      const { taskId, workspaceId } = label;
+      if (!workspaceId)
         throw new HTTPException(404, { message: "Task not found" });
       const pending = await lease.transaction(async (tx) => {
+        // Project moves lock both workspaces before changing task label scope.
+        await lockProjectOrdering(tx, workspaceId);
         // Match the assignment trigger's lock before removing the row. The
         // outbox then reserves its task/name until all effects finish.
-        await tx
+        const [task] = await tx
           .select({ id: taskTable.id })
           .from(taskTable)
-          .where(eq(taskTable.id, label.taskId!))
-          .for("no key update");
+          .innerJoin(projectTable, eq(taskTable.projectId, projectTable.id))
+          .where(
+            and(
+              eq(taskTable.id, taskId),
+              eq(projectTable.workspaceId, workspaceId),
+            ),
+          )
+          .for("no key update", { of: taskTable });
+        if (!task) throw new HTTPException(404, { message: "Task not found" });
         const [deleted] = await tx
           .delete(labelTable)
-          .where(eq(labelTable.id, id))
+          .where(
+            and(
+              eq(labelTable.id, id),
+              eq(labelTable.taskId, taskId),
+              eq(labelTable.workspaceId, workspaceId),
+            ),
+          )
           .returning();
         if (!deleted)
           throw new HTTPException(404, { message: "Label not found" });
@@ -68,16 +88,17 @@ async function deleteLabel(
 
     // Persist the snapshot boundary before the first batch. A disconnect or
     // restart leaves this root available for the same DELETE request to resume.
-    const [root] = await lease.transaction((tx) =>
-      tx
+    const [root] = await lease.transaction(async (tx) => {
+      if (label.workspaceId) await lockProjectOrdering(tx, label.workspaceId);
+      return tx
         .update(labelTable)
         .set({
           // UTC like every timezone-less column, whatever the session time zone.
           deletionStartedAt: sql`coalesce(${labelTable.deletionStartedAt}, timezone('UTC', clock_timestamp()))`,
         })
         .where(eq(labelTable.id, id))
-        .returning(),
-    );
+        .returning();
+    });
     if (!root) throw new HTTPException(404, { message: "Label not found" });
     if (root.workspaceId) {
       await lease.check();

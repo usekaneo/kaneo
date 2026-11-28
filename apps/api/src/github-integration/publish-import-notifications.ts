@@ -14,14 +14,14 @@ export async function publishImportNotifications(
     const [notification, ...remaining] = run.state.pendingNotifications;
     if (!notification) break;
     await lease.check();
-    if (notification.type === "project.updated") {
-      await publishEvent(notification.type, { projectId });
-    } else {
-      await publishEvent(notification.type, {
+    await publishEvent(
+      notification.type,
+      {
         projectId,
-        taskId: notification.taskId,
-      });
-    }
+        ...("taskId" in notification ? { taskId: notification.taskId } : {}),
+      },
+      { requireDelivery: true },
+    );
     // Refresh notifications may repeat when delivery succeeds but acknowledgement
     // does not. Never advance the next page until this page's queue is drained.
     run = await lease.transaction(async (tx) => {

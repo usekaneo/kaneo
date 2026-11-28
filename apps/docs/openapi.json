@@ -10460,7 +10460,7 @@
             }
           },
           "409": {
-            "description": "Project key conflict or cross-project task relationships",
+            "description": "Project key conflict, cross-project task relationships, or pending task label deletion",
             "content": {
               "application/json": {
                 "schema": {

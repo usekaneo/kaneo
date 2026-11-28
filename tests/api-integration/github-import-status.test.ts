@@ -1,7 +1,19 @@
 import { eq } from "drizzle-orm";
-import { beforeEach, describe, expect, it, vi } from "vite-plus/test";
+import {
+  afterAll,
+  beforeAll,
+  beforeEach,
+  describe,
+  expect,
+  it,
+  vi,
+} from "vite-plus/test";
 import db, { schema } from "../../apps/api/src/database";
 import { importIssues } from "../../apps/api/src/github-integration/controllers/import-issues";
+import {
+  initializeWebSocketAdapter,
+  shutdownWebSocketAdapter,
+} from "../../apps/api/src/ws";
 import { resetTestDatabase } from "./helpers/database";
 import {
   createProjectFixture,
@@ -56,6 +68,8 @@ vi.mock("../../apps/api/src/plugins/github/utils/github-app", () => ({
     }),
   }),
 }));
+beforeAll(initializeWebSocketAdapter);
+afterAll(shutdownWebSocketAdapter);
 beforeEach(async () => {
   await resetTestDatabase();
   m.labels = [];

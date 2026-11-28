@@ -6,6 +6,7 @@ import {
   assetTable,
   externalLinkTable,
   integrationTable,
+  labelDeletionTable,
   labelTable,
   projectTable,
   taskRelationTable,
@@ -19,6 +20,7 @@ import { grantProjectToRestrictedMember } from "../../project-access/grant-proje
 import { filterUsersWithProjectAccess } from "../../project-access/filter-users-with-project-access";
 import { closeProjectConnections } from "../../ws";
 import { findProjectKeyConflict } from "../project-key";
+import { lockProjectOrdering } from "./project-placement";
 
 async function moveProject(
   id: string,
@@ -36,9 +38,7 @@ async function moveProject(
     // Use a stable order for both workspaces before locking the project row.
     // This also keeps source reorders from updating a project after it moves.
     for (const workspaceId of [sourceWorkspaceId, targetWorkspaceId].sort()) {
-      await tx.execute(
-        sql`SELECT pg_advisory_xact_lock(1524, hashtext(${workspaceId}))`,
-      );
+      await lockProjectOrdering(tx, workspaceId);
     }
     // Locked for the life of the transaction: the request was authorized
     // against the source workspace, so a concurrent move would invalidate that
@@ -92,6 +92,29 @@ async function moveProject(
       throw new HTTPException(409, {
         message:
           "Remove task relationships to other projects before moving this project.",
+      });
+
+    // Read both tables in one snapshot so a copy entering the effects table
+    // stays visible. Also check the destination before re-scoping assignments.
+    const pendingLabelDeletion = await tx.execute(sql`
+      SELECT 1 FROM ${taskTable} task
+      JOIN ${labelDeletionTable} pending ON pending.task_id = task.id
+      WHERE task.project_id = ${id} AND pending.workspace_id = ${sourceWorkspaceId}
+      UNION ALL
+      SELECT 1 FROM ${taskTable} task
+      JOIN ${labelTable} copy ON copy.task_id = task.id
+      JOIN ${labelTable} root ON root.name = copy.name
+        AND root.task_id IS NULL AND root.deletion_started_at IS NOT NULL
+      WHERE task.project_id = ${id}
+        AND (root.workspace_id = ${targetWorkspaceId}
+          OR (root.workspace_id = ${sourceWorkspaceId}
+            AND copy.workspace_id = root.workspace_id
+            AND copy.created_at <= root.deletion_started_at))
+      LIMIT 1
+    `);
+    if (pendingLabelDeletion.rows.length)
+      throw new HTTPException(409, {
+        message: "Finish deleting matching labels before moving this project.",
       });
 
     // These rows point at both the project and a notification rule via
