@@ -1,6 +1,7 @@
 export type ProjectBroadcastMessage = {
   type: string;
   projectId: string;
+  workspaceId?: string;
   taskId?: string;
   tasks?: Array<{ id: string; position: number; status?: string }>;
   sourceTaskId?: string;

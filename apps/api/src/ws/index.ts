@@ -21,6 +21,7 @@ import {
   hasInstanceAdminRole,
   instanceAdminRoleSql,
 } from "../utils/instance-admin-role";
+import type { PermissionMap } from "../utils/role-permissions";
 import { isRedisConfigured } from "../redis";
 import {
   getRelationSourceProject,
@@ -36,6 +37,10 @@ import type {
 import { InMemoryBroadcastAdapter } from "./in-memory-broadcast-adapter";
 import { RedisBroadcastAdapter } from "./redis-broadcast-adapter";
 import { getProjectReadAccess } from "./project-read-access";
+import {
+  PROJECT_LIST_READ_PERMISSIONS,
+  PROJECT_READ_PERMISSIONS,
+} from "./project-read-permissions";
 
 const INSTANCE_ID = randomUUID();
 let revocationDelivery: ReturnType<typeof createRevocationDelivery> | undefined;
@@ -711,6 +716,7 @@ function currentBroadcastAccess(
   projectId: string,
   recipients: Array<{ userId: string; apiKeyId?: string }>,
   authorizationBatch: string,
+  permissionsRequired: PermissionMap = PROJECT_READ_PERMISSIONS,
 ) {
   const userIds = [...new Set(recipients.map((conn) => conn.userId))].sort();
   const apiKeyIds = [
@@ -721,6 +727,7 @@ function currentBroadcastAccess(
   const key = JSON.stringify([
     projectId,
     authorizationBatch,
+    permissionsRequired,
     userIds,
     apiKeyIds,
   ]);
@@ -766,6 +773,7 @@ function currentBroadcastAccess(
             workspaceId,
             recipients,
             rows,
+            permissionsRequired,
           ));
           const nonmembers = userIds.filter((userId) => !members.has(userId));
           if (nonmembers.length > 0) {
@@ -792,6 +800,44 @@ function currentBroadcastAccess(
   return pending;
 }
 
+async function refreshWorkspaceProjects(
+  projectId: string,
+  workspaceId: string,
+) {
+  const recipients = [...userConnections].flatMap(([userId, connections]) =>
+    [...connections].map((conn) => ({ userId, conn, apiKeyId: conn.apiKeyId })),
+  );
+  if (recipients.length === 0) return;
+
+  const access = await currentBroadcastAccess(
+    projectId,
+    recipients,
+    randomUUID(),
+    PROJECT_LIST_READ_PERMISSIONS,
+  );
+  if (!access || access.archived || access.workspaceId !== workspaceId) return;
+
+  const payload = JSON.stringify({
+    type: "WORKSPACE_PROJECTS_CHANGED",
+    workspaceId,
+  });
+  for (const { userId, conn, apiKeyId } of recipients) {
+    if (
+      !access.members.has(userId) ||
+      access.restricted.has(userId) ||
+      !access.readers.has(userId) ||
+      (apiKeyId && access.apiKeys.get(apiKeyId) !== userId) ||
+      !userConnections.get(userId)?.has(conn)
+    )
+      continue;
+    try {
+      conn.ws.send(payload);
+    } catch {
+      removeUserConnection(userId, conn);
+    }
+  }
+}
+
 async function deliverToLocalConnections(
   projectId: string,
   message: ProjectBroadcastMessage,
@@ -800,6 +846,10 @@ async function deliverToLocalConnections(
 ) {
   if (message.type === "PROJECT_MOVED") {
     closeLocalProjectConnections(projectId);
+    return;
+  }
+  if (message.type === "WORKSPACE_PROJECTS_CHANGED" && message.workspaceId) {
+    await refreshWorkspaceProjects(projectId, message.workspaceId);
     return;
   }
   const connections = projectConnections.get(projectId);
@@ -1104,6 +1154,17 @@ subscribeToEvent<{ workspaceId: string; projectIds?: string[] }>(
   async ({ workspaceId, projectIds }) => {
     if (!workspaceId) return;
     await broadcastProjectMembersUpdated(workspaceId, projectIds);
+  },
+);
+
+subscribeToEvent<{ projectId: string; workspaceId: string }>(
+  "project.archive_changed",
+  async ({ projectId, workspaceId }) => {
+    broadcastToProject(projectId, {
+      type: "WORKSPACE_PROJECTS_CHANGED",
+      projectId,
+      workspaceId,
+    });
   },
 );
 

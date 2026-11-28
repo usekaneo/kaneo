@@ -1,7 +1,11 @@
 import { and, eq, gt, inArray, isNull, or } from "drizzle-orm";
 import db, { schema } from "../database";
 import { hasInstanceAdminRole } from "../utils/instance-admin-role";
-import { rolesAllow, satisfies } from "../utils/role-permissions";
+import {
+  type PermissionMap,
+  rolesAllow,
+  satisfies,
+} from "../utils/role-permissions";
 import { splitRoles } from "../utils/split-roles";
 import { notBannedCondition } from "../utils/user-ban";
 import { parsePermissions } from "../utils/verify-api-key";
@@ -11,6 +15,7 @@ export async function getProjectReadAccess(
   workspaceId: string,
   recipients: Array<{ userId: string; apiKeyId?: string }>,
   members: Array<{ userId: string; role: string }>,
+  permissionsRequired: PermissionMap = PROJECT_READ_PERMISSIONS,
 ) {
   const readers = new Set<string>();
   const apiKeys = new Map<string, string>();
@@ -49,7 +54,7 @@ export async function getProjectReadAccess(
       rolesAllow(
         splitRoles(membershipRoles.get(user.id)),
         stored,
-        PROJECT_READ_PERMISSIONS,
+        permissionsRequired,
       )
     ) {
       readers.add(user.id);
@@ -85,7 +90,7 @@ export async function getProjectReadAccess(
       const owner = key.referenceId ?? key.userId;
       if (
         owner &&
-        (!permissions || satisfies(permissions, PROJECT_READ_PERMISSIONS))
+        (!permissions || satisfies(permissions, permissionsRequired))
       ) {
         apiKeys.set(key.id, owner);
       }
