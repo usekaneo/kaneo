@@ -381,7 +381,7 @@ describe("S3 helpers", () => {
 
   it("signs uploads on the public gateway and keeps storage checks private", async () => {
     vi.stubEnv("S3_ENDPOINT", "http://silo:9000");
-    vi.stubEnv("S3_PUBLIC_BASE_URL", "https://files.example.test");
+    vi.stubEnv("S3_PUBLIC_UPLOAD_ENDPOINT", "https://files.example.test");
     vi.stubEnv("S3_BUCKET", "kaneo");
     vi.stubEnv("S3_ACCESS_KEY_ID", "test-access-key");
     vi.stubEnv("S3_SECRET_ACCESS_KEY", "test-secret-key");
@@ -413,6 +413,24 @@ describe("S3 helpers", () => {
     expect(await rotatedClient.config.credentials()).toMatchObject({
       secretAccessKey: "rotated-test-secret-key",
     });
+  });
+
+  it("keeps signing on the S3 endpoint when only a legacy public base URL is set", async () => {
+    vi.stubEnv("S3_ENDPOINT", "http://silo:9000");
+    vi.stubEnv("S3_PUBLIC_BASE_URL", "https://cdn.example.test/kaneo");
+    vi.stubEnv("S3_PUBLIC_UPLOAD_ENDPOINT", "");
+    vi.stubEnv("S3_BUCKET", "kaneo");
+    vi.stubEnv("S3_ACCESS_KEY_ID", "test-access-key");
+    vi.stubEnv("S3_SECRET_ACCESS_KEY", "test-secret-key");
+    vi.stubEnv("S3_FORCE_PATH_STYLE", "true");
+
+    const upload = await createProjectBackgroundUploadUrl({
+      workspaceId: "workspace-1",
+      projectId: "project-1",
+      contentType: "image/png",
+      size: 12345,
+    });
+    expect(new URL(upload.uploadUrl).origin).toBe("http://silo:9000");
   });
 
   it("logs a safe summary when an uploaded object cannot be verified", async () => {

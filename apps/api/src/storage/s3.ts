@@ -50,6 +50,7 @@ type StorageConfig = {
   accessKeyId: string;
   secretAccessKey: string;
   publicBaseUrl?: string;
+  publicUploadEndpoint?: string;
   keyPrefix: string;
   forcePathStyle: boolean;
   maxImageUploadBytes: number;
@@ -176,6 +177,7 @@ function getStorageConfig(): StorageConfig {
     accessKeyId,
     secretAccessKey,
     publicBaseUrl: env("S3_PUBLIC_BASE_URL") || undefined,
+    publicUploadEndpoint: env("S3_PUBLIC_UPLOAD_ENDPOINT") || undefined,
     keyPrefix: env("S3_KEY_PREFIX"),
     forcePathStyle: parseBoolean(process.env.S3_FORCE_PATH_STYLE, true),
     maxImageUploadBytes: parsePositiveInt(
@@ -204,12 +206,12 @@ function credentialFingerprint(secretAccessKey: string) {
 
 function getClient(config: StorageConfig, presign = false) {
   // Presigning is offline signing math: no request is sent to the endpoint.
-  // When a public base URL is set, sign against that host so the browser can
+  // When a public upload endpoint is set, sign against that host so the browser can
   // reach the presigned URLs while the API keeps using the private endpoint
   // for its own reads, verifies, and deletes. Public presigned URLs are always
   // path-style: the base URL is a single hostname in front of the storage, and
   // a bucket-prefixed hostname would not resolve to the proxy.
-  const publicEndpoint = presign ? config.publicBaseUrl : undefined;
+  const publicEndpoint = presign ? config.publicUploadEndpoint : undefined;
   const slot = publicEndpoint ? "public" : "private";
   const endpoint = publicEndpoint ?? config.endpoint;
   const forcePathStyle = Boolean(publicEndpoint) || config.forcePathStyle;
