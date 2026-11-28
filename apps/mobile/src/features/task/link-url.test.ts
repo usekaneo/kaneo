@@ -10,6 +10,12 @@ describe("normalizeLinkUrl", () => {
       "https://example.com:8080",
     );
     expect(normalizeLinkUrl("localhost:3000")).toBe("https://localhost:3000");
+    expect(normalizeLinkUrl("intranet:8443/docs")).toBe(
+      "https://intranet:8443/docs",
+    );
+    expect(normalizeLinkUrl("intranet.:8443/docs")).toBe(
+      "https://intranet.:8443/docs",
+    );
     expect(normalizeLinkUrl("192.168.1.10:8080/admin")).toBe(
       "https://192.168.1.10:8080/admin",
     );
@@ -24,6 +30,8 @@ describe("normalizeLinkUrl", () => {
       "mailto:team@example.com",
     );
     expect(normalizeLinkUrl("tel:5551234")).toBe("tel:5551234");
+    expect(normalizeLinkUrl("tel:1234")).toBe("tel:1234");
+    expect(normalizeLinkUrl("facetime:1234")).toBe("facetime:1234");
     expect(normalizeLinkUrl("facetime:5551234")).toBe("facetime:5551234");
     expect(normalizeLinkUrl("sms:+15551234567")).toBe("sms:+15551234567");
     expect(normalizeLinkUrl("spotify:track:4uLU6hMCjMI75M1A2tKUQC")).toBe(
