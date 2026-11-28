@@ -20,6 +20,7 @@ import {
   createProjectBackgroundUploadUrl,
   createTaskImageUploadUrl,
   getFileExtension,
+  headStorageBucket,
   isImageContentType,
   parseBoolean,
   parsePositiveInt,
@@ -141,6 +142,7 @@ describe("S3 helpers", () => {
 
   afterEach(() => {
     vi.restoreAllMocks();
+    vi.unstubAllEnvs();
 
     if (originalMaxSize === undefined) {
       delete process.env.S3_MAX_IMAGE_UPLOAD_BYTES;
@@ -375,6 +377,42 @@ describe("S3 helpers", () => {
     expect(upload.headers).not.toHaveProperty("Content-Length");
     expect(searchParams.has("x-amz-checksum-crc32")).toBe(false);
     expect(searchParams.has("x-amz-sdk-checksum-algorithm")).toBe(false);
+  });
+
+  it("signs uploads on the public gateway and keeps storage checks private", async () => {
+    vi.stubEnv("S3_ENDPOINT", "http://silo:9000");
+    vi.stubEnv("S3_PUBLIC_BASE_URL", "https://files.example.test");
+    vi.stubEnv("S3_BUCKET", "kaneo");
+    vi.stubEnv("S3_ACCESS_KEY_ID", "test-access-key");
+    vi.stubEnv("S3_SECRET_ACCESS_KEY", "test-secret-key");
+    vi.stubEnv("S3_FORCE_PATH_STYLE", "false");
+    const send = vi.spyOn(S3Client.prototype, "send").mockResolvedValue({});
+
+    const upload = await createProjectBackgroundUploadUrl({
+      workspaceId: "workspace-1",
+      projectId: "project-1",
+      contentType: "image/png",
+      size: 12345,
+    });
+    const url = new URL(upload.uploadUrl);
+    expect(url.origin).toBe("https://files.example.test");
+    expect(url.pathname).toBe(`/kaneo/${upload.key}`);
+
+    await headStorageBucket(new AbortController().signal);
+    const privateClient = send.mock.contexts[0] as S3Client;
+    expect(await privateClient.config.endpoint?.()).toMatchObject({
+      protocol: "http:",
+      hostname: "silo",
+      port: 9000,
+    });
+    expect(privateClient.config.forcePathStyle).toBe(false);
+
+    vi.stubEnv("S3_SECRET_ACCESS_KEY", "rotated-test-secret-key");
+    await headStorageBucket(new AbortController().signal);
+    const rotatedClient = send.mock.contexts[1] as S3Client;
+    expect(await rotatedClient.config.credentials()).toMatchObject({
+      secretAccessKey: "rotated-test-secret-key",
+    });
   });
 
   it("logs a safe summary when an uploaded object cannot be verified", async () => {
