@@ -4715,7 +4715,7 @@
 				"url": "URL",
 				"titleLabel": "Название",
 				"optional": "Необязательно",
-				"openFailed": "Couldn’t open this link."
+				"openFailed": "Не удалось открыть ссылку."
 			},
 			"time": {
 				"title": "Время",
