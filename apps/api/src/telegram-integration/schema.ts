@@ -26,6 +26,10 @@ export const createTelegramBody = z.object({
 // Must match TelegramIntegrationPatchBody in controllers/telegram-controller.
 export const updateTelegramBody = z.object({
   botToken: z.string().optional(),
+  expectedServerUrl: telegramServerUrl.nullable().optional().openapi({
+    description:
+      "The serverUrl from the last read, or null for the official server. If supplied, the update is rejected when the stored server URL differs.",
+  }),
   serverUrl: telegramServerUrl.nullable().optional().openapi({
     description:
       "An http(s) URL of a self-hosted Bot API server, without a query, fragment, or credentials, or null to use https://api.telegram.org. Changing it requires the bot token.",

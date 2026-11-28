@@ -109,6 +109,13 @@ describe("buildTelegramRequest", () => {
     });
   });
 
+  it("sends a null expected server URL when rotating a token for the official server", () => {
+    expect(buildTelegramRequest(values(), true)).toMatchObject({
+      kind: "update",
+      json: { expectedServerUrl: null },
+    });
+  });
+
   it("sends the server URL only when it changes", () => {
     const unchanged = buildTelegramRequest(
       values({ botToken: "", serverUrl: "https://tg.example.com/" }),
@@ -124,6 +131,9 @@ describe("buildTelegramRequest", () => {
         true,
         "https://tg.example.com",
       ),
-    ).toMatchObject({ kind: "update", json: { serverUrl: null } });
+    ).toMatchObject({
+      kind: "update",
+      json: { serverUrl: null, expectedServerUrl: "https://tg.example.com" },
+    });
   });
 });

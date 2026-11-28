@@ -5,6 +5,7 @@ import type { TelegramIntegration } from "./get-telegram-integration";
 export type UpdateTelegramIntegrationRequest = {
   botToken?: string;
   serverUrl?: string | null;
+  expectedServerUrl?: string | null;
   chatId?: string;
   threadId?: number | null;
   chatLabel?: string | null;

@@ -105,6 +105,7 @@ export function buildTelegramRequest(
     kind: "update",
     json: {
       botToken: botToken || undefined,
+      ...(botToken ? { expectedServerUrl: savedServerUrl } : {}),
       ...(serverChanged ? { serverUrl: serverUrl || null } : {}),
       chatId,
       threadId: parsedThreadId ?? null,

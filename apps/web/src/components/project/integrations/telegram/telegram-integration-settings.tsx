@@ -61,6 +61,8 @@ export function TelegramIntegrationSettings({
     defaultValues: toTelegramFormValues(null),
   });
   const { reset } = form;
+  // A dirty form can still display the prior server after the query refetches.
+  const { defaultValues } = form.formState;
   const lastResetKeyRef = React.useRef<string | null>(null);
   const resetKey = `${projectId}:${integration?.id ?? "none"}`;
 
@@ -80,7 +82,7 @@ export function TelegramIntegrationSettings({
     const request = buildTelegramRequest(
       values,
       isConnected,
-      integration?.serverUrl,
+      defaultValues?.serverUrl || null,
     );
 
     if (request.kind === "invalid") {

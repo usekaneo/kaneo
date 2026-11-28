@@ -20,10 +20,8 @@ import { requireWorkspacePermission } from "../utils/require-workspace-permissio
 import { workspaceAccess } from "../utils/workspace-access-middleware";
 import {
   assertTelegramServerChange,
-  buildNextTelegramConfigFromPatch,
   getTelegramIntegration,
-  parseTelegramIntegrationConfig,
-  toResponse,
+  updateTelegramIntegration,
 } from "./controllers/telegram-controller";
 import { telegramIntegrationSchema } from "./response";
 import { createTelegramBody, updateTelegramBody } from "./schema";
@@ -133,6 +131,7 @@ const updateTelegramIntegrationRoute = createRoute({
       "No access to the project, or missing workspace:manage_settings",
     ),
     404: errorResponse("Project or Telegram integration not found"),
+    409: errorResponse("The current server URL differs from expectedServerUrl"),
   },
 });
 
@@ -230,60 +229,13 @@ const telegramIntegration = apiRouter<BaseVariables & { workspaceId: string }>()
     const { projectId } = c.req.valid("param");
     const body = c.req.valid("json");
 
-    const existing = await db.query.integrationTable.findFirst({
-      where: and(
-        eq(integrationTable.projectId, projectId),
-        eq(integrationTable.type, "telegram"),
-      ),
-    });
-
-    if (!existing) {
-      throw new HTTPException(404, {
-        message: "Telegram integration not found",
-      });
-    }
-
-    const currentConfig = parseTelegramIntegrationConfig(existing);
-    const nextConfig = normalizeTelegramConfig(
-      buildNextTelegramConfigFromPatch(body, currentConfig),
+    const { integration, changed } = await updateTelegramIntegration(
+      projectId,
+      body,
     );
 
-    const resolvedIsActive =
-      body.isActive !== undefined ? body.isActive : (existing.isActive ?? true);
-
-    if (
-      JSON.stringify(currentConfig) === JSON.stringify(nextConfig) &&
-      resolvedIsActive === (existing.isActive ?? true)
-    ) {
-      return c.json(toResponse(existing), 200);
-    }
-
-    const validation = validateTelegramConfig(nextConfig);
-    if (!validation.valid) {
-      throw new HTTPException(400, {
-        message: validation.errors?.join(", ") ?? "Invalid config",
-      });
-    }
-    assertTelegramServerChange(
-      nextConfig,
-      currentConfig,
-      Boolean(body.botToken?.trim()),
-    );
-
-    await db
-      .update(integrationTable)
-      .set({
-        config: JSON.stringify(nextConfig),
-        isActive: resolvedIsActive,
-        updatedAt: new Date(),
-      })
-      .where(eq(integrationTable.id, existing.id));
-
-    const integration = await getTelegramIntegration(projectId);
-    if (!integration) {
-      throw new HTTPException(500, {
-        message: "Failed to load Telegram integration after update",
-      });
+    if (!changed) {
+      return c.json(integration, 200);
     }
 
     const apiKey = c.get("apiKey");

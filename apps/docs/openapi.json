@@ -22481,6 +22481,14 @@
                   "botToken": {
                     "type": "string"
                   },
+                  "expectedServerUrl": {
+                    "type": [
+                      "string",
+                      "null"
+                    ],
+                    "format": "uri",
+                    "description": "The serverUrl from the last read, or null for the official server. If supplied, the update is rejected when the stored server URL differs."
+                  },
                   "serverUrl": {
                     "type": [
                       "string",
@@ -22578,6 +22586,16 @@
           },
           "404": {
             "description": "Project or Telegram integration not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "The current server URL differs from expectedServerUrl",
             "content": {
               "application/json": {
                 "schema": {

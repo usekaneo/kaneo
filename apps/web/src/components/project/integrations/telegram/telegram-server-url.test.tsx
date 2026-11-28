@@ -138,6 +138,37 @@ describe("Telegram server URL", () => {
     expect(updateIntegration).not.toHaveBeenCalled();
   });
 
+  it("binds a token rotation to the server displayed by a dirty form after a refetch", async () => {
+    state.integration = connected;
+    const { rerender } = render(
+      <TelegramIntegrationSettings projectId="project-1" />,
+    );
+    type("botTokenLabel", token);
+
+    state.integration = {
+      ...connected,
+      serverUrl: "https://other.example.com",
+    };
+    rerender(<TelegramIntegrationSettings projectId="project-1" />);
+    expect(
+      screen.getByLabelText("settings:telegramIntegration.serverUrlLabel"),
+    ).toHaveValue(connected.serverUrl);
+    submit("saveChanges");
+
+    await waitFor(() =>
+      expect(updateIntegration).toHaveBeenCalledWith({
+        projectId: "project-1",
+        json: expect.objectContaining({
+          botToken: token,
+          expectedServerUrl: connected.serverUrl,
+        }),
+      }),
+    );
+    expect(updateIntegration.mock.calls[0][0].json).not.toHaveProperty(
+      "serverUrl",
+    );
+  });
+
   it("goes back to the official server when the field is cleared", async () => {
     state.integration = connected;
     render(<TelegramIntegrationSettings projectId="project-1" />);
