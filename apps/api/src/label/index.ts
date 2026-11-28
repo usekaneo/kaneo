@@ -1,5 +1,6 @@
 import {
   apiRouter,
+  type BaseVariables,
   createRoute,
   errorResponse,
   jsonResponse,
@@ -220,7 +221,7 @@ const deleteLabelRoute = createRoute({
   },
 });
 
-const label = apiRouter()
+const label = apiRouter<BaseVariables & { workspaceId: string }>()
   .openapi(getTaskLabelsRoute, async (c) => {
     const { taskId } = c.req.valid("param");
     return c.json(await getLabelsByTaskId(taskId), 200);
