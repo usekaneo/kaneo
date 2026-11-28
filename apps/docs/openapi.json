@@ -11510,6 +11510,16 @@
                 }
               }
             }
+          },
+          "503": {
+            "description": "Unable to verify the uploaded image in storage",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
           }
         }
       }

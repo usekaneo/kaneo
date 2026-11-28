@@ -142,6 +142,7 @@ describe("secrets read from _FILE variables", () => {
     secretFile("S3_ACCESS_KEY_ID", "access-key");
     secretFile("S3_SECRET_ACCESS_KEY", "secret-key");
     const config = assertStorageConfigured();
+    if (config.backend !== "s3") throw new Error("Expected S3 storage");
     expect(config.accessKeyId).toBe("access-key");
     expect(config.secretAccessKey).toBe("secret-key");
   });
