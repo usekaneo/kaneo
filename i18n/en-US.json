@@ -2870,7 +2870,8 @@
 			"home": "Home",
 			"inbox": "Inbox",
 			"myTasks": "My tasks",
-			"invitePeople": "Invite people"
+			"invitePeople": "Invite people",
+			"tasks": "Tasks"
 		},
 		"projectList": {
 			"viewProject": "View Project",
@@ -2948,6 +2949,7 @@
 				"goToHome": "Go to home",
 				"goToInbox": "Go to inbox",
 				"goToMyTasks": "Go to my tasks",
+				"goToWorkspaceTasks": "Go to workspace tasks",
 				"goToProjects": "Go to projects",
 				"goToSettings": "Go to settings",
 				"goToTasks": "Go to tasks",
@@ -3563,8 +3565,13 @@
 				"priority": "Priority",
 				"assignee": "Assignee",
 				"dueDate": "Due date",
-				"labels": "Labels"
+				"labels": "Labels",
+				"project": "Project"
 			},
+			"unassigned": "Unassigned",
+			"quickFilterLabel": "Filter by assignee",
+			"moreMembers_one": "{{count}} more person",
+			"moreMembers_other": "{{count}} more people",
 			"operators": {
 				"isAnyOf": "is any of",
 				"includeAnyOf": "include any of",
@@ -4018,6 +4025,18 @@
 			"description": "Contact an administrator to restore access.",
 			"otherWorkspaces": "Go to workspaces",
 			"manage": "Manage workspaces"
+		},
+		"tasks": {
+			"pageTitle": "Tasks",
+			"showCompleted": "Show completed tasks",
+			"empty": "No open tasks",
+			"emptyDescription": "Tasks from every project you can see in this workspace show up here.",
+			"emptyFiltered": "No tasks match the current filters.",
+			"loadError": "Tasks couldn't be loaded.",
+			"retry": "Retry",
+			"moveNotAvailable": "{{project}} has no \"{{column}}\" column. Open the task to change its status.",
+			"moveFailed": "The task could not be moved.",
+			"truncated": "Showing {{shown}} of {{total}} tasks. Narrow the filters to see the rest."
 		}
 	},
 	"team": {

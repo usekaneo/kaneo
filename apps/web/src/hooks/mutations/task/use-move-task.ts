@@ -5,6 +5,7 @@ import { invalidateTaskRelations } from "@/lib/invalidate-task-relations";
 import { useTranslation } from "react-i18next";
 import moveTask from "@/fetchers/task/move-task";
 import { toast } from "@/lib/toast";
+import { WORKSPACE_BOARD_KEY } from "@/lib/workspace-board/update-active-workspace-boards";
 
 export function useMoveTask() {
   const { t } = useTranslation();
@@ -15,6 +16,8 @@ export function useMoveTask() {
     onSuccess: (result, variables) => {
       invalidateMyWork(queryClient);
       void invalidateTaskRelations(queryClient, variables.taskId);
+      // The task changes project identity; the merged board reloads instead.
+      queryClient.invalidateQueries({ queryKey: WORKSPACE_BOARD_KEY });
       toast.success(t("tasks:move.success"), { icon: FolderInputIcon });
       queryClient.invalidateQueries({
         queryKey: ["external-links", variables.taskId],

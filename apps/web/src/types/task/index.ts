@@ -41,6 +41,11 @@ type Task = {
   assigneeName: string | null;
   assigneeImage?: string | null;
   projectId: string;
+  // Set on cross-project boards, where the store's project is synthetic.
+  projectSlug?: string | null;
+  projectName?: string | null;
+  projectIcon?: string | null;
+  workspaceId?: string | null;
   columnId?: string | null;
   isSubtask?: boolean;
   subtaskCounts?: { completed: number; total: number };

@@ -3,6 +3,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import ProjectLayout from "@/components/common/project-layout";
 import KanbanBoard from "@/components/kanban-board";
+import BoardSkeleton from "@/components/kanban-board/board-skeleton";
 import ListView from "@/components/list-view";
 import PageTitle from "@/components/page-title";
 import { BoardLoadError } from "@/components/project/board-load-error";
@@ -14,9 +15,9 @@ import { ProjectToolbar } from "@/components/project/toolbar/project-toolbar";
 import { TaskCount } from "@/components/project/toolbar/task-count";
 import { useProjectTaskView } from "@/components/project/toolbar/use-project-task-view";
 import { LayoutSwitch } from "@/components/project/views/layout-switch";
+import { useGoToProjectView } from "@/components/project/views/use-go-to-project-view";
 import CreateTaskModal from "@/components/shared/modals/create-task-modal";
 import TaskDetailsSheet from "@/components/task/task-details-sheet";
-import { Skeleton } from "@/components/ui/skeleton";
 import { useGetTasks } from "@/hooks/queries/task/use-get-tasks";
 import { useBoardSort } from "@/hooks/use-board-sort";
 import { cn } from "@/lib/cn";
@@ -40,50 +41,14 @@ export const Route = createFileRoute(
   }),
 });
 
-const skeletonColumns = [
-  { key: "col-todo", cards: 3 },
-  { key: "col-progress", cards: 4 },
-  { key: "col-review", cards: 2 },
-  { key: "col-done", cards: 1 },
-];
-
-function BoardSkeleton() {
-  return (
-    <div className="delayed-reveal flex h-full w-full overflow-hidden bg-linear-to-b from-muted/20 to-background">
-      <div className="flex h-full min-w-max gap-4 px-4 py-4 md:px-5">
-        {skeletonColumns.map((col) => (
-          <div
-            key={col.key}
-            className="flex h-full max-w-96 min-w-[min(20rem,calc(100vw-4.5rem))] shrink-0 flex-1 flex-col"
-          >
-            <div className="flex h-8 shrink-0 items-center gap-2 mt-1 pr-2 pl-3">
-              <Skeleton className="size-3.5 rounded-full" />
-              <Skeleton className="h-3 w-24" />
-            </div>
-            <div className="flex flex-col gap-2 px-1.5 pt-1.5">
-              {Array.from(
-                { length: col.cards },
-                (_, i) => `${col.key}-${i}`,
-              ).map((cardKey) => (
-                <div
-                  key={cardKey}
-                  className="flex flex-col gap-2.5 rounded-[10px] border border-board-card-border bg-board-card p-3"
-                >
-                  <Skeleton className="h-3 w-12" />
-                  <Skeleton className="h-3.5 w-4/5" />
-                </div>
-              ))}
-            </div>
-          </div>
-        ))}
-      </div>
-    </div>
-  );
-}
-
 function RouteComponent() {
   const { t } = useTranslation();
   const { projectId, workspaceId } = Route.useParams();
+  const goToView = useGoToProjectView({
+    workspaceId,
+    projectId,
+    currentRoute: "board",
+  });
   const { taskId } = Route.useSearch();
   const navigate = useNavigate();
   const {
@@ -145,12 +110,7 @@ function RouteComponent() {
           display={
             <>
               <DisplaySection>
-                <LayoutSwitch
-                  workspaceId={workspaceId}
-                  projectId={projectId}
-                  currentRoute="board"
-                  currentView={viewMode}
-                />
+                <LayoutSwitch currentView={viewMode} onSelect={goToView} />
               </DisplaySection>
               <TaskDisplayOptions
                 projectId={projectId}
@@ -229,8 +189,11 @@ function RouteComponent() {
                     sort.field !== "number" &&
                     sort.field !== "priority")
                 }
-                sortedByNumber={sort.field === "number"}
-                sortedByPriority={sort.field === "priority"}
+                automaticSort={
+                  sort.field === "number" || sort.field === "priority"
+                    ? sort.field
+                    : undefined
+                }
               />
             ) : (
               <ListView

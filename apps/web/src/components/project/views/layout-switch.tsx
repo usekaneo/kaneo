@@ -1,35 +1,27 @@
 import { useTranslation } from "react-i18next";
 import { cn } from "@/lib/cn";
-import {
-  type ProjectRoute,
-  type ProjectView,
-  TASK_LAYOUTS,
-} from "./project-views";
-import { useGoToProjectView } from "./use-go-to-project-view";
+import { type ProjectView, TASK_LAYOUTS } from "./project-views";
 
 type LayoutSwitchProps = {
-  workspaceId: string;
-  projectId: string;
-  currentRoute: ProjectRoute;
+  layouts?: typeof TASK_LAYOUTS;
   currentView: ProjectView;
+  onSelect: (view: ProjectView) => void;
 };
 
 export function LayoutSwitch({
-  workspaceId,
-  projectId,
-  currentRoute,
+  layouts = TASK_LAYOUTS,
   currentView,
+  onSelect,
 }: LayoutSwitchProps) {
   const { t } = useTranslation();
-  const goToView = useGoToProjectView({ workspaceId, projectId, currentRoute });
 
   return (
     <div
       role="group"
       aria-label={t("tasks:display.layout")}
-      className="grid grid-cols-4 gap-1 rounded-lg border border-border/80 bg-background p-1 dark:bg-input/32"
+      className="grid auto-cols-fr grid-flow-col gap-1 rounded-lg border border-border/80 bg-background p-1 dark:bg-input/32"
     >
-      {TASK_LAYOUTS.map((layout) => {
+      {layouts.map((layout) => {
         const Icon = layout.icon;
         const active = layout.id === currentView;
         return (
@@ -37,7 +29,7 @@ export function LayoutSwitch({
             key={layout.id}
             type="button"
             aria-pressed={active}
-            onClick={() => goToView(layout.id)}
+            onClick={() => onSelect(layout.id)}
             className={cn(
               "flex h-13 flex-col items-center justify-center gap-1 rounded-[calc(var(--radius-lg)-5px)] text-xs font-medium outline-none transition-colors focus-visible:ring-2 focus-visible:ring-ring",
               active

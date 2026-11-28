@@ -7,11 +7,19 @@ import { useGetActiveWorkspaceUsers } from "@/hooks/queries/workspace-users/use-
 
 export type TaskFilterOptions = ReturnType<typeof useTaskFilterOptions>;
 
-export function useTaskFilterOptions(projectId: string, workspaceId: string) {
+/** Without a project (cross-project boards) only members and labels load. */
+export function useTaskFilterOptions(
+  projectId: string | undefined,
+  workspaceId: string,
+) {
   const { data: users } = useGetActiveWorkspaceUsers(workspaceId);
   const { data: labels = [] } = useGetLabelsByWorkspace(workspaceId);
-  const { data: rawCustomFields = [] } = useGetCustomFieldsByProject(projectId);
-  const { data: filterValues = [] } = useGetCustomFieldFilterValues(projectId);
+  const { data: rawCustomFields = [] } = useGetCustomFieldsByProject(
+    projectId ?? "",
+  );
+  const { data: filterValues = [] } = useGetCustomFieldFilterValues(
+    projectId ?? "",
+  );
 
   const customFields = useMemo<CustomFieldDefinition[]>(
     () =>

@@ -9,6 +9,7 @@ export function countActiveFilters(filters: BoardFilters) {
       "dueDate",
       "startDate",
       "labels",
+      "project",
     ] as const
   ).filter((key) => (filters[key]?.length ?? 0) > 0).length;
   const customFieldCount = Object.values(filters.customFields ?? {}).filter(

@@ -1188,6 +1188,217 @@
           "labels"
         ]
       },
+      "WorkspaceBoardResponse": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "$ref": "#/components/schemas/WorkspaceBoard"
+          },
+          "pagination": {
+            "$ref": "#/components/schemas/WorkspaceBoardPagination"
+          }
+        },
+        "required": [
+          "data",
+          "pagination"
+        ]
+      },
+      "WorkspaceBoard": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Synthetic board id: workspace-board:{workspaceId}."
+          },
+          "name": {
+            "type": "string"
+          },
+          "slug": {
+            "type": "string"
+          },
+          "icon": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "description": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "isPublic": {
+            "type": [
+              "boolean",
+              "null"
+            ]
+          },
+          "workspaceId": {
+            "type": "string"
+          },
+          "backgroundVersion": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "columns": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/WorkspaceBoardColumn"
+            }
+          },
+          "archivedTasks": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/WorkspaceBoardTask"
+            }
+          },
+          "plannedTasks": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/WorkspaceBoardTask"
+            }
+          },
+          "projects": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/WorkspaceBoardProject"
+            }
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "slug",
+          "icon",
+          "description",
+          "isPublic",
+          "workspaceId",
+          "backgroundVersion",
+          "columns",
+          "archivedTasks",
+          "plannedTasks",
+          "projects"
+        ]
+      },
+      "WorkspaceBoardColumn": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/BoardColumn"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "tasks": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/WorkspaceBoardTask"
+                }
+              }
+            }
+          }
+        ]
+      },
+      "WorkspaceBoardTask": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/BoardTask"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "projectSlug": {
+                "type": "string"
+              },
+              "projectName": {
+                "type": "string"
+              },
+              "projectIcon": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "workspaceId": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "projectSlug",
+              "projectName",
+              "projectIcon",
+              "workspaceId"
+            ]
+          }
+        ]
+      },
+      "WorkspaceBoardProject": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "slug": {
+            "type": "string"
+          },
+          "icon": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "columnSlugs": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "Column slugs this project defines; a task can only be moved into one of them."
+          },
+          "finalColumnSlugs": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "Column slugs that mark a task done in this project; merged columns can differ between projects."
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "slug",
+          "icon",
+          "columnSlugs",
+          "finalColumnSlugs"
+        ]
+      },
+      "WorkspaceBoardPagination": {
+        "type": "object",
+        "properties": {
+          "total": {
+            "type": "number"
+          },
+          "page": {
+            "type": "number"
+          },
+          "pageSize": {
+            "type": "number"
+          },
+          "totalPages": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "total",
+          "page",
+          "pageSize",
+          "totalPages"
+        ]
+      },
       "BoardResponse": {
         "type": "object",
         "properties": {
@@ -12086,6 +12297,192 @@
           },
           "429": {
             "$ref": "#/components/responses/ApiKeyRateLimited"
+          }
+        }
+      }
+    },
+    "/task/workspace-board": {
+      "get": {
+        "operationId": "getWorkspaceBoard",
+        "tags": [
+          "Tasks"
+        ],
+        "summary": "Workspace board",
+        "description": "Get one board of the tasks across every active project the caller can access in a workspace. Columns from different projects are merged by slug. Open tasks only, unless includeCompleted=true; archived and planned tasks are never included. Filters apply before pagination. Ordered by due date (undated last), then priority, then position. Responses contain at most 100 tasks (50 by default); continue through pagination.totalPages for the whole board. Large descriptions are omitted with descriptionDeferred=true.",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "minLength": 1
+            },
+            "required": true,
+            "name": "workspaceId",
+            "in": "query"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "description": "Comma-separated project ids. Omit for every accessible project."
+            },
+            "required": false,
+            "description": "Comma-separated project ids. Omit for every accessible project.",
+            "name": "projectIds",
+            "in": "query"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "description": "Comma-separated user ids. Use \"unassigned\" for tasks without an assignee."
+            },
+            "required": false,
+            "description": "Comma-separated user ids. Use \"unassigned\" for tasks without an assignee.",
+            "name": "assigneeIds",
+            "in": "query"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "description": "Comma-separated column slugs."
+            },
+            "required": false,
+            "description": "Comma-separated column slugs.",
+            "name": "status",
+            "in": "query"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "description": "Comma-separated priorities."
+            },
+            "required": false,
+            "description": "Comma-separated priorities.",
+            "name": "priority",
+            "in": "query"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "description": "Comma-separated label ids; a task matches when it carries a label of this workspace with the same name and color as any of them."
+            },
+            "required": false,
+            "description": "Comma-separated label ids; a task matches when it carries a label of this workspace with the same name and color as any of them.",
+            "name": "labelIds",
+            "in": "query"
+          },
+          {
+            "schema": {
+              "type": "string"
+            },
+            "required": false,
+            "name": "dueBefore",
+            "in": "query"
+          },
+          {
+            "schema": {
+              "type": "string"
+            },
+            "required": false,
+            "name": "dueAfter",
+            "in": "query"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "enum": [
+                "true",
+                "false"
+              ],
+              "description": "Include tasks sitting in a final column. Archived and planned tasks are never returned."
+            },
+            "required": false,
+            "description": "Include tasks sitting in a final column. Archived and planned tasks are never returned.",
+            "name": "includeCompleted",
+            "in": "query"
+          },
+          {
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 1000000
+            },
+            "required": false,
+            "name": "page",
+            "in": "query"
+          },
+          {
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100
+            },
+            "required": false,
+            "name": "limit",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The merged workspace board",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WorkspaceBoardResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid workspace ID or query parameters",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid credentials",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Missing project:read or task:read permission",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Workspace not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "429": {
+            "$ref": "#/components/responses/ApiKeyRateLimited"
+          },
+          "503": {
+            "description": "Workspace board request timed out",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
           }
         }
       }

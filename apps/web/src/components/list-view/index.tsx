@@ -24,6 +24,8 @@ import useGetProjectTaskRelations from "@/hooks/queries/task-relation/use-get-pr
 import { useTaskViewShortcuts } from "@/components/project/task-view-keys/use-task-view-shortcuts";
 import { useCollapsedSections } from "@/hooks/use-collapsed-sections";
 import { cn } from "@/lib/cn";
+import { boardTaskProject, findBoardTask } from "@/lib/board-task";
+import { useBulkSelectionEnabled } from "@/hooks/use-bulk-selection-enabled";
 import {
   readExpandedRows,
   writeExpandedRows,
@@ -38,16 +40,29 @@ import { ArchiveTasksModal } from "../shared/modals/archive-tasks-modal";
 import CreateTaskModal from "../shared/modals/create-task-modal";
 import ListColumnSection from "./list-column-section";
 
+type ListTask = ProjectWithTasks["columns"][number]["tasks"][number];
+type ListColumn = ProjectWithTasks["columns"][number];
+
 type ListViewProps = {
   project: ProjectWithTasks;
   disableDragDrop?: boolean;
   disableCollectionActions?: boolean;
+  disableTaskCreation?: boolean;
+  disableBulkActions?: boolean;
+  /** Cross-project boards have no project relations to nest subtasks by. */
+  disableSubtasks?: boolean;
+  /** See KanbanBoard: cross-project boards only change a task's status. */
+  onTaskStatusChange?: (task: ListTask, column: ListColumn) => void;
 };
 
 function ListView({
   project,
   disableDragDrop = false,
   disableCollectionActions = false,
+  disableTaskCreation = false,
+  disableBulkActions = false,
+  disableSubtasks = false,
+  onTaskStatusChange,
 }: ListViewProps) {
   const { t } = useTranslation();
   const reduceMotion = useReducedMotion();
@@ -78,7 +93,7 @@ function ListView({
     isLoading: relationsLoading,
     isError: relationsFailed,
     refetch: refetchRelations,
-  } = useGetProjectTaskRelations(project?.id ?? "");
+  } = useGetProjectTaskRelations(disableSubtasks ? "" : (project?.id ?? ""));
 
   const subtaskChildren = useMemo(
     () => buildSubtaskChildren(relations ?? []),
@@ -171,6 +186,8 @@ function ListView({
     clearFocus();
   }, [clearFocus]);
 
+  useBulkSelectionEnabled(!disableBulkActions);
+
   const sensors = useSensors(
     useSensor(MouseSensor, {
       activationConstraint: { distance: disableDragDrop ? 999999 : 8 },
@@ -214,6 +231,17 @@ function ListView({
 
   const moveTask = (activeTaskId: string, overId: string) => {
     if (disableDragDrop || !project?.columns) return;
+    if (onTaskStatusChange) {
+      const task = findBoardTask(project, activeTaskId);
+      const target = project.columns.find(
+        (column) =>
+          column.id === overId ||
+          column.tasks.some((candidate) => candidate.id === overId),
+      );
+      if (task && target && target.slug !== task.status)
+        onTaskStatusChange(task, target);
+      return;
+    }
 
     const updatedProject = produce(project, (draft) => {
       const sourceColumn = draft?.columns?.find((col) =>
@@ -317,6 +345,7 @@ function ListView({
         taskIds: column.tasks.map((task) => task.id),
       })),
     project,
+    resolveTaskProject: (taskId) => boardTaskProject(project, taskId),
     enabled: activeId === null,
     canMove: !disableDragDrop,
     onMove: moveTask,
@@ -427,6 +456,7 @@ function ListView({
                 Boolean(activeId) && overColumnId === column.id
               }
               disableCollectionActions={disableCollectionActions}
+              disableTaskCreation={disableTaskCreation}
               onToggle={toggleSection}
               onAddTask={handleAddTask}
               onArchive={handleArchiveClick}
@@ -457,7 +487,8 @@ function ListView({
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-1.5">
                   <span className="text-[10px] font-mono text-muted-foreground">
-                    {project?.slug}-{activeTask.number}
+                    {activeTask.projectSlug ?? project?.slug}-
+                    {activeTask.number}
                   </span>
                   <span className="text-xs text-foreground truncate">
                     {activeTask.title}
@@ -486,7 +517,7 @@ function ListView({
         taskCount={archiveColumn?.tasks.length ?? 0}
       />
 
-      <BulkToolbar />
+      {!disableBulkActions && <BulkToolbar />}
     </DndContext>
   );
 }

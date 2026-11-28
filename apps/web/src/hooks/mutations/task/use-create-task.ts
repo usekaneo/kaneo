@@ -4,6 +4,7 @@ import createTask, {
   type CreateTaskRequest,
 } from "@/fetchers/task/create-task";
 import { trackFirstTask } from "@/lib/analytics/activation";
+import { WORKSPACE_BOARD_KEY } from "@/lib/workspace-board/update-active-workspace-boards";
 
 function useCreateTask() {
   const queryClient = useQueryClient();
@@ -37,6 +38,7 @@ function useCreateTask() {
       ),
     onSuccess: (_data, variables) => {
       invalidateMyWork(queryClient);
+      queryClient.invalidateQueries({ queryKey: WORKSPACE_BOARD_KEY });
       void queryClient.invalidateQueries({ queryKey: ["projects"] });
       trackFirstTask();
       void queryClient.invalidateQueries({

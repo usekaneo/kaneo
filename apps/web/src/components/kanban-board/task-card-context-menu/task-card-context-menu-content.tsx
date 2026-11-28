@@ -64,8 +64,12 @@ export default function TaskCardContextMenuContent({
   const { project } = useProjectStore();
   const queryClient = useQueryClient();
   const { data: columnsData = [] } = useGetColumns(taskCardContext.projectId);
+  // A cross-project board stores merged columns; only the task's own project
+  // knows which statuses it accepts.
   const columns =
-    project?.columns && project.columns.length > 0
+    project?.id === task.projectId &&
+    project.columns &&
+    project.columns.length > 0
       ? project.columns.map((col) => ({
           slug: col.id,
           name: col.name,

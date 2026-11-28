@@ -7,6 +7,7 @@ import {
 } from "date-fns";
 import type { BoardFilters } from "@/hooks/use-task-filters";
 import { DUE_DATE_FILTER_VALUES } from "./due-date-filter-values";
+import { UNASSIGNED_ASSIGNEE_FILTER } from "./unassigned-assignee-filter";
 import type Task from "@/types/task";
 import { matchesDateCondition, parseDateCondition } from "./date-condition";
 import { customFieldSubjectId } from "./filter-subject-id";
@@ -28,9 +29,11 @@ function matchesQuery(task: Task, context: TaskFilterContext) {
   if (!query) return true;
 
   const taskNumber = task.number?.toString() ?? "";
+  // Cross-project boards carry each task's own slug; project boards share one.
+  const projectSlug = task.projectSlug ?? context.projectSlug;
   const identifier =
-    taskNumber && context.projectSlug
-      ? `${context.projectSlug}-${taskNumber}`.toLowerCase()
+    taskNumber && projectSlug
+      ? `${projectSlug}-${taskNumber}`.toLowerCase()
       : "";
 
   return (
@@ -100,7 +103,14 @@ export function taskMatchesFilters(
     [
       "assignee",
       filters.assignee,
-      () => filters.assignee?.includes(task.userId ?? "") ?? false,
+      () =>
+        filters.assignee?.includes(task.userId ?? UNASSIGNED_ASSIGNEE_FILTER) ??
+        false,
+    ],
+    [
+      "project",
+      filters.project,
+      () => filters.project?.includes(task.projectId) ?? false,
     ],
     [
       "dueDate",

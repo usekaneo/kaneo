@@ -163,7 +163,7 @@ function TaskCardContent({
                           : "text-board-id",
                       )}
                     >
-                      {projectSlug}-{task.number}
+                      {task.projectSlug ?? projectSlug}-{task.number}
                     </span>
                   )}
                 </div>
@@ -223,7 +223,7 @@ function TaskCardContent({
           <TaskCardContextMenuContent
             task={task}
             taskCardContext={{
-              projectId,
+              projectId: task.projectId,
               worskpaceId: workspace.id,
               workspaceSlug: workspace.slug,
             }}

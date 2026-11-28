@@ -22,7 +22,7 @@ const priorityOrder: Record<string, number> = {
   low: 1,
 };
 
-function getPriorityValue(priority: string | null): number {
+export function getPriorityValue(priority: string | null): number {
   if (!priority) return 0;
   return priorityOrder[priority] ?? 0;
 }

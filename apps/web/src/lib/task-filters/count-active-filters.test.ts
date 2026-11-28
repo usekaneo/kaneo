@@ -10,6 +10,7 @@ it("counts each filtered subject once", () => {
       dueDate: ["noDueDate"],
       labels: null,
       customFields: { size: ["L"], team: [] },
+      project: ["p1"],
     }),
-  ).toBe(3);
+  ).toBe(4);
 });

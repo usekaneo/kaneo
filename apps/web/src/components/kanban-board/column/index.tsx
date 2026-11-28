@@ -15,6 +15,7 @@ type ColumnProps = {
   disableSorting?: boolean;
   disableCollectionActions?: boolean;
   animateEntries?: boolean;
+  disableTaskCreation?: boolean;
 };
 
 export const columnVariants = cva(
@@ -69,6 +70,7 @@ function Column({
   disableSorting = false,
   disableCollectionActions = false,
   animateEntries = true,
+  disableTaskCreation = false,
 }: ColumnProps) {
   const { setNodeRef, isOver } = useDroppable({
     id: column.id,
@@ -91,6 +93,7 @@ function Column({
         <ColumnHeader
           column={column}
           disableCollectionActions={disableCollectionActions}
+          disableTaskCreation={disableTaskCreation}
         />
       </div>
       <div

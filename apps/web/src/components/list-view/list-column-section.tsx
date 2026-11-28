@@ -23,6 +23,7 @@ type ListColumnSectionProps = {
   isExpanded: boolean;
   showDropIndicator: boolean;
   disableCollectionActions: boolean;
+  disableTaskCreation?: boolean;
   onToggle: (columnId: string) => void;
   onAddTask: (columnId: string) => void;
   onArchive: (column: Column) => void;
@@ -42,6 +43,7 @@ const ListColumnSection = memo(function ListColumnSection({
   isExpanded,
   showDropIndicator,
   disableCollectionActions,
+  disableTaskCreation = false,
   onToggle,
   onAddTask,
   onArchive,
@@ -99,15 +101,17 @@ const ListColumnSection = memo(function ListColumnSection({
         </button>
 
         <div className="flex items-center gap-1 pointer-coarse:gap-6">
-          <button
-            type="button"
-            onClick={() => onAddTask(column.id)}
-            className="touch-hitbox relative p-1 hover:bg-accent rounded text-muted-foreground hover:text-foreground transition-colors"
-            title={t("tasks:listView.addTask")}
-            aria-label={t("tasks:listView.addTask")}
-          >
-            <Plus className="w-3 h-3" />
-          </button>
+          {!disableTaskCreation && (
+            <button
+              type="button"
+              onClick={() => onAddTask(column.id)}
+              className="touch-hitbox relative p-1 hover:bg-accent rounded text-muted-foreground hover:text-foreground transition-colors"
+              title={t("tasks:listView.addTask")}
+              aria-label={t("tasks:listView.addTask")}
+            >
+              <Plus className="w-3 h-3" />
+            </button>
+          )}
 
           {column.isFinal && column.tasks.length > 0 && (
             <button
@@ -150,7 +154,7 @@ const ListColumnSection = memo(function ListColumnSection({
                 >
                   <TaskRow
                     task={row.task}
-                    projectSlug={projectSlug}
+                    projectSlug={row.task.projectSlug ?? projectSlug}
                     depth={row.depth}
                     rowId={row.rowId}
                     childCount={row.childCount}

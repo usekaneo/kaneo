@@ -3,6 +3,7 @@ import {
   markBoardCacheChanged,
 } from "@/lib/board-cache-version";
 import type { QueryClient } from "@tanstack/react-query";
+import { updateActiveWorkspaceBoards } from "@/lib/workspace-board/update-active-workspace-boards";
 import type { ProjectWithTasks } from "@/types/project";
 import type Task from "@/types/task";
 
@@ -51,6 +52,9 @@ export function syncTaskLabelsInTasksCache(
   taskId: string,
   updater: TaskLabelsUpdater,
 ) {
+  updateActiveWorkspaceBoards(queryClient, (board) =>
+    updateTaskLabelsInProject(board, taskId, updater),
+  );
   const boards = queryClient.getQueryCache().findAll({
     queryKey: ["tasks"],
     predicate: (query) => query.queryKey.length === 2,

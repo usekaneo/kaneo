@@ -35,6 +35,7 @@ const m = vi.hoisted(() => ({
   mutate: vi.fn(),
   setProject: vi.fn(),
   relations: { data: [] as unknown[], isLoading: false, isError: false },
+  relationsProjectId: undefined as string | undefined,
   refetchRelations: vi.fn(),
 }));
 vi.mock("@dnd-kit/core", async (original) => ({
@@ -57,7 +58,10 @@ vi.mock("@/store/project", () => ({
 // This view groups subtasks under their parents, so it reads the project's
 // relations. The suite mounts ListView without a QueryClientProvider.
 vi.mock("@/hooks/queries/task-relation/use-get-project-task-relations", () => ({
-  default: () => ({ ...m.relations, refetch: m.refetchRelations }),
+  default: (projectId: string) => {
+    m.relationsProjectId = projectId;
+    return { ...m.relations, refetch: m.refetchRelations };
+  },
 }));
 vi.mock("./task-row", () => ({ default: () => null }));
 vi.mock("../bulk-selection/bulk-toolbar", () => ({ default: () => null }));
@@ -258,4 +262,62 @@ it("keeps collapsed lanes per project after the list view unmounts", () => {
 
   render(<ListView project={makeProject("other")} />, { wrapper: Providers });
   expect(lane("To do")).toHaveAttribute("aria-expanded", "true");
+});
+
+it("only changes the status on status-only boards", () => {
+  const project = {
+    id: "workspace-board:w",
+    workspaceId: "w",
+    columns: [
+      {
+        id: "todo",
+        slug: "todo",
+        name: "To do",
+        tasks: [{ id: "a", status: "todo", projectId: "p", position: 0 }],
+      },
+      {
+        id: "doing",
+        slug: "doing",
+        name: "Doing",
+        tasks: [{ id: "b", status: "doing", projectId: "q", position: 0 }],
+      },
+    ],
+    plannedTasks: [],
+    archivedTasks: [],
+  } as unknown as ProjectWithTasks;
+  const onTaskStatusChange = vi.fn();
+  render(
+    <ListView
+      project={project}
+      disableTaskCreation
+      disableBulkActions
+      disableSubtasks
+      onTaskStatusChange={onTaskStatusChange}
+    />,
+    { wrapper: Providers },
+  );
+  expect(screen.queryByTitle(/listView.addTask/)).toBeNull();
+  // The synthetic board id is no project; asking for its relations would 404.
+  expect(m.relationsProjectId).toBe("");
+
+  act(() =>
+    m.props.onDragEnd?.({
+      active: { id: "a" },
+      over: { id: "b" },
+    } as DragEndEvent),
+  );
+  expect(onTaskStatusChange).toHaveBeenCalledWith(
+    expect.objectContaining({ id: "a" }),
+    expect.objectContaining({ slug: "doing" }),
+  );
+
+  act(() =>
+    m.props.onDragEnd?.({
+      active: { id: "a" },
+      over: { id: "todo" },
+    } as DragEndEvent),
+  );
+  expect(onTaskStatusChange).toHaveBeenCalledTimes(1);
+  expect(m.mutate).not.toHaveBeenCalled();
+  expect(m.setProject).not.toHaveBeenCalled();
 });
