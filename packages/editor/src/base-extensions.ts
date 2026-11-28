@@ -12,6 +12,7 @@ import { AttachmentCard } from "./attachment-card";
 import { EmbedBlock } from "./embed-block";
 import { KaneoImage } from "./kaneo-image";
 import { KaneoIssueLink } from "./kaneo-issue-link";
+import { InlineCodeInputRule } from "./inline-code-input-rule";
 import { SafeHardBreak } from "./safe-hard-break";
 
 export type BaseExtensionNodes = {
@@ -50,6 +51,7 @@ export function createBaseExtensions({
       hardBreak: false,
     }),
     SafeHardBreak,
+    InlineCodeInputRule,
     ...keymap,
     Markdown.configure({ markedOptions: { breaks: true, gfm: true } }),
     ...decorations,
