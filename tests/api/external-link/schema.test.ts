@@ -52,6 +52,15 @@ describe("pull request links", () => {
     });
   });
 
+  it("requires an HTTP or HTTPS URL for pull request links", () => {
+    expect(
+      createExternalLinkBody.safeParse({
+        url: "obsidian://open",
+        resourceType: "pull_request",
+      }).success,
+    ).toBe(false);
+  });
+
   it.each([
     { resourceType: "issue" },
     { resourceType: "pull_request", metadata: { state: "merged" } },

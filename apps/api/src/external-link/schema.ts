@@ -26,28 +26,31 @@ function hasAllowedScheme(value: string) {
   }
 }
 
-export const createExternalLinkBody = z.object({
-  url: z
-    .string()
-    .url()
-    .refine(hasAllowedScheme, "URL scheme is not allowed")
-    .describe(
-      "A URL, such as an HTTPS link or an app link like obsidian://. Pull request links must use HTTP or HTTPS. javascript:, data:, vbscript:, file: and blob: URLs are rejected.",
-    ),
-  title: z.string().max(200).optional(),
-  resourceType: z
-    .enum(["url", "pull_request"])
-    .default("url")
-    .describe(
-      "`url` for a resource link, or `pull_request` to show the link as a pull request with its status",
-    ),
-  metadata: pullRequestMetadata
-    .optional()
-    .describe("Pull request status. Only accepted for `pull_request` links."),
-}).refine(
-  ({ url, resourceType }) => resourceType !== "pull_request" || /^https?:\/\//i.test(url),
-  { path: ["url"], message: "Pull request links must use HTTP or HTTPS" },
-);
+export const createExternalLinkBody = z
+  .object({
+    url: z
+      .string()
+      .url()
+      .refine(hasAllowedScheme, "URL scheme is not allowed")
+      .describe(
+        "A URL, such as an HTTPS link or an app link like obsidian://. Pull request links must use HTTP or HTTPS. javascript:, data:, vbscript:, file: and blob: URLs are rejected.",
+      ),
+    title: z.string().max(200).optional(),
+    resourceType: z
+      .enum(["url", "pull_request"])
+      .default("url")
+      .describe(
+        "`url` for a resource link, or `pull_request` to show the link as a pull request with its status",
+      ),
+    metadata: pullRequestMetadata
+      .optional()
+      .describe("Pull request status. Only accepted for `pull_request` links."),
+  })
+  .refine(
+    ({ url, resourceType }) =>
+      resourceType !== "pull_request" || /^https?:\/\//i.test(url),
+    { path: ["url"], message: "Pull request links must use HTTP or HTTPS" },
+  );
 
 export const updateExternalLinkBody = z
   .object({

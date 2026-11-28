@@ -22977,7 +22977,7 @@
                   "url": {
                     "type": "string",
                     "format": "uri",
-                    "description": "A URL, such as an HTTPS link or an app link like obsidian://. javascript:, data:, vbscript:, file: and blob: URLs are rejected."
+                    "description": "A URL, such as an HTTPS link or an app link like obsidian://. Pull request links must use HTTP or HTTPS. javascript:, data:, vbscript:, file: and blob: URLs are rejected."
                   },
                   "title": {
                     "type": "string",
