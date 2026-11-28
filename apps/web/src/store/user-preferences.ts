@@ -12,6 +12,8 @@ export type TaskLayout = "board" | "list" | "calendar" | "gantt";
 
 export type PriorityIconStyle = "marks" | "classic";
 
+export const DEFAULT_COLUMN_BACKDROP = { opacity: 60, blur: 6 } as const;
+
 type UserPreferencesStore = {
   theme: "light" | "dark" | "system";
   setTheme: (
@@ -48,6 +50,10 @@ type UserPreferencesStore = {
   togglePriority: () => void;
   showProjectBackgrounds: boolean;
   setShowProjectBackgrounds: (show: boolean) => void;
+  columnOpacity: number;
+  setColumnOpacity: (opacity: number) => void;
+  columnBlur: number;
+  setColumnBlur: (blur: number) => void;
   showTaskItemCounts: boolean;
   setShowTaskItemCounts: (show: boolean) => void;
   toggleTaskItemCounts: () => void;
@@ -130,6 +136,10 @@ export const useUserPreferencesStore = create<UserPreferencesStore>()(
       showProjectBackgrounds: true,
       setShowProjectBackgrounds: (show) =>
         set({ showProjectBackgrounds: show }),
+      columnOpacity: DEFAULT_COLUMN_BACKDROP.opacity,
+      setColumnOpacity: (opacity) => set({ columnOpacity: opacity }),
+      columnBlur: DEFAULT_COLUMN_BACKDROP.blur,
+      setColumnBlur: (blur) => set({ columnBlur: blur }),
       showTaskItemCounts: true,
       setShowTaskItemCounts: (show) => set({ showTaskItemCounts: show }),
       toggleTaskItemCounts: () =>

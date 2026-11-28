@@ -3782,6 +3782,10 @@
 			"showOnRows": "Show on rows",
 			"checklistProgress": "Checklist progress",
 			"projectBackground": "Project background",
+			"columnOpacity": "Column opacity",
+			"columnBlur": "Column blur",
+			"resetColumnOpacity": "Reset column opacity to default",
+			"resetColumnBlur": "Reset column blur to default",
 			"layout": "Layout",
 			"includeSubtasks": "Include Sub Tasks",
 			"useProjectDefault": "Use project default"
