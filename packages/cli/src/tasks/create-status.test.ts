@@ -47,13 +47,22 @@ describe("createStatus", () => {
     );
   });
 
+  it("accepts the backlog", () => {
+    expect(slugOf(createStatus(columns, "planned", "Kaneo Web"))).toBe(
+      "planned",
+    );
+    expect(slugOf(createStatus(columns, "backlog", "Kaneo Web"))).toBe(
+      "planned",
+    );
+  });
+
   it("lists the columns when nothing matches", () => {
     const result = createStatus(columns, "blocked", "Kaneo Web");
     expect(Result.isFailure(result)).toBe(true);
     if (Result.isFailure(result)) {
       expect(result.failure.message).toBe('Kaneo Web has no column "blocked".');
       expect(result.failure.hint).toBe(
-        "Pass -s with one of: to-do, in-progress, done.",
+        "Pass -s with one of: to-do, in-progress, done, planned.",
       );
     }
   });

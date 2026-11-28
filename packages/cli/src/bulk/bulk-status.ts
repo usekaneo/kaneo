@@ -1,7 +1,7 @@
 import { Result } from "effect";
 import type { Column } from "../api/schemas.js";
 import { InvalidArgument } from "../errors/errors.js";
-import { matchColumn } from "../tasks/match-column.js";
+import { BACKLOG_STATUS, matchStatus } from "../tasks/backlog.js";
 
 export type ProjectColumns = {
   readonly name: string;
@@ -12,6 +12,7 @@ function slugList(columns: ReadonlyArray<Column>): string {
   return [...columns]
     .sort((a, b) => a.position - b.position)
     .map((column) => column.slug)
+    .concat(BACKLOG_STATUS)
     .join(", ");
 }
 
@@ -22,7 +23,7 @@ export function resolveBulkStatus(
   let chosen: { readonly column: Column; readonly project: string } | null =
     null;
   for (const project of projects) {
-    const match = matchColumn(project.columns, reference);
+    const match = matchStatus(project.columns, reference);
     if (!match) {
       return Result.fail(
         new InvalidArgument({
