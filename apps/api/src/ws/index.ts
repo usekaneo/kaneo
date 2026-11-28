@@ -946,11 +946,25 @@ async function publishRequiredProjectBroadcast(
   excludeInitiatorId?: string,
 ) {
   if (!adapter) throw new Error("WebSocket broadcast adapter is unavailable");
-  await adapter.publish({
-    projectId: message.projectId,
-    message,
-    excludeInitiatorId,
+  let timer: ReturnType<typeof setTimeout> | undefined;
+  const deadline = new Promise<never>((_, reject) => {
+    timer = setTimeout(
+      () => reject(new Error("WebSocket broadcast handoff timed out")),
+      5_000,
+    );
   });
+  try {
+    await Promise.race([
+      adapter.publish({
+        projectId: message.projectId,
+        message,
+        excludeInitiatorId,
+      }),
+      deadline,
+    ]);
+  } finally {
+    clearTimeout(timer);
+  }
 }
 
 type TaskEvent = {
