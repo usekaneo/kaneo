@@ -13,7 +13,7 @@ vi.mock("react-i18next", () => ({
   initReactI18next: { type: "3rdParty", init: () => {} },
 }));
 vi.mock("@/hooks/queries/task/use-get-task", () => ({
-  default: () => ({ data: mocks.task }),
+  default: (id: string) => ({ data: { ...mocks.task, id } }),
 }));
 vi.mock("@/hooks/mutations/task/use-update-task-title", () => ({
   useUpdateTaskTitle: () => ({ mutateAsync: mocks.mutateAsync }),
@@ -97,6 +97,28 @@ describe("TaskTitle", () => {
     expect(mocks.mutateAsync).toHaveBeenLastCalledWith(
       expect.objectContaining({ title: "New title" }),
     );
+  });
+
+  it("does not retry an old task's failed save on the next task", async () => {
+    let fail: (error: Error) => void = () => {};
+    mocks.mutateAsync
+      .mockReturnValueOnce(
+        new Promise<void>((_resolve, reject) => {
+          fail = reject;
+        }),
+      )
+      .mockResolvedValue({});
+    const { container, rerender } = render(<TaskTitle taskId="old-task" />);
+
+    edit(getTextarea(container), "Title for the old task");
+    await waitFor(() => expect(mocks.mutateAsync).toHaveBeenCalledTimes(1));
+    rerender(<TaskTitle taskId="next-task" />);
+    fail(new Error("offline"));
+    await waitFor(() => expect(mocks.toastError).toHaveBeenCalledTimes(1));
+
+    fireEvent.blur(getTextarea(container));
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    expect(mocks.mutateAsync).toHaveBeenCalledTimes(1);
   });
 
   it("saves a quick revert after the first save finishes", async () => {

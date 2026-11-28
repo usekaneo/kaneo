@@ -60,8 +60,11 @@ export default function TaskTitle({ taskId, size = "md" }: TaskTitleProps) {
         await updateTaskRef.current({ ...currentTask, title: value });
       } catch (error) {
         toast.error(tRef.current("tasks:detail.editor.saveFailed"));
-        // Retry on the next blur, unless a newer edit replaced it.
-        if (titleSaveQueue.get(currentTask.id)?.value === value)
+        // Only restore this editor's draft if it still shows the same task.
+        if (
+          taskRef.current?.id === currentTask.id &&
+          titleSaveQueue.get(currentTask.id)?.value === value
+        )
           pendingTitleRef.current ??= value;
         throw error;
       }
