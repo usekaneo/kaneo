@@ -43,7 +43,7 @@
 		"typecheck": "vp run check:types"
 	},
 	"devDependencies": {
-		"@effect/platform-node": "4.0.6",
+		"@effect/platform-node": "4.0.7",
 		"@gabrielbryk/jq-ts": "1.7.0",
 		"@kaneo/mcp": "workspace:*",
 		"@kaneo/plugin-loader": "workspace:*",

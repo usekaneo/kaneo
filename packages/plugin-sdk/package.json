@@ -80,7 +80,7 @@
 		}
 	},
 	"devDependencies": {
-		"@effect/platform-node": "4.0.6",
+		"@effect/platform-node": "4.0.7",
 		"@kaneo/typescript-config": "workspace:*",
 		"@tanstack/react-query": "^5.103.2",
 		"@types/node": "^26.6.2",

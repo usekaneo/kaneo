@@ -243,8 +243,8 @@ importers:
         specifier: ^21.2.4
         version: 21.2.4
       '@effect/platform-node':
-        specifier: 4.0.6
-        version: 4.0.6(effect@4.0.6)(redis@6.3.0(@opentelemetry/api@1.9.1))
+        specifier: 4.0.7
+        version: 4.0.7(effect@4.0.6)(redis@6.3.0(@opentelemetry/api@1.9.1))
       '@semantic-release/changelog':
         specifier: ^7.0.0
         version: 7.0.0(semantic-release@25.0.9(supports-color@8.1.1)(typescript@7.0.2))
@@ -1048,8 +1048,8 @@ importers:
   packages/cli:
     devDependencies:
       '@effect/platform-node':
-        specifier: 4.0.6
-        version: 4.0.6(effect@4.0.6)(redis@6.3.0(@opentelemetry/api@1.9.1))
+        specifier: 4.0.7
+        version: 4.0.7(effect@4.0.6)(redis@6.3.0(@opentelemetry/api@1.9.1))
       '@gabrielbryk/jq-ts':
         specifier: 1.7.0
         version: 1.7.0(typescript@7.0.2)
@@ -1368,8 +1368,8 @@ importers:
   packages/plugin-sdk:
     devDependencies:
       '@effect/platform-node':
-        specifier: 4.0.6
-        version: 4.0.6(effect@4.0.6)(redis@6.3.0(@opentelemetry/api@1.9.1))
+        specifier: 4.0.7
+        version: 4.0.7(effect@4.0.6)(redis@6.3.0(@opentelemetry/api@1.9.1))
       '@kaneo/typescript-config':
         specifier: workspace:*
         version: link:../typescript-config
@@ -2350,17 +2350,17 @@ packages:
     peerDependencies:
       '@noble/ciphers': ^1.0.0
 
-  '@effect/platform-node-shared@4.0.6':
-    resolution: {integrity: sha512-0PhyC4uG30xGtsajnxjkcBWfTjNRzUh4ZKl1Kvo/MNyCTb+W2O+fBzf7wCRCoqt+nLudiq4V7vX40Q8XIBuMaQ==}
-    engines: {node: '>=18.0.0'}
+  '@effect/platform-node-shared@4.1.7':
+    resolution: {integrity: sha512-EDnlB5zL6EW0ahVAeQAUtpuMHc/0yruMLKBsX3nC4Zn3PuG4McWv2A6Rvdk2OUSFM/OFTCclt3sKWNCvk3pEUw==}
+    engines: {node: '>=22.19.0'}
     peerDependencies:
-      effect: ^4.0.6
+      effect: ^4.1.7
 
-  '@effect/platform-node@4.0.6':
-    resolution: {integrity: sha512-gXvGHAy0/8PZbWvMMguloDUyeSP+rzYEo3FSEqUuGduxo9ORcGioDxPI+GOLCIFfam7VuNkmSUxBOiRMIrMrBw==}
+  '@effect/platform-node@4.0.7':
+    resolution: {integrity: sha512-YXUh0A4ZjuPAONt/yXb5zBM7zPR6eUPYUBtyj1374zq0P5SUpdcz8Lf54JSavXb8mdrc1glsXWHFVINpJyrlWA==}
     engines: {node: '>=18.0.0'}
     peerDependencies:
-      effect: ^4.0.6
+      effect: ^4.0.7
       redis: '>=5.0.0 <7.0.0'
 
   '@electric-sql/pglite-socket@0.0.20':
@@ -13179,7 +13179,7 @@ snapshots:
     dependencies:
       '@noble/ciphers': 1.3.0
 
-  '@effect/platform-node-shared@4.0.6(effect@4.0.6)':
+  '@effect/platform-node-shared@4.1.7(effect@4.0.6)':
     dependencies:
       '@types/ws': 8.18.2
       effect: 4.0.6
@@ -13188,9 +13188,9 @@ snapshots:
       - bufferutil
       - utf-8-validate
 
-  '@effect/platform-node@4.0.6(effect@4.0.6)(redis@6.3.0(@opentelemetry/api@1.9.1))':
+  '@effect/platform-node@4.0.7(effect@4.0.6)(redis@6.3.0(@opentelemetry/api@1.9.1))':
     dependencies:
-      '@effect/platform-node-shared': 4.0.6(effect@4.0.6)
+      '@effect/platform-node-shared': 4.1.7(effect@4.0.6)
       effect: 4.0.6
       redis: 6.3.0(@opentelemetry/api@1.9.1)
       undici: 8.12.3
