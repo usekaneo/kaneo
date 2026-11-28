@@ -1503,7 +1503,8 @@
 				"pr_opened": "PR 已开启",
 				"pr_merged": "PR 已合并",
 				"issue_opened": "Issue 已开启",
-				"issue_closed": "Issue 已关闭"
+				"issue_closed": "Issue 已关闭",
+				"issue_reopened": "Issue 已重新开启"
 			},
 			"connectMore": "在<link>集成</link>中连接 {{providers}}，也可以为它们设置自动化。",
 			"dontMove": "不移动",

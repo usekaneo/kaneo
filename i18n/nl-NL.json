@@ -1060,7 +1060,8 @@
 				"pr_opened": "Pull request geopend",
 				"pr_merged": "Pull request gemerged",
 				"issue_opened": "Issue geopend",
-				"issue_closed": "Issue gesloten"
+				"issue_closed": "Issue gesloten",
+				"issue_reopened": "Issue heropend"
 			},
 			"connectMore": "Koppel {{providers}} in <link>Integraties</link> om die ook te automatiseren.",
 			"dontMove": "Niet verplaatsen",

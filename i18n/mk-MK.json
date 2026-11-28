@@ -1249,7 +1249,8 @@
 				"pr_opened": "Отворен pull request",
 				"pr_merged": "Споен pull request",
 				"issue_opened": "Отворен issue",
-				"issue_closed": "Затворен issue"
+				"issue_closed": "Затворен issue",
+				"issue_reopened": "Повторно отворен issue"
 			},
 			"connectMore": "Поврзи {{providers}} во <link>Интеграции</link> за да ги автоматизираш и нив.",
 			"dontMove": "Не преместувај",

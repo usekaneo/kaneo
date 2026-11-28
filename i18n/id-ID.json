@@ -1241,7 +1241,8 @@
 				"pr_opened": "Pull request dibuka",
 				"pr_merged": "Pull request digabungkan",
 				"issue_opened": "Issue dibuka",
-				"issue_closed": "Issue ditutup"
+				"issue_closed": "Issue ditutup",
+				"issue_reopened": "Issue dibuka kembali"
 			},
 			"connectMore": "Hubungkan {{providers}} di <link>Integrasi</link> untuk mengotomatiskannya juga.",
 			"dontMove": "Jangan pindahkan",

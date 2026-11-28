@@ -1265,7 +1265,8 @@
 				"pr_opened": "Pull request відкрито",
 				"pr_merged": "Pull request злито",
 				"issue_opened": "Issue відкрито",
-				"issue_closed": "Issue закрито"
+				"issue_closed": "Issue закрито",
+				"issue_reopened": "Issue відкрито повторно"
 			},
 			"connectMore": "Підключіть {{providers}} у розділі <link>Інтеґрації</link>, щоб автоматизувати й їх.",
 			"dontMove": "Не переміщувати",

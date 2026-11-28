@@ -2353,7 +2353,8 @@
 				"pr_opened": "Pull request opened",
 				"pr_merged": "Pull request merged",
 				"issue_opened": "Issue opened",
-				"issue_closed": "Issue closed"
+				"issue_closed": "Issue closed",
+				"issue_reopened": "Issue reopened"
 			},
 			"dontMove": "Don't move",
 			"emptyTitle": "No connected repositories",

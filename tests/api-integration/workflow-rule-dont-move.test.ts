@@ -658,4 +658,95 @@ describe("workflow rules set to Don't move (no workflow_rule row)", () => {
     });
     expect(created?.status).toBe("waiting");
   });
+
+  it("moves reopened tasks when an issue_reopened workflow rule is configured and stops once deleted", async () => {
+    const { owner, project, columnBySlug, integration, task } =
+      await createCustomColumnFixture("github", "done");
+    mockAuthenticatedSession(owner.user);
+
+    await db.insert(schema.externalLinkTable).values({
+      taskId: task.id,
+      integrationId: integration.id,
+      resourceType: "issue",
+      externalId: "1",
+      url: "https://git.example/owner/repo/issues/1",
+      metadata: JSON.stringify({ state: "closed" }),
+    });
+
+    const putResponse = await projectAccessApi()(
+      `/workflow-rule/${project.id}`,
+      {
+        method: "PUT",
+        body: {
+          integrationType: "github",
+          eventType: "issue_reopened",
+          columnId: columnBySlug.get("waiting")!.id,
+        },
+      },
+    );
+    expect(putResponse.status).toBe(200);
+    const createdRule = (await putResponse.json()) as { id: string };
+
+    await handleIssueReopened({
+      action: "reopened",
+      installation: { id: 10 },
+      issue: {
+        number: 1,
+        title: "Tracked task",
+        html_url: "https://git.example/owner/repo/issues/1",
+        state: "open",
+      },
+      repository: {
+        id: 20,
+        owner: { login: "owner" },
+        name: "repo",
+        full_name: "owner/repo",
+      },
+    });
+    expect(
+      (
+        await db.query.taskTable.findFirst({
+          where: eq(schema.taskTable.id, task.id),
+        })
+      )?.status,
+    ).toBe("waiting");
+
+    const deleteResponse = await projectAccessApi()(
+      `/workflow-rule/${createdRule.id}`,
+      { method: "DELETE" },
+    );
+    expect(deleteResponse.status).toBe(200);
+
+    await db
+      .update(schema.taskTable)
+      .set({
+        status: "done",
+        columnId: columnBySlug.get("done")!.id,
+      })
+      .where(eq(schema.taskTable.id, task.id));
+
+    await handleIssueReopened({
+      action: "reopened",
+      installation: { id: 10 },
+      issue: {
+        number: 1,
+        title: "Tracked task",
+        html_url: "https://git.example/owner/repo/issues/1",
+        state: "open",
+      },
+      repository: {
+        id: 20,
+        owner: { login: "owner" },
+        name: "repo",
+        full_name: "owner/repo",
+      },
+    });
+    expect(
+      (
+        await db.query.taskTable.findFirst({
+          where: eq(schema.taskTable.id, task.id),
+        })
+      )?.status,
+    ).toBe("done");
+  });
 });

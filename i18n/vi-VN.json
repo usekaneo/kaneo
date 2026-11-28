@@ -1485,7 +1485,8 @@
 				"pr_opened": "Đã mở pull request",
 				"pr_merged": "Đã gộp pull request",
 				"issue_opened": "Đã mở issue",
-				"issue_closed": "Đã đóng issue"
+				"issue_closed": "Đã đóng issue",
+				"issue_reopened": "Đã mở lại issue"
 			},
 			"connectMore": "Kết nối {{providers}} trong <link>Tích hợp</link> để tự động hóa cả chúng.",
 			"dontMove": "Không di chuyển",

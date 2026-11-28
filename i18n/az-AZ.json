@@ -1512,7 +1512,8 @@
 				"pr_opened": "Birləşdirmə sorğusu açıldı",
 				"pr_merged": "Birləşdirmə sorğusu birləşdirildi",
 				"issue_opened": "Məsələ açıldı",
-				"issue_closed": "Məsələ bağlandı"
+				"issue_closed": "Məsələ bağlandı",
+				"issue_reopened": "Məsələ yenidən açıldı"
 			},
 			"connectMore": "{{providers}} üçün də avtomatlaşdırma istəyirsinizsə, onları <link>İnteqrasiyalar</link> bölməsində qoşun.",
 			"dontMove": "Köçürülməsin",

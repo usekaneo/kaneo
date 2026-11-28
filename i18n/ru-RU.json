@@ -1273,7 +1273,8 @@
 				"pr_opened": "Pull request открыт",
 				"pr_merged": "Pull request слит",
 				"issue_opened": "Issue открыт",
-				"issue_closed": "Issue закрыт"
+				"issue_closed": "Issue закрыт",
+				"issue_reopened": "Issue открыт повторно"
 			},
 			"connectMore": "Подключите {{providers}} в разделе <link>Интеграции</link>, чтобы автоматизировать и их.",
 			"dontMove": "Не перемещать",

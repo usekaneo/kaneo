@@ -1065,7 +1065,8 @@
 				"pr_opened": "Pull request abierta",
 				"pr_merged": "Pull request fusionada",
 				"issue_opened": "Issue abierto",
-				"issue_closed": "Issue cerrado"
+				"issue_closed": "Issue cerrado",
+				"issue_reopened": "Issue reabierto"
 			},
 			"connectMore": "Conecta {{providers}} en <link>Integraciones</link> para automatizarlos también.",
 			"dontMove": "No mover",

@@ -1933,7 +1933,8 @@
 				"issue_closed": "Zamknięto zgłoszenie",
 				"issue_opened": "Otwarto zgłoszenie",
 				"pr_merged": "Scalono pull request",
-				"pr_opened": "Otwarto pull request"
+				"pr_opened": "Otwarto pull request",
+				"issue_reopened": "Ponownie otwarto zgłoszenie"
 			},
 			"toastError": "Nie udało się zaktualizować reguły",
 			"connectMore": "Połącz {{providers}} w sekcji <link>Integracje</link>, aby je również zautomatyzować.",

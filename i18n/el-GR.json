@@ -1249,7 +1249,8 @@
 				"pr_opened": "Άνοιγμα pull request",
 				"pr_merged": "Συγχώνευση pull request",
 				"issue_opened": "Άνοιγμα issue",
-				"issue_closed": "Κλείσιμο issue"
+				"issue_closed": "Κλείσιμο issue",
+				"issue_reopened": "Εκ νέου άνοιγμα issue"
 			},
 			"connectMore": "Συνδέστε {{providers}} στις <link>Ενσωματώσεις</link> για να τα αυτοματοποιήσετε κι αυτά.",
 			"dontMove": "Χωρίς μετακίνηση",

@@ -1485,7 +1485,8 @@
 				"pr_opened": "プルリクエストのオープン",
 				"pr_merged": "プルリクエストのマージ",
 				"issue_opened": "Issue のオープン",
-				"issue_closed": "Issue のクローズ"
+				"issue_closed": "Issue のクローズ",
+				"issue_reopened": "Issue の再オープン"
 			},
 			"connectMore": "<link>連携</link>で {{providers}} を接続すると、こちらも自動化できます。",
 			"dontMove": "移動しない",
