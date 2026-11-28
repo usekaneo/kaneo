@@ -9,6 +9,8 @@ import {
   vi,
 } from "vite-plus/test";
 import db, { schema } from "../../apps/api/src/database";
+import createComment from "../../apps/api/src/activity/controllers/create-comment";
+import * as eventBus from "../../apps/api/src/events";
 import { publishEvent } from "../../apps/api/src/events";
 import { createApp } from "../../apps/api/src/index";
 import { stopPluginJobs } from "../../apps/api/src/plugin-host/context/plugin-jobs";
@@ -71,6 +73,9 @@ export default {
     );
     kaneo.webhooks.post("/hook", async (c) => c.json({ received: await c.req.json() }));
     kaneo.on("task.status_changed", (event) => {
+      events.push(event);
+    });
+    kaneo.on("comment.created", (event) => {
       events.push(event);
     });
     kaneo.on("project.moved", (event) => {
@@ -445,12 +450,13 @@ describe("plugin host API", () => {
       json("PUT", { enabled: true }),
     );
 
-    for (const { project, task, user } of [disabled, enabled]) {
+    for (const { project, task, user, workspace } of [disabled, enabled]) {
       await publishEvent(
         "task.status_changed",
         {
           taskId: task.id,
           projectId: project.id,
+          workspaceId: workspace.id,
           userId: user.id,
           oldStatus: "to-do",
           newStatus: "done",
@@ -539,6 +545,7 @@ describe("official plugins", () => {
       {
         taskId: fixture.task.id,
         projectId: fixture.project.id,
+        workspaceId: fixture.workspace.id,
         userId: fixture.user.id,
         oldStatus: "to-do",
         newStatus: "done",
@@ -728,6 +735,65 @@ describe("project.moved", () => {
         fromWorkspaceId: workspace.id,
         toWorkspaceId: target.id,
         actorId: user.id,
+      },
+    ]);
+  });
+
+  it("delivers queued comments using the workspace recorded before a project move", async () => {
+    const { project, task, user, workspace, target } =
+      await projectBetweenWorkspaces();
+    await db.insert(schema.workspacePluginTable).values({
+      pluginId: PLUGIN_ID,
+      workspaceId: target.id,
+      enabled: true,
+    });
+    // Delay publication until the project has moved, after the comment write.
+    const realPublish = publishEvent;
+    const publish = vi
+      .spyOn(eventBus, "publishEvent")
+      .mockImplementationOnce(async (type, data) => {
+        await db
+          .update(schema.projectTable)
+          .set({ workspaceId: target.id })
+          .where(eq(schema.projectTable.id, project.id));
+        await realPublish(type, data, { waitForHandlers: true });
+      });
+    const content = "Original workspace comment";
+    let comment: Awaited<ReturnType<typeof createComment>>;
+    try {
+      comment = await createComment(task.id, user.id, content);
+      expect(publish).toHaveBeenCalledWith(
+        "comment.created",
+        expect.objectContaining({ workspaceId: workspace.id }),
+      );
+    } finally {
+      publish.mockRestore();
+    }
+    expect(receivedEvents()).toEqual([]);
+
+    await db.insert(schema.workspacePluginTable).values({
+      pluginId: PLUGIN_ID,
+      workspaceId: workspace.id,
+      enabled: true,
+    });
+    await publishEvent(
+      "comment.created",
+      {
+        ...comment,
+        projectId: project.id,
+        workspaceId: workspace.id,
+      },
+      { waitForHandlers: true },
+    );
+    expect(receivedEvents()).toEqual([
+      {
+        type: "comment.created",
+        workspaceId: workspace.id,
+        projectId: project.id,
+        taskId: task.id,
+        commentId: comment.id,
+        actorId: user.id,
+        content,
       },
     ]);
   });

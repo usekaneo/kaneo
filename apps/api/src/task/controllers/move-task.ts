@@ -226,6 +226,7 @@ async function moveTask({
   await publishEvent("task.moved", {
     taskId,
     type: "moved",
+    workspaceId: sourceProject.workspaceId,
     userId: currentUserId,
     fromProjectId: sourceProject.id,
     fromProjectName: sourceProject.name,

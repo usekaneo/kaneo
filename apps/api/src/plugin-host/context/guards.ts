@@ -1,4 +1,7 @@
-import type { PermissionRequirement } from "@kaneo/plugin-sdk/server";
+import type {
+  PermissionRequirement,
+  PluginGuards,
+} from "@kaneo/plugin-sdk/server";
 import type { MiddlewareHandler } from "hono";
 import { every } from "hono/combine";
 import { requireWorkspacePermission } from "../../utils/require-workspace-permission";
@@ -9,32 +12,6 @@ import {
 import { isPluginEnabled } from "../data/workspace-plugins";
 import type { EnablementPlugin } from "../enablement/resolve-enabled";
 import { toPermissionMap } from "./permission-map";
-
-type GuardKind = "workspace" | "project" | "task";
-
-type Guard = (
-  param?: string,
-  permissions?: PermissionRequirement,
-) => MiddlewareHandler;
-
-const DEFAULT_PARAMS: Record<GuardKind, string> = {
-  workspace: "workspaceId",
-  project: "projectId",
-  task: "taskId",
-};
-
-function resolveWorkspace(kind: GuardKind, param: string): MiddlewareHandler {
-  switch (kind) {
-    case "workspace":
-      return workspaceAccess.fromParam(param);
-    case "project":
-      return workspaceAccess.fromProject(param);
-    case "task":
-      return workspaceAccessMiddleware({
-        sources: [{ type: "lookup", resource: "task", idKey: param }],
-      });
-  }
-}
 
 export function requirePluginEnabled(
   plugin: EnablementPlugin,
@@ -50,23 +27,37 @@ export function requirePluginEnabled(
   };
 }
 
-export function createPluginGuards(
-  plugin: EnablementPlugin,
-): Record<GuardKind, Guard> {
-  const guard =
-    (kind: GuardKind): Guard =>
-    (param, permissions) => {
-      const required = toPermissionMap(permissions);
-      return every(
-        resolveWorkspace(kind, param ?? DEFAULT_PARAMS[kind]),
-        ...(required ? [requireWorkspacePermission(required)] : []),
-        requirePluginEnabled(plugin),
-      );
-    };
+export function createPluginGuards(plugin: EnablementPlugin): PluginGuards {
+  const guard = (
+    resolveWorkspace: MiddlewareHandler,
+    permissions?: PermissionRequirement,
+  ) => {
+    const required = toPermissionMap(permissions);
+    return every(
+      resolveWorkspace,
+      ...(required ? [requireWorkspacePermission(required)] : []),
+      requirePluginEnabled(plugin),
+    );
+  };
 
   return {
-    workspace: guard("workspace"),
-    project: guard("project"),
-    task: guard("task"),
+    workspace: (param, permissions) =>
+      guard(workspaceAccess.fromParam(param ?? "workspaceId"), permissions),
+    project: (param, permissions) =>
+      guard(workspaceAccess.fromProject(param ?? "projectId"), permissions),
+    task: (param, permissions, { projectParam } = {}) =>
+      guard(
+        workspaceAccessMiddleware({
+          sources: [
+            {
+              type: "lookup",
+              resource: "task",
+              idKey: param ?? "taskId",
+              projectParam,
+            },
+          ],
+        }),
+        permissions,
+      ),
   };
 }

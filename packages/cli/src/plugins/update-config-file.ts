@@ -1,7 +1,7 @@
 import { existsSync } from "node:fs";
 import { readFile, writeFile } from "node:fs/promises";
 import { join } from "node:path";
-import { CONFIG_FILE_NAMES, configCandidates } from "@kaneo/plugin-loader";
+import { configCandidates } from "@kaneo/plugin-loader";
 import { addPluginToConfig } from "./config-source/add-plugin-to-config.js";
 import { configTemplate } from "./config-source/config-template.js";
 import { importNameFor } from "./import-name.js";
@@ -18,7 +18,7 @@ export async function updateConfigFile(
 ): Promise<ConfigUpdate> {
   const file = configCandidates(projectDir).find((path) => existsSync(path));
   if (!file) {
-    const created = join(projectDir, CONFIG_FILE_NAMES[0]);
+    const created = join(projectDir, "kaneo.config.mjs");
     const importName = importNameFor(
       packageName,
       (name) => name === "defineConfig",

@@ -17,40 +17,42 @@ async function updateTaskAssignee({
   userId: string | null;
   currentUserId: string;
 }) {
-  const { before: existingTask, after: updatedTask } = await withLockedTask(
-    id,
-    async (tx, existingTask) => {
-      const nextAssigneeId = userId?.trim() || null;
-      if (existingTask.userId === nextAssigneeId) {
-        return existingTask;
-      }
+  const {
+    before: existingTask,
+    after: updatedTask,
+    workspaceId,
+  } = await withLockedTask(id, async (tx, existingTask) => {
+    const nextAssigneeId = userId?.trim() || null;
+    if (existingTask.userId === nextAssigneeId) {
+      return existingTask;
+    }
 
-      if (nextAssigneeId) {
-        await assertAssignableUser(
-          nextAssigneeId,
-          await getProjectWorkspaceId(existingTask.projectId, tx),
-          existingTask.projectId,
-          tx,
-        );
-      }
+    if (nextAssigneeId) {
+      await assertAssignableUser(
+        nextAssigneeId,
+        await getProjectWorkspaceId(existingTask.projectId, tx),
+        existingTask.projectId,
+        tx,
+      );
+    }
 
-      const [updatedTask] = await tx
-        .update(taskTable)
-        .set({ userId: nextAssigneeId })
-        .where(eq(taskTable.id, id))
-        .returning();
+    const [updatedTask] = await tx
+      .update(taskTable)
+      .set({ userId: nextAssigneeId })
+      .where(eq(taskTable.id, id))
+      .returning();
 
-      if (!updatedTask) {
-        throw new HTTPException(500, {
-          message: "Failed to update task assignee",
-        });
-      }
+    if (!updatedTask) {
+      throw new HTTPException(500, {
+        message: "Failed to update task assignee",
+      });
+    }
 
-      return updatedTask;
-    },
-  );
+    return updatedTask;
+  });
 
   await publishTaskMutation(existingTask, updatedTask, currentUserId, {
+    workspaceId,
     fields: ["userId"],
   });
 

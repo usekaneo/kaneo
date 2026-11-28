@@ -18,7 +18,7 @@ export function versionError(
     case "no-engines":
       return new InvalidArgument({
         message: `No release of ${packageName} declares engines.kaneo, so kaneo plugin add cannot tell which one supports Kaneo ${kaneoVersion}.`,
-        hint: "Ask the plugin's author to add engines.kaneo to package.json. To use it anyway, install it with npm, add it to kaneo.config.ts yourself, and run kaneo plugin check.",
+        hint: "Ask the plugin's author to add engines.kaneo to package.json. To use it anyway, install it with npm, add it to your Kaneo config yourself, and run kaneo plugin check.",
       });
     case "incompatible":
       return new InvalidArgument({

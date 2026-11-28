@@ -33,10 +33,10 @@ export default async function reorderTasks(
     });
     columns.set(status, column?.id ?? null);
   }
-  const { before, after } = await db.transaction(async (tx) => {
+  const { before, after, workspaceId } = await db.transaction(async (tx) => {
     // Task creation, duplication and moves lock this same row while allocating positions.
     const [project] = await tx
-      .select({ id: projectTable.id })
+      .select({ workspaceId: projectTable.workspaceId })
       .from(projectTable)
       .where(eq(projectTable.id, projectId))
       .for("update");
@@ -128,7 +128,7 @@ export default async function reorderTasks(
       throw new HTTPException(409, {
         message: "Task changed projects; retry the move",
       });
-    return { before, after };
+    return { before, after, workspaceId: project.workspaceId };
   });
   const beforeById = new Map(before.map((task) => [task.id, task]));
   let statusChanged = false;
@@ -136,6 +136,7 @@ export default async function reorderTasks(
     const prior = beforeById.get(updated.id)!;
     if (prior.status !== updated.status) statusChanged = true;
     await publishTaskMutation(prior, updated, userId, {
+      workspaceId,
       fields: ["status"],
       skipRelationRefresh: true,
     });

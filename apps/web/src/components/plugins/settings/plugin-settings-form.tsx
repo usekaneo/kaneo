@@ -53,11 +53,14 @@ export function PluginSettingsForm({
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     try {
-      await mutateAsync({
+      const saved = await mutateAsync({
         pluginId: plugin.id,
         workspaceId,
         settings: toSettingsPayload(plugin.settings, values, initial),
       });
+      setValues(
+        toFormValues(plugin.settings, saved.settings, saved.configuredSecrets),
+      );
       setErrors({});
       onSaved();
       toast.success(t("settings:workspacePlugins.toast.saved"));

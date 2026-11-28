@@ -22,7 +22,11 @@ export function registerRoutes(kaneo: Kaneo) {
 
   kaneo.routes.get(
     "/projects/:projectId/tasks/:taskId/progress",
-    kaneo.guard.task("taskId", { task: ["read"] }),
+    kaneo.guard.task(
+      "taskId",
+      { task: ["read"] },
+      { projectParam: "projectId" },
+    ),
     async (c) => {
       const key = progressKey(c.req.param("projectId"), c.req.param("taskId"));
       const value = await kaneo.storage(c.get("workspaceId")).get<number>(key);
@@ -32,7 +36,11 @@ export function registerRoutes(kaneo: Kaneo) {
 
   kaneo.routes.put(
     "/projects/:projectId/tasks/:taskId/progress",
-    kaneo.guard.task("taskId", { task: ["update"] }),
+    kaneo.guard.task(
+      "taskId",
+      { task: ["update"] },
+      { projectParam: "projectId" },
+    ),
     async (c) => {
       const body = progressBody.safeParse(await c.req.json().catch(() => null));
       if (!body.success) {

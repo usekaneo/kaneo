@@ -13,26 +13,28 @@ async function updateTaskDescription({
   description: string;
   currentUserId: string;
 }) {
-  const { before: existingTask, after: updatedTask } = await withLockedTask(
-    id,
-    async (tx) => {
-      const [updatedTask] = await tx
-        .update(taskTable)
-        .set({ description })
-        .where(eq(taskTable.id, id))
-        .returning();
+  const {
+    before: existingTask,
+    after: updatedTask,
+    workspaceId,
+  } = await withLockedTask(id, async (tx) => {
+    const [updatedTask] = await tx
+      .update(taskTable)
+      .set({ description })
+      .where(eq(taskTable.id, id))
+      .returning();
 
-      if (!updatedTask) {
-        throw new HTTPException(500, {
-          message: "Failed to update task description",
-        });
-      }
+    if (!updatedTask) {
+      throw new HTTPException(500, {
+        message: "Failed to update task description",
+      });
+    }
 
-      return updatedTask;
-    },
-  );
+    return updatedTask;
+  });
 
   await publishTaskMutation(existingTask, updatedTask, currentUserId, {
+    workspaceId,
     fields: ["description"],
   });
 

@@ -102,7 +102,11 @@ A Hono app mounted at `/api/plugins/<id>/webhooks`. Requests are not authenticat
 ```ts
 guard.workspace(param?: string, permissions?: PermissionRequirement)
 guard.project(param?: string, permissions?: PermissionRequirement)
-guard.task(param?: string, permissions?: PermissionRequirement)
+guard.task(
+  param?: string,
+  permissions?: PermissionRequirement,
+  options?: { projectParam?: string },
+)
 ```
 
 Hono middleware for `routes`. Each guard reads an ID from a route parameter, resolves the workspace that owns it, and checks that:
@@ -118,6 +122,8 @@ Then it sets `c.get("workspaceId")`.
 | `guard.workspace()` | `workspaceId` | The workspace itself |
 | `guard.project()` | `projectId` | The project's workspace |
 | `guard.task()` | `taskId` | The task's workspace |
+
+For a nested task route such as `/projects/:projectId/tasks/:taskId`, pass `{ projectParam: "projectId" }` as the third argument to `guard.task`. The guard returns `404` if the task belongs to a different project.
 
 `permissions` maps a resource to the actions the user needs, for example `{ task: ["update"] }` or `{ project: ["read"], label: ["create"] }`:
 
@@ -159,7 +165,7 @@ Storage stays with the workspace when a project moves, so plugins that store pro
 
 #### schedule
 
-`schedule(name, cron, run)` runs `run` on a cron schedule, such as `"0 * * * *"` for the start of every hour. `name` identifies the job within your plugin. When several API instances run, each scheduled run happens on only one of them. Jobs are not tied to a workspace.
+`schedule(name, cron, run)` runs `run` on a cron schedule, such as `"0 * * * *"` for the start of every hour. `name` identifies the job within your plugin. Cron schedules use UTC. Kaneo attempts each occurrence at most once across API instances. A failure or interruption leaves that occurrence claimed. Later occurrences can run once the lease is free. Jobs are not tied to a workspace.
 
 ## Events
 

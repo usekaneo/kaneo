@@ -776,6 +776,10 @@ export const jobLeaseTable = pgTable("job_lease", {
   name: text("name").primaryKey(),
   owner: text("owner").notNull(),
   expiresAt: timestamp("expires_at", { mode: "date" }).notNull(),
+  lastScheduledAt: timestamp("last_scheduled_at", {
+    mode: "date",
+    withTimezone: true,
+  }),
 });
 
 export const taskReminderSentTable = pgTable(

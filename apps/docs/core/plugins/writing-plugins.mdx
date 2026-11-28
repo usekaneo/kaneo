@@ -205,7 +205,7 @@ A plugin without options calls `defineServer({ settings, setup })` instead.
 | `kaneo.storage(workspaceId)` | Read and write JSON values for one workspace. |
 | `kaneo.settings(workspaceId)` | Read one workspace's settings, with defaults applied. |
 | `kaneo.enabledWorkspaces()` | List the IDs of workspaces that turned the plugin on. |
-| `kaneo.schedule(name, cron, run)` | Run a job on a schedule, once across all API instances. |
+| `kaneo.schedule(name, cron, run)` | Attempt a job on a UTC schedule, at most once per occurrence across API instances. |
 
 Plugins work through this context and never through Kaneo's database tables. That keeps workspace permissions enforced and lets Kaneo change its schema without breaking plugins.
 
@@ -260,7 +260,7 @@ The sender then posts to `https://kaneo.example.com/api/plugins/<id>/webhooks/<w
 
 ### Scheduled jobs
 
-Jobs are not tied to a workspace. Loop over the workspaces that use your plugin:
+Cron schedules use UTC. Kaneo attempts each occurrence at most once across API instances. An interrupted job can leave partial work, so write callbacks that can pick up where the last occurrence stopped. Jobs are not tied to a workspace. Loop over the workspaces that use your plugin:
 
 ```ts
 kaneo.schedule("hourly-cleanup", "0 * * * *", async () => {

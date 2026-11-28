@@ -39,7 +39,7 @@ export function renderPluginAdd(ui: Ui, result: PluginAddResult): string[] {
     `    Installed ${result.installed.join(" and ")} in ${result.projectDir}.`,
     ...configLines(ui, result.config, result.packageName),
     "",
-    `  ${theme.muted(`${glyphs.arrow} Next: check the options ${result.packageName} accepts in its README and pass them in kaneo.config.ts, then run kaneo plugin check and restart Kaneo. Workspace admins turn it on in Settings, then Workspace, then Plugins.`)}`,
+    `  ${theme.muted(`${glyphs.arrow} Next: check the options ${result.packageName} accepts in its README and pass them in ${basename(result.config.file)}, then run kaneo plugin check and restart Kaneo. Workspace admins turn it on in Settings, then Workspace, then Plugins.`)}`,
     "",
   ];
 }

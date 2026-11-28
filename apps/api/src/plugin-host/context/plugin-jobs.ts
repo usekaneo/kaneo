@@ -6,17 +6,18 @@ import { renewWhileRunning } from "./renew-while-running";
 const LEASE_MS = 15 * 60 * 1000;
 const RENEW_EVERY_MS = LEASE_MS / 3;
 
-const jobs = new Map<string, Cron>();
+const jobs = new Map<string, Cron | null>();
 
 async function renewLease(
   lease: string,
   name: string,
+  scheduledAt: Date,
   log: PluginLogger,
 ): Promise<void> {
   try {
-    if (!(await renewJobLease(lease, LEASE_MS))) {
+    if (!(await renewJobLease(lease, scheduledAt, LEASE_MS))) {
       log.warn(
-        `Scheduled job "${name}" lost its lease and may run again on another instance`,
+        `Scheduled job "${name}" lost its lease. A later occurrence may start on another instance.`,
       );
     }
   } catch (error) {
@@ -35,31 +36,51 @@ export function schedulePluginJob(
   if (jobs.has(lease)) {
     throw new Error(`A job named "${name}" is already scheduled`);
   }
-  const job = new Cron(pattern, { protect: true }, async () => {
+
+  const schedule = new Cron(pattern, { timezone: "UTC" });
+  let running = false;
+
+  async function runOccurrence(scheduledAt: Date) {
+    if (running) return;
+    running = true;
     try {
       await withJobLease(
         lease,
         () =>
           renewWhileRunning(
-            async () => {
-              await run();
-            },
-            () => void renewLease(lease, name, log),
+            async () => run(),
+            () => void renewLease(lease, name, scheduledAt, log),
             RENEW_EVERY_MS,
           ),
         () => undefined,
-        LEASE_MS,
+        { leaseMs: LEASE_MS, scheduledAt },
       );
     } catch (error) {
       log.error(`Scheduled job "${name}" failed`, error);
+    } finally {
+      running = false;
     }
-  });
-  jobs.set(lease, job);
+  }
+
+  function scheduleNext(after: Date) {
+    const scheduledAt = schedule.nextRun(after);
+    const timer = scheduledAt
+      ? new Cron(scheduledAt, { allowPast: true, timezone: "UTC" }, () => {
+          // The timer may fire late. Claim the instant it was set for, then
+          // skip any missed occurrences before arming the next timer.
+          scheduleNext(new Date(Math.max(Date.now(), scheduledAt.getTime())));
+          return runOccurrence(scheduledAt);
+        })
+      : null;
+    jobs.set(lease, timer);
+  }
+
+  scheduleNext(new Date());
 }
 
 export function stopPluginJobs(): void {
   for (const job of jobs.values()) {
-    job.stop();
+    job?.stop();
   }
   jobs.clear();
 }

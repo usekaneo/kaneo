@@ -1,10 +1,10 @@
 import { describe, expect, it } from "vite-plus/test";
-import { explicitWorkspaces } from "../../../apps/api/src/plugin-host/events/event-workspaces";
+import { eventWorkspaces } from "../../../apps/api/src/plugin-host/events/event-workspaces";
 
-describe("explicitWorkspaces", () => {
+describe("eventWorkspaces", () => {
   it("delivers project.moved to plugins on in either workspace", () => {
     expect(
-      explicitWorkspaces({
+      eventWorkspaces({
         type: "project.moved",
         projectId: "project-1",
         actorId: "user-1",
@@ -17,9 +17,9 @@ describe("explicitWorkspaces", () => {
     });
   });
 
-  it("leaves task events to the project's workspace", () => {
+  it("drops task events without a recorded workspace", () => {
     expect(
-      explicitWorkspaces({
+      eventWorkspaces({
         type: "task.deleted",
         projectId: "project-1",
         taskId: "task-1",

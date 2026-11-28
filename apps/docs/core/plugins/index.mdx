@@ -39,7 +39,7 @@ Plugins live in a small project next to your deployment:
 my-kaneo/
 ├── package.json
 ├── package-lock.json
-└── kaneo.config.ts
+└── kaneo.config.mjs
 ```
 
 Plugins are self-contained JavaScript, so the folder works on any machine and CPU architecture. You can create it on your laptop and copy it to the server.
@@ -94,14 +94,14 @@ Save this as `package.json`:
 Install the config package and the plugins you want. `@kaneo/config` is released with Kaneo under the same version, so use the version of the image you deploy:
 
 ```bash
-npm i @kaneo/config@<version> kaneo-plugin-task-progress
+npm i @kaneo/config@<version> your-plugin-package
 ```
 
 This adds both as dependencies and writes `package-lock.json`, which pins the exact versions. Install plugins as regular dependencies, not with `-D`, so the image install step below keeps them.
 
 ### 2. Declare the plugins
 
-`kaneo plugin add` writes this file for you. To write it yourself, save this as `kaneo.config.ts`:
+`kaneo plugin add` creates `kaneo.config.mjs`. Kaneo also accepts `kaneo.config.ts` when your Node.js version supports TypeScript. Below is a configuration for the repository’s Task Progress example:
 
 ```ts
 import { defineConfig } from "@kaneo/config";
@@ -234,7 +234,7 @@ When a plugin is off in a workspace, its views, panels, pages, and commands disa
 Each plugin declares the Kaneo versions it supports. To see the range for a plugin's newest release:
 
 ```bash
-npm view kaneo-plugin-task-progress engines.kaneo
+npm view your-plugin-package engines.kaneo
 ```
 
 To upgrade:
@@ -250,7 +250,7 @@ To upgrade:
 4. For each plugin that fails at the compatibility stage, install a release that supports the new version with the new image, then check again:
 
    ```bash
-   docker run --rm -v "$PWD:/kaneo" --user "$(id -u):$(id -g)" ghcr.io/usekaneo/kaneo:<new version> kaneo plugin add kaneo-plugin-task-progress
+   docker run --rm -v "$PWD:/kaneo" --user "$(id -u):$(id -g)" ghcr.io/usekaneo/kaneo:<new version> kaneo plugin add your-plugin-package
    ```
 
 5. Deploy as usual.

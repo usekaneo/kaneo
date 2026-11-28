@@ -96,7 +96,7 @@ export async function patchTask(
     return { before, after };
   });
 
-  await publishTaskMutation(before, after, actorId);
+  await publishTaskMutation(before, after, actorId, { workspaceId });
   await publishEvent("task.updated", {
     taskId: id,
     projectId: after.projectId,

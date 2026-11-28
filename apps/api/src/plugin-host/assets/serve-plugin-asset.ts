@@ -31,7 +31,9 @@ export async function servePluginAsset(c: Context): Promise<Response> {
   const body =
     c.req.method === "HEAD"
       ? null
-      : (await open(file.path)).readableWebStream({ autoClose: true });
+      : ((await open(file.path)).readableWebStream({
+          autoClose: true,
+        }) as unknown as ReadableStream<Uint8Array>);
   return new Response(body, {
     headers: {
       ...headers,

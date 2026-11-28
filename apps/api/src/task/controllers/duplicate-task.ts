@@ -453,6 +453,7 @@ async function duplicateTask({
     : [];
 
   await publishEvent("task.created", {
+    workspaceId: project.workspaceId,
     ...duplicatedTask,
     taskId: duplicatedTask.id,
     userId: duplicatedTask.userId ?? "",

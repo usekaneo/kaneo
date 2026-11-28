@@ -9,9 +9,16 @@ import {
 
 const leaderLock = vi.hoisted(() => ({
   withJobLease: vi.fn(
-    async (_name: string, run: () => Promise<unknown>) => await run(),
+    async (
+      _name: string,
+      run: () => Promise<unknown>,
+      _skip: () => unknown,
+      _options: { leaseMs: number; scheduledAt: Date },
+    ) => run(),
   ),
-  renewJobLease: vi.fn(async (_name: string, _leaseMs: number) => true),
+  renewJobLease: vi.fn(
+    async (_name: string, _scheduledAt: Date, _leaseMs: number) => true,
+  ),
 }));
 
 vi.mock("../../scheduler/leader-lock", () => leaderLock);
@@ -27,7 +34,7 @@ function createLog() {
 describe("schedulePluginJob", () => {
   beforeEach(() => {
     vi.useFakeTimers();
-    vi.setSystemTime(new Date(2026, 0, 1, 23, 59, 59));
+    vi.setSystemTime(new Date("2026-01-01T23:59:59Z"));
     leaderLock.withJobLease.mockClear();
     leaderLock.renewJobLease.mockClear();
     leaderLock.renewJobLease.mockResolvedValue(true);
@@ -56,6 +63,7 @@ describe("schedulePluginJob", () => {
     expect(leaderLock.renewJobLease).toHaveBeenCalledTimes(1);
     expect(leaderLock.renewJobLease).toHaveBeenCalledWith(
       "plugin:progress:sync",
+      new Date("2026-01-02T00:00:00Z"),
       15 * MINUTE,
     );
 
@@ -65,6 +73,44 @@ describe("schedulePluginJob", () => {
     finish();
     await vi.advanceTimersByTimeAsync(30 * MINUTE);
     expect(leaderLock.renewJobLease).toHaveBeenCalledTimes(3);
+  });
+
+  it("claims the originally scheduled instant when the timer fires late", async () => {
+    const run = vi.fn();
+    schedulePluginJob("progress", "sync", "* * * * *", run, createLog());
+
+    vi.setSystemTime(new Date("2026-01-02T00:07:10Z"));
+    await vi.advanceTimersByTimeAsync(1000);
+
+    expect(run).toHaveBeenCalledTimes(1);
+    expect(leaderLock.withJobLease.mock.calls[0]?.[3].scheduledAt).toEqual(
+      new Date("2026-01-02T00:00:00Z"),
+    );
+
+    await vi.advanceTimersByTimeAsync(49_000);
+    expect(run).toHaveBeenCalledTimes(2);
+    expect(leaderLock.withJobLease.mock.calls[1]?.[3].scheduledAt).toEqual(
+      new Date("2026-01-02T00:08:00Z"),
+    );
+  });
+
+  it("skips occurrences while the local callback is still running", async () => {
+    let finish = () => {};
+    const run = vi.fn(
+      () =>
+        new Promise<void>((resolve) => {
+          finish = resolve;
+        }),
+    );
+    schedulePluginJob("progress", "sync", "* * * * *", run, createLog());
+
+    await vi.advanceTimersByTimeAsync(2 * MINUTE + 1000);
+    expect(run).toHaveBeenCalledTimes(1);
+
+    finish();
+    await vi.advanceTimersByTimeAsync(MINUTE);
+    expect(run).toHaveBeenCalledTimes(2);
+    finish();
   });
 
   it("warns when the lease can no longer be renewed", async () => {
@@ -84,7 +130,7 @@ describe("schedulePluginJob", () => {
 
     await vi.advanceTimersByTimeAsync(1000 + 5 * MINUTE);
     expect(log.warn).toHaveBeenCalledWith(
-      'Scheduled job "sync" lost its lease and may run again on another instance',
+      'Scheduled job "sync" lost its lease. A later occurrence may start on another instance.',
     );
 
     finish();

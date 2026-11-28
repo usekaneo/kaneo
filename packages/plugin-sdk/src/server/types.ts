@@ -27,6 +27,10 @@ export type PluginGuards = {
   task(
     param?: string,
     permissions?: PermissionRequirement,
+    options?: {
+      /** A route parameter that must match the task's project. */
+      projectParam?: string;
+    },
   ): MiddlewareHandler<PluginEnv>;
 };
 

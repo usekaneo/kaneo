@@ -17,6 +17,17 @@ async function createComment(
   content: string,
   external?: { userName: string; source: string },
 ) {
+  const [task] = await db
+    .select({
+      assigneeId: taskTable.userId,
+      projectId: taskTable.projectId,
+      title: taskTable.title,
+      workspaceId: projectTable.workspaceId,
+    })
+    .from(taskTable)
+    .innerJoin(projectTable, eq(taskTable.projectId, projectTable.id))
+    .where(eq(taskTable.id, taskId));
+
   const [activity] = await db
     .insert(activityTable)
     .values({
@@ -44,22 +55,12 @@ async function createComment(
     .from(userTable)
     .where(eq(userTable.id, userId));
 
-  const [task] = await db
-    .select({
-      assigneeId: taskTable.userId,
-      projectId: taskTable.projectId,
-      title: taskTable.title,
-      workspaceId: projectTable.workspaceId,
-    })
-    .from(taskTable)
-    .innerJoin(projectTable, eq(taskTable.projectId, projectTable.id))
-    .where(eq(taskTable.id, taskId));
-
   if (task) {
     await publishEvent("comment.created", {
       ...activity,
       comment: `**${user?.name}** commented:\n> ${content}`,
       projectId: task.projectId,
+      workspaceId: task.workspaceId,
     });
   }
 

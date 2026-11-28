@@ -53,14 +53,15 @@ export async function recordTaskMutation(
 export async function publishTaskMutation(
   before: Partial<TaskBefore>,
   after: Pick<TaskBefore, "id" | "projectId" | "title"> & Partial<TaskBefore>,
-  userId?: string,
+  userId: string | undefined,
   options: {
+    workspaceId: string;
     skipSubtaskParentRefresh?: boolean;
     skipRelationRefresh?: boolean;
     fields?: Array<keyof Changes>;
     assigneeName?: string | null;
     sourceIntegrationId?: string;
-  } = {},
+  },
 ) {
   const changed = (field: keyof Changes) =>
     (!options.fields || options.fields.includes(field)) &&
@@ -68,6 +69,7 @@ export async function publishTaskMutation(
   const common = {
     taskId: after.id,
     projectId: after.projectId,
+    workspaceId: options.workspaceId,
     userId,
     title: after.title,
     ...(options.sourceIntegrationId

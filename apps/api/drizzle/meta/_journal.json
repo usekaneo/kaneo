@@ -533,6 +533,13 @@
       "when": 1795859344312,
       "tag": "0075_plugins",
       "breakpoints": true
+    },
+    {
+      "idx": 76,
+      "version": "7",
+      "when": 1795859806847,
+      "tag": "0076_scheduled_job_occurrence",
+      "breakpoints": true
     }
   ]
 }

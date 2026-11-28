@@ -23,7 +23,7 @@
     "typecheck": "vp run -r typecheck",
     "prepare": "husky",
     "format": "vp fmt",
-    "build:dependencies": "vp run --fail-if-no-match --filter \"./packages/*\" build"
+    "build:dependencies": "vp run --fail-if-no-match --filter \"./packages/*\" --filter \"./plugins/*\" build"
   },
   "devDependencies": {
     "@commitlint/cli": "^21.2.4",

@@ -1,7 +1,10 @@
 import { sql } from "drizzle-orm";
 import { afterAll, beforeAll, describe, expect, it, vi } from "vite-plus/test";
 import db from "../../apps/api/src/database";
-import { withJobLease } from "../../apps/api/src/scheduler/leader-lock";
+import {
+  renewJobLease,
+  withJobLease,
+} from "../../apps/api/src/scheduler/leader-lock";
 import { ensureTestDatabaseMigrated } from "./helpers/database";
 
 const LEASE = "integration-test-lease";
@@ -181,6 +184,90 @@ describe("withJobLease", () => {
   });
 });
 
+describe("scheduled job occurrences", () => {
+  const scheduledAt = new Date("2026-01-02T00:00:00Z");
+  const nextScheduledAt = new Date("2026-01-02T01:00:00Z");
+
+  it("skips delayed duplicates and accepts a newer occurrence after the job returns", async () => {
+    await clearLease();
+    const run = vi.fn(async () => "ran");
+    const skip = () => "skipped";
+
+    await expect(withJobLease(LEASE, run, skip, { scheduledAt })).resolves.toBe(
+      "ran",
+    );
+    await expect(withJobLease(LEASE, run, skip, { scheduledAt })).resolves.toBe(
+      "skipped",
+    );
+    await expect(
+      withJobLease(LEASE, run, skip, { scheduledAt: nextScheduledAt }),
+    ).resolves.toBe("ran");
+    await expect(withJobLease(LEASE, run, skip, { scheduledAt })).resolves.toBe(
+      "skipped",
+    );
+    expect(run).toHaveBeenCalledTimes(2);
+  });
+
+  it("blocks newer occurrences while an earlier occurrence still holds the lease", async () => {
+    await clearLease();
+    let release!: () => void;
+    const held = new Promise<void>((resolve) => {
+      release = resolve;
+    });
+    const run = vi.fn(async () => {
+      await held;
+      return "ran";
+    });
+    const skip = () => "skipped";
+    const running = withJobLease(LEASE, run, skip, { scheduledAt });
+
+    try {
+      await vi.waitFor(() => expect(run).toHaveBeenCalledTimes(1));
+      await expect(
+        withJobLease(LEASE, run, skip, { scheduledAt: nextScheduledAt }),
+      ).resolves.toBe("skipped");
+    } finally {
+      release();
+      await expect(running).resolves.toBe("ran");
+    }
+  });
+
+  it("keeps an attempted occurrence after failure and guards a newer lease from stale renewal", async () => {
+    await clearLease();
+    await expect(
+      withJobLease(
+        LEASE,
+        async () => {
+          throw new Error("job failed");
+        },
+        () => null,
+        { scheduledAt },
+      ),
+    ).rejects.toThrow("job failed");
+
+    const run = vi.fn(async () => "ran");
+    await expect(
+      withJobLease(LEASE, run, () => null, { scheduledAt }),
+    ).resolves.toBeNull();
+    expect(run).not.toHaveBeenCalled();
+    await withJobLease(
+      LEASE,
+      async () => {
+        await expect(renewJobLease(LEASE, scheduledAt, 60_000)).resolves.toBe(
+          false,
+        );
+        await expect(
+          renewJobLease(LEASE, nextScheduledAt, 60_000),
+        ).resolves.toBe(true);
+      },
+      () => {
+        throw new Error("new occurrence was skipped");
+      },
+      { scheduledAt: nextScheduledAt },
+    );
+  });
+});
+
 describe.each(["America/New_York", "Asia/Tokyo"])(
   "withJobLease when the process runs in %s",
   (timeZone) => {
@@ -210,7 +297,30 @@ describe.each(["America/New_York", "Asia/Tokyo"])(
           return Number(rows.rows[0]?.seconds);
         },
         () => Number.NaN,
-        60_000,
+        { leaseMs: 60_000 },
+      );
+
+      expect(remaining).toBeGreaterThan(50);
+      expect(remaining).toBeLessThanOrEqual(60);
+    });
+
+    it("renews the expiry in UTC using the database clock", async () => {
+      await clearLease();
+      const scheduledAt = new Date("2026-01-02T00:00:00Z");
+      const remaining = await withJobLease(
+        LEASE,
+        async () => {
+          await expect(renewJobLease(LEASE, scheduledAt, 60_000)).resolves.toBe(
+            true,
+          );
+          const rows = await db.execute(sql`
+            SELECT extract(epoch FROM "expires_at" - timezone('UTC', now())) AS "seconds"
+            FROM job_lease WHERE "name" = ${LEASE};
+          `);
+          return Number(rows.rows[0]?.seconds);
+        },
+        () => Number.NaN,
+        { scheduledAt },
       );
 
       expect(remaining).toBeGreaterThan(50);

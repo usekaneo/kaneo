@@ -193,6 +193,7 @@ export async function handleGitlabIssueOpened(
     } = result;
 
     await publishEvent("task.created", {
+      workspaceId: integration.project?.workspaceId,
       ...createdTask,
       taskId: createdTask.id,
       userId: createdTask.userId ?? "",

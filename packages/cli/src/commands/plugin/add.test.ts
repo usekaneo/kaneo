@@ -93,7 +93,7 @@ describe("kaneo plugin add", () => {
       type: "module",
     });
     expect(
-      await readFile(join(projectDir, "kaneo.config.ts"), "utf8"),
+      await readFile(join(projectDir, "kaneo.config.mjs"), "utf8"),
     ).toContain("plugins: [timeReport()],");
     expect(JSON.parse(output.stdout.join(""))).toEqual({
       packageName: PACKAGE,
@@ -107,7 +107,7 @@ describe("kaneo plugin add", () => {
       createdPackageJson: true,
       config: {
         status: "created",
-        file: join(projectDir, "kaneo.config.ts"),
+        file: join(projectDir, "kaneo.config.mjs"),
         importName: "timeReport",
       },
     });
@@ -195,7 +195,7 @@ describe("kaneo plugin add", () => {
       "npm install failed: Unable to authenticate",
     );
     await expect(
-      readFile(join(projectDir, "kaneo.config.ts")),
+      readFile(join(projectDir, "kaneo.config.mjs")),
     ).rejects.toThrow();
   });
 
