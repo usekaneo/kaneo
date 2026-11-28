@@ -85,6 +85,33 @@ describe("bounded task pages", () => {
     expect(new Set(ids).size).toBe(237);
     expect(ids.sort()).toEqual(tasks.map((task) => task.id).sort());
   });
+
+  it("keeps the selected sort order within regular, archived, and planned buckets", async () => {
+    const { project, app } = await fixture(8);
+    const response = await app.request(
+      `/api/task/tasks/${project.id}?sortBy=number&sortOrder=desc&limit=6`,
+    );
+    expect(response.status).toBe(200);
+    const { data } = await response.json();
+    expect(data.columns).toContainEqual(
+      expect.objectContaining({
+        slug: "to-do",
+        tasks: [
+          expect.objectContaining({ number: 6 }),
+          expect.objectContaining({ number: 3 }),
+        ],
+      }),
+    );
+    expect(data.archivedTasks).toEqual([
+      expect.objectContaining({ number: 8 }),
+      expect.objectContaining({ number: 5 }),
+    ]);
+    expect(data.plannedTasks).toEqual([
+      expect.objectContaining({ number: 7 }),
+      expect.objectContaining({ number: 4 }),
+    ]);
+  });
+
   it("applies filters and sorting before paginating and keeps labels and links with their tasks", async () => {
     const { project, member, tasks, app } = await fixture();
     const [integration] = await db

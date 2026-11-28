@@ -1,6 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 
-import { loadDescription } from "@/lib/api/board";
+import { loadDescription } from "@/lib/api/description";
 import { api } from "@/lib/api/endpoints";
 import type {
   Activity,

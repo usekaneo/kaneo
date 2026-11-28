@@ -1,4 +1,4 @@
-import { genericWebhookEventsSchema } from "../integrations/response";
+import { genericWebhookEventsSchema } from "../integrations/event-schemas";
 import { responseTimestamp, z } from "../openapi";
 
 // Credentials are only ever returned masked, with a boolean saying if each is set.

@@ -1,4 +1,5 @@
 import { useCallback, useMemo } from "react";
+import type { BoardFilters } from "@/lib/task-filters/board-filters";
 import { countActiveFilters } from "@/lib/task-filters/count-active-filters";
 import { filterProjectTasks } from "@/lib/task-filters/filter-project-tasks";
 import {
@@ -14,7 +15,6 @@ import type { ProjectWithTasks } from "@/types/project";
 import type Task from "@/types/task";
 import useGetCachedCustomFieldValues from "./queries/custom-field/use-get-all-custom-field-values-by-project";
 import useGetLabelsByWorkspace from "./queries/label/use-get-labels-by-workspace";
-import type { BoardFilters } from "./use-task-filters";
 import { useStoredState } from "./use-stored-state";
 
 const DEFAULT_FILTERS: BoardFilters = {
