@@ -424,6 +424,23 @@ async function getTasksPage(
     publicRelatedRevision = `${labels?.revision}:${links?.revision}:${children?.revision}`;
   }
 
+  const enrichTask = (task: (typeof paginatedTasks)[number]) => ({
+    ...task,
+    subtaskCounts: subtaskCounts.get(task.id) ?? { completed: 0, total: 0 },
+    labels: taskLabelsMap.get(task.id) ?? [],
+    externalLinks: taskExternalLinksMap.get(task.id) ?? [],
+  });
+  const tasksByStatus = new Map<string, ReturnType<typeof enrichTask>[]>();
+  for (const task of paginatedTasks) {
+    const tasks = tasksByStatus.get(task.status);
+    const enrichedTask = enrichTask(task);
+    if (tasks) {
+      tasks.push(enrichedTask);
+    } else {
+      tasksByStatus.set(task.status, [enrichedTask]);
+    }
+  }
+
   const columns = projectColumns.map((column) => ({
     id: column.slug,
     slug: column.slug,
@@ -431,33 +448,8 @@ async function getTasksPage(
     position: column.position,
     icon: column.icon,
     isFinal: column.isFinal,
-    tasks: paginatedTasks
-      .filter((task) => task.status === column.slug)
-      .map((task) => ({
-        ...task,
-        subtaskCounts: subtaskCounts.get(task.id) ?? { completed: 0, total: 0 },
-        labels: taskLabelsMap.get(task.id) || [],
-        externalLinks: taskExternalLinksMap.get(task.id) || [],
-      })),
+    tasks: tasksByStatus.get(column.slug) ?? [],
   }));
-
-  const archivedTasks = paginatedTasks
-    .filter((task) => task.status === "archived")
-    .map((task) => ({
-      ...task,
-      subtaskCounts: subtaskCounts.get(task.id) ?? { completed: 0, total: 0 },
-      labels: taskLabelsMap.get(task.id) || [],
-      externalLinks: taskExternalLinksMap.get(task.id) || [],
-    }));
-
-  const plannedTasks = paginatedTasks
-    .filter((task) => task.status === "planned")
-    .map((task) => ({
-      ...task,
-      subtaskCounts: subtaskCounts.get(task.id) ?? { completed: 0, total: 0 },
-      labels: taskLabelsMap.get(task.id) || [],
-      externalLinks: taskExternalLinksMap.get(task.id) || [],
-    }));
 
   return {
     data: {
@@ -472,8 +464,8 @@ async function getTasksPage(
       workspaceId: project.workspaceId,
       backgroundVersion: project.backgroundVersion,
       columns,
-      archivedTasks,
-      plannedTasks,
+      archivedTasks: tasksByStatus.get("archived") ?? [],
+      plannedTasks: tasksByStatus.get("planned") ?? [],
     },
     pagination: {
       total,

@@ -5,10 +5,10 @@ import {
   isWithinInterval,
   startOfWeek,
 } from "date-fns";
-import type { BoardFilters } from "@/hooks/use-task-filters";
-import { DUE_DATE_FILTER_VALUES } from "./due-date-filter-values";
 import type Task from "@/types/task";
+import type { BoardFilters } from "./board-filters";
 import { matchesDateCondition, parseDateCondition } from "./date-condition";
+import { DUE_DATE_FILTER_VALUES } from "./due-date-filter-values";
 import { customFieldSubjectId } from "./filter-subject-id";
 
 export type TaskFilterContext = {

@@ -1,4 +1,4 @@
-import { integrationEventToggles } from "../integrations/schema";
+import { integrationEventToggles } from "../integrations/event-schemas";
 import { z } from "../openapi";
 
 export const createMattermostBody = z.object({
