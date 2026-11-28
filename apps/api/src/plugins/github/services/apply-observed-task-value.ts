@@ -119,9 +119,10 @@ export async function writeInboundTaskField(
     const status = await resolveStatus(
       integration.projectId,
       value === "closed" ? "issue_closed" : "issue_reopened",
-      value === "closed" ? "done" : "to-do",
+      null,
       tx,
     );
+    if (!status) return;
     const workspaceId = await getProjectWorkspaceId(integration.projectId, tx);
     const result = await updateTaskStatus(link.taskId, status, tx);
     if (result.applied && result.before.status !== result.after.status)

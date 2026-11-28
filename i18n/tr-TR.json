@@ -1249,7 +1249,8 @@
 				"pr_opened": "Pull request açıldı",
 				"pr_merged": "Pull request birleştirildi",
 				"issue_opened": "Sorun açıldı",
-				"issue_closed": "Sorun kapatıldı"
+				"issue_closed": "Sorun kapatıldı",
+				"issue_reopened": "Sorun yeniden açıldı"
 			},
 			"connectMore": "<link>Entegrasyonlar</link> bölümünden {{providers}} bağlantısı kurarak bunları da otomatikleştirin.",
 			"dontMove": "Taşınmasın",

@@ -1494,7 +1494,8 @@
 				"pr_opened": "पुल रिक्वेस्ट खोली गई",
 				"pr_merged": "पुल रिक्वेस्ट मर्ज हुई",
 				"issue_opened": "इश्यू खोला गया",
-				"issue_closed": "इश्यू बंद हुआ"
+				"issue_closed": "इश्यू बंद हुआ",
+				"issue_reopened": "इश्यू फिर से खोला गया"
 			},
 			"connectMore": "{{providers}} को भी ऑटोमेट करने के लिए उन्हें <link>एकीकरण</link> में कनेक्ट करें।",
 			"dontMove": "न ले जाएँ",

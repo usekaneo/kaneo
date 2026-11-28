@@ -1241,7 +1241,8 @@
 				"pr_opened": "풀 리퀘스트 열림",
 				"pr_merged": "풀 리퀘스트 병합됨",
 				"issue_opened": "이슈 열림",
-				"issue_closed": "이슈 닫힘"
+				"issue_closed": "이슈 닫힘",
+				"issue_reopened": "이슈 다시 열림"
 			},
 			"connectMore": "<link>연동</link>에서 {{providers}}을(를) 연결하면 함께 자동화할 수 있습니다.",
 			"dontMove": "이동 안 함",

@@ -216,9 +216,9 @@ vi.mock(
 vi.mock("../../../../apps/api/src/plugins/gitea/utils/resolve-column", () => ({
   resolveTargetStatus: async (
     _project: string,
-    _event: string,
-    fallback: string,
-  ) => fallback,
+    event: string,
+    fallback: string | null,
+  ) => fallback ?? (event === "issue_closed" ? "done" : "to-do"),
 }));
 it("ignores an older close echo after a newer outbound reopen", async () => {
   const { handleGiteaIssueClosed } =

@@ -177,7 +177,7 @@ export async function handleGitlabMergeRequestOpened(
       const targetStatus = await resolveTargetStatus(
         integration.projectId,
         "pr_opened",
-        config.statusTransitions?.onPROpen || "in-review",
+        null,
         database,
       );
 
@@ -191,7 +191,7 @@ export async function handleGitlabMergeRequestOpened(
         wasDraft ||
         !(await isTaskInFinalState(currentTask, database));
 
-      if (currentTask.status !== targetStatus && canMove) {
+      if (targetStatus && currentTask.status !== targetStatus && canMove) {
         const statusResult = await updateTaskStatus(
           task.id,
           targetStatus,

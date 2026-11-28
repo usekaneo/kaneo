@@ -92,6 +92,26 @@ async function createFixture(
     workspaceId: member.workspace.id,
     slug,
   });
+  await db.insert(schema.workflowRuleTable).values([
+    {
+      projectId: project.id,
+      integrationType: provider,
+      eventType: "branch_push",
+      columnId: columns.inProgress.id,
+    },
+    {
+      projectId: project.id,
+      integrationType: provider,
+      eventType: "pr_opened",
+      columnId: columns.inReview.id,
+    },
+    {
+      projectId: project.id,
+      integrationType: provider,
+      eventType: "pr_merged",
+      columnId: columns.done.id,
+    },
+  ]);
   const [integration] = await db
     .insert(schema.integrationTable)
     .values({

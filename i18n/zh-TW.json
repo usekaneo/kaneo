@@ -1502,7 +1502,8 @@
 				"pr_opened": "PR 已開啟",
 				"pr_merged": "PR 已合併",
 				"issue_opened": "Issue 已開啟",
-				"issue_closed": "Issue 已關閉"
+				"issue_closed": "Issue 已關閉",
+				"issue_reopened": "Issue 已重新開啟"
 			},
 			"connectMore": "在<link>整合</link>中連接 {{providers}}，也能為它們設定自動化。",
 			"dontMove": "不移動",

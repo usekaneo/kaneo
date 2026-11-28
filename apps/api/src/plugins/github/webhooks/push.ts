@@ -148,17 +148,17 @@ export async function handlePush(payload: PushPayload) {
         const targetStatus = await resolveTargetStatus(
           integration.projectId,
           "branch_push",
-          config.statusTransitions?.onBranchPush || "in-progress",
+          null,
           database,
         );
         console.log(
-          `[Push] Target status: ${targetStatus}, current: ${task.status}`,
+          `[Push] Target status: ${targetStatus ?? "none"}, current: ${task.status}`,
         );
 
         const canMove =
           branchLink.created || !(await isTaskInFinalState(task, database));
 
-        if (task.status !== targetStatus && canMove) {
+        if (targetStatus && task.status !== targetStatus && canMove) {
           console.log(
             `[Push] Updating task ${task.id} status from ${task.status} to ${targetStatus}`,
           );

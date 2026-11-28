@@ -152,32 +152,34 @@ export async function handleGiteaIssueClosed(
             const targetStatus = await resolveTargetStatus(
               task.projectId,
               "issue_closed",
-              "done",
+              null,
               db,
             );
 
-            const statusResult = await updateTaskStatus(
-              task.id,
-              targetStatus,
-              db,
-            );
-            if (
-              statusResult.applied &&
-              statusResult.before.status !== statusResult.after.status
-            ) {
-              afterCommit(() =>
-                publishEvent("task.status_changed", {
-                  workspaceId: integration.project?.workspaceId,
-                  taskId: statusResult.after.id,
-                  projectId: statusResult.after.projectId,
-                  userId: null,
-                  oldStatus: statusResult.before.status,
-                  newStatus: statusResult.after.status,
-                  title: statusResult.after.title,
-                  assigneeId: statusResult.after.userId,
-                  type: "status_changed",
-                }),
+            if (targetStatus) {
+              const statusResult = await updateTaskStatus(
+                task.id,
+                targetStatus,
+                db,
               );
+              if (
+                statusResult.applied &&
+                statusResult.before.status !== statusResult.after.status
+              ) {
+                afterCommit(() =>
+                  publishEvent("task.status_changed", {
+                    workspaceId: integration.project?.workspaceId,
+                    taskId: statusResult.after.id,
+                    projectId: statusResult.after.projectId,
+                    userId: null,
+                    oldStatus: statusResult.before.status,
+                    newStatus: statusResult.after.status,
+                    title: statusResult.after.title,
+                    assigneeId: statusResult.after.userId,
+                    type: "status_changed",
+                  }),
+                );
+              }
             }
 
             await updateExternalLink(

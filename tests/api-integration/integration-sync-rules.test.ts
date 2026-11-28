@@ -1514,6 +1514,20 @@ describe("reviewed sync resume", () => {
       .spyOn(events, "publishEvent")
       .mockResolvedValue(undefined);
     const f = await paused();
+    await db.insert(schema.workflowRuleTable).values([
+      {
+        projectId: f.project.id,
+        integrationType: "gitea",
+        eventType: "issue_closed",
+        columnId: f.columns.done.id,
+      },
+      {
+        projectId: f.project.id,
+        integrationType: "gitea",
+        eventType: "issue_reopened",
+        columnId: f.columns.todo.id,
+      },
+    ]);
     await db
       .update(schema.taskTable)
       .set({ userId: f.user.id })

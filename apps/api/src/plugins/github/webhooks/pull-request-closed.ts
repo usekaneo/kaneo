@@ -3,7 +3,6 @@ import { and, eq } from "drizzle-orm";
 import db from "../../../database";
 import { externalLinkTable } from "../../../database/schema";
 import { publishEvent } from "../../../events";
-import type { GitHubConfig } from "../config";
 import { updateExternalLink } from "../services/link-manager";
 import {
   findAllIntegrationsByRepo,
@@ -40,8 +39,6 @@ export async function handlePullRequestClosed(payload: PRClosedPayload) {
   const integrations = await findAllIntegrationsByRepo(payload);
 
   for (const integration of integrations) {
-    const config = JSON.parse(integration.config) as GitHubConfig;
-
     const externalLink = await db.query.externalLinkTable.findFirst({
       where: and(
         eq(externalLinkTable.integrationId, integration.id),
@@ -110,31 +107,33 @@ export async function handlePullRequestClosed(payload: PRClosedPayload) {
             const targetStatus = await resolveTargetStatus(
               integration.projectId,
               "pr_merged",
-              config.statusTransitions?.onPRMerge || "done",
+              null,
               database,
             );
-            const statusResult = await updateTaskStatus(
-              task.id,
-              targetStatus,
-              database,
-            );
-            if (
-              statusResult.applied &&
-              statusResult.before.status !== statusResult.after.status
-            ) {
-              afterCommit(() =>
-                publishEvent("task.status_changed", {
-                  workspaceId: integration.project?.workspaceId,
-                  taskId: statusResult.after.id,
-                  projectId: statusResult.after.projectId,
-                  userId: null,
-                  oldStatus: statusResult.before.status,
-                  newStatus: statusResult.after.status,
-                  title: statusResult.after.title,
-                  assigneeId: statusResult.after.userId,
-                  type: "status_changed",
-                }),
+            if (targetStatus) {
+              const statusResult = await updateTaskStatus(
+                task.id,
+                targetStatus,
+                database,
               );
+              if (
+                statusResult.applied &&
+                statusResult.before.status !== statusResult.after.status
+              ) {
+                afterCommit(() =>
+                  publishEvent("task.status_changed", {
+                    workspaceId: integration.project?.workspaceId,
+                    taskId: statusResult.after.id,
+                    projectId: statusResult.after.projectId,
+                    userId: null,
+                    oldStatus: statusResult.before.status,
+                    newStatus: statusResult.after.status,
+                    title: statusResult.after.title,
+                    assigneeId: statusResult.after.userId,
+                    type: "status_changed",
+                  }),
+                );
+              }
             }
           }
         }

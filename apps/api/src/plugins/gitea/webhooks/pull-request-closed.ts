@@ -8,7 +8,6 @@ import {
   findTaskById,
   updateTaskStatus,
 } from "../../github/services/task-service";
-import type { GiteaConfig } from "../config";
 import {
   findAllIntegrationsByGiteaRepo,
   repoOwnerLogin,
@@ -54,8 +53,6 @@ export async function handleGiteaPullRequestClosed(
   );
 
   for (const integration of integrations) {
-    const config = JSON.parse(integration.config) as GiteaConfig;
-
     const externalLink = await db.query.externalLinkTable.findFirst({
       where: and(
         eq(externalLinkTable.integrationId, integration.id),
@@ -120,31 +117,33 @@ export async function handleGiteaPullRequestClosed(
             const targetStatus = await resolveTargetStatus(
               integration.projectId,
               "pr_merged",
-              config.statusTransitions?.onPRMerge || "done",
+              null,
               database,
             );
-            const statusResult = await updateTaskStatus(
-              task.id,
-              targetStatus,
-              database,
-            );
-            if (
-              statusResult.applied &&
-              statusResult.before.status !== statusResult.after.status
-            ) {
-              afterCommit(() =>
-                publishEvent("task.status_changed", {
-                  workspaceId: integration.project?.workspaceId,
-                  taskId: statusResult.after.id,
-                  projectId: statusResult.after.projectId,
-                  userId: null,
-                  oldStatus: statusResult.before.status,
-                  newStatus: statusResult.after.status,
-                  title: statusResult.after.title,
-                  assigneeId: statusResult.after.userId,
-                  type: "status_changed",
-                }),
+            if (targetStatus) {
+              const statusResult = await updateTaskStatus(
+                task.id,
+                targetStatus,
+                database,
               );
+              if (
+                statusResult.applied &&
+                statusResult.before.status !== statusResult.after.status
+              ) {
+                afterCommit(() =>
+                  publishEvent("task.status_changed", {
+                    workspaceId: integration.project?.workspaceId,
+                    taskId: statusResult.after.id,
+                    projectId: statusResult.after.projectId,
+                    userId: null,
+                    oldStatus: statusResult.before.status,
+                    newStatus: statusResult.after.status,
+                    title: statusResult.after.title,
+                    assigneeId: statusResult.after.userId,
+                    type: "status_changed",
+                  }),
+                );
+              }
             }
           }
         }
