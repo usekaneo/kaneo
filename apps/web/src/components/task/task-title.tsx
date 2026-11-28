@@ -28,6 +28,7 @@ export default function TaskTitle({ taskId, size = "md" }: TaskTitleProps) {
   const taskRef = useRef(task);
   const updateTaskRef = useRef(updateTaskTitle);
   const tRef = useRef(t);
+  const acknowledgedTitleRef = useRef(task?.title ?? "");
   const pendingTitleRef = useRef<string | null>(null);
 
   useEffect(() => {
@@ -36,13 +37,22 @@ export default function TaskTitle({ taskId, size = "md" }: TaskTitleProps) {
     tRef.current = t;
   }, [task, updateTaskTitle, t]);
 
-  const form = useForm<{
-    title: string;
-  }>({
-    values: {
-      title: task?.title || "",
-    },
+  const form = useForm<{ title: string }>({
+    defaultValues: { title: task?.title ?? "" },
   });
+  const { reset } = form;
+  const fetchedTaskId = task?.id;
+  const fetchedTitle = task?.title ?? "";
+
+  useEffect(() => {
+    acknowledgedTitleRef.current = fetchedTitle;
+    if (
+      pendingTitleRef.current === null &&
+      !(fetchedTaskId && titleSaveQueue.get(fetchedTaskId))
+    ) {
+      reset({ title: fetchedTitle });
+    }
+  }, [fetchedTaskId, fetchedTitle, reset]);
 
   const commitTitle = useCallback(() => {
     const title = pendingTitleRef.current;
@@ -52,12 +62,16 @@ export default function TaskTitle({ taskId, size = "md" }: TaskTitleProps) {
 
     const queued = titleSaveQueue.get(currentTask.id);
     const lastTitle =
-      queued && queued.state !== "failed" ? queued.value : currentTask.title;
+      queued && queued.state !== "failed"
+        ? queued.value
+        : acknowledgedTitleRef.current;
     if (title === lastTitle) return;
 
     titleSaveQueue.schedule(currentTask.id, title, async (value) => {
       try {
         await updateTaskRef.current({ ...currentTask, title: value });
+        if (taskRef.current?.id === currentTask.id)
+          acknowledgedTitleRef.current = value;
       } catch (error) {
         toast.error(tRef.current("tasks:detail.editor.saveFailed"));
         // Only restore this editor's draft if it still shows the same task.
@@ -77,7 +91,7 @@ export default function TaskTitle({ taskId, size = "md" }: TaskTitleProps) {
       if (!currentTask) return;
       const pending = pendingTitleRef.current;
       if (
-        (pending !== null && pending !== currentTask.title) ||
+        (pending !== null && pending !== acknowledgedTitleRef.current) ||
         titleSaveQueue.get(currentTask.id)
       )
         event.preventDefault();

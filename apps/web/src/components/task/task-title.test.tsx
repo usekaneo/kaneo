@@ -1,4 +1,10 @@
-import { cleanup, fireEvent, render, waitFor } from "@testing-library/react";
+import {
+  act,
+  cleanup,
+  fireEvent,
+  render,
+  waitFor,
+} from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vite-plus/test";
 import TaskTitle from "./task-title";
 
@@ -36,8 +42,10 @@ function edit(textarea: HTMLTextAreaElement, value: string) {
 
 describe("TaskTitle", () => {
   afterEach(async () => {
+    vi.useRealTimers();
     cleanup();
     await new Promise((resolve) => setTimeout(resolve, 0));
+    mocks.task.title = "Old title";
     mocks.mutateAsync.mockReset();
     mocks.toastError.mockReset();
   });
@@ -119,6 +127,54 @@ describe("TaskTitle", () => {
     fireEvent.blur(getTextarea(container));
     await new Promise((resolve) => setTimeout(resolve, 0));
     expect(mocks.mutateAsync).toHaveBeenCalledTimes(1);
+  });
+
+  it("preserves a newer draft when a previous save refetches", async () => {
+    vi.useFakeTimers();
+    mocks.mutateAsync.mockResolvedValue({});
+    const { container, rerender } = render(<TaskTitle taskId="task-1" />);
+    const textarea = getTextarea(container);
+
+    edit(textarea, "First save");
+    fireEvent.change(textarea, { target: { value: "Still editing" } });
+    await act(() => vi.runOnlyPendingTimersAsync());
+    expect(mocks.mutateAsync).toHaveBeenCalledTimes(1);
+    mocks.task.title = "First save";
+    rerender(<TaskTitle taskId="task-1" />);
+
+    expect(textarea).toHaveValue("Still editing");
+    fireEvent.blur(textarea);
+    await act(() => vi.runOnlyPendingTimersAsync());
+    expect(mocks.mutateAsync).toHaveBeenCalledTimes(2);
+    expect(mocks.mutateAsync).toHaveBeenLastCalledWith(
+      expect.objectContaining({ title: "Still editing" }),
+    );
+  });
+
+  it("saves a revert after the first save succeeds but before refetch", async () => {
+    vi.useFakeTimers();
+    let finishFirst = () => {};
+    mocks.mutateAsync
+      .mockReturnValueOnce(
+        new Promise<void>((resolve) => {
+          finishFirst = resolve;
+        }),
+      )
+      .mockResolvedValue({});
+    const { container } = render(<TaskTitle taskId="task-1" />);
+    const textarea = getTextarea(container);
+
+    edit(textarea, "New title");
+    await act(() => vi.runOnlyPendingTimersAsync());
+    expect(mocks.mutateAsync).toHaveBeenCalledTimes(1);
+    fireEvent.change(textarea, { target: { value: "Old title" } });
+    await act(async () => finishFirst());
+    fireEvent.blur(textarea);
+    await act(() => vi.runOnlyPendingTimersAsync());
+    expect(mocks.mutateAsync).toHaveBeenCalledTimes(2);
+    expect(mocks.mutateAsync).toHaveBeenLastCalledWith(
+      expect.objectContaining({ title: "Old title" }),
+    );
   });
 
   it("saves a quick revert after the first save finishes", async () => {
