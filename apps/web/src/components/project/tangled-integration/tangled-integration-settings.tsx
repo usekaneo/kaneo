@@ -142,6 +142,7 @@ export function TangledIntegrationSettings({
                   }
                   value={values[key]}
                   disabled={!canEdit || busy}
+                  readOnly={key === "repositoryDid" && Boolean(integration)}
                   onChange={(event) =>
                     setValues((current) => ({
                       ...current,
@@ -149,6 +150,11 @@ export function TangledIntegrationSettings({
                     }))
                   }
                 />
+                {key === "repositoryDid" && integration && (
+                  <span className="text-muted-foreground">
+                    {t("settings:tangledIntegration.repositoryDidHint")}
+                  </span>
+                )}
               </label>
             );
           })}

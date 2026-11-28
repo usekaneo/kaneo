@@ -2,6 +2,7 @@ import { and, eq } from "drizzle-orm";
 import { beforeEach, describe, expect, it, vi } from "vite-plus/test";
 import db, { schema } from "../../apps/api/src/database";
 import * as events from "../../apps/api/src/events";
+import * as branchReconciliation from "../../apps/api/src/plugins/tangled/reconcile-branch";
 import { reconcileTangledRepositories } from "../../apps/api/src/scheduler/tangled-branch-reconciliation";
 import { resetTestDatabase } from "./helpers/database";
 import { createTangledFixture, tangledTestConfig } from "./helpers/tangled";
@@ -11,6 +12,8 @@ const upstream = vi.hoisted(() => ({
   failedHost: "",
   omittedBranch: "",
   refError: "",
+  failedRef: "",
+  onList: () => {},
   head: "b".repeat(40),
 }));
 vi.mock("../../apps/api/src/plugins/tangled/request-json", () => {
@@ -22,7 +25,8 @@ vi.mock("../../apps/api/src/plugins/tangled/request-json", () => {
     requestTangledJson: async (url: URL) => {
       if (url.hostname === upstream.failedHost)
         throw new Error("private-upstream-error");
-      if (url.pathname.endsWith("listBranches"))
+      if (url.pathname.endsWith("listBranches")) {
+        upstream.onList();
         return {
           branches: upstream.branches
             .filter((name) => name !== upstream.omittedBranch)
@@ -34,6 +38,7 @@ vi.mock("../../apps/api/src/plugins/tangled/request-json", () => {
             (name) => name !== upstream.omittedBranch,
           ).length,
         };
+      }
       if (url.pathname.endsWith("getRepoByRepoDid"))
         return {
           uri: "at://did:plc:repository/org.tangled.repo.manifest/self",
@@ -43,7 +48,9 @@ vi.mock("../../apps/api/src/plugins/tangled/request-json", () => {
           },
         };
       if (url.pathname.endsWith("getRef")) {
-        if (upstream.refError) throw new Error(upstream.refError);
+        const ref = url.searchParams.get("ref")!;
+        if (upstream.refError || ref === upstream.failedRef)
+          throw new Error(upstream.refError || "Temporary ref failure");
         if (
           !upstream.branches.includes(
             url.searchParams.get("ref")!.slice("refs/heads/".length),
@@ -63,6 +70,8 @@ beforeEach(async () => {
   upstream.failedHost = "";
   upstream.omittedBranch = "";
   upstream.refError = "";
+  upstream.failedRef = "";
+  upstream.onList = () => {};
   upstream.head = "b".repeat(40);
 });
 
@@ -291,6 +300,99 @@ describe("Tangled periodic reconciliation", () => {
     ).toMatchObject({ scanOffset: 20 });
     await reconcileTangledRepositories();
     expect(await db.query.externalLinkTable.findMany()).toHaveLength(1);
+  });
+
+  it("advances the scan offset after a branch operation throws", async () => {
+    await createTangledFixture();
+    upstream.branches = [
+      ...Array.from({ length: 20 }, (_, i) => `unrelated-${i}`),
+      "KAN-12",
+    ];
+    vi.spyOn(
+      branchReconciliation,
+      "reconcileTangledBranch",
+    ).mockRejectedValueOnce(new Error("Temporary transaction failure"));
+
+    await expect(reconcileTangledRepositories()).resolves.toEqual({
+      degraded: true,
+    });
+    expect(
+      await db.query.tangledIntegrationStateTable.findFirst(),
+    ).toMatchObject({
+      scanOffset: 20,
+    });
+    await expect(reconcileTangledRepositories()).resolves.toEqual({
+      degraded: false,
+    });
+    expect(await db.query.externalLinkTable.findMany()).toMatchObject([
+      { externalId: "KAN-12" },
+    ]);
+  });
+
+  it("checks later stale links and listed branches when a stale ref lookup fails", async () => {
+    const { task, integration } = await createTangledFixture();
+    await db.insert(schema.externalLinkTable).values(
+      ["failed-stale", "deleted-stale"].map((branch, index) => ({
+        id: `stale-link-${index}`,
+        taskId: task.id,
+        integrationId: integration.id,
+        resourceType: "branch",
+        externalId: branch,
+        url: `https://tangled.example/owner/repo/tree/${branch}`,
+      })),
+    );
+    upstream.failedRef = "refs/heads/failed-stale";
+
+    await expect(reconcileTangledRepositories()).resolves.toEqual({
+      degraded: true,
+    });
+    expect(
+      (await db.query.externalLinkTable.findMany())
+        .map((link) => link.externalId)
+        .sort(),
+    ).toEqual(["KAN-12", "failed-stale"]);
+  });
+
+  it("does not start a ref operation if the listing used the scan budget", async () => {
+    await createTangledFixture();
+    const now = Date.now();
+    const clock = vi.spyOn(Date, "now").mockReturnValue(now);
+    upstream.onList = () => clock.mockReturnValue(now + 45_000);
+    const reconcile = vi.spyOn(branchReconciliation, "reconcileTangledBranch");
+
+    await reconcileTangledRepositories();
+    expect(reconcile).not.toHaveBeenCalled();
+    expect(
+      await db.query.tangledIntegrationStateTable.findFirst(),
+    ).toMatchObject({
+      scanOffset: 0,
+    });
+  });
+
+  it("skips task numbers above PostgreSQL's integer range and accepts the maximum", async () => {
+    const { task } = await createTangledFixture();
+    await db
+      .update(schema.taskTable)
+      .set({ number: 2_147_483_647 })
+      .where(eq(schema.taskTable.id, task.id));
+    upstream.branches = ["KAN-2147483648"];
+    await expect(reconcileTangledRepositories()).resolves.toEqual({
+      degraded: false,
+    });
+    expect(
+      await db.query.tangledIntegrationStateTable.findFirst(),
+    ).toMatchObject({
+      code: "branch_unmatched",
+    });
+    expect(await db.query.externalLinkTable.findMany()).toHaveLength(0);
+
+    upstream.branches = ["KAN-2147483647"];
+    await expect(reconcileTangledRepositories()).resolves.toEqual({
+      degraded: false,
+    });
+    expect(await db.query.externalLinkTable.findMany()).toMatchObject([
+      { taskId: task.id, externalId: "KAN-2147483647" },
+    ]);
   });
 
   it("removes a deleted managed branch link without removing a manual URL or changing task status", async () => {

@@ -6811,6 +6811,9 @@
 						"repositoryDid": {
 							"type": "string"
 						},
+						"repositoryDidHint": {
+							"type": "string"
+						},
 						"repositoryId": {
 							"type": "string"
 						},
@@ -6919,6 +6922,7 @@
 						"webhookUrl",
 						"baseUrl",
 						"repositoryDid",
+						"repositoryDidHint",
 						"repositoryId",
 						"repositoryUrl",
 						"secret",

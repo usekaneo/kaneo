@@ -2873,7 +2873,8 @@
 			"saveError": "Could not save the Tangled connection. Check the repository identity and read API, then retry.",
 			"secret": "Webhook secret",
 			"secretHint": "Leave the secret blank to keep the current secret. Use the same secret in Tangled.",
-			"webhookUrl": "Webhook URL"
+			"webhookUrl": "Webhook URL",
+			"repositoryDidHint": "Disconnect and reconnect Tangled to change the repository DID."
 		}
 	},
 	"navigation": {

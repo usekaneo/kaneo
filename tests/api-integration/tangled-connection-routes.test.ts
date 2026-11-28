@@ -8,7 +8,7 @@ import {
   createWorkspaceMember,
 } from "./helpers/fixtures";
 
-const upstream = vi.hoisted(() => ({ available: true }));
+const upstream = vi.hoisted(() => ({ available: true, renamed: false }));
 vi.mock("../../apps/api/src/plugins/tangled/request-json", () => ({
   requestTangledJson: async () => {
     if (!upstream.available) throw new Error("upstream-unavailable");
@@ -16,7 +16,10 @@ vi.mock("../../apps/api/src/plugins/tangled/request-json", () => ({
       uri: "at://did:plc:sjazesp3pinxlmgju2va46jd/org.tangled.repo.manifest/self",
       value: {
         $type: "org.tangled.repo.manifest",
-        declaration: { owner: "did:plc:owner", name: "repo" },
+        declaration: {
+          owner: "did:plc:owner",
+          name: upstream.renamed ? "renamed" : "repo",
+        },
       },
     };
   },
@@ -24,6 +27,7 @@ vi.mock("../../apps/api/src/plugins/tangled/request-json", () => ({
 
 beforeEach(async () => {
   upstream.available = true;
+  upstream.renamed = false;
   await resetTestDatabase();
 });
 
@@ -120,6 +124,36 @@ describe("Tangled project connection routes", () => {
     });
     expect(response.status).toBe(400);
     expect(await db.query.integrationTable.findMany()).toHaveLength(0);
+  });
+
+  it("keeps the stored DID when an update attempts to switch repositories", async () => {
+    const manager = await fixture("admin");
+    mockAuthenticatedSession(manager.user);
+    const { app } = createApp();
+    expect(
+      (await request(app, manager.project.id, "POST", connection)).status,
+    ).toBe(200);
+    const original = await db.query.integrationTable.findFirst();
+
+    const response = await request(app, manager.project.id, "PATCH", {
+      repositoryDid: "did:plc:another",
+      isActive: false,
+    });
+    expect(response.status).toBe(409);
+    expect(await response.text()).toContain("Disconnect and reconnect Tangled");
+    expect(await db.query.integrationTable.findFirst()).toEqual(original);
+
+    upstream.renamed = true;
+    const renamed = await request(app, manager.project.id, "PATCH", {
+      repositoryDid: connection.repositoryDid,
+      repositoryId: "did:plc:owner/renamed",
+      repositoryUrl: "https://tangled.org/@owner/renamed",
+    });
+    expect(renamed.status).toBe(200);
+    expect(await renamed.json()).toMatchObject({
+      repositoryDid: connection.repositoryDid,
+      repositoryId: "did:plc:owner/renamed",
+    });
   });
 
   it("allows disabling an existing connection while the read API is unavailable", async () => {

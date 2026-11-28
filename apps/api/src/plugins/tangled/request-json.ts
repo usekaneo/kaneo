@@ -18,7 +18,10 @@ const agent = new Agent({
   maxHeaderSize: 16_384,
 });
 
-export async function requestTangledJson(url: URL): Promise<unknown> {
+export async function requestTangledJson(
+  url: URL,
+  deadline = Infinity,
+): Promise<unknown> {
   parseTangledApiOrigin(url.origin);
   if (url.username || url.password || url.hash) {
     throw new Error(
@@ -26,10 +29,12 @@ export async function requestTangledJson(url: URL): Promise<unknown> {
     );
   }
 
+  const timeout = Math.min(10_000, deadline - Date.now());
+  if (timeout <= 0) throw new Error("Tangled API request timed out");
   const controller = new AbortController();
   const timer = setTimeout(
     () => controller.abort(new Error("Tangled API request timed out")),
-    10_000,
+    timeout,
   );
   timer.unref();
   let response: Awaited<ReturnType<typeof fetch>> | undefined;

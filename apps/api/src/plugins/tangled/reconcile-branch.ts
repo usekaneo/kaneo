@@ -25,6 +25,7 @@ export async function reconcileTangledBranch(
   connection: TangledConnection,
   ref: string,
   eventType: "push" | "reconciliation" = "push",
+  deadline?: number,
 ): Promise<TangledOutcome> {
   if (
     ref.length > 1024 ||
@@ -59,11 +60,17 @@ export async function reconcileTangledBranch(
         connection.parsed,
         project.slug,
       );
-      if (number === null || !Number.isSafeInteger(number) || number < 1)
+      if (
+        number === null ||
+        !Number.isInteger(number) ||
+        number < 1 ||
+        number > 2_147_483_647
+      )
         return finish("skipped", "branch_unmatched");
       const client = createTangledReadClient({
         origin: connection.parsed.origin,
         repositoryDid: connection.parsed.repositoryDid,
+        deadline,
       });
       let repository: Awaited<ReturnType<typeof client.getRepository>>;
       try {

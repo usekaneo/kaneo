@@ -9,6 +9,7 @@ import { TangledRefNotFoundError } from "./request-json";
 export async function removeMissingTangledBranch(
   connection: TangledConnection,
   branch: string,
+  deadline: number,
 ): Promise<boolean> {
   const ref = `refs/heads/${branch}`;
   let removedTaskId: string | undefined;
@@ -16,6 +17,7 @@ export async function removeMissingTangledBranch(
     const client = createTangledReadClient({
       origin: connection.parsed.origin,
       repositoryDid: connection.parsed.repositoryDid,
+      deadline,
     });
     const repository = await client.getRepository();
     if (

@@ -64,7 +64,8 @@ Disconnecting the integration clears that ownership record; reconnecting establi
 ## Check or disconnect
 
 The Tangled settings panel shows the most recent sanitized processing result.
-If repository identity changes after a rename or transfer, update the connection after checking the repository DID.
+If the webhook repository identity changes after a rename or transfer, verify that the repository DID is the same before updating the connection.
+To switch to a different repository DID, disconnect and connect the new repository.
 If the read API is unavailable, Kaneo leaves task data unchanged and retries through periodic reconciliation.
 Tangled's **Deliveries** page can also retry failed webhook deliveries.
 

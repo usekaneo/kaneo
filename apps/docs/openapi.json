@@ -20759,7 +20759,7 @@
             }
           },
           "409": {
-            "description": "Connection changed; refresh before updating",
+            "description": "Connection changed, or a different repository DID requires disconnecting and reconnecting",
             "content": {
               "application/json": {
                 "schema": {

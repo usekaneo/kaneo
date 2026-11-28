@@ -36,9 +36,18 @@ export default async function updateTangledIntegration({
     });
   }
 
+  if (
+    body.repositoryDid !== undefined &&
+    body.repositoryDid !== stored.repositoryDid
+  ) {
+    throw new HTTPException(409, {
+      message: "Disconnect and reconnect Tangled to change the repository DID",
+    });
+  }
+
   const config = {
     origin: body.baseUrl ?? stored.origin,
-    repositoryDid: body.repositoryDid ?? stored.repositoryDid,
+    repositoryDid: stored.repositoryDid,
     repositoryFullName: body.repositoryId ?? stored.repositoryFullName,
     repositoryUrl: body.repositoryUrl ?? stored.repositoryUrl,
     branchPattern: body.branchPattern ?? stored.branchPattern,

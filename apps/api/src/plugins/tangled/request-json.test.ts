@@ -7,6 +7,7 @@ import {
   it,
   vi,
 } from "vite-plus/test";
+import { createTangledReadClient } from "./read-client";
 import { requestTangledJson } from "./request-json";
 
 vi.mock("undici", async (importOriginal) => {
@@ -167,6 +168,53 @@ describe("requestTangledJson", () => {
     await vi.advanceTimersByTimeAsync(10_001);
     await assertion;
     expect(cancel).toHaveBeenCalledOnce();
+  });
+
+  it("uses the remaining scan deadline for each page", async () => {
+    vi.useFakeTimers();
+    const cancel = vi.fn();
+    const oid = "a".repeat(40);
+    const page = Response.json({
+      branches: [{ name: "main", oid }],
+      total: 2,
+      cursor: "next",
+    });
+    vi.mocked(fetch).mockImplementationOnce(async () => {
+      await new Promise((resolve) => setTimeout(resolve, 70));
+      return page as unknown as Awaited<ReturnType<typeof fetch>>;
+    });
+    respond(
+      new Response(new ReadableStream({ cancel }), {
+        headers: { "content-type": "application/json" },
+      }),
+    );
+    const client = createTangledReadClient({
+      origin: url.origin,
+      repositoryDid: "did:plc:repo",
+      deadline: Date.now() + 100,
+    });
+
+    const assertion = expect(client.listBranches()).rejects.toThrow(
+      /timed out/,
+    );
+    await vi.advanceTimersByTimeAsync(100);
+    await assertion;
+    expect(fetch).toHaveBeenCalledTimes(2);
+    expect(cancel).toHaveBeenCalledOnce();
+  });
+
+  it("does not dispatch repository or ref requests after the scan deadline", async () => {
+    const client = createTangledReadClient({
+      origin: url.origin,
+      repositoryDid: "did:plc:repo",
+      deadline: Date.now(),
+    });
+
+    await expect(client.getRepository()).rejects.toThrow(/timed out/);
+    await expect(client.getBranch("refs/heads/main")).rejects.toThrow(
+      /timed out/,
+    );
+    expect(fetch).not.toHaveBeenCalled();
   });
 
   it.each([

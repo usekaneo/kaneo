@@ -1869,6 +1869,7 @@
 			"webhookUrl": "Webhook URL",
 			"baseUrl": "Tangled read API origin",
 			"repositoryDid": "Repository DID",
+			"repositoryDidHint": "Disconnect and reconnect Tangled to change the repository DID.",
 			"repositoryId": "Webhook repository identity (owner DID/name)",
 			"repositoryUrl": "Repository URL",
 			"secret": "Webhook secret",

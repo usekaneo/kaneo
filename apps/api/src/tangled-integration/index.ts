@@ -99,7 +99,9 @@ const updateRoute = createRoute({
     400: errorResponse("Invalid resulting Tangled connection settings"),
     403: errorResponse("Workspace manage_settings permission required"),
     404: errorResponse("Project or Tangled connection not found"),
-    409: errorResponse("Connection changed; refresh before updating"),
+    409: errorResponse(
+      "Connection changed, or a different repository DID requires disconnecting and reconnecting",
+    ),
     502: errorResponse("Tangled repository could not be verified"),
   },
 });

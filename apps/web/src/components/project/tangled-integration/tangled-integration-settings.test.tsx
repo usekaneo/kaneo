@@ -118,6 +118,12 @@ describe("Tangled integration settings", () => {
         ) as HTMLInputElement
       ).value,
     ).toContain("/api/tangled-integration/webhook/id1");
+    expect(
+      screen.getByLabelText("settings:tangledIntegration.repositoryDid"),
+    ).toHaveAttribute("readonly");
+    expect(
+      screen.getByText("settings:tangledIntegration.repositoryDidHint"),
+    ).toBeInTheDocument();
     fireEvent.click(
       screen.getByRole("button", {
         name: "settings:chatIntegrations.saveChanges",

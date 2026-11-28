@@ -20,8 +20,8 @@ type TangledReadClient = {
 };
 
 export function createTangledReadClient(
-  config: { origin: string; repositoryDid: string },
-  requestJson: (url: URL) => Promise<unknown> = requestTangledJson,
+  config: { origin: string; repositoryDid: string; deadline?: number },
+  requestJson: typeof requestTangledJson = requestTangledJson,
 ): TangledReadClient {
   return {
     async getRepository() {
@@ -29,7 +29,9 @@ export function createTangledReadClient(
         method: "getRepoByRepoDid",
         repositoryDid: config.repositoryDid,
       });
-      const result = tangledRepositorySchema.safeParse(await requestJson(url));
+      const result = tangledRepositorySchema.safeParse(
+        await requestJson(url, config.deadline),
+      );
       if (
         !result.success ||
         result.data.uri !==
@@ -51,7 +53,9 @@ export function createTangledReadClient(
         repositoryDid: config.repositoryDid,
         ref,
       });
-      const result = tangledRefSchema.safeParse(await requestJson(url));
+      const result = tangledRefSchema.safeParse(
+        await requestJson(url, config.deadline),
+      );
       if (!result.success || result.data.name !== ref) {
         throw new Error("Tangled read API did not return the requested branch");
       }
@@ -70,7 +74,9 @@ export function createTangledReadClient(
           limit: 100,
           cursor,
         });
-        const parsed = tangledBranchesSchema.safeParse(await requestJson(url));
+        const parsed = tangledBranchesSchema.safeParse(
+          await requestJson(url, config.deadline),
+        );
         if (!parsed.success)
           throw new Error("Tangled read API returned an invalid branch page");
         const result = parsed.data;
