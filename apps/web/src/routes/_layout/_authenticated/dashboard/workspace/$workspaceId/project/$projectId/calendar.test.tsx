@@ -56,6 +56,9 @@ vi.mock("@/hooks/queries/task/use-get-tasks", () => ({
     isError: state.projectError,
   }),
 }));
+vi.mock("@/hooks/mutations/task/use-update-task", () => ({
+  useUpdateTask: () => ({ mutateAsync: vi.fn() }),
+}));
 vi.mock("@/hooks/queries/task-relation/use-get-project-task-relations", () => ({
   default: () => ({
     data: state.relations,

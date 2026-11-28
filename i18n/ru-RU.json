@@ -3901,6 +3901,8 @@
 			}
 		},
 		"calendar": {
+			"wrapTaskTitles": "Переносить названия задач",
+			"showAllTasks": "Показывать все задачи за день",
 			"dayTasksAriaLabel": "Показать все задачи на {{date}}",
 			"moreTasks": "Ещё {{count}}",
 			"nextMonth": "Следующий месяц",

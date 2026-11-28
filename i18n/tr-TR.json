@@ -3727,6 +3727,8 @@
 			}
 		},
 		"calendar": {
+			"wrapTaskTitles": "Wrap task titles",
+			"showAllTasks": "Show all tasks per day",
 			"dayTasksAriaLabel": "{{date}} için tüm talepleri göster",
 			"moreTasks": "+{{count}} daha",
 			"nextMonth": "Sonraki ay",

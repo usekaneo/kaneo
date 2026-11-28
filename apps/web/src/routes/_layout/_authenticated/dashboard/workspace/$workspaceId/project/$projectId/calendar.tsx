@@ -1,13 +1,21 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { addMonths, startOfMonth, subMonths } from "date-fns";
-import { useCallback, useMemo, useState } from "react";
+import {
+  addMonths,
+  isSameDay,
+  parseISO,
+  startOfMonth,
+  subMonths,
+} from "date-fns";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import CalendarToolbar from "@/components/calendar/calendar-toolbar";
 import MonthAgenda from "@/components/calendar/month-agenda";
 import MonthGrid from "@/components/calendar/month-grid";
+import { moveCalendarTask } from "@/components/calendar/move-calendar-task";
 import { buildMonthWeeks } from "@/components/calendar/month-grid-model";
 import ProjectLayout from "@/components/common/project-layout";
 import PageTitle from "@/components/page-title";
+import { CalendarDisplayOptions } from "@/components/project/display/calendar-display-options";
 import { DisplaySection } from "@/components/project/display/display-section";
 import { WeekStartControl } from "@/components/project/display/week-start-control";
 import { ActiveFiltersBar } from "@/components/project/task-filters/active-filters-bar";
@@ -17,8 +25,11 @@ import { useProjectTaskView } from "@/components/project/toolbar/use-project-tas
 import { LayoutSwitch } from "@/components/project/views/layout-switch";
 import TaskDetailsSheet from "@/components/task/task-details-sheet";
 import { useGetTasks } from "@/hooks/queries/task/use-get-tasks";
+import { useUpdateTask } from "@/hooks/mutations/task/use-update-task";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { toCalendarTasks } from "@/lib/calendar-tasks";
+import { toScheduledTask } from "@/lib/task-schedule";
+import { toast } from "@/lib/toast";
 import useGetProjectTaskRelations from "@/hooks/queries/task-relation/use-get-project-task-relations";
 import { useUserPreferencesStore } from "@/store/user-preferences";
 
@@ -35,9 +46,8 @@ export const Route = createFileRoute(
   }),
 });
 
-// Lanes are capped so a busy week cannot push a row taller than the viewport;
-// anything past the cap surfaces as a per-day overflow hint. Phones use the
-// agenda list instead of the grid.
+// By default lanes are capped. The user can expand weeks to fit all tasks;
+// phones continue to use the agenda list instead of the grid.
 const MAX_LANES_DESKTOP = 3;
 const NO_RELATIONS = [] as const;
 
@@ -56,7 +66,20 @@ function RouteComponent() {
     ? NO_RELATIONS
     : (relationData ?? NO_RELATIONS);
   const weekStartsOn = useUserPreferencesStore((state) => state.weekStartsOn);
+  const wrapTaskTitles = useUserPreferencesStore(
+    (state) => state.calendarWrapTaskTitles,
+  );
+  const showAllTasks = useUserPreferencesStore(
+    (state) => state.calendarShowAllTasks,
+  );
   const isMobile = useIsMobile();
+  const { mutateAsync: updateTask } = useUpdateTask();
+  const moveInProgress = useRef(false);
+  const [pendingMove, setPendingMove] = useState<{
+    id: string;
+    startDate: string | null;
+    dueDate: string | null;
+  } | null>(null);
   const view = useProjectTaskView({
     project,
     projectId,
@@ -74,6 +97,68 @@ function RouteComponent() {
   const scheduledTasks = useMemo(
     () => toCalendarTasks(project, relations, view.filters.filteredProject),
     [project, view.filters.filteredProject, relations],
+  );
+
+  // Keep the moved card on its new date until refreshed task data confirms it.
+  const displayTasks = useMemo(
+    () =>
+      scheduledTasks.map((task) => {
+        if (task.id !== pendingMove?.id) return task;
+        return (
+          toScheduledTask({
+            ...task,
+            startDate: pendingMove.startDate,
+            dueDate: pendingMove.dueDate,
+          }) ?? task
+        );
+      }),
+    [scheduledTasks, pendingMove],
+  );
+
+  useEffect(() => {
+    if (!pendingMove) return;
+    const task = scheduledTasks.find((item) => item.id === pendingMove.id);
+    if (!task) return;
+    const matches = (actual: string | null, expected: string | null) =>
+      actual && expected
+        ? isSameDay(parseISO(actual), parseISO(expected))
+        : actual === expected;
+    if (
+      matches(task.startDate, pendingMove.startDate) &&
+      matches(task.dueDate, pendingMove.dueDate)
+    ) {
+      setPendingMove(null);
+    }
+  }, [scheduledTasks, pendingMove]);
+
+  const handleMoveTask = useCallback(
+    async (taskId: string, targetDay: Date) => {
+      if (moveInProgress.current) return;
+      const task = displayTasks.find((item) => item.id === taskId);
+      if (!task || task.subtasks?.length) return;
+      const updated = moveCalendarTask(task, targetDay);
+      if (!updated) return;
+
+      moveInProgress.current = true;
+      setPendingMove({
+        id: taskId,
+        startDate: updated.startDate,
+        dueDate: updated.dueDate,
+      });
+      try {
+        await updateTask(updated);
+      } catch (error) {
+        setPendingMove(null);
+        toast.error(
+          error instanceof Error
+            ? error.message
+            : t("tasks:gantt.updateDatesError"),
+        );
+      } finally {
+        moveInProgress.current = false;
+      }
+    },
+    [displayTasks, updateTask, t],
   );
 
   const weeks = useMemo(
@@ -124,6 +209,9 @@ function RouteComponent() {
               </DisplaySection>
               <DisplaySection>
                 <WeekStartControl />
+              </DisplaySection>
+              <DisplaySection>
+                <CalendarDisplayOptions />
               </DisplaySection>
             </>
           }
@@ -202,11 +290,14 @@ function RouteComponent() {
           ) : (
             <MonthGrid
               weeks={weeks}
-              tasks={scheduledTasks}
+              tasks={displayTasks}
               visibleMonth={visibleMonth}
               maxLanes={MAX_LANES_DESKTOP}
+              wrapTaskTitles={wrapTaskTitles}
+              showAllTasks={showAllTasks}
               projectSlug={project?.slug}
               onOpenTask={handleOpenTask}
+              onMoveTask={handleMoveTask}
             />
           ))}
 

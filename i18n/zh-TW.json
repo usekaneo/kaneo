@@ -3531,6 +3531,8 @@
 			"noValuesUsedYet": "尚未使用任何值"
 		},
 		"calendar": {
+			"wrapTaskTitles": "Wrap task titles",
+			"showAllTasks": "Show all tasks per day",
 			"pageTitle": "{{name}} - 行事曆",
 			"title": "行事曆",
 			"previousMonth": "上個月",

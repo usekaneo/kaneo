@@ -3905,6 +3905,8 @@
 			"task": "Zadanie"
 		},
 		"calendar": {
+			"wrapTaskTitles": "Wrap task titles",
+			"showAllTasks": "Show all tasks per day",
 			"pageTitle": "{{name}} / kalendarz",
 			"title": "Kalendarz",
 			"previousMonth": "Poprzedni miesiąc",

@@ -3727,6 +3727,8 @@
 			}
 		},
 		"calendar": {
+			"wrapTaskTitles": "Wrap task titles",
+			"showAllTasks": "Show all tasks per day",
 			"dayTasksAriaLabel": "{{date}} के सभी कार्य दिखाएँ",
 			"moreTasks": "+{{count}} और",
 			"nextMonth": "अगला महीना",
