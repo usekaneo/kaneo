@@ -9,23 +9,28 @@ import {
 import {
   type McpToolRegistrar,
   registerMcpTools,
+  toMcpToolRegistrar,
 } from "../../apps/api/src/mcp/tools";
 
-type ToolCallback = (args: unknown) => Promise<{
-  content: Array<{ text: string }>;
-  isError?: boolean;
-}>;
+type ToolCallback = Parameters<McpToolRegistrar["registerTool"]>[2];
 
 function collectTools() {
   const tools = new Map<string, ToolCallback>();
-  const registrar: McpToolRegistrar = {
-    registerTool: (name, _config, callback) => tools.set(name, callback),
+  const configs = new Map<
+    string,
+    { annotations?: { readOnlyHint?: boolean } }
+  >();
+  const server: Parameters<typeof toMcpToolRegistrar>[0] = {
+    registerTool: (name, config, callback) => {
+      configs.set(name, config);
+      tools.set(name, callback);
+    },
   };
-  registerMcpTools(registrar, "http://api.test", "test-token");
-  return tools;
+  registerMcpTools(toMcpToolRegistrar(server), "http://api.test", "test-token");
+  return { tools, configs };
 }
 
-const tools = collectTools();
+const { tools, configs } = collectTools();
 
 function call(name: string, args: unknown = {}) {
   const tool = tools.get(name);
@@ -58,6 +63,14 @@ function lastRequest() {
 }
 
 describe("MCP tool catalog", () => {
+  it("preserves read-only annotations in the API MCP server registration", () => {
+    expect(configs.get("list_tasks")?.annotations?.readOnlyHint).toBe(true);
+    expect(configs.get("get_task")?.annotations?.readOnlyHint).toBe(true);
+    expect(configs.get("create_task")?.annotations?.readOnlyHint).toBe(
+      undefined,
+    );
+  });
+
   it("resolves workspace members", async () => {
     await call("list_workspace_members", { workspaceId: "ws 1" });
 
@@ -300,6 +313,11 @@ describe("MCP tool catalog", () => {
     const result = await call("delete_task", { taskId: "missing" });
 
     expect(result.isError).toBe(true);
-    expect(result.content[0].text).toContain("Task not found");
+    expect(result.content).toContainEqual(
+      expect.objectContaining({
+        type: "text",
+        text: expect.stringContaining("Task not found"),
+      }),
+    );
   });
 });

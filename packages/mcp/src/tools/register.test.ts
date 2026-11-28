@@ -3,7 +3,10 @@ import { registerTools } from "./register.js";
 
 type RegisteredTool = {
   name: string;
-  config: { inputSchema?: { parse: (args: unknown) => unknown } };
+  config: {
+    inputSchema?: { parse: (args: unknown) => unknown };
+    annotations?: { readOnlyHint?: boolean };
+  };
   handler: (args: Record<string, unknown>) => Promise<{
     content: Array<{ type: string; text: string }>;
     isError?: boolean;
@@ -31,7 +34,7 @@ function createServerMock() {
 
 describe("registerTools", () => {
   it("registers the MCP tools", () => {
-    const { server } = createServerMock();
+    const { server, tools } = createServerMock();
     const client = { json: vi.fn() };
 
     registerTools(server as never, { client: client as never });
@@ -47,6 +50,34 @@ describe("registerTools", () => {
       expect.any(Object),
       expect.any(Function),
     );
+
+    const readOnlyTools = [
+      "whoami",
+      "list_workspaces",
+      "list_projects",
+      "get_project",
+      "list_tasks",
+      "get_task",
+      "get_task_by_ticket_id",
+      "list_task_comments",
+      "list_workspace_labels",
+      "get_task_relations",
+      "list_workspace_members",
+      "search",
+      "list_project_columns",
+      "list_project_custom_fields",
+      "get_task_custom_field_values",
+      "list_task_time_entries",
+      "get_time_entry",
+      "list_task_activity",
+      "list_notifications",
+    ];
+    expect(readOnlyTools.every((name) => tools.has(name))).toBe(true);
+    for (const [name, tool] of tools) {
+      expect(tool.config.annotations?.readOnlyHint === true).toBe(
+        readOnlyTools.includes(name),
+      );
+    }
   });
 
   it("uses the API-key current-user endpoint for whoami", async () => {
