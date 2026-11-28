@@ -264,7 +264,7 @@
 			"invitation": {
 				"description": "Используйте адрес электронной почты, на который пришло приглашение. Сразу после этого вы присоединитесь к рабочей области."
 			},
-			"verifyEmail": "Check your email to confirm your address, then sign in."
+			"verifyEmail": "Проверьте почту, чтобы подтвердить свой адрес, затем войдите в систему."
 		},
 		"verifyOtp": {
 			"pageTitle": "Проверка кода",
@@ -292,7 +292,7 @@
 		},
 		"signInForm": {
 			"failedSignIn": "Не удалось войти",
-			"emailNotVerified": "Confirm your email address first. We sent you a new link."
+			"emailNotVerified": "Сначала подтвердите адрес электронной почты. Мы отправили вам новую ссылку."
 		},
 		"invitation": {
 			"pageTitleAccept": "Принять приглашение",
@@ -548,7 +548,7 @@
 				"description": "Сразу после входа вы вернётесь сюда, чтобы подтвердить его.",
 				"submit": "Войти"
 			},
-			"openApp": "Open Kaneo"
+			"openApp": "Открыть Kaneo"
 		},
 		"mcp": {
 			"authorize": {
@@ -969,7 +969,7 @@
 			"connect": "Подключить",
 			"configure": "Настроить",
 			"done": "Готово",
-			"turnedOffByAdmin": "Turned off by an administrator"
+			"turnedOffByAdmin": "Отключено администратором"
 		},
 		"projectVisibility": {
 			"pageTitle": "Видимость проекта",
@@ -1277,7 +1277,7 @@
 		},
 		"externalLinks": {
 			"resources": "Ресурсы",
-			"issue": "Issue",
+			"issue": "Задача",
 			"branch": "Ветка",
 			"merged": "Влит",
 			"draft": "Черновик",
@@ -1630,10 +1630,10 @@
 				"edit": "Изменить",
 				"open": "Действия для {{name}}",
 				"reactivate": "Активировать снова",
-				"markEmailVerified": "Mark email as verified",
-				"sendPasswordReset": "Send password reset link",
-				"sendVerification": "Resend verification email",
-				"security": "Sessions & API keys"
+				"markEmailVerified": "Отметить адрес как подтверждённый",
+				"sendPasswordReset": "Отправить ссылку для сброса пароля",
+				"sendVerification": "Повторно отправить письмо для подтверждения адреса",
+				"security": "Сеансы и ключи API"
 			},
 			"clearSearch": "Очистить поиск",
 			"columns": {
@@ -1642,7 +1642,7 @@
 				"role": "Роль",
 				"status": "Статус",
 				"user": "Пользователь",
-				"lastActive": "Last active"
+				"lastActive": "Последняя активность"
 			},
 			"confirm": {
 				"deactivate": {
@@ -1662,16 +1662,16 @@
 				},
 				"working": "Выполняется…",
 				"markEmailVerified": {
-					"action": "Mark as verified",
-					"title": "Mark this email as verified?"
+					"action": "Отметить как подтверждённый",
+					"title": "Отметить этот адрес электронной почты как подтверждённый?"
 				},
 				"sendPasswordReset": {
-					"action": "Send link",
-					"title": "Send a password reset link?"
+					"action": "Отправить ссылку",
+					"title": "Отправить ссылку для сброса пароля?"
 				},
 				"sendVerification": {
-					"action": "Send email",
-					"title": "Resend the verification email?"
+					"action": "Отправить письмо",
+					"title": "Повторно отправить письмо для подтверждения адреса?"
 				}
 			},
 			"directoryTitle": "Все пользователи",
@@ -1716,76 +1716,76 @@
 				"reactivated": "Пользователь активирован повторно",
 				"updated": "Пользователь обновлён",
 				"updateError": "Не удалось обновить пользователя",
-				"avatarChanged": "Profile picture updated",
-				"avatarError": "Failed to update the profile picture",
-				"avatarRemoved": "Profile picture removed",
-				"createdForSso": "User created for single sign-on.",
-				"createdLinkFailed": "User created. Password email failed; retry “Send password reset link”.",
-				"createdLinkSent": "User created. Password link sent to {{email}}.",
-				"createdNoSmtp": "User created. Set SMTP_HOST to send a password link.",
-				"createError": "Failed to create user",
-				"emailError": "The email could not be sent",
-				"emailVerified": "Email marked as verified",
-				"passwordResetSent": "Password reset link sent to {{email}}",
-				"verificationSent": "Verification email sent to {{email}}"
+				"avatarChanged": "Фото профиля обновлено",
+				"avatarError": "Не удалось обновить фото профиля",
+				"avatarRemoved": "Фото профиля удалено",
+				"createdForSso": "Пользователь создан для единого входа.",
+				"createdLinkFailed": "Пользователь создан. Не удалось отправить письмо со ссылкой для установки пароля. Повторите действие «Отправить ссылку для сброса пароля».",
+				"createdLinkSent": "Пользователь создан. Ссылка для установки пароля отправлена на {{email}}.",
+				"createdNoSmtp": "Пользователь создан. Задайте SMTP_HOST, чтобы отправить ссылку для установки пароля.",
+				"createError": "Не удалось создать пользователя",
+				"emailError": "Не удалось отправить письмо",
+				"emailVerified": "Адрес электронной почты отмечен как подтверждённый",
+				"passwordResetSent": "Ссылка для сброса пароля отправлена на {{email}}",
+				"verificationSent": "Письмо для подтверждения адреса отправлено на {{email}}"
 			},
 			"you": "Вы",
 			"create": {
-				"creating": "Creating…",
-				"open": "Create user",
-				"submit": "Create user",
-				"title": "Create user",
-				"nameRequired": "Enter a name",
-				"hintNoEmail": "Set SMTP_HOST to send password links."
+				"creating": "Создание…",
+				"open": "Создать пользователя",
+				"submit": "Создать пользователя",
+				"title": "Создать пользователя",
+				"nameRequired": "Введите имя",
+				"hintNoEmail": "Задайте SMTP_HOST, чтобы отправлять ссылки для установки пароля."
 			},
 			"details": {
-				"emailStatus": "Email",
+				"emailStatus": "Адрес электронной почты",
 				"methods": {
-					"password": "Password"
+					"password": "Пароль"
 				},
-				"noSignInMethods": "No password or linked account yet",
-				"notVerified": "Not verified",
-				"removeAvatar": "Remove",
-				"signInMethods": "Sign-in methods",
-				"uploadAvatar": "Upload",
-				"verified": "Verified"
+				"noSignInMethods": "Пароль ещё не задан, привязанных аккаунтов нет",
+				"notVerified": "Не подтверждён",
+				"removeAvatar": "Удалить",
+				"signInMethods": "Способы входа",
+				"uploadAvatar": "Загрузить",
+				"verified": "Подтверждён"
 			},
 			"filters": {
-				"anyEmail": "Any email",
-				"anyRole": "Any role",
-				"anyStatus": "Any status",
-				"clear": "Clear filters",
-				"email": "Email verification",
-				"label": "Filter users",
-				"role": "Role",
-				"status": "Status",
-				"unverified": "Unverified email",
-				"verified": "Verified email"
+				"anyEmail": "Любой статус подтверждения",
+				"anyRole": "Любая роль",
+				"anyStatus": "Любой статус",
+				"clear": "Сбросить фильтры",
+				"email": "Подтверждение адреса",
+				"label": "Фильтры пользователей",
+				"role": "Роль",
+				"status": "Статус",
+				"unverified": "Адрес не подтверждён",
+				"verified": "Адрес подтверждён"
 			},
-			"never": "Never",
-			"unverified": "Unverified",
+			"never": "Никогда",
+			"unverified": "Не подтверждён",
 			"security": {
-				"apiKeysEmpty": "No API keys.",
-				"apiKeysLoadError": "Couldn't load API keys.",
-				"apiKeysTitle": "API keys",
-				"disabled": "Disabled",
-				"lastUsed": "Last used {{time}}",
-				"neverUsed": "Never used",
-				"revokeAll": "Sign out everywhere",
-				"revokeAllConfirmDescription": "They'll be signed out everywhere right away.",
-				"revokeAllConfirmTitle": "Sign {{name}} out everywhere?",
-				"revokeAllSelfDescription": "Your other sessions will be signed out right away.",
-				"revokeKey": "Revoke",
-				"revokeKeyConfirmDescription": "Requests using this key will fail right away.",
-				"revokeKeyConfirmTitle": "Revoke {{name}}?",
-				"revokeKeyLabel": "Revoke {{name}}",
-				"revokingKey": "Revoking...",
-				"sessionsEmpty": "Not signed in anywhere.",
-				"sessionsTitle": "Sessions",
-				"title": "Sessions & API keys: {{name}}",
-				"toastKeyRevoked": "API key revoked.",
-				"toastKeyRevokeError": "Couldn't revoke the API key.",
-				"toastRevokedAll": "Sessions signed out."
+				"apiKeysEmpty": "Ключей API нет.",
+				"apiKeysLoadError": "Не удалось загрузить ключи API.",
+				"apiKeysTitle": "Ключи API",
+				"disabled": "Отключён",
+				"lastUsed": "Последнее использование: {{time}}",
+				"neverUsed": "Ещё не использовался",
+				"revokeAll": "Завершить все сеансы",
+				"revokeAllConfirmDescription": "Все сеансы пользователя завершатся сразу.",
+				"revokeAllConfirmTitle": "Завершить все сеансы пользователя {{name}}?",
+				"revokeAllSelfDescription": "Все ваши остальные сеансы завершатся сразу.",
+				"revokeKey": "Отозвать",
+				"revokeKeyConfirmDescription": "Запросы с этим ключом сразу перестанут выполняться.",
+				"revokeKeyConfirmTitle": "Отозвать {{name}}?",
+				"revokeKeyLabel": "Отозвать {{name}}",
+				"revokingKey": "Отзываем...",
+				"sessionsEmpty": "Нет активных сеансов.",
+				"sessionsTitle": "Сеансы",
+				"title": "Сеансы и ключи API: {{name}}",
+				"toastKeyRevoked": "Ключ API отозван.",
+				"toastKeyRevokeError": "Не удалось отозвать ключ API.",
+				"toastRevokedAll": "Сеансы завершены."
 			}
 		},
 		"security": "Безопасность",
@@ -1821,11 +1821,11 @@
 			"passwordHint": "Используйте не менее 8 символов, которые вы больше нигде не используете.",
 			"passwordTitle": "Пароль",
 			"sessions": {
-				"revokeOthers": "Sign out other sessions",
-				"revokeOthersConfirmDescription": "Your other sessions will be signed out right away.",
-				"revokeOthersConfirmTitle": "Sign out all other sessions?",
-				"title": "Active sessions",
-				"toastRevokedOthers": "Other sessions signed out."
+				"revokeOthers": "Завершить остальные сеансы",
+				"revokeOthersConfirmDescription": "Все ваши остальные сеансы завершатся сразу.",
+				"revokeOthersConfirmTitle": "Завершить все остальные сеансы?",
+				"title": "Активные сеансы",
+				"toastRevokedOthers": "Остальные сеансы завершены."
 			}
 		},
 		"gitlabIntegration": {
@@ -2120,19 +2120,19 @@
 				},
 				"working": "Выполняется…",
 				"archive": {
-					"action": "Archive workspace",
-					"description": "Members will lose access until it's restored.",
-					"title": "Archive {{name}}?"
+					"action": "Архивировать рабочую область",
+					"description": "Участники потеряют доступ до восстановления рабочей области.",
+					"title": "Архивировать «{{name}}»?"
 				},
 				"delete": {
-					"action": "Delete workspace",
-					"description": "Its projects, tasks, and files will be permanently deleted.",
-					"title": "Delete {{name}}?",
-					"typeName": "Type {{name}} to confirm"
+					"action": "Удалить рабочую область",
+					"description": "Проекты, задачи и файлы рабочей области будут удалены навсегда.",
+					"title": "Удалить «{{name}}»?",
+					"typeName": "Для подтверждения введите {{name}}"
 				},
 				"restore": {
-					"action": "Restore workspace",
-					"title": "Restore {{name}}?"
+					"action": "Восстановить рабочую область",
+					"title": "Восстановить «{{name}}»?"
 				}
 			},
 			"directoryTitle": "Все рабочие области",
@@ -2180,19 +2180,19 @@
 				"roleError": "Не удалось обновить роль",
 				"roleUpdated": "Роль обновлена",
 				"transferError": "Не удалось передать права владельца",
-				"archived": "Workspace archived",
-				"archiveError": "Could not archive workspace",
-				"deleted": "Workspace deleted",
-				"deleteError": "Could not delete workspace",
-				"restored": "Workspace restored",
-				"restoreError": "Could not restore workspace"
+				"archived": "Рабочая область архивирована",
+				"archiveError": "Не удалось архивировать рабочую область",
+				"deleted": "Рабочая область удалена",
+				"deleteError": "Не удалось удалить рабочую область",
+				"restored": "Рабочая область восстановлена",
+				"restoreError": "Не удалось восстановить рабочую область"
 			},
 			"actions": {
-				"archive": "Archive workspace",
-				"open": "Actions for {{name}}",
-				"restore": "Restore workspace"
+				"archive": "Архивировать рабочую область",
+				"open": "Действия для {{name}}",
+				"restore": "Восстановить рабочую область"
 			},
-			"archived": "Archived"
+			"archived": "В архиве"
 		},
 		"workspaceImport": {
 			"back": {
@@ -2556,7 +2556,7 @@
 			"importIssues": "Импортировать issues",
 			"importNeedsReconnect": "Переподключитесь, чтобы включить импорт.",
 			"importTitle": "Импорт открытых issues",
-			"issuesSection": "Issues",
+			"issuesSection": "Задачи",
 			"lastImport": "Последний импорт: создано {{imported}}, обновлено {{updated}}, пропущено {{skipped}}.",
 			"loadError": "Не удалось загрузить эту интеграцию.",
 			"pausedHint": "Синхронизация приостановлена. Переподключитесь, чтобы возобновить её.",
@@ -2590,364 +2590,364 @@
 		},
 		"adminAuditLog": {
 			"actions": {
-				"sessionRevoked": "Revoked a session",
-				"sessionRevokedAll": "Revoked all sessions",
-				"userCreated": "Created user",
-				"userDeactivated": "Deactivated user",
-				"userDeleted": "Deleted user",
-				"userImpersonated": "Signed in as user",
-				"userPasswordSet": "Set user password",
-				"userReactivated": "Reactivated user",
-				"userRoleChanged": "Changed instance role",
-				"userUpdated": "Updated user details",
-				"workspaceMemberAdded": "Added workspace member",
-				"workspaceMemberRemoved": "Removed workspace member",
-				"workspaceMemberRoleChanged": "Changed workspace member role",
-				"workspaceOwnerTransferred": "Transferred workspace ownership",
-				"userAvatarChanged": "Changed profile picture",
-				"userAvatarRemoved": "Removed profile picture",
-				"userEmailVerified": "Marked email as verified",
-				"userPasswordResetSent": "Sent password reset link",
-				"userVerificationSent": "Sent verification email",
-				"apiKeyRevoked": "Revoked an API key",
-				"emailTestSent": "Sent test email",
-				"workspaceArchived": "Archived workspace",
-				"workspaceDeleted": "Deleted workspace",
-				"workspaceRestored": "Restored workspace",
-				"roleCreated": "Role created",
-				"roleDeleted": "Role deleted",
-				"roleUpdated": "Role updated",
-				"instanceSettingsUpdated": "Updated instance settings",
-				"webhookCreated": "Created webhook",
-				"webhookDeleted": "Deleted webhook",
-				"webhookSecretRotated": "Rotated webhook secret",
-				"webhookUpdated": "Updated webhook"
+				"sessionRevoked": "Сеанс завершён",
+				"sessionRevokedAll": "Все сеансы завершены",
+				"userCreated": "Пользователь создан",
+				"userDeactivated": "Пользователь деактивирован",
+				"userDeleted": "Пользователь удалён",
+				"userImpersonated": "Выполнен вход от имени пользователя",
+				"userPasswordSet": "Пароль пользователя задан",
+				"userReactivated": "Пользователь активирован повторно",
+				"userRoleChanged": "Глобальная роль изменена",
+				"userUpdated": "Данные пользователя обновлены",
+				"workspaceMemberAdded": "Участник добавлен в рабочую область",
+				"workspaceMemberRemoved": "Участник удалён из рабочей области",
+				"workspaceMemberRoleChanged": "Роль участника рабочей области изменена",
+				"workspaceOwnerTransferred": "Права владельца рабочей области переданы",
+				"userAvatarChanged": "Фото профиля изменено",
+				"userAvatarRemoved": "Фото профиля удалено",
+				"userEmailVerified": "Адрес электронной почты отмечен как подтверждённый",
+				"userPasswordResetSent": "Отправлена ссылка для сброса пароля",
+				"userVerificationSent": "Отправлено письмо для подтверждения адреса",
+				"apiKeyRevoked": "Ключ API отозван",
+				"emailTestSent": "Отправлено тестовое письмо",
+				"workspaceArchived": "Рабочая область архивирована",
+				"workspaceDeleted": "Рабочая область удалена",
+				"workspaceRestored": "Рабочая область восстановлена",
+				"roleCreated": "Роль создана",
+				"roleDeleted": "Роль удалена",
+				"roleUpdated": "Роль обновлена",
+				"instanceSettingsUpdated": "Настройки экземпляра обновлены",
+				"webhookCreated": "Вебхук создан",
+				"webhookDeleted": "Вебхук удалён",
+				"webhookSecretRotated": "Секрет подписи вебхука заменён",
+				"webhookUpdated": "Вебхук обновлён"
 			},
 			"categories": {
-				"all": "All actions",
-				"session": "Sessions",
-				"user": "Users",
-				"workspace": "Workspaces",
-				"apiKey": "API keys",
-				"email": "Email",
-				"role": "Roles",
-				"instance": "Instance settings",
-				"webhook": "Webhooks"
+				"all": "Все действия",
+				"session": "Сеансы",
+				"user": "Пользователи",
+				"workspace": "Рабочие области",
+				"apiKey": "Ключи API",
+				"email": "Электронная почта",
+				"role": "Роли",
+				"instance": "Настройки экземпляра",
+				"webhook": "Вебхуки"
 			},
-			"categoryLabel": "Filter by category",
-			"clearFilter": "Show all actions",
+			"categoryLabel": "Фильтр по категории",
+			"clearFilter": "Показать все действия",
 			"columns": {
-				"action": "Action",
-				"actor": "Administrator",
-				"target": "Target",
-				"time": "Time and IP"
+				"action": "Действие",
+				"actor": "Администратор",
+				"target": "Объект",
+				"time": "Время и IP"
 			},
-			"deletedActor": "Account deleted",
+			"deletedActor": "Учётная запись удалена",
 			"details": {
 				"change": "{{from}} → {{to}}",
-				"fields": "Changed {{fields}}",
+				"fields": "Изменённые поля: {{fields}}",
 				"memberChange": "{{member}}: {{from}} → {{to}}",
-				"memberWithRole": "{{member}} as {{role}}",
-				"noRole": "No role",
-				"reason": "Reason: {{reason}}",
-				"createdWithRole": "Role: {{role}}",
-				"sessionCount_few": "{{count}} sessions",
-				"sessionCount_many": "{{count}} sessions",
-				"sessionCount_one": "{{count}} session",
-				"sessionCount_other": "{{count}} sessions",
-				"workspaceContents": "{{members}} members, {{projects}} projects",
-				"permissionsChanged": "{{added}} permissions added, {{removed}} removed"
+				"memberWithRole": "{{member}} (роль: {{role}})",
+				"noRole": "Без роли",
+				"reason": "Причина: {{reason}}",
+				"createdWithRole": "Роль: {{role}}",
+				"sessionCount_few": "{{count}} сеанса",
+				"sessionCount_many": "{{count}} сеансов",
+				"sessionCount_one": "{{count}} сеанс",
+				"sessionCount_other": "{{count}} сеанса",
+				"workspaceContents": "Участников: {{members}}, проектов: {{projects}}",
+				"permissionsChanged": "Прав добавлено: {{added}}, удалено: {{removed}}"
 			},
-			"directoryTitle": "Recorded actions",
-			"emptyTitle": "No actions recorded",
+			"directoryTitle": "Записанные действия",
+			"emptyTitle": "В журнале пока нет действий",
 			"fields": {
-				"email": "email",
-				"emailVerified": "email verification",
-				"image": "avatar",
-				"name": "name"
+				"email": "адрес электронной почты",
+				"emailVerified": "статус подтверждения адреса",
+				"image": "фото профиля",
+				"name": "имя"
 			},
-			"loadError": "The audit log could not be loaded.",
+			"loadError": "Не удалось загрузить журнал аудита.",
 			"mobileSummary": "{{actor}} · {{target}} · {{time}}",
-			"next": "Next",
-			"pagination": "Page {{current}} of {{total}}",
-			"previous": "Previous",
-			"refreshing": "Refreshing audit log",
-			"retry": "Retry",
+			"next": "Вперёд",
+			"pagination": "Страница {{current}} из {{total}}",
+			"previous": "Назад",
+			"refreshing": "Обновление журнала аудита",
+			"retry": "Повторить",
 			"targetTypes": {
-				"user": "User",
-				"workspace": "Workspace",
-				"role": "Role",
-				"instance": "Instance",
-				"webhook": "Webhook"
+				"user": "Пользователь",
+				"workspace": "Рабочая область",
+				"role": "Роль",
+				"instance": "Экземпляр",
+				"webhook": "Вебхук"
 			},
-			"title": "Audit log",
-			"unknownActor": "Unknown"
+			"title": "Журнал аудита",
+			"unknownActor": "Неизвестно"
 		},
 		"sessions": {
-			"device": "{{browser}} on {{os}}",
-			"lastActive": "Active {{time}}",
-			"loadError": "Couldn't load sessions.",
-			"revoke": "Sign out",
-			"revokeConfirmDescription": "They'll be signed out right away.",
-			"revokeConfirmTitle": "Sign out {{device}}?",
-			"revokeLabel": "Sign out {{device}}",
-			"revoking": "Signing out...",
-			"signedIn": "Signed in {{date}}",
-			"thisDevice": "This device",
-			"toastRevoked": "Session signed out.",
-			"toastRevokeError": "Couldn't sign out the session.",
-			"unknownDevice": "Unknown device"
+			"device": "{{browser}} на {{os}}",
+			"lastActive": "Последняя активность: {{time}}",
+			"loadError": "Не удалось загрузить сеансы.",
+			"revoke": "Завершить сеанс",
+			"revokeConfirmDescription": "Сеанс завершится сразу.",
+			"revokeConfirmTitle": "Завершить сеанс на устройстве {{device}}?",
+			"revokeLabel": "Завершить сеанс на устройстве {{device}}",
+			"revoking": "Завершаем сеанс...",
+			"signedIn": "Вход выполнен: {{date}}",
+			"thisDevice": "Это устройство",
+			"toastRevoked": "Сеанс завершён.",
+			"toastRevokeError": "Не удалось завершить сеанс.",
+			"unknownDevice": "Неизвестное устройство"
 		},
 		"adminSystem": {
-			"checkedAt": "Checked {{time}}",
+			"checkedAt": "Проверено: {{time}}",
 			"email": {
-				"down": "Can't connect to the mail server ({{code}})",
-				"notConfigured": "Set SMTP_HOST and SMTP_FROM to turn on email.",
-				"ok": "Connected to the mail server",
-				"send": "Send test email",
-				"sending": "Sending…",
-				"sendTest": "Test email",
+				"down": "Не удалось подключиться к почтовому серверу ({{code}})",
+				"notConfigured": "Задайте SMTP_HOST и SMTP_FROM, чтобы включить отправку писем.",
+				"ok": "Подключение к почтовому серверу установлено",
+				"send": "Отправить тестовое письмо",
+				"sending": "Отправляем…",
+				"sendTest": "Тестовое письмо",
 				"smtp": "SMTP",
-				"title": "Email"
+				"title": "Электронная почта"
 			},
 			"instance": {
 				"api": "API",
-				"apiDescription": "Up {{uptime}} · Node {{node}}",
-				"database": "Database",
-				"databaseDown": "Can't reach PostgreSQL ({{code}})",
+				"apiDescription": "Время работы: {{uptime}} · Node {{node}}",
+				"database": "База данных",
+				"databaseDown": "Не удалось подключиться к PostgreSQL ({{code}})",
 				"databaseVersion": "PostgreSQL {{version}}",
-				"latency": "{{ms}} ms",
-				"migrations_few": "{{count}} migrations applied",
-				"migrations_many": "{{count}} migrations applied",
-				"migrations_one": "{{count}} migration applied",
-				"migrations_other": "{{count}} migrations applied",
-				"realtime": "Live updates",
-				"realtimeConnections_few": "{{count}} open connections on this instance",
-				"realtimeConnections_many": "{{count}} open connections on this instance",
-				"realtimeConnections_one": "{{count}} open connection on this instance",
-				"realtimeConnections_other": "{{count}} open connections on this instance",
-				"realtimeInMemory": "delivered in memory",
-				"realtimeNotStarted": "WebSockets haven't started",
-				"realtimeRedis": "shared with other instances through Redis",
-				"realtimeRedisDown": "Redis is down, so only people on this instance get live updates",
+				"latency": "{{ms}} мс",
+				"migrations_few": "Применено {{count}} миграции",
+				"migrations_many": "Применено {{count}} миграций",
+				"migrations_one": "Применена {{count}} миграция",
+				"migrations_other": "Применено {{count}} миграции",
+				"realtime": "Обновления в реальном времени",
+				"realtimeConnections_few": "На этом экземпляре открыто {{count}} соединения",
+				"realtimeConnections_many": "На этом экземпляре открыто {{count}} соединений",
+				"realtimeConnections_one": "На этом экземпляре открыто {{count}} соединение",
+				"realtimeConnections_other": "На этом экземпляре открыто {{count}} соединения",
+				"realtimeInMemory": "доставка через память процесса",
+				"realtimeNotStarted": "Сервер WebSocket ещё не запущен",
+				"realtimeRedis": "доставка между экземплярами через Redis",
+				"realtimeRedisDown": "Redis недоступен, поэтому обновления получают только пользователи этого экземпляра",
 				"redis": "Redis",
-				"redisDown": "Can't reach Redis ({{code}})",
+				"redisDown": "Не удалось подключиться к Redis ({{code}})",
 				"redisModes": {
-					"cluster": "Cluster",
+					"cluster": "Кластер",
 					"sentinel": "Sentinel",
-					"standalone": "Standalone"
+					"standalone": "Одиночный сервер"
 				},
-				"redisNotConfigured": "Set REDIS_URL to share live updates across API instances.",
-				"redisOk": "{{mode}}, reachable",
-				"storage": "File storage",
-				"storageDown": "Can't reach the bucket ({{code}})",
-				"storageIncomplete": "Some S3 settings are missing, so uploads are off.",
-				"storageNotConfigured": "Set S3_ENDPOINT and S3_BUCKET to turn on uploads.",
-				"storageOk": "Bucket reachable",
-				"storageWarning": "Can't check the bucket with these credentials ({{code}}).",
-				"title": "Instance",
-				"version": "Kaneo version",
-				"versionUnknown": "Unknown"
+				"redisNotConfigured": "Задайте REDIS_URL для обмена обновлениями между экземплярами API.",
+				"redisOk": "{{mode}}, подключение работает",
+				"storage": "Хранилище файлов",
+				"storageDown": "Не удалось подключиться к бакету ({{code}})",
+				"storageIncomplete": "Часть настроек S3 отсутствует, поэтому загрузка файлов отключена.",
+				"storageNotConfigured": "Задайте S3_ENDPOINT и S3_BUCKET, чтобы включить загрузку файлов.",
+				"storageOk": "Бакет доступен",
+				"storageWarning": "Не удалось проверить бакет с этими учётными данными ({{code}}).",
+				"title": "Экземпляр",
+				"version": "Версия Kaneo",
+				"versionUnknown": "Неизвестно"
 			},
 			"integrations": {
-				"available": "Available",
-				"connectedProjects_few": "Connected in {{count}} projects",
-				"connectedProjects_many": "Connected in {{count}} projects",
-				"connectedProjects_one": "Connected in {{count}} project",
-				"connectedProjects_other": "Connected in {{count}} projects",
-				"connectedUnknown": "Project count unavailable",
+				"available": "Доступно",
+				"connectedProjects_few": "Подключено в {{count}} проектах",
+				"connectedProjects_many": "Подключено в {{count}} проектах",
+				"connectedProjects_one": "Подключено в {{count}} проекте",
+				"connectedProjects_other": "Проектов с подключением: {{count}}",
+				"connectedUnknown": "Число проектов недоступно",
 				"instanceSetup": {
-					"down": "GitHub App unavailable",
-					"not_configured": "GitHub App not set up",
-					"ok": "GitHub App set up",
-					"warning": "Some GitHub App settings are missing"
+					"down": "GitHub App недоступен",
+					"not_configured": "GitHub App не настроен",
+					"ok": "GitHub App настроен",
+					"warning": "Не все параметры GitHub App заданы"
 				},
-				"title": "Integrations"
+				"title": "Интеграции"
 			},
-			"loadError": "System status could not be loaded.",
-			"refresh": "Refresh",
-			"refreshing": "Checking…",
-			"retry": "Retry",
+			"loadError": "Не удалось загрузить состояние системы.",
+			"refresh": "Обновить",
+			"refreshing": "Проверяем…",
+			"retry": "Повторить",
 			"setupStatus": {
-				"down": "Down",
-				"not_configured": "Not configured",
-				"ok": "Configured",
-				"warning": "Incomplete"
+				"down": "Недоступно",
+				"not_configured": "Не настроено",
+				"ok": "Настроено",
+				"warning": "Настроено не полностью"
 			},
 			"signIn": {
-				"emailOtpSignIn": "Email sign-in codes",
-				"guestAccess": "Guest access",
-				"off": "Off",
-				"on": "On",
-				"passwordRegistration": "Sign-up with a password",
-				"passwordSignIn": "Email and password sign-in",
-				"registration": "Registration",
-				"title": "Sign-in",
-				"workspaceCreation": "Workspace creation",
-				"customProvider": "OAuth or OpenID Connect"
+				"emailOtpSignIn": "Вход по коду из письма",
+				"guestAccess": "Гостевой доступ",
+				"off": "Выключено",
+				"on": "Включено",
+				"passwordRegistration": "Регистрация с паролем",
+				"passwordSignIn": "Вход по электронной почте и паролю",
+				"registration": "Регистрация",
+				"title": "Вход",
+				"workspaceCreation": "Создание рабочих областей",
+				"customProvider": "OAuth или OpenID Connect"
 			},
 			"status": {
-				"down": "Down",
-				"not_configured": "Not configured",
-				"ok": "Operational",
-				"warning": "Warning"
+				"down": "Недоступно",
+				"not_configured": "Не настроено",
+				"ok": "Работает",
+				"warning": "Предупреждение"
 			},
-			"title": "System",
+			"title": "Система",
 			"toast": {
-				"testEmailError": "The test email could not be sent.",
-				"testEmailSent": "Test email sent to {{to}}"
+				"testEmailError": "Не удалось отправить тестовое письмо.",
+				"testEmailSent": "Тестовое письмо отправлено на {{to}}"
 			}
 		},
 		"adminOverview": {
-			"activeUsers": "Active (30 days)",
-			"archivedWorkspaces": "Archived",
-			"configurationWarnings": "Configuration warnings",
-			"disabledUsers": "Disabled users",
-			"loadError": "Could not load the overview.",
-			"noActions": "No administrative actions",
-			"noUsers": "No users",
-			"recentActions": "Recent administrative actions",
-			"recentUsers": "Recent users",
-			"services": "Services",
-			"title": "Overview",
-			"totalUsers": "Total users",
-			"viewAuditLog": "View audit log",
-			"viewSystem": "View system",
-			"viewUsers": "View users",
+			"activeUsers": "Активные за 30 дней",
+			"archivedWorkspaces": "В архиве",
+			"configurationWarnings": "Предупреждения о настройках",
+			"disabledUsers": "Деактивированные пользователи",
+			"loadError": "Не удалось загрузить обзор.",
+			"noActions": "Действий администраторов нет",
+			"noUsers": "Пользователей нет",
+			"recentActions": "Последние действия администраторов",
+			"recentUsers": "Новые пользователи",
+			"services": "Службы",
+			"title": "Обзор",
+			"totalUsers": "Всего пользователей",
+			"viewAuditLog": "Открыть журнал аудита",
+			"viewSystem": "Посмотреть состояние системы",
+			"viewUsers": "Посмотреть пользователей",
 			"warnings": {
-				"noSecondAdmin": "Only one administrator has access. Assign a second admin in User management.",
-				"redisUnreachable": "Redis is unavailable. Check the connection.",
-				"registrationWithoutEmail": "Registration is open without email. Configure SMTP or set DISABLE_REGISTRATION=true.",
-				"smtpNotConfigured": "Email is not configured. Set SMTP_HOST and SMTP_FROM.",
-				"smtpUnreachable": "Email is unavailable. Check SMTP settings.",
-				"storageIncomplete": "Storage setup is incomplete. Check S3 settings.",
-				"storageUnreachable": "Storage needs attention. Check S3 access."
+				"noSecondAdmin": "Доступ есть только у одного администратора. Назначьте второго администратора в разделе управления пользователями.",
+				"redisUnreachable": "Redis недоступен. Проверьте подключение.",
+				"registrationWithoutEmail": "Открытая регистрация работает без отправки писем. Настройте SMTP или задайте DISABLE_REGISTRATION=true.",
+				"smtpNotConfigured": "Электронная почта не настроена. Задайте SMTP_HOST и SMTP_FROM.",
+				"smtpUnreachable": "Электронная почта недоступна. Проверьте настройки SMTP.",
+				"storageIncomplete": "Хранилище настроено не полностью. Проверьте настройки S3.",
+				"storageUnreachable": "Возникла проблема с хранилищем. Проверьте доступ к S3."
 			},
-			"workspaces": "Workspaces"
+			"workspaces": "Рабочие области"
 		},
 		"adminRoles": {
-			"actions": "Actions for {{name}}",
-			"allPermissions": "All permissions",
-			"builtIn": "Built-in",
-			"create": "New role",
-			"deleteTitle": "Delete {{name}}?",
+			"actions": "Действия для {{name}}",
+			"allPermissions": "Все права",
+			"builtIn": "Встроенная",
+			"create": "Новая роль",
+			"deleteTitle": "Удалить «{{name}}»?",
 			"dialog": {
-				"create": "Create role",
-				"createTitle": "New role",
-				"editTitle": "Edit role",
-				"name": "Name",
-				"nameHint": "Use 2–32 lowercase letters, digits, or hyphens, starting with a letter.",
-				"save": "Save"
+				"create": "Создать роль",
+				"createTitle": "Новая роль",
+				"editTitle": "Изменить роль",
+				"name": "Название",
+				"nameHint": "Используйте 2–32 символа: строчные латинские буквы, цифры или дефисы. Первый символ — буква.",
+				"save": "Сохранить"
 			},
-			"edit": "Edit",
+			"edit": "Изменить",
 			"groups": {
-				"instance": "Instance",
-				"users": "Users",
-				"workspaces": "Workspaces"
+				"instance": "Экземпляр",
+				"users": "Пользователи",
+				"workspaces": "Рабочие области"
 			},
-			"listTitle": "All roles",
-			"loadError": "Roles could not be loaded.",
-			"noPermissions": "No permissions",
-			"permissionCount_few": "{{count}} permissions",
-			"permissionCount_many": "{{count}} permissions",
-			"permissionCount_one": "{{count}} permission",
-			"permissionCount_other": "{{count}} permissions",
+			"listTitle": "Все роли",
+			"loadError": "Не удалось загрузить роли.",
+			"noPermissions": "Нет прав",
+			"permissionCount_few": "{{count}} права",
+			"permissionCount_many": "{{count}} прав",
+			"permissionCount_one": "{{count}} право",
+			"permissionCount_other": "{{count}} права",
 			"permissions": {
-				"auditRead": "View the audit log",
-				"instanceSettings": "Change instance settings",
-				"systemRead": "View system status",
-				"usersApiKeys": "View and revoke API keys",
-				"usersCreate": "Create users",
-				"usersCredentials": "Send password reset and verification emails",
-				"usersDelete": "Delete users",
-				"usersDisable": "Deactivate and reactivate users",
-				"usersRead": "View users",
-				"usersSessions": "View and end sessions",
-				"usersUpdate": "Edit users and their roles",
-				"workspacesArchive": "Archive and restore workspaces",
-				"workspacesDelete": "Delete workspaces",
-				"workspacesManage": "Manage workspace members",
-				"workspacesRead": "View workspaces and members"
+				"auditRead": "Просматривать журнал аудита",
+				"instanceSettings": "Изменять настройки экземпляра",
+				"systemRead": "Просматривать состояние системы",
+				"usersApiKeys": "Просматривать и отзывать ключи API",
+				"usersCreate": "Создавать пользователей",
+				"usersCredentials": "Отправлять письма для сброса пароля и подтверждения адреса",
+				"usersDelete": "Удалять пользователей",
+				"usersDisable": "Деактивировать и повторно активировать пользователей",
+				"usersRead": "Просматривать пользователей",
+				"usersSessions": "Просматривать и завершать сеансы",
+				"usersUpdate": "Изменять данные и роли пользователей",
+				"workspacesArchive": "Архивировать и восстанавливать рабочие области",
+				"workspacesDelete": "Удалять рабочие области",
+				"workspacesManage": "Управлять участниками рабочих областей",
+				"workspacesRead": "Просматривать рабочие области и их участников"
 			},
-			"title": "Roles",
+			"title": "Роли",
 			"toast": {
-				"created": "Role created",
-				"deleted": "Role deleted",
-				"error": "The role could not be saved.",
-				"updated": "Role updated"
+				"created": "Роль создана",
+				"deleted": "Роль удалена",
+				"error": "Не удалось сохранить роль.",
+				"updated": "Роль обновлена"
 			},
-			"userCount_few": "{{count}} users",
-			"userCount_many": "{{count}} users",
-			"userCount_one": "{{count}} user",
-			"userCount_other": "{{count}} users",
-			"viewUsers": "View users"
+			"userCount_few": "{{count}} пользователя",
+			"userCount_many": "{{count}} пользователей",
+			"userCount_one": "{{count}} пользователь",
+			"userCount_other": "{{count}} пользователя",
+			"viewUsers": "Посмотреть пользователей"
 		},
 		"adminSettings": {
-			"defaultRole": "Default role for new users",
-			"general": "General",
-			"instanceName": "Instance name",
-			"instanceUrl": "Instance URL",
-			"instanceUrlMissing": "Set KANEO_CLIENT_URL",
-			"integrations": "Integrations",
-			"loadError": "Couldn't load instance settings.",
-			"lockedByEnv": "Set by {{name}}",
-			"passwordRegistrationEnabled": "Email and password sign-up",
-			"registration": "Registration",
-			"registrationEnabled": "Open registration",
-			"requireEmailVerification": "Require email verification",
-			"requiresSmtp": "Requires SMTP",
-			"signInProviders": "Sign-in providers",
-			"title": "Settings",
+			"defaultRole": "Роль по умолчанию для новых пользователей",
+			"general": "Общие",
+			"instanceName": "Название экземпляра",
+			"instanceUrl": "URL экземпляра",
+			"instanceUrlMissing": "Задайте KANEO_CLIENT_URL",
+			"integrations": "Интеграции",
+			"loadError": "Не удалось загрузить настройки экземпляра.",
+			"lockedByEnv": "Задано переменной {{name}}",
+			"passwordRegistrationEnabled": "Регистрация по электронной почте и паролю",
+			"registration": "Регистрация",
+			"registrationEnabled": "Открытая регистрация",
+			"requireEmailVerification": "Требовать подтверждение адреса электронной почты",
+			"requiresSmtp": "Требуется SMTP",
+			"signInProviders": "Провайдеры входа",
+			"title": "Настройки",
 			"toast": {
-				"error": "Couldn't save settings",
-				"saved": "Settings saved"
+				"error": "Не удалось сохранить настройки",
+				"saved": "Настройки сохранены"
 			},
-			"workspaceCreationRestricted": "Only administrators can create workspaces",
-			"workspaces": "Workspaces",
-			"save": "Save"
+			"workspaceCreationRestricted": "Только администраторы могут создавать рабочие области",
+			"workspaces": "Рабочие области",
+			"save": "Сохранить"
 		},
 		"adminWebhooks": {
-			"actions": "Actions for {{url}}",
-			"add": "Add webhook",
-			"attempts_few": "{{count}} attempts",
-			"attempts_many": "{{count}} attempts",
-			"attempts_one": "{{count}} attempt",
-			"attempts_other": "{{count}} attempts",
-			"categories": "Events",
-			"deleteTitle": "Delete webhook?",
-			"deliveries": "Recent deliveries",
-			"disabled": "Disabled",
-			"edit": "Edit webhook",
-			"empty": "No webhooks",
-			"enabled": "Enabled",
+			"actions": "Действия для {{url}}",
+			"add": "Добавить вебхук",
+			"attempts_few": "{{count}} попытки",
+			"attempts_many": "{{count}} попыток",
+			"attempts_one": "{{count}} попытка",
+			"attempts_other": "{{count}} попытки",
+			"categories": "События",
+			"deleteTitle": "Удалить вебхук?",
+			"deliveries": "Последние попытки доставки",
+			"disabled": "Отключён",
+			"edit": "Изменить вебхук",
+			"empty": "Вебхуков нет",
+			"enabled": "Включён",
 			"errors": {
-				"destination": "Destination blocked",
-				"disabled": "Webhook disabled",
-				"http": "HTTP error",
-				"interrupted": "Delivery interrupted",
-				"network": "Connection failed",
-				"response": "Invalid response",
-				"signing": "Signing failed",
-				"timeout": "Timed out"
+				"destination": "Адрес назначения заблокирован",
+				"disabled": "Вебхук отключён",
+				"http": "Ошибка HTTP",
+				"interrupted": "Доставка прервана",
+				"network": "Не удалось подключиться",
+				"response": "Некорректный ответ",
+				"signing": "Не удалось подписать запрос",
+				"timeout": "Время ожидания истекло"
 			},
-			"failed": "Failed",
+			"failed": "Не доставлено",
 			"httpStatus": "HTTP {{status}}",
-			"loadError": "Webhooks could not be loaded.",
-			"noDeliveries": "No deliveries",
-			"pending": "Pending",
-			"rotate": "Rotate secret",
-			"rotateTitle": "Rotate signing secret?",
-			"saveError": "The webhook could not be saved.",
-			"secretTitle": "Signing secret — save it now",
-			"sendTest": "Send test",
-			"setup": "Set NOTIFICATION_SECRET_ENCRYPTION_KEY to create webhooks.",
-			"signingSecret": "Signing secret",
-			"succeeded": "Delivered",
-			"testEvent": "Test event",
-			"testQueued": "Test event queued.",
-			"title": "Webhooks",
+			"loadError": "Не удалось загрузить вебхуки.",
+			"noDeliveries": "Попыток доставки нет",
+			"pending": "В ожидании",
+			"rotate": "Заменить секрет",
+			"rotateTitle": "Заменить секрет подписи?",
+			"saveError": "Не удалось сохранить вебхук.",
+			"secretTitle": "Секрет подписи — сохраните его сейчас",
+			"sendTest": "Отправить тестовое событие",
+			"setup": "Задайте NOTIFICATION_SECRET_ENCRYPTION_KEY, чтобы создавать вебхуки.",
+			"signingSecret": "Секрет подписи",
+			"succeeded": "Доставлено",
+			"testEvent": "Тестовое событие",
+			"testQueued": "Тестовое событие поставлено в очередь.",
+			"title": "Вебхуки",
 			"url": "URL",
-			"save": "Save"
+			"save": "Сохранить"
 		}
 	},
 	"navigation": {
@@ -3999,9 +3999,9 @@
 			"label": "Активные фильтры",
 			"removeFilter": "Убрать фильтр «{{name}}»",
 			"noMatches": "Нет задач, подходящих под поиск или фильтры.",
-			"customFieldsLoading": "Loading custom-field values. Results are shown without custom-field filters.",
-			"customFieldsRefreshError": "Custom-field values could not be refreshed. Results may be out of date.",
-			"customFieldsUnavailable": "Custom-field values could not be loaded. Results are shown without custom-field filters."
+			"customFieldsLoading": "Загружаются значения пользовательских полей. Результаты показаны без фильтров по этим полям.",
+			"customFieldsRefreshError": "Не удалось обновить значения пользовательских полей. Результаты могут быть устаревшими.",
+			"customFieldsUnavailable": "Не удалось загрузить значения пользовательских полей. Результаты показаны без фильтров по этим полям."
 		},
 		"filterMenu": {
 			"addFilter": "Добавить фильтр…",
@@ -4223,10 +4223,10 @@
 			"loadError": "Не удалось загрузить ваши задачи."
 		},
 		"archived": {
-			"description": "Contact an administrator to restore access.",
-			"manage": "Manage workspaces",
-			"otherWorkspaces": "Go to workspaces",
-			"title": "Workspace archived"
+			"description": "Обратитесь к администратору, чтобы восстановить доступ.",
+			"manage": "Управление рабочими областями",
+			"otherWorkspaces": "Перейти к рабочим областям",
+			"title": "Рабочая область архивирована"
 		}
 	},
 	"team": {
@@ -4326,7 +4326,7 @@
 			"labels": "Метки",
 			"externalLinks": "Внешние ссылки",
 			"pullRequestFallback": "Pull request",
-			"issueFallback": "Issue",
+			"issueFallback": "Задача",
 			"prStatusMerged": "Влит",
 			"prStatusDraft": "Черновик",
 			"prStatusOpen": "Открыт",
@@ -4408,7 +4408,7 @@
 			"title": "Управление проектами",
 			"titleAccent": "которое не превращается в отдельный проект.",
 			"description": "Доски, диаграммы Ганта и интеграция с GitHub — для команд, которым важнее выпускать продукт, а не управлять трекером. Kaneo Cloud берёт на себя хостинг, резервные копии и обновления, так что начать можно за минуты.",
-			"pricingCta": "See pricing",
+			"pricingCta": "Посмотреть цены",
 			"appStore": "App Store"
 		},
 		"navigation": {
@@ -4512,8 +4512,8 @@
 				"description": "Узнайте различия в хостинге, лицензировании и организации работы."
 			},
 			"startups": {
-				"description": "What a startup needs from a tracker, and what Kaneo Cloud costs as you hire.",
-				"title": "Project management for startups"
+				"description": "Что стартапу нужно от системы управления задачами и сколько стоит Kaneo Cloud по мере роста команды.",
+				"title": "Управление проектами для стартапов"
 			}
 		},
 		"product": {
@@ -4541,9 +4541,9 @@
 				"link": "Читать руководство по MCP"
 			},
 			"mobile": {
-				"answer": "Yes. Kaneo is on the App Store for iPhone and iPad, and Android is coming soon. The app is free for Kaneo Cloud accounts. Connecting it to a self-hosted server is a one-time $9.99 unlock per person, and like the rest of Kaneo, the app is open source.",
-				"link": "Download on the App Store",
-				"question": "Is there a mobile app?"
+				"answer": "Да. Kaneo доступен в App Store для iPhone и iPad, а версия для Android скоро появится. Для пользователей Kaneo Cloud приложение бесплатно. Подключение к собственному серверу стоит $9.99 за пользователя и оплачивается один раз. Исходный код приложения открыт, как и остальной код Kaneo.",
+				"link": "Скачать в App Store",
+				"question": "Есть ли мобильное приложение?"
 			}
 		},
 		"comparison": {
@@ -4649,13 +4649,13 @@
 				"passwordHint": "Не менее 8 символов"
 			},
 			"unlock": {
-				"buy": "Unlock for {{price}}",
-				"buyNoPrice": "Unlock",
-				"message": "Signing in to Kaneo Cloud is always included. Connecting the app to a self-hosted server is a one-time purchase that supports Kaneo's development.",
-				"nothingToRestore": "No earlier purchase was found for this store account.",
-				"restore": "Restore purchase",
-				"title": "Connect your own server",
-				"unavailable": "Purchases aren't available right now. Try again later."
+				"buy": "Разблокировать за {{price}}",
+				"buyNoPrice": "Разблокировать",
+				"message": "Вход в Kaneo Cloud всегда доступен. Подключение приложения к собственному серверу оплачивается один раз и помогает поддерживать разработку Kaneo.",
+				"nothingToRestore": "Для этой учётной записи магазина не найдено предыдущих покупок.",
+				"restore": "Восстановить покупку",
+				"title": "Подключите свой сервер",
+				"unavailable": "Покупки сейчас недоступны. Попробуйте позже."
 			}
 		},
 		"invitations": {
@@ -4824,13 +4824,13 @@
 			"link": "Ссылка",
 			"insertImage": "Вставить изображение",
 			"attachment": "Вложение",
-			"applyLink": "Apply",
-			"checklist": "Checklist",
+			"applyLink": "Применить",
+			"checklist": "Чек-лист",
 			"linkUrl": "URL",
-			"numberedList": "Numbered list",
-			"quote": "Quote",
-			"removeLink": "Remove link",
-			"hideKeyboard": "Hide keyboard"
+			"numberedList": "Нумерованный список",
+			"quote": "Цитата",
+			"removeLink": "Удалить ссылку",
+			"hideKeyboard": "Скрыть клавиатуру"
 		},
 		"composer": {
 			"reply": "Ответить {{name}}…",
@@ -4953,7 +4953,7 @@
 			"type": "Тип",
 			"options": "Варианты",
 			"separateWithCommas": "Через запятую",
-			"androidIOSWeb": "Android, iOS, Web",
+			"androidIOSWeb": "Android, iOS, веб",
 			"required": "Обязательное",
 			"checked": "Отмечено",
 			"chooseDefault": "Выберите значение по умолчанию",
@@ -5263,19 +5263,19 @@
 				"signOutOthers": "Выйти на других устройствах"
 			},
 			"deleteAccount": {
-				"confirm": "Delete account",
-				"confirmLabel": "Type {{email}} to confirm",
-				"description": "Permanently delete your account and its data.",
-				"modalDescription": "This permanently deletes your account and cannot be undone. Workspaces only you belong to are deleted with it. Elsewhere, your tasks stay and become unassigned, and your comments are removed.",
-				"modalTitle": "Delete your account?",
-				"noPassword": "This account has no password. Leave the field empty.",
-				"password": "Password",
-				"passwordHint": "Leave empty if you sign in without a password.",
-				"sectionTitle": "Danger zone",
-				"sessionTooOld": "For your security, enter your password, or sign out and sign in again before deleting your account.",
-				"success": "Your account was deleted",
-				"title": "Delete account",
-				"wrongPassword": "That password is not correct."
+				"confirm": "Удалить учётную запись",
+				"confirmLabel": "Для подтверждения введите {{email}}",
+				"description": "Навсегда удалите свою учётную запись и её данные.",
+				"modalDescription": "Ваша учётная запись будет удалена навсегда. Это действие нельзя отменить. Рабочие области, в которых вы единственный участник, будут удалены вместе с учётной записью. В остальных областях ваши задачи останутся без исполнителя, а комментарии будут удалены.",
+				"modalTitle": "Удалить вашу учётную запись?",
+				"noPassword": "У этой учётной записи нет пароля. Оставьте поле пустым.",
+				"password": "Пароль",
+				"passwordHint": "Оставьте поле пустым, если входите без пароля.",
+				"sectionTitle": "Опасная зона",
+				"sessionTooOld": "Для вашей безопасности введите пароль или выйдите и войдите снова, прежде чем удалять учётную запись.",
+				"success": "Ваша учётная запись удалена",
+				"title": "Удалить учётную запись",
+				"wrongPassword": "Неверный пароль."
 			}
 		},
 		"notificationSettings": {
@@ -5339,7 +5339,7 @@
 				"title": "Общие",
 				"name": "Название",
 				"description": "Описание",
-				"slug": "Slug: <mono>{{slug}}</mono>",
+				"slug": "Идентификатор в URL: <mono>{{slug}}</mono>",
 				"save": "Сохранить изменения"
 			},
 			"manage": {
