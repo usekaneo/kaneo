@@ -1,0 +1,1 @@
+ALTER TABLE "project" ADD COLUMN "include_subtasks" boolean DEFAULT true NOT NULL;

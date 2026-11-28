@@ -1,4 +1,4 @@
-import { and, eq } from "drizzle-orm";
+import { and, eq, sql } from "drizzle-orm";
 import db from "../../database";
 import {
   utcNow,
@@ -82,17 +82,19 @@ export async function saveWorkspacePlugin(
   pluginId: string,
   workspaceId: string,
   write: WorkspacePluginWrite,
-): Promise<WorkspacePluginRow> {
+  expectedSettings?: Record<string, unknown>,
+): Promise<WorkspacePluginRow | undefined> {
   const [row] = await db
     .insert(workspacePluginTable)
     .values({ pluginId, workspaceId, ...write.insert })
     .onConflictDoUpdate({
       target: [workspacePluginTable.workspaceId, workspacePluginTable.pluginId],
       set: { ...write.update, updatedAt: utcNow },
+      setWhere:
+        expectedSettings === undefined
+          ? undefined
+          : sql`${workspacePluginTable.settings} = ${JSON.stringify(expectedSettings)}::jsonb`,
     })
     .returning(columns);
-  if (!row) {
-    throw new Error("Failed to save the workspace plugin");
-  }
   return row;
 }

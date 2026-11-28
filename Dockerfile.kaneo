@@ -1,4 +1,4 @@
-FROM --platform=$BUILDPLATFORM node:24.22.1-alpine AS api-builder
+FROM --platform=$BUILDPLATFORM node:24.22.2-alpine AS api-builder
 
 RUN apk add --no-cache python3 make g++ && \
   corepack enable && \
@@ -60,7 +60,7 @@ RUN pnpm run build
 # Assembles the production node_modules on the BUILD platform (native, no QEMU emulation).
 # All API runtime deps are pure JavaScript (bcrypt was replaced with bcryptjs), so this
 # node_modules is architecture-independent and is copied into the runtime stage below.
-FROM --platform=$BUILDPLATFORM node:24.22.1-alpine AS api-runtime
+FROM --platform=$BUILDPLATFORM node:24.22.2-alpine AS api-runtime
 
 WORKDIR /app
 
@@ -93,7 +93,7 @@ COPY --from=api-builder /app/plugins/gantt/dist ./plugins/gantt/dist
 COPY --from=api-builder /app/packages/plugin-loader/dist ./packages/plugin-loader/dist
 COPY --from=api-builder /app/packages/cli/dist ./packages/cli/dist
 
-FROM --platform=$BUILDPLATFORM node:24.22.1-alpine AS web-builder
+FROM --platform=$BUILDPLATFORM node:24.22.2-alpine AS web-builder
 
 RUN apk add --no-cache python3 make g++ && \
   corepack enable && \
@@ -109,6 +109,7 @@ COPY packages/libs/package.json ./packages/libs/
 COPY packages/typescript-config ./packages/typescript-config
 COPY packages/libs ./packages/libs
 COPY packages/permissions ./packages/permissions
+COPY packages/editor ./packages/editor
 COPY packages/plugin-sdk ./packages/plugin-sdk
 COPY i18n ./i18n
 COPY apps/web ./apps/web
@@ -118,13 +119,16 @@ RUN pnpm install --frozen-lockfile
 WORKDIR /app/packages/permissions
 RUN pnpm run build
 
+WORKDIR /app/packages/editor
+RUN pnpm run build
+
 WORKDIR /app/packages/plugin-sdk
 RUN pnpm run build
 
 WORKDIR /app/apps/web
 RUN pnpm run build && find dist -type f -name '*.map' -delete
 
-FROM node:24.22.1-alpine AS runtime
+FROM node:24.22.2-alpine AS runtime
 
 # Alpine replaces older package patches, so accept later security fixes too.
 RUN apk add --no-cache 'nginx>=1.30.6' && \

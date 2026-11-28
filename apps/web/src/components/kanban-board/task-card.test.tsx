@@ -16,8 +16,8 @@ vi.mock("react-i18next", () => ({
   }),
   initReactI18next: { type: "3rdParty", init: vi.fn() },
 }));
-vi.mock("@/store/project", () => ({
-  default: () => ({
+vi.mock("@/store/project", () => {
+  const state = {
     project: {
       id: "project",
       slug: "PROJ",
@@ -26,8 +26,15 @@ vi.mock("@/store/project", () => ({
         { id: "shared", slug: "shared", isFinal: false },
       ],
     },
-  }),
-}));
+  };
+  return {
+    default: Object.assign(
+      (selector?: (value: typeof state) => unknown) =>
+        selector ? selector(state) : state,
+      { getState: () => state },
+    ),
+  };
+});
 vi.mock("@/store/user-preferences", () => ({
   useUserPreferencesStore: () => ({
     showLabels: true,

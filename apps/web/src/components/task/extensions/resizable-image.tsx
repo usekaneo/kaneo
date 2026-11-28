@@ -1,4 +1,4 @@
-import Image from "@tiptap/extension-image";
+import { KaneoImage, parseWidth } from "@kaneo/editor";
 import type { NodeViewProps } from "@tiptap/react";
 import {
   NodeViewWrapper,
@@ -13,12 +13,6 @@ import {
 } from "react";
 import { useTranslation } from "react-i18next";
 import { cn } from "@/lib/cn";
-import {
-  escapeHtml,
-  escapeMarkdownText,
-  escapeMarkdownTitle,
-  formatMarkdownUrl,
-} from "./url-safety";
 
 const MIN_WIDTH = 80;
 const RESIZE_STEP = 16;
@@ -28,21 +22,6 @@ const SIZE_PRESETS = [
   { key: "medium", label: "tasks:detail.editor.image.medium", fraction: 0.5 },
   { key: "large", label: "tasks:detail.editor.image.large", fraction: 1 },
 ] as const;
-
-function parseWidth(value: unknown) {
-  if (typeof value === "number") {
-    return Number.isSafeInteger(value) && value > 0 ? value : null;
-  }
-
-  // `Number.parseInt` stops at the first non-digit and discards the rest, so it
-  // would read `50%` as 50 pixels. Match the whole value instead, so only a
-  // pixel count gets through and every other unit is rejected.
-  const match = /^(\d+)(?:px)?$/i.exec(String(value ?? "").trim());
-  if (!match) return null;
-
-  const width = Number.parseInt(match[1], 10);
-  return Number.isSafeInteger(width) && width > 0 ? width : null;
-}
 
 function ResizableImageNodeView({
   editor,
@@ -181,55 +160,8 @@ function ResizableImageNodeView({
   );
 }
 
-export const ResizableImage = Image.extend({
-  addAttributes() {
-    return {
-      ...this.parent?.(),
-      width: {
-        default: null,
-        parseHTML: (element: HTMLElement) =>
-          // `parseWidth` rejects every unit but `px`, so both raw values can go
-          // straight in. Reading them independently also stops an unusable
-          // `width="50%"` from shadowing a usable inline `width: 320px`.
-          parseWidth(element.getAttribute("width")) ??
-          parseWidth(element.style.width),
-        renderHTML: (attributes: Record<string, unknown>) => {
-          const width = parseWidth(attributes.width);
-          return width ? { width } : {};
-        },
-      },
-    };
-  },
-
+export const ResizableImage = KaneoImage.extend({
   addNodeView() {
     return ReactNodeViewRenderer(ResizableImageNodeView);
-  },
-
-  renderMarkdown(
-    node: {
-      attrs?: { src?: string; alt?: string; title?: string; width?: number };
-    },
-    _helpers: unknown,
-    _context: unknown,
-  ) {
-    const src = String(node.attrs?.src || "");
-    const alt = String(node.attrs?.alt || "");
-    const title = String(node.attrs?.title || "");
-    const width = parseWidth(node.attrs?.width);
-
-    if (!src) return "";
-
-    // Standard markdown has nowhere to carry a width, so a resized image is
-    // written as HTML — which the markdown pipeline round-trips intact.
-    if (!width) {
-      const markdownTitle = title ? ` "${escapeMarkdownTitle(title)}"` : "";
-      return `![${escapeMarkdownText(alt)}](${formatMarkdownUrl(
-        src,
-      )}${markdownTitle})`;
-    }
-
-    return `<img src="${escapeHtml(src)}" alt="${escapeHtml(alt)}"${
-      title ? ` title="${escapeHtml(title)}"` : ""
-    } width="${width}" />`;
   },
 });

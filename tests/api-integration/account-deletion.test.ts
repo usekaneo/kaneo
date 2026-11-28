@@ -130,6 +130,25 @@ describe("API integration: account deletion", () => {
     expect(workspaces).toHaveLength(1);
   });
 
+  it.each(["member, owner", "member, Owner ", "member,\u00a0owner"])(
+    "does not leave a workspace ownerless by counting a malformed owner grant (%s)",
+    async (role) => {
+      const owner = await createWorkspaceMember({
+        role: "owner",
+        workspaceName: "Acme",
+      });
+      await addMember(owner.workspace.id, role);
+      await expect(deleteAccountData(owner.user.id)).rejects.toThrow(
+        /only owner of "Acme"/,
+      );
+      expect(
+        await db.query.workspaceUserTable.findFirst({
+          where: eq(schema.workspaceUserTable.userId, owner.user.id),
+        }),
+      ).toBeDefined();
+    },
+  );
+
   it.each([false, true])(
     "revokes project sockets after leaving even if the old post-delete lookup fails (%s)",
     async (failLookup) => {

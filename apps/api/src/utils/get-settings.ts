@@ -17,6 +17,15 @@ import { isCloud } from "./is-cloud";
 
 config();
 
+// Billing configuration must not prevent the login screen from loading.
+function isBillingAvailable() {
+  try {
+    return isBillingEnabled();
+  } catch {
+    return false;
+  }
+}
+
 function getSettings(
   instance: InstanceSettings = resolveInstanceSettings(
     DEFAULT_STORED_SETTINGS,
@@ -56,7 +65,7 @@ function getSettings(
     customOAuthLogoutUrl: process.env.CUSTOM_OAUTH_LOGOUT_URL || null,
     customOAuthManagedProfileFields: parseManagedProfileFields(),
     customOAuthAccountUrl: parseCustomOAuthAccountUrl(),
-    billingEnabled: isBillingEnabled(),
+    billingEnabled: isBillingAvailable(),
   };
 }
 

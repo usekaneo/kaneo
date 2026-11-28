@@ -29,8 +29,14 @@ export function createWorkspaceBaseSlug(value: string): string {
   return createSlug(value) || "workspace";
 }
 
+// getRandomValues, unlike randomUUID, also works on plain-HTTP origins.
 function createRandomSuffix(): string {
-  return crypto.randomUUID().replace(/-/g, "").slice(0, RANDOM_SUFFIX_LENGTH);
+  const bytes = crypto.getRandomValues(
+    new Uint8Array(RANDOM_SUFFIX_LENGTH / 2),
+  );
+  return Array.from(bytes, (byte) => byte.toString(16).padStart(2, "0")).join(
+    "",
+  );
 }
 
 export function createUniqueWorkspaceSlug(

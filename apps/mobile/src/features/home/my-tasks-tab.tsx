@@ -157,6 +157,7 @@ export function MyTasksTab({ workspaceId }: { workspaceId: string }) {
                   dueDate={task.dueDate}
                   status={task.status}
                   statusIcon={task.statusIcon}
+                  priority={task.priority}
                   onPress={() =>
                     router.push({
                       pathname: "/task/[taskId]",

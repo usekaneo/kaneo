@@ -17,9 +17,9 @@ export const Route = createFileRoute(
 
 function RouteComponent() {
   const { t } = useTranslation();
-  const { workspace, canManageWorkspace } = useWorkspacePermission();
+  const { workspace, canManageSettings } = useWorkspacePermission();
   const workspaceId = workspace?.id;
-  const canEdit = canManageWorkspace();
+  const canEdit = canManageSettings();
   const { data, isPending, isError } = useGetPlugins(workspaceId);
   const { plugins: runtimePlugins } = usePlugins();
   const installed = data?.plugins ?? [];

@@ -6,11 +6,11 @@ import { OnboardingProgress } from "./onboarding-progress";
 type OnboardingShellProps = {
   stepKey: string;
   progress: { current: number; total: number } | null;
-  eyebrow?: string;
   title: string;
   description?: ReactNode;
   email?: string;
   opening: boolean;
+  onOpened: () => void;
   onSignOut: () => void;
   preview: ReactNode;
   children: ReactNode;
@@ -19,11 +19,11 @@ type OnboardingShellProps = {
 export function OnboardingShell({
   stepKey,
   progress,
-  eyebrow,
   title,
   description,
   email,
   opening,
+  onOpened,
   onSignOut,
   preview,
   children,
@@ -33,12 +33,15 @@ export function OnboardingShell({
   const offset = reduceMotion ? 0 : 12;
 
   return (
-    <div className="flex h-svh w-full overflow-hidden bg-background">
-      <motion.div
-        animate={{ opacity: opening ? 0 : 1 }}
-        transition={{ duration: 0.3 }}
-        className="flex h-full w-full shrink-0 flex-col overflow-y-auto px-6 py-8 sm:px-16 lg:w-[600px]"
-      >
+    <motion.div
+      animate={{ opacity: opening ? 0 : 1 }}
+      transition={{ duration: reduceMotion ? 0 : 0.15, ease: "easeOut" }}
+      onAnimationComplete={() => {
+        if (opening) onOpened();
+      }}
+      className="flex h-svh w-full overflow-hidden bg-background"
+    >
+      <div className="flex h-full w-full shrink-0 flex-col overflow-y-auto px-6 py-8 sm:px-16 lg:w-[600px]">
         <header className="flex items-center justify-between gap-4">
           <img
             src="/favicon.svg"
@@ -63,11 +66,6 @@ export function OnboardingShell({
               className="w-full max-w-[400px]"
             >
               <div className="flex flex-col gap-2 pb-8">
-                {eyebrow ? (
-                  <p className="font-medium text-[13px] text-muted-foreground">
-                    {eyebrow}
-                  </p>
-                ) : null}
                 <h1 className="font-semibold text-[30px] text-foreground leading-9 tracking-[-0.025em]">
                   {title}
                 </h1>
@@ -92,8 +90,8 @@ export function OnboardingShell({
             </button>
           </footer>
         ) : null}
-      </motion.div>
+      </div>
       {preview}
-    </div>
+    </motion.div>
   );
 }

@@ -10,6 +10,8 @@ assert.ok(
   "Expected seed|verify ORIGIN STATE_FILE",
 );
 const origin = localOrigin(inputOrigin);
+const minioOrigin = localOrigin(process.env.KANEO_CI_MINIO_ORIGIN);
+const minioUrl = new URL(minioOrigin);
 await ready(origin);
 const bytes = Buffer.from(
   "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+aHAAAAABJRU5ErkJggg==",
@@ -21,7 +23,7 @@ if (mode === "seed") {
   );
   const { S3Client, CreateBucketCommand } = require("@aws-sdk/client-s3");
   const storage = new S3Client({
-    endpoint: "http://127.0.0.1:59040",
+    endpoint: minioOrigin,
     region: "us-east-1",
     forcePathStyle: true,
     credentials: {
@@ -56,7 +58,7 @@ if (mode === "seed") {
   );
   const uploadUrl = new URL(upload.uploadUrl);
   assert.ok(
-    ["minio:9000", "127.0.0.1:59040"].includes(uploadUrl.host),
+    ["minio:9000", minioUrl.host].includes(uploadUrl.host),
     "Only the disposable MinIO endpoint is allowed",
   );
   // Reach the Compose service through its loopback port while preserving its signed Host header.
@@ -64,7 +66,7 @@ if (mode === "seed") {
     const req = request(
       {
         hostname: "127.0.0.1",
-        port: 59040,
+        port: minioUrl.port,
         path: uploadUrl.pathname + uploadUrl.search,
         method: "PUT",
         headers: {

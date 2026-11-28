@@ -4,6 +4,7 @@ import { applyEdits, type Edit } from "./edits.js";
 import { findConfigObject } from "./find-config-object.js";
 import { findLastImport } from "./find-last-import.js";
 import { findPluginsArray } from "./find-plugins-array.js";
+import { hasPluginCall } from "./has-plugin-call.js";
 import { maskSource } from "./mask-source.js";
 
 export type ConfigEdit =
@@ -102,15 +103,21 @@ export function addPluginToConfig(
   if (plugins.kind === "unsupported") return manual(plugins.reason);
 
   if (existing) {
-    const listed =
-      plugins.kind === "array" &&
-      usesIdentifier(
-        masked.slice(plugins.open, plugins.close + 1),
-        existing.name,
-      );
-    if (listed) return { status: "present" };
-    const elsewhere = `${masked.slice(0, existing.start)}${masked.slice(existing.end)}`;
-    if (usesIdentifier(elsewhere, existing.name)) {
+    const entries =
+      plugins.kind === "array"
+        ? masked.slice(plugins.open + 1, plugins.close)
+        : "";
+    if (hasPluginCall(entries, existing.name)) return { status: "present" };
+
+    const withoutImport = `${masked.slice(0, existing.start)}${" ".repeat(existing.end - existing.start)}${masked.slice(existing.end)}`;
+    const elsewhere =
+      plugins.kind === "array"
+        ? `${withoutImport.slice(0, plugins.open)} ${withoutImport.slice(plugins.close + 1)}`
+        : withoutImport;
+    const indirectCall = new RegExp(
+      `(?<![\\w$])${escapeRegExp(existing.name)}\\s*\\(`,
+    ).test(entries);
+    if (indirectCall || usesIdentifier(elsewhere, existing.name)) {
       return manual(
         `it imports ${packageName} as ${existing.name} but does not list it in plugins`,
       );

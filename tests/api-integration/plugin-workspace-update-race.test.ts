@@ -180,4 +180,44 @@ describe("overlapping workspace plugin updates", () => {
       ]);
     },
   );
+
+  it("merges concurrent partial settings without losing either edit or a secret", async () => {
+    const { user, workspace } = await createWorkspaceMember({ role: "admin" });
+    mockAuthenticatedSession(user);
+    const { app } = createApp();
+    const url = `/api/plugins/${PLUGIN_ID}/workspace/${workspace.id}`;
+    expect((await app.request(url, json(SETTINGS))).status).toBe(200);
+
+    const held = holdNextRead();
+    const slow = app.request(
+      url,
+      json({ settings: { doneStatus: "released" } }),
+    );
+    await held.read;
+    try {
+      const quick = await app.request(
+        url,
+        json({ settings: { mode: "slow" } }),
+      );
+      expect(quick.status).toBe(200);
+    } finally {
+      held.release();
+    }
+    expect((await slow).status).toBe(200);
+    expect(await storedRow(workspace.id)).toEqual([
+      {
+        enabled: false,
+        settings: { doneStatus: "released", token: "s3cret", mode: "slow" },
+      },
+    ]);
+
+    const clear = await app.request(url, json({ settings: { mode: null } }));
+    expect(clear.status).toBe(200);
+    expect(await storedRow(workspace.id)).toEqual([
+      {
+        enabled: false,
+        settings: { doneStatus: "released", token: "s3cret" },
+      },
+    ]);
+  });
 });

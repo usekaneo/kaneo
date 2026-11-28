@@ -1,8 +1,9 @@
-import { and, eq, isNull } from "drizzle-orm";
+import { and, eq, inArray, isNull } from "drizzle-orm";
 import { HTTPException } from "hono/http-exception";
 import db from "../../database";
 import { externalLinkTable, taskTable } from "../../database/schema";
 import { publishEvent } from "../../events";
+import { MANUAL_RESOURCE_TYPES } from "../manual-resource-types";
 
 export default async function deleteExternalLink({
   taskId,
@@ -27,7 +28,7 @@ export default async function deleteExternalLink({
         eq(externalLinkTable.id, id),
         eq(externalLinkTable.taskId, taskId),
         isNull(externalLinkTable.integrationId),
-        eq(externalLinkTable.resourceType, "url"),
+        inArray(externalLinkTable.resourceType, MANUAL_RESOURCE_TYPES),
       ),
     )
     .returning({ id: externalLinkTable.id });

@@ -64,6 +64,7 @@ import useDeleteProject from "@/hooks/mutations/project/use-delete-project";
 import useReorderProjects from "@/hooks/mutations/project/use-reorder-projects";
 import useGetProjects from "@/hooks/queries/project/use-get-projects";
 import useActiveWorkspace from "@/hooks/queries/workspace/use-active-workspace";
+import { useBoardHoverPrefetch } from "@/hooks/use-board-hover-prefetch";
 import { useWorkspacePermission } from "@/hooks/use-workspace-permission";
 import { EASE_OUT_CSS } from "@/lib/motion";
 import { toast } from "@/lib/toast";
@@ -141,6 +142,7 @@ export function NavProjects() {
   // alone — not the create+update+delete bundle.
   const canReorder = canUpdateProjects();
   const navigate = useNavigate();
+  const boardHoverPrefetch = useBoardHoverPrefetch(workspace?.id ?? "");
   const { workspaceId: currentWorkspaceId, projectId: currentProjectId } =
     useParams({
       strict: false,
@@ -246,7 +248,7 @@ export function NavProjects() {
               </span>
             </SidebarGroupAction>
           )}
-          <CollapsiblePanel>
+          <CollapsiblePanel className="-m-1 p-1">
             <SidebarGroupContent>
               <DndContext
                 sensors={sensors}
@@ -280,6 +282,7 @@ export function NavProjects() {
                             size="default"
                             className="h-8 text-sm"
                             onClick={() => handleProjectClick(project)}
+                            {...boardHoverPrefetch(project.id)}
                           >
                             <ProjectIcon aria-hidden="true" />
                             <span className="min-w-0 flex-1 truncate">
@@ -304,7 +307,7 @@ export function NavProjects() {
                                   onPointerDown={(event) =>
                                     event.stopPropagation()
                                   }
-                                  className="absolute top-1.5 right-1 flex aspect-square w-5 items-center justify-center rounded-lg p-0 text-sidebar-foreground outline-hidden ring-sidebar-ring transition-transform hover:bg-sidebar-accent hover:text-sidebar-accent-foreground focus-visible:ring-2 peer-hover/menu-button:text-sidebar-accent-foreground after:-inset-2 after:absolute md:after:hidden peer-data-[size=sm]/menu-button:top-1 peer-data-[size=default]/menu-button:top-1.5 peer-data-[size=lg]/menu-button:top-2.5 group-data-[collapsible=icon]:hidden group-focus-within/menu-item:opacity-100 group-hover/menu-item:opacity-100 data-popup-open:opacity-100 peer-data-[active=true]/menu-button:text-sidebar-accent-foreground md:opacity-0"
+                                  className="absolute top-1 right-1 flex size-6 items-center justify-center rounded-md p-0 text-sidebar-foreground outline-hidden ring-sidebar-ring transition-transform hover:bg-sidebar-accent hover:text-sidebar-accent-foreground focus-visible:ring-2 peer-hover/menu-button:text-sidebar-accent-foreground after:-inset-2 after:absolute md:after:hidden [&>svg]:size-4 group-data-[collapsible=icon]:hidden group-focus-within/menu-item:opacity-100 group-hover/menu-item:opacity-100 data-popup-open:opacity-100 peer-data-[active=true]/menu-button:text-sidebar-accent-foreground md:opacity-0"
                                 />
                               }
                             >

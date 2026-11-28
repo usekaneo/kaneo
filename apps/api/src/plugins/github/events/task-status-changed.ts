@@ -82,34 +82,38 @@ export async function handleTaskStatusChanged(
       event.oldStatus,
       currentValue,
     );
-    if (change) {
-      const closing = change === "close";
-      await syncLatestTaskValue(
-        event.taskId,
-        event.projectId,
-        issueLink,
-        "state",
-        closing ? "closed" : "open",
-        async (value) => {
-          const response = await octokit.rest.issues.update({
-            owner: repositoryOwner,
-            repo: repositoryName,
-            issue_number: issueNumber,
-            state: value === "closed" ? "closed" : "open",
-          });
-          return response?.data?.updated_at;
-        },
-        async () =>
-          (
-            await octokit.rest.issues.get({
-              owner: repositoryOwner,
-              repo: repositoryName,
-              issue_number: issueNumber,
-            })
-          ).data.state ?? "open",
-        { type: "github", config: JSON.stringify(config) },
-      );
-    }
+    if (!change) return;
+    const target = change === "close" ? "closed" : "open";
+    const readState = async () =>
+      (
+        await octokit.rest.issues.get({
+          owner: repositoryOwner,
+          repo: repositoryName,
+          issue_number: issueNumber,
+        })
+      ).data.state ?? "open";
+    // A close or reopen made on GitHub must not be echoed back: a second close
+    // without state_reason turns "not planned" into "completed".
+    // A failed read falls through to the write, as before.
+    if ((await readState().catch(() => undefined)) === target) return;
+    await syncLatestTaskValue(
+      event.taskId,
+      event.projectId,
+      issueLink,
+      "state",
+      target,
+      async (value) => {
+        const response = await octokit.rest.issues.update({
+          owner: repositoryOwner,
+          repo: repositoryName,
+          issue_number: issueNumber,
+          state: value === "closed" ? "closed" : "open",
+        });
+        return response?.data?.updated_at;
+      },
+      readState,
+      { type: "github", config: JSON.stringify(config) },
+    );
   } catch (error) {
     console.error("Failed to update GitHub issue status:", error);
   }

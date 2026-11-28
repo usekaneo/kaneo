@@ -76,11 +76,18 @@ function toPayloadValue(field: SettingField, value: unknown): unknown {
 export function toSettingsPayload(
   schema: SettingsSchema,
   values: SettingsFormValues,
+  initial?: SettingsFormValues,
 ): Record<string, unknown> {
   const payload: Record<string, unknown> = {};
   for (const [key, field] of Object.entries(schema)) {
     const value = toPayloadValue(field, values[key]);
-    if (value !== undefined) payload[key] = value;
+    if (
+      value !== undefined &&
+      (!initial ||
+        JSON.stringify(value) !==
+          JSON.stringify(toPayloadValue(field, initial[key])))
+    )
+      payload[key] = value;
   }
   return payload;
 }

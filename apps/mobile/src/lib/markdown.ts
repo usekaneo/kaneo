@@ -2,6 +2,7 @@ import { i18n } from "@/lib/i18n";
 
 import { resolveUrl } from "./api/client";
 import { isLegacyHtml, legacyHtmlToMarkdown } from "./legacy-html";
+import { CHECKED_TASK, UNCHECKED_TASK } from "./task-item";
 
 /**
  * The web editor serializes rich nodes into Markdown as custom HTML tags. Markdown renderers
@@ -55,8 +56,8 @@ export function toDisplayMarkdown(markdown: string, serverUrl: string): string {
     }
   });
   text = text
-    .replace(/^(\s*)[-*] \[ \]/gm, "$1- ☐")
-    .replace(/^(\s*)[-*] \[[xX]\]/gm, "$1- ☑");
+    .replace(/^(\s*)[-*] \[ \]/gm, `$1- ${UNCHECKED_TASK}`)
+    .replace(/^(\s*)[-*] \[[xX]\]/gm, `$1- ${CHECKED_TASK}`);
   text = text.replace(
     /(!?\[[^\]]*\]\()(\/api\/[^)\s]+)/g,
     (_, prefix: string, path: string) => prefix + serverUrl + path,

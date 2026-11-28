@@ -1,9 +1,9 @@
 import { useDroppable } from "@dnd-kit/core";
 import { cva } from "class-variance-authority";
-import { memo } from "react";
+import { memo, useState } from "react";
 import { useBackgroundStore } from "@/store/background";
 import type { ProjectWithTasks } from "@/types/project";
-import { ColumnDropzone } from "./column-dropzone";
+import ColumnDropzone from "./column-dropzone";
 import { ColumnHeader } from "./column-header";
 import { ColumnSortHint } from "./column-sort-hint";
 
@@ -14,6 +14,7 @@ type ColumnProps = {
   disableDragDrop?: boolean;
   disableSorting?: boolean;
   disableCollectionActions?: boolean;
+  animateEntries?: boolean;
 };
 
 export const columnVariants = cva(
@@ -67,12 +68,16 @@ function Column({
   disableDragDrop = false,
   disableSorting = false,
   disableCollectionActions = false,
+  animateEntries = true,
 }: ColumnProps) {
   const { setNodeRef, isOver } = useDroppable({
     id: column.id,
     data: { type: "column", column },
   });
   const { background } = useBackgroundStore();
+  const [scrollElement, setScrollElement] = useState<HTMLDivElement | null>(
+    null,
+  );
 
   return (
     <div
@@ -88,12 +93,17 @@ function Column({
           disableCollectionActions={disableCollectionActions}
         />
       </div>
-      <div className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden px-1.5 pt-1.5 pb-1.5 [-webkit-overflow-scrolling:touch]">
+      <div
+        ref={setScrollElement}
+        className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden px-1.5 pt-1.5 pb-1.5 [-webkit-overflow-scrolling:touch]"
+      >
         <ColumnDropzone
+          scrollElement={scrollElement}
           column={column}
           activeTaskId={activeTaskId}
           disableDragDrop={disableDragDrop}
           disableSorting={disableSorting}
+          animateEntries={animateEntries}
         />
       </div>
       {sortHint && <ColumnSortHint label={sortHint} />}

@@ -101,7 +101,19 @@ describe("MCP 2026-07-28 stateless HTTP", () => {
     expect(second.headers.has("mcp-session-id")).toBe(false);
     expect(firstBody.result.tools).toEqual(secondBody.result.tools);
     expect(firstBody.result.tools).toContainEqual(
-      expect.objectContaining({ name: "whoami" }),
+      expect.objectContaining({
+        name: "whoami",
+        annotations: expect.objectContaining({ readOnlyHint: true }),
+      }),
+    );
+    expect(firstBody.result.tools).toContainEqual(
+      expect.objectContaining({ name: "create_task" }),
+    );
+    expect(firstBody.result.tools).not.toContainEqual(
+      expect.objectContaining({
+        name: "create_task",
+        annotations: expect.objectContaining({ readOnlyHint: true }),
+      }),
     );
   });
 
@@ -396,7 +408,10 @@ describe("MCP 2026-07-28 stateless HTTP", () => {
     expect(call.status).toBe(200);
     expect(tools.headers.has("mcp-session-id")).toBe(false);
     expect(toolsBody.result.tools).toContainEqual(
-      expect.objectContaining({ name: "whoami" }),
+      expect.objectContaining({
+        name: "whoami",
+        annotations: expect.objectContaining({ readOnlyHint: true }),
+      }),
     );
     expect(JSON.parse(callBody.result.content[0].text)).toEqual(currentUser);
     expect(JSON.stringify(callBody)).not.toContain("live-session-secret");

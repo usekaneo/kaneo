@@ -2,6 +2,7 @@ import { count, eq } from "drizzle-orm";
 import { integrationTable } from "../../database/schema";
 import { integrationPlugins } from "../../plugins";
 import { resolveGithubPrivateKey } from "../../plugins/github/utils/github-app";
+import { resolveFileSecret } from "../../utils/file-secret";
 import { credentialSetStatus } from "./credential-set-status";
 import type { ServiceStatus } from "./service-status";
 import { withDatabaseTimeout } from "./with-database-timeout";
@@ -18,11 +19,15 @@ type IntegrationProvider = {
 // connected per project with that project's own credentials.
 function instanceSetupStatus(type: string): ServiceStatus | null {
   if (type !== "github") return null;
-  return credentialSetStatus([
-    process.env.GITHUB_APP_ID,
-    process.env.GITHUB_WEBHOOK_SECRET,
-    resolveGithubPrivateKey(),
-  ]);
+  try {
+    return credentialSetStatus([
+      process.env.GITHUB_APP_ID,
+      resolveFileSecret("GITHUB_WEBHOOK_SECRET"),
+      resolveGithubPrivateKey(),
+    ]);
+  } catch {
+    return "warning";
+  }
 }
 
 async function countConnectedProjects(timeoutMs: number) {

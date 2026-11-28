@@ -1,8 +1,10 @@
-import { mergeAttributes, Node } from "@tiptap/core";
+import {
+  AttachmentCard as AttachmentCardNode,
+  isValidUrl,
+} from "@kaneo/editor";
 import type { NodeViewProps } from "@tiptap/react";
 import { NodeViewWrapper, ReactNodeViewRenderer } from "@tiptap/react";
 import { FileText } from "lucide-react";
-import { escapeHtml, isValidUrl } from "./url-safety";
 
 function formatBytes(size: number) {
   if (!Number.isFinite(size) || size <= 0) return "";
@@ -44,66 +46,8 @@ function AttachmentCardView({ node }: NodeViewProps) {
   );
 }
 
-export const AttachmentCard = Node.create({
-  name: "attachmentCard",
-  group: "inline",
-  inline: true,
-  atom: true,
-  selectable: false,
-
-  addAttributes() {
-    return {
-      url: { default: "" },
-      filename: { default: "" },
-      mimeType: { default: "" },
-      size: { default: 0 },
-    };
-  },
-
-  parseHTML() {
-    return [
-      { tag: "kaneo-attachment[url]" },
-      { tag: "span[data-type='attachment-card'][data-url]" },
-    ];
-  },
-
-  renderHTML({ HTMLAttributes }) {
-    return [
-      "kaneo-attachment",
-      mergeAttributes(HTMLAttributes, {
-        "data-type": "attachment-card",
-        "data-url": HTMLAttributes.url,
-        "data-filename": HTMLAttributes.filename,
-        "data-mime-type": HTMLAttributes.mimeType,
-        "data-size": HTMLAttributes.size,
-        url: HTMLAttributes.url,
-      }),
-    ];
-  },
-
+export const AttachmentCard = AttachmentCardNode.extend({
   addNodeView() {
     return ReactNodeViewRenderer(AttachmentCardView);
-  },
-
-  renderMarkdown(
-    node: {
-      attrs?: {
-        url?: string;
-        filename?: string;
-        mimeType?: string;
-        size?: number;
-      };
-    },
-    _helpers: unknown,
-    _context: unknown,
-  ) {
-    const url = String(node.attrs?.url || "");
-    const filename = String(node.attrs?.filename || "");
-    const mimeType = String(node.attrs?.mimeType || "");
-    const size = Number(node.attrs?.size || 0);
-
-    if (!url) return "";
-
-    return `\n<kaneo-attachment url="${escapeHtml(url)}" filename="${escapeHtml(filename)}" mime-type="${escapeHtml(mimeType)}" size="${size}" />\n`;
   },
 });

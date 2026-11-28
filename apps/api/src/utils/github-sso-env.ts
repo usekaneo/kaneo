@@ -1,3 +1,5 @@
+import { resolveFileSecret } from "./file-secret";
+
 /**
  * GitHub "Sign in with GitHub" uses OAuth client credentials.
  * Prefer `GITHUB_OAUTH_*` so GitHub App integration env vars can be set
@@ -8,13 +10,16 @@ export function getGithubSsoOAuthCredentials(): {
   clientSecret: string;
 } {
   const oauthId = process.env.GITHUB_OAUTH_CLIENT_ID?.trim();
-  const oauthSecret = process.env.GITHUB_OAUTH_CLIENT_SECRET?.trim();
+  const oauthSecret =
+    oauthId && resolveFileSecret("GITHUB_OAUTH_CLIENT_SECRET")?.trim();
   if (oauthId && oauthSecret) {
     return { clientId: oauthId, clientSecret: oauthSecret };
   }
+  const clientId = process.env.GITHUB_CLIENT_ID?.trim() || "";
   return {
-    clientId: process.env.GITHUB_CLIENT_ID?.trim() || "",
-    clientSecret: process.env.GITHUB_CLIENT_SECRET?.trim() || "",
+    clientId,
+    clientSecret:
+      (clientId && resolveFileSecret("GITHUB_CLIENT_SECRET")?.trim()) || "",
   };
 }
 

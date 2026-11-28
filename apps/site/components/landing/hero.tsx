@@ -1,11 +1,13 @@
 "use client";
 
 import { ArrowRight, ArrowUpRight } from "lucide-react";
+import { AppleIcon } from "@/components/icons/apple-icon";
 import { GithubIcon } from "@/components/icons/github-icon";
 import { FadeIn } from "@/components/landing/fade-in";
 import { ProductShowcase } from "@/components/landing/product-showcase";
 import { Button } from "@/components/ui/button";
 import { landing } from "@/lib/landing";
+import { appStoreUrl } from "@/lib/product";
 
 export function Hero() {
   return (
@@ -58,6 +60,13 @@ export function Hero() {
               >
                 <GithubIcon className="size-3.5" />
                 {landing.hero.github}
+              </a>
+              <a
+                href={appStoreUrl}
+                className="inline-flex min-h-11 items-center gap-2 rounded-sm text-xs text-muted-foreground transition-colors hover:text-foreground focus-visible:outline-2 focus-visible:outline-ring focus-visible:outline-offset-4"
+              >
+                <AppleIcon className="size-3.5" />
+                {landing.hero.appStore}
               </a>
               <a
                 href="https://www.producthunt.com/products/kaneo"

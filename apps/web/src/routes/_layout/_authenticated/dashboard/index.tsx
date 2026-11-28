@@ -9,9 +9,13 @@ export const Route = createFileRoute("/_layout/_authenticated/dashboard/")({
   beforeLoad: async () => {
     let workspaces: Workspace[];
     let invitations: Awaited<ReturnType<typeof getPendingInvitations>>;
+    let session: Awaited<ReturnType<typeof authClient.getSession>>;
     try {
-      workspaces = await getWorkspaces();
-      invitations = await getPendingInvitations();
+      [workspaces, invitations, session] = await Promise.all([
+        getWorkspaces(),
+        getPendingInvitations(),
+        authClient.getSession(),
+      ]);
     } catch (error) {
       if (isUnauthorizedError(error)) {
         handleUnauthorized();
@@ -24,7 +28,6 @@ export const Route = createFileRoute("/_layout/_authenticated/dashboard/")({
       throw redirect({ to: "/invitations" });
     }
 
-    const session = await authClient.getSession();
     const activeWorkspaceId = session?.data?.session?.activeOrganizationId;
 
     if (workspaces && workspaces.length > 0) {

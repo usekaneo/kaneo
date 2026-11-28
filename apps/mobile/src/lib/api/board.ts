@@ -25,17 +25,22 @@ function appendTo(target: Map<string, BoardTask>, tasks: BoardTask[] = []) {
  */
 export async function loadFullBoard(projectId: string): Promise<BoardData> {
   const first = await api.board(projectId, 1);
-  const columnMeta = new Map<string, BoardColumn>();
-  const columnTasks = new Map<string, Map<string, BoardTask>>();
+  const columns = new Map<
+    string,
+    { metadata: Omit<BoardColumn, "tasks">; tasks: Map<string, BoardTask> }
+  >();
   const archived = new Map<string, BoardTask>();
   const planned = new Map<string, BoardTask>();
 
   const merge = (data: BoardData) => {
     for (const column of data.columns ?? []) {
-      if (!columnMeta.has(column.id))
-        columnMeta.set(column.id, { ...column, tasks: [] });
-      if (!columnTasks.has(column.id)) columnTasks.set(column.id, new Map());
-      appendTo(columnTasks.get(column.id)!, column.tasks);
+      let loadedColumn = columns.get(column.id);
+      if (!loadedColumn) {
+        const { tasks: _tasks, ...metadata } = column;
+        loadedColumn = { metadata, tasks: new Map() };
+        columns.set(column.id, loadedColumn);
+      }
+      appendTo(loadedColumn.tasks, column.tasks);
     }
     appendTo(archived, data.archivedTasks);
     appendTo(planned, data.plannedTasks);
@@ -58,32 +63,13 @@ export async function loadFullBoard(projectId: string): Promise<BoardData> {
     (a.position ?? Number.MAX_VALUE) - (b.position ?? Number.MAX_VALUE);
   return {
     ...first.data,
-    columns: [...columnMeta.values()]
-      .sort((a, b) => (a.position ?? 0) - (b.position ?? 0))
-      .map((meta) => ({
-        ...meta,
-        tasks: [...(columnTasks.get(meta.id)?.values() ?? [])].sort(byPosition),
-      })),
+    columns: [...columns.values()]
+      .map(({ metadata, tasks }) => ({
+        ...metadata,
+        tasks: [...tasks.values()].sort(byPosition),
+      }))
+      .sort((a, b) => (a.position ?? 0) - (b.position ?? 0)),
     archivedTasks: [...archived.values()],
     plannedTasks: [...planned.values()],
   };
-}
-
-/** Reads a task description, following description pages when the detail view defers a large body. */
-export async function loadDescription(
-  taskId: string,
-  inline: string | null | undefined,
-  deferred: boolean,
-): Promise<string> {
-  if (!deferred) return inline ?? "";
-  let text = "";
-  let offset: number | null | undefined = 0;
-  let version: string | undefined;
-  while (offset !== null && offset !== undefined) {
-    const page = await api.descriptionPage(taskId, offset, version);
-    version = page.version;
-    text += page.content;
-    offset = page.nextOffset;
-  }
-  return text;
 }

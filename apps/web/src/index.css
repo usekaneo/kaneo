@@ -16,6 +16,55 @@ input:-webkit-autofill:active {
 /* Gives small icon-only controls a 44px touch target on touch screens without
    changing their visual size (same idea as Button's pointer-coarse ::after).
    The element must be positioned (`relative` or `absolute`). */
+@keyframes delayed-reveal {
+  from {
+    opacity: 0;
+  }
+}
+
+@utility delayed-reveal {
+  animation: delayed-reveal 200ms var(--ease-out) 250ms both;
+}
+
+@keyframes shell-enter {
+  from {
+    opacity: 0;
+  }
+}
+
+@keyframes shell-rise {
+  from {
+    translate: 0 8px;
+    scale: 0.995;
+  }
+}
+
+@utility motion-shell-enter {
+  animation: shell-enter 400ms var(--ease-out) backwards;
+}
+
+@utility shell-pending {
+  & [data-slot="sidebar-inner"] > *,
+  & [data-slot="sidebar-inset"] > * {
+    opacity: 0;
+  }
+}
+
+@utility shell-reveal {
+  & [data-slot="sidebar-inner"] > *,
+  & [data-slot="sidebar-inset"] > * {
+    animation: shell-enter 150ms var(--ease-out) backwards;
+  }
+}
+
+@utility motion-shell-rise {
+  animation: shell-rise 500ms var(--ease-out) backwards;
+
+  @media (prefers-reduced-motion: reduce) {
+    animation: none;
+  }
+}
+
 @utility touch-hitbox {
   @media (pointer: coarse) {
     &::after {

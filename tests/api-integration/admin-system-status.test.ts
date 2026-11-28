@@ -1,5 +1,7 @@
 import { createHash, randomUUID } from "node:crypto";
-import { readFileSync } from "node:fs";
+import { mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
 import { beforeEach, describe, expect, it, vi } from "vite-plus/test";
 import * as adminAudit from "../../apps/api/src/admin/audit/record-admin-action";
 import db, { schema } from "../../apps/api/src/database";
@@ -210,6 +212,58 @@ describe("admin system status", () => {
       requiresInstanceSetup: true,
       connectedProjects: 0,
     });
+  });
+
+  it("recognizes file-backed GitHub App credentials without returning secrets or file paths", async () => {
+    const directory = mkdtempSync(join(tmpdir(), "kaneo-admin-github-"));
+    try {
+      const keyFile = join(directory, "key");
+      const webhookFile = join(directory, "webhook");
+      writeFileSync(keyFile, "file-private-key\n");
+      writeFileSync(webhookFile, "file-webhook-secret\n");
+      const admin = await createInstanceAdmin();
+      mockAuthenticatedSession(admin);
+      const response = await withEnv(
+        {
+          GITHUB_APP_ID: "424242",
+          GITHUB_PRIVATE_KEY: "",
+          GITHUB_PRIVATE_KEY_BASE64: "",
+          GITHUB_PRIVATE_KEY_BASE64_FILE: "",
+          GITHUB_PRIVATE_KEY_FILE: keyFile,
+          GITHUB_WEBHOOK_SECRET: "",
+          GITHUB_WEBHOOK_SECRET_FILE: webhookFile,
+        },
+        () => projectAccessApi()("/admin/system"),
+      );
+      expect(response.status).toBe(200);
+      const text = await response.text();
+      expect(text).not.toContain(directory);
+      expect(text).not.toContain("file-private-key");
+      expect(text).not.toContain("file-webhook-secret");
+      const body = JSON.parse(text) as SystemStatus;
+      expect(
+        body.integrations.find((provider) => provider.type === "github")
+          ?.status,
+      ).toBe("ok");
+      const broken = await withEnv(
+        {
+          GITHUB_APP_ID: "",
+          GITHUB_PRIVATE_KEY: "",
+          GITHUB_PRIVATE_KEY_BASE64: "",
+          GITHUB_PRIVATE_KEY_BASE64_FILE: "",
+          GITHUB_PRIVATE_KEY_FILE: join(directory, "missing"),
+        },
+        () => projectAccessApi()("/admin/system"),
+      );
+      expect(broken.status).toBe(200);
+      expect(
+        ((await broken.json()) as SystemStatus).integrations.find(
+          (provider) => provider.type === "github",
+        )?.status,
+      ).toBe("warning");
+    } finally {
+      rmSync(directory, { recursive: true, force: true });
+    }
   });
 
   it("never returns configured secrets, and reports unreachable services as down", async () => {

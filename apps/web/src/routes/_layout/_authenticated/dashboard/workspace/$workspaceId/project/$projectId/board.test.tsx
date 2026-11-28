@@ -20,7 +20,8 @@ vi.mock("@tanstack/react-router", () => ({
   }),
   useNavigate: () => vi.fn(),
 }));
-vi.mock("react-i18next", () => ({
+vi.mock("react-i18next", async (importOriginal) => ({
+  ...(await importOriginal<typeof import("react-i18next")>()),
   useTranslation: () => ({ t: (key: string) => key }),
 }));
 vi.mock("@/hooks/queries/task/use-get-tasks", () => ({
@@ -81,8 +82,6 @@ it("keeps cached tasks readable and disables reordering when a refresh fails", (
   expect(
     screen.getByLabelText("Cached board").getAttribute("data-drag-disabled"),
   ).toBe("true");
-  fireEvent.click(
-    screen.getByRole("button", { name: "tasks:descriptionRetry" }),
-  );
+  fireEvent.click(screen.getByRole("button", { name: "tasks:board.tryAgain" }));
   expect(m.retry).toHaveBeenCalledOnce();
 });

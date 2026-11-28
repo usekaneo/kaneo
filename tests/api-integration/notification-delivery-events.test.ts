@@ -1,4 +1,5 @@
 import * as email from "@kaneo/email";
+import { eq } from "drizzle-orm";
 import {
   afterEach,
   beforeEach,
@@ -97,6 +98,43 @@ async function fixture(separateAssignee = false) {
   return { actor, recipient, assignee, task, send };
 }
 describe("status, comment and mention delivery", () => {
+  it("delivers unnamed mentions in the recipient's saved language", async () => {
+    const { actor, recipient, task, send } = await fixture(true);
+    await db
+      .update(schema.userTable)
+      .set({ name: "" })
+      .where(eq(schema.userTable.id, actor.user.id));
+    await db
+      .update(schema.userTable)
+      .set({ locale: "de-DE" })
+      .where(eq(schema.userTable.id, recipient.user.id));
+
+    await createComment(
+      task.id,
+      actor.user.id,
+      `<kaneo-mention id="${recipient.user.id}">Recipient</kaneo-mention>`,
+    );
+
+    await vi.waitFor(() => expect(send).toHaveBeenCalledTimes(1));
+    expect(send.mock.calls[0]).toEqual([
+      recipient.user.email,
+      "Jemand hat dich erwähnt",
+      expect.objectContaining({
+        title: "Jemand hat dich erwähnt",
+        message: "Jemand hat dich in „Notified task“ erwähnt",
+        locale: "de-DE",
+      }),
+    ]);
+    await vi.waitFor(() =>
+      expect(sendOutboundRequest).toHaveBeenCalledTimes(1),
+    );
+    const request = vi.mocked(sendOutboundRequest).mock.calls[0][1];
+    expect(JSON.parse(String(request.body))).toMatchObject({
+      title: "Jemand hat dich erwähnt",
+      message: "Jemand hat dich in „Notified task“ erwähnt",
+    });
+  });
+
   it.each(["status", "comment", "mention"] as const)(
     "delivers %s notifications through the event, email and Gotify paths",
     async (kind) => {

@@ -7,11 +7,7 @@ import {
   Briefcase,
   Building2,
   Calendar,
-  ChevronDown,
-  ChevronsUp,
-  ChevronUp,
   Circle,
-  CircleAlert,
   CircleCheck,
   CircleDashed,
   CircleDot,
@@ -71,6 +67,7 @@ import {
   Watch,
   Zap,
 } from "lucide-react-native";
+import Svg, { Circle as SvgCircle, G, Path } from "react-native-svg";
 
 import { useColors } from "@/theme";
 
@@ -196,7 +193,13 @@ export function ProjectIcon({
   return <Icon size={size} color={color ?? c.muted} strokeWidth={2} />;
 }
 
-/** Priority glyphs and colors from the web app: chevrons in warning/info tones, an alert for urgent. */
+const PRIORITY_MARKS: Record<string, number> = {
+  low: 1,
+  medium: 2,
+  high: 3,
+  urgent: 3,
+};
+
 export function PriorityIcon({
   priority,
   size = 14,
@@ -205,30 +208,32 @@ export function PriorityIcon({
   size?: number;
 }) {
   const c = useColors();
-  switch (priority) {
-    case "urgent":
-      return <CircleAlert size={size} color={c.danger} strokeWidth={2} />;
-    case "high":
-      return <ChevronsUp size={size} color={c.warningFg} strokeWidth={2} />;
-    case "medium":
-      return (
-        <ChevronUp
-          size={size}
-          color={c.warningFg}
-          strokeWidth={2}
-          opacity={0.8}
-        />
-      );
-    case "low":
-      return (
-        <ChevronDown
-          size={size}
-          color={c.infoFg}
-          strokeWidth={2}
-          opacity={0.85}
-        />
-      );
-    default:
-      return <Minus size={size} color={c.muted} strokeWidth={2} />;
-  }
+  const filled = (priority && PRIORITY_MARKS[priority]) || 0;
+  if (!filled) return <Minus size={size} color={c.muted} strokeWidth={2} />;
+  const tint =
+    priority === "urgent"
+      ? c.priorityUrgent
+      : priority === "high"
+        ? c.priorityHigh
+        : priority === "medium"
+          ? c.priorityMedium
+          : c.priorityLow;
+  return (
+    <Svg width={size} height={size} viewBox="0 0 14 14">
+      {[3, 7, 11].map((x, i) => {
+        const color = i < filled ? tint : c.priorityEmpty;
+        return (
+          <G key={x}>
+            <Path
+              d={`M${x} 2.5v5.5`}
+              stroke={color}
+              strokeWidth={1.7}
+              strokeLinecap="round"
+            />
+            <SvgCircle cx={x} cy={11} r={1} fill={color} />
+          </G>
+        );
+      })}
+    </Svg>
+  );
 }

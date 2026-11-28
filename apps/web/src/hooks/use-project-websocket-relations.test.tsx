@@ -39,10 +39,11 @@ type Socket = {
 
 describe("useProjectWebSocket relation invalidation", () => {
   let socket: Socket;
+  let client: QueryClient;
   let invalidate: MockInstance<QueryClient["invalidateQueries"]>;
 
   function mount() {
-    const client = new QueryClient();
+    client = new QueryClient();
     invalidate = vi
       .spyOn(client, "invalidateQueries")
       .mockResolvedValue(undefined);
@@ -144,6 +145,24 @@ describe("useProjectWebSocket relation invalidation", () => {
     expect(invalidatedKeys()).toContain(projectRelationsKey);
   });
 
+  // A linked task that is closed but cached would otherwise reopen on its old
+  // relations, since queries default to refetchOnMount: false.
+  it("refetches both ends' relations even when they are not open", () => {
+    receive({
+      type: "TASK_RELATION_UPDATED",
+      projectId: "project-1",
+      sourceTaskId: "task-1",
+      targetTaskId: "task-2",
+    });
+
+    for (const taskId of ["task-1", "task-2"]) {
+      expect(invalidate).toHaveBeenCalledWith({
+        queryKey: ["task-relations", taskId],
+        refetchType: "all",
+      });
+    }
+  });
+
   it.each(["TASK_DELETED", "TASK_MOVED"])(
     "refreshes the project relations on %s",
     (type) => {
@@ -152,6 +171,30 @@ describe("useProjectWebSocket relation invalidation", () => {
       expect(invalidatedKeys()).toContain(projectRelationsKey);
     },
   );
+
+  it("refreshes cached task relations when a linked task moves", async () => {
+    invalidate.mockRestore();
+    const fetchRelations = vi
+      .fn()
+      .mockResolvedValue([
+        { sourceTaskId: "parent", targetTaskId: "child", projectId: "old" },
+      ]);
+    await client.fetchQuery({
+      queryKey: ["task-relations", "parent"],
+      queryFn: fetchRelations,
+    });
+    fetchRelations.mockResolvedValue([
+      { sourceTaskId: "parent", targetTaskId: "child", projectId: "new" },
+    ]);
+
+    receive({ type: "TASK_MOVED", projectId: "project-1", taskId: "child" });
+
+    await vi.waitFor(() => {
+      expect(client.getQueryData(["task-relations", "parent"])).toEqual([
+        { sourceTaskId: "parent", targetTaskId: "child", projectId: "new" },
+      ]);
+    });
+  });
 
   // The API publishes task-relation.refresh on every status change, and the
   // socket relays it as TASK_RELATION_UPDATED with no endpoint ids. That

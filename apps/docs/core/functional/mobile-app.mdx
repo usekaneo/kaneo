@@ -1,0 +1,42 @@
+---
+title: Mobile app
+description: Use Kaneo on iPhone and iPad with Kaneo Cloud or your own server
+---
+
+Kaneo for iPhone and iPad is on the [App Store](https://apps.apple.com/app/id6828574501). An Android app is coming soon.
+
+The app covers the work you do away from your desk: your boards, task details, My tasks, your inbox, and activity. Descriptions are edited inline with a formatting toolbar and save as you type.
+
+## Sign in with Kaneo Cloud
+
+1. Open the app and choose **Kaneo Cloud**.
+2. Sign in with your email and password, or select **Email me a sign-in code**.
+3. To use GitHub, Google, Discord, or single sign-on, select **Continue in browser** and approve the device on the Kaneo website.
+
+The app is free for Kaneo Cloud accounts. Your workspace's Cloud plan is managed on the web, as before.
+
+## Connect a self-hosted server
+
+1. Open the app and choose **Self-hosted**.
+2. Under **Server address**, enter the address you open Kaneo at, for example `https://kaneo.example.com`. If your API runs on a separate host, enter the API address instead. Use `http://` only for servers without TLS.
+3. Select **Connect**, then sign in with the same methods your instance offers on the web.
+
+Connecting to a self-hosted server is a one-time $9.99 purchase that supports Kaneo's development:
+
+- It belongs to you, through your Apple ID, not to the server. One purchase works with every self-hosted server you connect to.
+- Each person who wants to use the app with a self-hosted server buys it once for themselves.
+- On a new device, select **Restore purchase** to unlock it again with the same Apple ID.
+
+The app is open source, so you can also build it yourself from the [repository](https://github.com/usekaneo/kaneo/tree/main/apps/mobile).
+
+### Sign-in methods on self-hosted servers
+
+- **Continue in browser** uses device authorization. It works with the default configuration. If you set `DEVICE_AUTH_CLIENT_IDS`, include `kaneo-cli` in the list. See [environment variables](/core/installation/environment-variables).
+- **Use an API key** works even when other sign-in methods are turned off. Create a key on the web under **Settings → Account → API keys**.
+- **Create account** appears only when registration is open on your instance.
+
+## Delete your account
+
+Open **Account** from your avatar, then select **Delete account** under **Danger zone**. Type your email address to confirm. If you signed in a while ago, enter your password, or sign out and back in first.
+
+Deleting your account in the app works the same as on the web. See [what happens to your data](/core/functional/manage-your-account#what-happens-to-your-data).

@@ -25,7 +25,7 @@ export const updateWorkspacePluginBody = z
     enabled: z.boolean().optional(),
     settings: z.record(z.string(), z.unknown()).optional().openapi({
       description:
-        "All settings values for the workspace. Omitted secret fields keep their stored value; other omitted fields are cleared.",
+        "Settings to change. Omitted settings keep their stored value. Use null to clear optional settings.",
     }),
   })
   .openapi("UpdateWorkspacePlugin");

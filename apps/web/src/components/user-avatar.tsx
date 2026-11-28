@@ -1,4 +1,3 @@
-import { useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "@tanstack/react-router";
 import { LogOut, Settings, LogOutIcon } from "lucide-react";
 import { useTranslation } from "react-i18next";
@@ -27,14 +26,12 @@ export function UserAvatar() {
   const { mutateAsync: signOut, isPending } = useSignOut(
     config?.customOAuthLogoutUrl,
   );
-  const queryClient = useQueryClient();
   const { setProject } = useProjectStore();
   const navigate = useNavigate();
 
   const handleSignOut = async () => {
     try {
       await signOut();
-      queryClient.clear();
       setProject(undefined);
       toast.success(t("navigation:userMenu.signedOutSuccess"), {
         icon: LogOutIcon,

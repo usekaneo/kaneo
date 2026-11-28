@@ -527,11 +527,14 @@ it("drains queued detail events after retries fall back to polling", async () =>
       ["labels", "a"],
       ["task", "a"],
       ["external-links", "a"],
-      ["task-relations", "b"],
     ])
       expect(mocks.client.invalidateQueries).toHaveBeenCalledWith({
         queryKey: key,
       });
+    expect(mocks.client.invalidateQueries).toHaveBeenCalledWith({
+      queryKey: ["task-relations", "b"],
+      refetchType: "all",
+    });
     expect(mocks.getTask).not.toHaveBeenCalled();
   } finally {
     cleanup();

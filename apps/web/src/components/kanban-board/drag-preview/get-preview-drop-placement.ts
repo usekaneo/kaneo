@@ -12,6 +12,7 @@ export function getPreviewDropPlacement(
     moveIntoHoveredColumn(board, activeId, overId) ??
     (overId === activeId
       ? board
-      : (moveBoardTask(board, activeId, overId)?.project ?? board));
+      : (moveBoardTask(board, activeId, overId, false, undefined, false)
+          ?.project ?? board));
   return getVisualTaskPlacement(settled, activeId);
 }

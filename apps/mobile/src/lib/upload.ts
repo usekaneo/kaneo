@@ -27,6 +27,14 @@ export async function uploadTaskImage(
   taskId: string,
   surface: "description" | "comment",
 ): Promise<string | null> {
+  const image = await uploadTaskImageAsset(taskId, surface);
+  return image ? `![${image.alt}](${image.url})` : null;
+}
+
+export async function uploadTaskImageAsset(
+  taskId: string,
+  surface: "description" | "comment",
+): Promise<{ url: string; alt: string } | null> {
   const asset = await pickImage();
   if (!asset) return null;
   const contentType = asset.mimeType ?? "image/jpeg";
@@ -59,5 +67,5 @@ export async function uploadTaskImage(
     size,
     surface,
   });
-  return `![${filename.replace(/\.[^.]+$/, "")}](${assetInfo.url})`;
+  return { url: assetInfo.url, alt: filename.replace(/\.[^.]+$/, "") };
 }

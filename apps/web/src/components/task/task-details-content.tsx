@@ -15,6 +15,7 @@ import TaskDescription from "./task-description";
 import TaskRelations from "./task-relations";
 import TaskSubtasks from "./task-subtasks";
 import TaskTitle from "./task-title";
+import { TaskTimeTracking } from "./task-time-tracking";
 
 type TaskDetailsContentProps = {
   taskId: string | undefined;
@@ -36,7 +37,6 @@ export default function TaskDetailsContent({
   const { t } = useTranslation();
   const navigate = useNavigate();
   const { data: task } = useGetTask(taskId ?? "");
-  const { data: project } = useGetProject({ id: projectId, workspaceId });
   const { data: externalLinks = [], isLoading: isLoadingExternalLinks } =
     useExternalLinks(taskId ?? "");
   const { data: relations = [] } = useGetTaskRelations(taskId ?? "");
@@ -44,6 +44,10 @@ export default function TaskDetailsContent({
   const parentTask = relations.find(
     (rel) => rel.relationType === "subtask" && rel.targetTaskId === taskId,
   )?.sourceTask;
+  const { data: parentProject } = useGetProject({
+    id: parentTask?.projectId ?? "",
+    workspaceId,
+  });
 
   if (!taskId) return null;
 
@@ -57,15 +61,19 @@ export default function TaskDetailsContent({
             onClick={() =>
               navigate({
                 to: "/dashboard/workspace/$workspaceId/project/$projectId/task/$taskId",
-                params: { workspaceId, projectId, taskId: parentTask.id },
+                params: {
+                  workspaceId,
+                  projectId: parentTask.projectId,
+                  taskId: parentTask.id,
+                },
               })
             }
           >
             <ArrowUpRight className="size-3 shrink-0" />
             <span className="shrink-0">{t("tasks:detail.subtaskOf")}</span>
-            {project?.slug && parentTask.number != null && (
+            {parentProject?.slug && parentTask.number != null && (
               <span className="shrink-0 font-mono">
-                {project.slug}-{parentTask.number}
+                {parentProject.slug}-{parentTask.number}
               </span>
             )}
             <span className="truncate font-medium text-foreground/80">
@@ -94,6 +102,7 @@ export default function TaskDetailsContent({
           projectId={projectId}
           workspaceId={workspaceId}
         />
+        <TaskTimeTracking key={taskId} taskId={taskId} />
         <ExternalLinksAccordion
           taskId={taskId}
           externalLinks={externalLinks as ExternalLink[]}

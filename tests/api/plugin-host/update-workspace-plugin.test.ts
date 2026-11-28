@@ -79,6 +79,7 @@ describe("updateWorkspacePlugin", () => {
         insert: { enabled: false, settings: {} },
         update: { enabled: false },
       },
+      undefined,
     );
     expect(result).toEqual({
       ok: true,
@@ -105,6 +106,7 @@ describe("updateWorkspacePlugin", () => {
         insert: { enabled: false, settings: { token: "kept" } },
         update: { settings: { token: "kept" } },
       },
+      { token: "kept" },
     );
   });
 

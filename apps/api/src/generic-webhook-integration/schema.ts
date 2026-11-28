@@ -1,4 +1,4 @@
-import { genericWebhookEventToggles } from "../integrations/schema";
+import { genericWebhookEventToggles } from "../integrations/event-schemas";
 import { z } from "../openapi";
 
 const leadTimeMinutes = z

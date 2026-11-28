@@ -211,3 +211,77 @@ test("another workspace member receives task edits in realtime", async ({
     await colleague.close();
   }
 });
+
+test("task timer persists across reloads and stops from task details", async ({
+  page,
+}) => {
+  await createWorkspace(page);
+  await createProject(page);
+  await createTask(page, "Track release work");
+  await page.getByText("Track release work", { exact: true }).click();
+  const start = page.getByRole("button", { name: "Start timer", exact: true });
+  const stop = page.getByRole("button", { name: "Stop timer", exact: true });
+  const history = page.getByRole("button", {
+    name: "Time tracking",
+    exact: true,
+  });
+  await expect(start).toBeEnabled();
+  await history.click();
+  await expect(
+    page.getByText("No time logged yet.", { exact: true }),
+  ).toBeVisible();
+
+  const [created] = await Promise.all([
+    page.waitForResponse(
+      (response) =>
+        /^\/api\/time-entry\/?$/.test(new URL(response.url()).pathname) &&
+        response.request().method() === "POST",
+    ),
+    start.click(),
+  ]);
+  expect(created.ok()).toBe(true);
+  const entry = await created.json();
+  expect(entry.endTime).toBeNull();
+  await expect(stop).toBeEnabled();
+  await expect(page.getByText(/^Running \d+s$/)).toBeVisible();
+
+  await page.reload();
+  await expect(stop).toBeEnabled();
+  await history.click();
+  await expect(page.getByText(/^Running \d+s$/)).toBeVisible();
+  await page.screenshot({ path: test.info().outputPath("timer-running.png") });
+  const [updated] = await Promise.all([
+    page.waitForResponse(
+      (response) =>
+        new URL(response.url()).pathname === `/api/time-entry/${entry.id}` &&
+        response.request().method() === "PUT",
+    ),
+    stop.click(),
+  ]);
+  expect(updated.ok()).toBe(true);
+  const stopped = await updated.json();
+  expect(stopped.endTime).not.toBeNull();
+  expect(stopped.duration).toBeGreaterThanOrEqual(0);
+  await expect(start).toBeEnabled();
+  await expect(stop).toHaveCount(0);
+
+  await page.reload();
+  await expect(start).toBeEnabled();
+  await history.click();
+  await expect(
+    page.getByText("Task Tester", { exact: true }).last(),
+  ).toBeVisible();
+  await expect(page.getByText(/^Running /)).toHaveCount(0);
+  const response = await page.request.get(
+    `/api/time-entry/task/${entry.taskId}`,
+  );
+  await expect(response).toBeOK();
+  const entries = await response.json();
+  expect(entries).toHaveLength(1);
+  expect(entries[0]).toMatchObject({
+    id: entry.id,
+    endTime: stopped.endTime,
+    duration: stopped.duration,
+  });
+  await page.screenshot({ path: test.info().outputPath("timer-stopped.png") });
+});

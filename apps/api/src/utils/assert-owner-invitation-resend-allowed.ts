@@ -1,8 +1,10 @@
 import { APIError } from "better-auth/api";
-import { and, eq } from "drizzle-orm";
+import { and, eq, gt } from "drizzle-orm";
 import db, { schema } from "../database";
+import { isOwnerRole } from "../project-access/is-owner-role";
+import { assertStoredOwnerRoleSafe } from "../workspace-members/assert-stored-owner-role-safe";
+import { normalizeInvitationRole } from "../workspace-members/normalize-invitation-role";
 import { roleHasWorkspacePermission } from "./require-workspace-permission";
-import { splitRoles } from "./split-roles";
 
 export async function assertOwnerInvitationResendAllowed(
   userId: string,
@@ -20,8 +22,10 @@ export async function assertOwnerInvitationResendAllowed(
     )
     .limit(1);
   // Let the provider report its normal membership/permission failures.
-  if (!member || splitRoles(member.role).includes("owner")) return;
+  if (!member) return;
+  const owner = isOwnerRole(member.role);
   if (
+    !owner &&
     !(await roleHasWorkspacePermission(workspaceId, member.role, {
       invitation: ["create"],
     }))
@@ -36,11 +40,18 @@ export async function assertOwnerInvitationResendAllowed(
         eq(schema.invitationTable.workspaceId, workspaceId),
         eq(schema.invitationTable.email, email.toLowerCase()),
         eq(schema.invitationTable.status, "pending"),
+        gt(schema.invitationTable.expiresAt, new Date()),
       ),
     );
+  for (const invitation of invitations) {
+    // A resend updates expiry before email and skips the creation hook. Old
+    // ambiguous owner invitations require review, even when resent by owners.
+    assertStoredOwnerRoleSafe(invitation.role);
+  }
   if (
+    !owner &&
     invitations.some((invitation) =>
-      splitRoles(invitation.role).includes("owner"),
+      isOwnerRole(normalizeInvitationRole(invitation.role)),
     )
   ) {
     throw new APIError("FORBIDDEN", {

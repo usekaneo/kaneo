@@ -16,6 +16,7 @@ import {
   safeOutboundError,
   sendOutboundRequest,
 } from "../utils/outbound-request";
+import { getLocalizedDeliveryContent } from "./delivery-copy";
 import { resolveEmailTask } from "./resolve-email-task";
 import { decryptSecret } from "./secrets";
 
@@ -71,17 +72,29 @@ function formatLeadTime(minutes: number | null) {
   return `in ${minutes} minutes`;
 }
 
-function buildDeliveryContent(notification: {
-  type: string;
-  content: string | null;
-  title: string | null;
-  eventData: Record<string, unknown> | null;
-}): DeliveryContent {
+function buildDeliveryContent(
+  notification: {
+    type: string;
+    content: string | null;
+    title: string | null;
+    eventData: Record<string, unknown> | null;
+  },
+  locale: string | null,
+): DeliveryContent {
   if (notification.title && notification.content) {
     return {
       title: notification.title,
       body: notification.content,
     };
+  }
+
+  if (notification.eventData) {
+    const localized = getLocalizedDeliveryContent(
+      notification.type,
+      notification.eventData,
+      locale,
+    );
+    if (localized) return localized;
   }
 
   switch (notification.type) {
@@ -435,15 +448,18 @@ export async function deliverNotification(
     return;
   }
 
-  const content = buildDeliveryContent({
-    type: notification.type,
-    title: notification.title ?? null,
-    content: notification.content ?? null,
-    eventData:
-      notification.eventData && typeof notification.eventData === "object"
-        ? (notification.eventData as Record<string, unknown>)
-        : null,
-  });
+  const content = buildDeliveryContent(
+    {
+      type: notification.type,
+      title: notification.title ?? null,
+      content: notification.content ?? null,
+      eventData:
+        notification.eventData && typeof notification.eventData === "object"
+          ? (notification.eventData as Record<string, unknown>)
+          : null,
+    },
+    user.locale ?? null,
+  );
 
   const webhookPayload = {
     notification: {

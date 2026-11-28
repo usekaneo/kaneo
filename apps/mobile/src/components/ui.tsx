@@ -1,4 +1,4 @@
-import { forwardRef, type ReactNode } from "react";
+import { forwardRef, useState, type ReactNode } from "react";
 import {
   ActivityIndicator,
   Pressable,
@@ -65,51 +65,54 @@ export function Button({
   grow?: boolean;
 }) {
   const c = useColors();
-  const height = size === "lg" ? 48 : size === "md" ? 40 : 32;
+  const height = size === "lg" ? 44 : size === "md" ? 36 : 30;
   const inactive = disabled || loading;
+  const filled = kind === "primary" || kind === "danger";
+  const outlined = kind === "secondary" || kind === "dangerOutline";
   const bg =
     kind === "primary"
-      ? inactive
-        ? c.fill
-        : c.primary
+      ? c.primary
       : kind === "danger"
         ? c.dangerRing
-        : kind === "secondary" || kind === "dangerOutline"
+        : outlined
           ? c.surface
           : "transparent";
   const fg =
     kind === "primary"
-      ? inactive
-        ? c.placeholder
-        : c.onPrimary
+      ? c.onPrimary
       : kind === "danger"
         ? "#FFFFFF"
         : kind === "dangerOutline"
           ? c.danger
           : c.ink;
-  const border =
-    kind === "secondary"
-      ? c.fillStrong
-      : kind === "dangerOutline"
-        ? c.dangerBorder
-        : "transparent";
+  const border = filled ? bg : outlined ? c.fillStrong : "transparent";
   return (
-    <Touch
+    <Pressable
       onPress={onPress}
       disabled={inactive}
-      style={[
+      accessibilityRole="button"
+      style={({ pressed }) => [
         {
           height,
-          borderRadius: size === "sm" ? 8 : size === "md" ? 10 : radius.lg,
+          borderRadius: size === "sm" ? radius.md : radius.lg,
           backgroundColor: bg,
           borderWidth: border === "transparent" ? 0 : 1,
           borderColor: border,
-          paddingHorizontal: size === "sm" ? 12 : 16,
+          boxShadow: filled ? c.raisedPrimary : outlined ? c.raised : undefined,
+          paddingHorizontal: size === "sm" ? 10 : size === "md" ? 12 : 16,
           flexDirection: "row",
           alignItems: "center",
           justifyContent: "center",
           gap: 6,
+          opacity: inactive ? 0.64 : 1,
         },
+        pressed
+          ? {
+              transform: [{ scale: 0.97 }],
+              backgroundColor:
+                kind === "ghost" || kind === "secondary" ? c.fill : bg,
+            }
+          : null,
         grow ? { flex: 1 } : null,
         style,
       ]}
@@ -118,7 +121,7 @@ export function Button({
       <Txt variant={size === "sm" ? "meta" : "body"} weight="medium" color={fg}>
         {label}
       </Txt>
-    </Touch>
+    </Pressable>
   );
 }
 
@@ -174,7 +177,7 @@ export function Group({
       style={[
         {
           backgroundColor: c.surface,
-          borderRadius: radius.lg,
+          borderRadius: radius.xl,
           borderWidth: 1,
           borderColor: c.hairline,
           overflow: "hidden",
@@ -322,10 +325,10 @@ export function Chip({
         flexDirection: "row",
         alignItems: "center",
         gap: 6,
-        height: 32,
+        height: 30,
         paddingHorizontal: 10,
         paddingLeft: leading ? 8 : 10,
-        borderRadius: 8,
+        borderRadius: radius.md,
         backgroundColor: selected ? c.primary : c.surface,
         borderWidth: selected ? 0 : 1,
         borderStyle: dashed ? "dashed" : "solid",
@@ -362,14 +365,15 @@ export function Switch({
       accessibilityState={{ checked: value, disabled }}
       hitSlop={8}
       style={{
-        width: 40,
-        height: 24,
+        width: 38,
+        height: 22,
         borderRadius: 999,
-        padding: 2,
+        padding: 1,
         justifyContent: "center",
         alignItems: value ? "flex-end" : "flex-start",
         backgroundColor: value ? c.primary : c.fillStrong,
-        opacity: disabled ? 0.5 : 1,
+        boxShadow: value ? c.raisedPrimary : undefined,
+        opacity: disabled ? 0.64 : 1,
       }}
     >
       <View
@@ -377,7 +381,8 @@ export function Switch({
           width: 20,
           height: 20,
           borderRadius: 10,
-          backgroundColor: value ? c.onPrimary : "#FFFFFF",
+          backgroundColor: "#FFFFFF",
+          boxShadow: "0 1px 2px #0000001F, 0 0 0 0.5px #0000000A",
         }}
       />
     </Touch>
@@ -406,9 +411,9 @@ export function Segmented<T extends string>({
       style={[
         {
           flexDirection: "row",
-          padding: 3,
+          padding: 2,
           gap: 2,
-          borderRadius: 10,
+          borderRadius: radius.lg,
           backgroundColor: c.fill,
         },
         style,
@@ -424,24 +429,18 @@ export function Segmented<T extends string>({
             accessibilityState={{ selected: active }}
             style={{
               flex: o.icon && !o.label ? undefined : 1,
-              height: 32,
-              minWidth: 32,
-              paddingHorizontal: 8,
-              borderRadius: 7,
+              height: 34,
+              minWidth: 34,
+              paddingHorizontal: 9,
+              borderRadius: radius.md,
               alignItems: "center",
               justifyContent: "center",
               flexDirection: "row",
               gap: 6,
               backgroundColor: active ? c.card : "transparent",
-              ...(active
-                ? {
-                    shadowColor: "#000",
-                    shadowOpacity: 0.08,
-                    shadowRadius: 2,
-                    shadowOffset: { width: 0, height: 1 },
-                    elevation: 1,
-                  }
-                : null),
+              boxShadow: active
+                ? "0 1px 2px #0000000F, 0 0 0 1px #0000000A"
+                : undefined,
             }}
           >
             {o.icon?.(active)}
@@ -495,8 +494,9 @@ export const TextField = forwardRef<
   ref,
 ) {
   const c = useColors();
+  const [focused, setFocused] = useState(false);
   return (
-    <View style={{ gap: 6 }}>
+    <View style={{ gap: 8 }}>
       {label || aside ? (
         <View style={{ flexDirection: "row", justifyContent: "space-between" }}>
           {label ? (
@@ -518,12 +518,13 @@ export const TextField = forwardRef<
           flexDirection: "row",
           alignItems: multiline ? "flex-start" : "center",
           gap: 10,
-          minHeight: 46,
-          paddingHorizontal: 14,
-          borderRadius: 10,
+          minHeight: 44,
+          paddingHorizontal: 12,
+          borderRadius: radius.lg,
           borderWidth: 1,
-          borderColor: error ? c.dangerRing : c.fillStrong,
+          borderColor: error ? c.dangerBorder : focused ? c.ring : c.fillStrong,
           backgroundColor: c.surface,
+          boxShadow: focused ? `0 0 0 3px ${c.ringSoft}` : c.raised,
         }}
       >
         {leading}
@@ -533,6 +534,14 @@ export const TextField = forwardRef<
           selectionColor={c.ink}
           cursorColor={c.ink}
           multiline={multiline}
+          onFocus={(e) => {
+            setFocused(true);
+            onFocus?.(e);
+          }}
+          onBlur={(e) => {
+            setFocused(false);
+            onBlur?.(e);
+          }}
           {...rest}
           style={[
             {
@@ -541,7 +550,7 @@ export const TextField = forwardRef<
               fontFamily: mono ? font.mono : font.regular,
               fontSize: mono ? 14 : 15,
               paddingVertical: multiline ? 12 : 0,
-              minHeight: multiline ? 84 : 44,
+              minHeight: multiline ? 84 : 42,
               textAlignVertical: multiline ? "top" : "center",
             },
             style,
@@ -565,11 +574,34 @@ export const TextField = forwardRef<
 export function CountBadge({
   count,
   inverse,
+  tone,
 }: {
   count: number;
   inverse?: boolean;
+  tone?: "info";
 }) {
   const c = useColors();
+  if (tone === "info")
+    return (
+      <View
+        style={{
+          minWidth: 16,
+          height: 16,
+          paddingHorizontal: 4,
+          borderRadius: 999,
+          alignItems: "center",
+          justifyContent: "center",
+          backgroundColor: c.info,
+        }}
+      >
+        <Txt
+          style={{ fontFamily: font.semibold, fontSize: 10, lineHeight: 12 }}
+          color="#FFFFFF"
+        >
+          {count > 99 ? "99+" : count}
+        </Txt>
+      </View>
+    );
   return (
     <View
       style={{
@@ -594,52 +626,87 @@ export function CountBadge({
 
 export function Checkbox({
   checked,
+  indeterminate,
+  disabled,
   onPress,
 }: {
   checked: boolean;
+  indeterminate?: boolean;
+  disabled?: boolean;
   onPress?: () => void;
 }) {
   const c = useColors();
+  const on = checked || indeterminate;
   return (
-    <Touch
+    <Pressable
       onPress={onPress}
-      hitSlop={10}
+      disabled={disabled}
+      hitSlop={13}
       accessibilityRole="checkbox"
-      accessibilityState={{ checked }}
+      accessibilityState={{
+        checked: indeterminate ? "mixed" : checked,
+        disabled,
+      }}
       style={{
         width: 18,
         height: 18,
-        borderRadius: 5,
+        borderRadius: radius.xs,
         alignItems: "center",
         justifyContent: "center",
-        backgroundColor: checked ? c.primary : "transparent",
-        borderWidth: checked ? 0 : 1.5,
-        borderColor: c.placeholder,
+        backgroundColor: on ? c.primary : c.surface,
+        borderWidth: 1,
+        borderColor: on ? c.primary : c.fillStrong,
+        boxShadow: on ? c.raisedPrimary : c.raised,
+        opacity: disabled ? 0.64 : 1,
       }}
     >
-      {checked ? <CheckGlyph color={c.onPrimary} /> : null}
-    </Touch>
+      {on ? (
+        <CheckGlyph
+          color={c.onPrimary}
+          size={14}
+          weight={3}
+          indeterminate={indeterminate}
+        />
+      ) : null}
+    </Pressable>
   );
 }
 
 export function CheckGlyph({
   color,
-  size = 12,
+  size = 18,
+  weight = 2,
+  indeterminate,
 }: {
   color: string;
   size?: number;
+  weight?: number;
+  indeterminate?: boolean;
 }) {
   return (
     <Svg width={size} height={size} viewBox="0 0 24 24">
       <Path
-        d="m5 12 5 5 9-10"
+        d={
+          indeterminate
+            ? "M5.252 12h13.496"
+            : "M5.252 12.7 10.2 18.63 18.748 5.37"
+        }
         fill="none"
         stroke={color}
-        strokeWidth={3}
+        strokeWidth={weight}
         strokeLinecap="round"
         strokeLinejoin="round"
       />
     </Svg>
+  );
+}
+
+export function SelectionSlot({ selected }: { selected: boolean }) {
+  const c = useColors();
+  return (
+    <View style={{ width: 18, alignItems: "center" }}>
+      {selected ? <CheckGlyph color={c.ink} /> : null}
+    </View>
   );
 }
 
@@ -651,10 +718,25 @@ export function Radio({ selected }: { selected: boolean }) {
         width: 18,
         height: 18,
         borderRadius: 9,
-        borderWidth: selected ? 5 : 1.5,
-        borderColor: selected ? c.primary : c.placeholder,
+        alignItems: "center",
+        justifyContent: "center",
+        backgroundColor: selected ? c.primary : c.surface,
+        borderWidth: 1,
+        borderColor: selected ? c.primary : c.fillStrong,
+        boxShadow: selected ? c.raisedPrimary : c.raised,
       }}
-    />
+    >
+      {selected ? (
+        <View
+          style={{
+            width: 8,
+            height: 8,
+            borderRadius: 4,
+            backgroundColor: c.onPrimary,
+          }}
+        />
+      ) : null}
+    </View>
   );
 }
 

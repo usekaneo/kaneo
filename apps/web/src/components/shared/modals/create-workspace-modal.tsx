@@ -1,4 +1,3 @@
-import { useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "@tanstack/react-router";
 import { SquarePlusIcon } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
@@ -32,8 +31,8 @@ function CreateWorkspaceModal({ open, onClose }: CreateWorkspaceModalProps) {
   const { t } = useTranslation();
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
-  const queryClient = useQueryClient();
   const navigate = useNavigate();
   const { mutateAsync } = useCreateWorkspace();
 
@@ -55,24 +54,24 @@ function CreateWorkspaceModal({ open, onClose }: CreateWorkspaceModalProps) {
     e.preventDefault();
     if (!name.trim()) return;
 
+    setIsSubmitting(true);
     try {
       const createdWorkspace = await mutateAsync({ name, description });
-      toast.success(t("common:modals.createWorkspace.successToast"), {
-        icon: SquarePlusIcon,
-      });
-      await queryClient.invalidateQueries({ queryKey: ["workspaces"] });
 
       await authClient.organization.setActive({
         organizationId: createdWorkspace.id,
       });
 
-      navigate({
+      await navigate({
         to: "/dashboard/workspace/$workspaceId",
         params: {
           workspaceId: createdWorkspace.id,
         },
       });
 
+      toast.success(t("common:modals.createWorkspace.successToast"), {
+        icon: SquarePlusIcon,
+      });
       handleClose();
     } catch (error) {
       toast.error(
@@ -80,6 +79,8 @@ function CreateWorkspaceModal({ open, onClose }: CreateWorkspaceModalProps) {
           ? error.message
           : t("common:modals.createWorkspace.errorToast"),
       );
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -141,6 +142,7 @@ function CreateWorkspaceModal({ open, onClose }: CreateWorkspaceModalProps) {
             <Button
               type="submit"
               disabled={!name.trim()}
+              loading={isSubmitting}
               size="sm"
               className="disabled:opacity-50"
             >

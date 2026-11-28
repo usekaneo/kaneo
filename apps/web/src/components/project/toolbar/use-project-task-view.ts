@@ -2,8 +2,8 @@ import { useMemo, useState } from "react";
 import { useFilterSubjects } from "@/components/project/task-filters/use-filter-subjects";
 import { useTaskFilterOptions } from "@/components/project/task-filters/use-task-filter-options";
 import { useDescriptionMatches } from "@/hooks/queries/task/use-description-matches";
-import type { BoardFilters } from "@/hooks/use-task-filters";
 import { useTaskFiltersWithLabelsSupport } from "@/hooks/use-task-filters-with-labels-support";
+import type { BoardFilters } from "@/lib/task-filters/board-filters";
 import type { ProjectWithTasks } from "@/types/project";
 import { scopeTasks } from "./scope-tasks";
 
@@ -37,7 +37,13 @@ export function useProjectTaskView({
     ignore,
   );
   const options = useTaskFilterOptions(projectId, workspaceId);
-  const tasks = useMemo(() => scopeTasks(project, scope), [project, scope]);
+  const tasks = useMemo(
+    () =>
+      scopeTasks(project, scope).filter(
+        (task) => filters.includeSubtasks || !task.isSubtask,
+      ),
+    [project, scope, filters.includeSubtasks],
+  );
   const subjects = useFilterSubjects({
     controls: filters,
     options,

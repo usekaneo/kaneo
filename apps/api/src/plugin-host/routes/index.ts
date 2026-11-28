@@ -84,6 +84,7 @@ const updateWorkspacePluginRoute = createRoute({
       "No workspace access, or missing workspace:manage_settings permission",
     ),
     404: errorResponse("Plugin not found"),
+    409: errorResponse("Plugin settings changed; retry the update"),
   },
 });
 

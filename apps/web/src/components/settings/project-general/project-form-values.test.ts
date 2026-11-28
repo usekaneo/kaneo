@@ -19,6 +19,7 @@ describe("normalizeProjectValues", () => {
       slug: "WEB",
       description: "",
       icon: "Layout",
+      includeSubtasks: true,
     });
   });
 });
@@ -42,6 +43,7 @@ describe("getProjectFieldChanges", () => {
       slug: true,
       description: false,
       icon: false,
+      includeSubtasks: false,
     });
   });
 

@@ -56,7 +56,7 @@ export function PluginSettingsForm({
       await mutateAsync({
         pluginId: plugin.id,
         workspaceId,
-        settings: toSettingsPayload(plugin.settings, values),
+        settings: toSettingsPayload(plugin.settings, values, initial),
       });
       setErrors({});
       onSaved();

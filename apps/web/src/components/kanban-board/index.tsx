@@ -60,6 +60,8 @@ function KanbanBoard({
   const queryClient = useQueryClient();
   const isFetching =
     useIsFetching({ queryKey: ["tasks", project.id], exact: true }) > 0;
+  const isLoadingPages =
+    isFetching && queryClient.getQueryData(["tasks", project.id]) === undefined;
   const { project: storedProject, setProject } = useProjectStore();
   const setAvailableTasks = useBulkSelectionStore(
     (state) => state.setAvailableTasks,
@@ -357,7 +359,12 @@ function KanbanBoard({
               >
                 <Column
                   column={column}
-                  activeTaskId={activeId?.toString() ?? null}
+                  activeTaskId={
+                    activeId !== null &&
+                    column.tasks.some((task) => task.id === activeId)
+                      ? activeId.toString()
+                      : null
+                  }
                   sortHint={
                     column.id === sortHintColumnId
                       ? t("tasks:kanban.automaticallySortedHint", {
@@ -372,6 +379,7 @@ function KanbanBoard({
                   disableDragDrop={disableDragDrop}
                   disableSorting={isAutomaticallySorted}
                   disableCollectionActions={disableCollectionActions}
+                  animateEntries={!isLoadingPages}
                 />
               </div>
             ))}

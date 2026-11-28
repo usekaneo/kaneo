@@ -138,4 +138,41 @@ describe("createExternalLink", () => {
 
     expect(mockPublishEvent).not.toHaveBeenCalled();
   });
+
+  it("stores a pull request link with its number and status", async () => {
+    const returning = vi.fn().mockResolvedValue([{ id: "link-3" }]);
+    const values = vi.fn().mockReturnValue({ returning });
+    mockInsert.mockReturnValue({ values });
+
+    await createExternalLink({
+      taskId: "task-1",
+      url: "https://github.com/acme/app/pull/42",
+      title: "Fix payouts",
+      resourceType: "pull_request",
+      metadata: { state: "closed", merged: true, draft: false },
+      userId: "user-1",
+    });
+
+    expect(values).toHaveBeenCalledWith({
+      taskId: "task-1",
+      integrationId: null,
+      resourceType: "pull_request",
+      externalId: "42",
+      url: "https://github.com/acme/app/pull/42",
+      title: "Fix payouts",
+      metadata: JSON.stringify({ state: "closed", merged: true, draft: false }),
+    });
+  });
+
+  it("rejects status metadata on a resource link", async () => {
+    await expect(
+      createExternalLink({
+        taskId: "task-1",
+        url: "https://example.com",
+        metadata: { state: "open", merged: false, draft: false },
+        userId: "user-1",
+      }),
+    ).rejects.toMatchObject({ status: 400 });
+    expect(mockInsert).not.toHaveBeenCalled();
+  });
 });

@@ -26,43 +26,56 @@ export async function updateWorkspacePlugin(
     throw new HTTPException(404, { message: "Plugin not found" });
   }
 
-  const existing = await getWorkspacePlugin(pluginId, workspaceId);
-  const stored = existing?.settings ?? {};
-  let settings: Record<string, unknown> | undefined;
+  // Retrying against the latest row preserves unrelated changes and revalidates
+  // the settings used to decide whether the plugin can be enabled.
+  for (let attempt = 0; attempt < 3; attempt++) {
+    const existing = await getWorkspacePlugin(pluginId, workspaceId);
+    const stored = existing?.settings ?? {};
+    let settings: Record<string, unknown> | undefined;
 
-  if (input.settings !== undefined) {
-    const parsed = parseSettings(plugin.settings, input.settings, stored);
-    if (!parsed.ok) {
-      return {
-        ok: false,
-        message: "Some settings are invalid",
-        errors: parsed.errors,
-      };
+    if (input.settings !== undefined) {
+      const parsed = parseSettings(plugin.settings, {
+        ...stored,
+        ...input.settings,
+      });
+      if (!parsed.ok) {
+        return {
+          ok: false,
+          message: "Some settings are invalid",
+          errors: parsed.errors,
+        };
+      }
+      settings = parsed.values;
     }
-    settings = parsed.values;
+
+    if (input.enabled === true) {
+      const current = settings ?? stored;
+      const complete = parseSettings(plugin.settings, current, current);
+      if (!complete.ok) {
+        return {
+          ok: false,
+          message: "Fill in the required settings before enabling this plugin",
+          errors: complete.errors,
+        };
+      }
+    }
+
+    const row = await saveWorkspacePlugin(
+      pluginId,
+      workspaceId,
+      toWorkspacePluginWrite(plugin, { enabled: input.enabled, settings }),
+      settings !== undefined || input.enabled === true ? stored : undefined,
+    );
+    if (!row) continue;
+    await publishEvent("workspace_plugin.updated", {
+      workspaceId,
+      pluginId,
+      enabled: row.enabled,
+    });
+    return { ok: true, state: toWorkspaceState(plugin, row) };
   }
 
-  if (input.enabled === true) {
-    const current = settings ?? stored;
-    const complete = parseSettings(plugin.settings, current, current);
-    if (!complete.ok) {
-      return {
-        ok: false,
-        message: "Fill in the required settings before enabling this plugin",
-        errors: complete.errors,
-      };
-    }
-  }
-
-  const row = await saveWorkspacePlugin(
-    pluginId,
-    workspaceId,
-    toWorkspacePluginWrite(plugin, { enabled: input.enabled, settings }),
-  );
-  await publishEvent("workspace_plugin.updated", {
-    workspaceId,
-    pluginId,
-    enabled: row.enabled,
+  throw new HTTPException(409, {
+    message: "Plugin settings changed. Try again.",
   });
-  return { ok: true, state: toWorkspaceState(plugin, row) };
 }

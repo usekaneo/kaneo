@@ -46,12 +46,12 @@ Plugins are self-contained JavaScript, so the folder works on any machine and CP
 
 #### With `kaneo plugin add`
 
-The [Kaneo CLI](/cli) adds plugins for you, and Kaneo's image ships it, so you need nothing but Docker. Create the folder and add a plugin:
+The [Kaneo CLI](/cli) adds plugins for you, and Kaneo's image ships it, so you need nothing but Docker. Create the folder and replace `your-plugin-package` with a published package name:
 
 ```bash
 mkdir my-kaneo
 cd my-kaneo
-docker run --rm -v "$PWD:/kaneo" --user "$(id -u):$(id -g)" ghcr.io/usekaneo/kaneo:<version> kaneo plugin add kaneo-plugin-task-progress
+docker run --rm -v "$PWD:/kaneo" --user "$(id -u):$(id -g)" ghcr.io/usekaneo/kaneo:<version> kaneo plugin add your-plugin-package
 ```
 
 Use the image tag you deploy, because `kaneo plugin add` picks plugin versions for that Kaneo release. It:
@@ -68,7 +68,7 @@ Run `kaneo plugin add --help` for the options. The command works in the folder m
 You can also [install the CLI](/cli/install) on your machine and run `kaneo plugin add` in the folder. It needs Node.js with npm for the install. Outside Kaneo's image, the CLI cannot tell which Kaneo you run, so pass it the first time:
 
 ```bash
-kaneo plugin add kaneo-plugin-task-progress --kaneo-version <version>
+kaneo plugin add your-plugin-package --kaneo-version <version>
 ```
 
 After that, it uses the version of `@kaneo/config` installed in the folder.

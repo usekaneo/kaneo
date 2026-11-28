@@ -1,4 +1,4 @@
-import { integrationEventsSchema } from "../integrations/response";
+import { integrationEventsSchema } from "../integrations/event-schemas";
 import { responseTimestamp, z } from "../openapi";
 
 // The bot token is a bearer credential, so only a masked form is returned.

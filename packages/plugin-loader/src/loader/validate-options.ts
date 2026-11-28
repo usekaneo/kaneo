@@ -13,7 +13,13 @@ export async function validateOptions(
       "Report this to the plugin's author.",
     );
   }
-  const result = await schema["~standard"].validate(descriptor.options);
+  const standard = schema["~standard"];
+  const result = await standard.validate(descriptor.options);
+  // The factory allows omitted options for schemas with only optional inputs.
+  if (result.issues && descriptor.options === undefined) {
+    const defaults = await standard.validate({});
+    if (!defaults.issues) return defaults.value;
+  }
   if (result.issues) {
     throw new StageError(
       `The options are invalid:\n${formatIssues(result.issues)}`,

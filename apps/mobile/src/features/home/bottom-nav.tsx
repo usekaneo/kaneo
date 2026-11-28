@@ -1,7 +1,6 @@
-import { Activity, House, Inbox } from "lucide-react-native";
+import { Activity, CircleCheck, House, Inbox } from "lucide-react-native";
 import { useTranslation } from "react-i18next";
 import { View } from "react-native";
-import Svg, { Circle, Path } from "react-native-svg";
 
 import { useBottomInset } from "@/components/screen";
 import { Txt } from "@/components/text";
@@ -10,40 +9,7 @@ import { useColors } from "@/theme";
 
 export type HomeTab = "home" | "tasks" | "inbox" | "activity";
 
-function TasksIcon({
-  active,
-  color,
-  ink,
-  check,
-}: {
-  active: boolean;
-  color: string;
-  ink: string;
-  check: string;
-}) {
-  return (
-    <Svg width={20} height={20} viewBox="0 0 24 24">
-      <Circle
-        cx={12}
-        cy={12}
-        r={9}
-        fill={active ? ink : "none"}
-        stroke={active ? ink : color}
-        strokeWidth={2}
-      />
-      <Path
-        d="m8.5 12 2.5 2.5 4.5-5"
-        fill="none"
-        stroke={active ? check : color}
-        strokeWidth={2}
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-    </Svg>
-  );
-}
-
-/** Slim ink-on-white bar: the active tab is ink with a filled icon, the rest gray. No pill indicator. */
+/** Slim bar of outline icons: the active tab is ink, the rest gray. No pill indicator. */
 export function BottomNav({
   tab,
   onChange,
@@ -74,7 +40,7 @@ export function BottomNav({
       <View style={{ flexDirection: "row", height: 60, paddingHorizontal: 8 }}>
         {items.map((item) => {
           const active = item.key === tab;
-          const color = active ? c.ink : c.faint;
+          const color = active ? c.ink : c.placeholder;
           return (
             <Touch
               key={item.key}
@@ -95,32 +61,13 @@ export function BottomNav({
             >
               <View>
                 {item.key === "home" ? (
-                  <House
-                    size={20}
-                    color={color}
-                    fill={active ? c.ink : "none"}
-                    strokeWidth={active ? 1.5 : 2}
-                  />
+                  <House size={22} color={color} strokeWidth={2} />
                 ) : item.key === "tasks" ? (
-                  <TasksIcon
-                    active={active}
-                    color={color}
-                    ink={c.ink}
-                    check={c.surface}
-                  />
+                  <CircleCheck size={22} color={color} strokeWidth={2} />
                 ) : item.key === "inbox" ? (
-                  <Inbox
-                    size={20}
-                    color={color}
-                    strokeWidth={2}
-                    fill={active ? c.fill : "none"}
-                  />
+                  <Inbox size={22} color={color} strokeWidth={2} />
                 ) : (
-                  <Activity
-                    size={20}
-                    color={color}
-                    strokeWidth={active ? 2.5 : 2}
-                  />
+                  <Activity size={22} color={color} strokeWidth={2} />
                 )}
                 {item.key === "inbox" && unread > 0 ? (
                   <View
@@ -133,14 +80,14 @@ export function BottomNav({
                       borderRadius: 999,
                     }}
                   >
-                    <CountBadge count={unread} />
+                    <CountBadge count={unread} tone="info" />
                   </View>
                 ) : null}
               </View>
               <Txt
                 variant="micro"
-                weight={active ? "semibold" : "medium"}
-                color={color}
+                weight="medium"
+                color={active ? c.ink : c.faint}
               >
                 {item.label}
               </Txt>

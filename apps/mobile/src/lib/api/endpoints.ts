@@ -69,6 +69,8 @@ export const api = {
     put<{ id: string; url: string }>("api/user/avatar", body),
   deleteAvatar: () => del<unknown>("api/user/avatar"),
   signOut: () => post<unknown>("api/auth/sign-out"),
+  deleteUser: (body: { password?: string }) =>
+    post<{ success: boolean; message: string }>("api/auth/delete-user", body),
 
   // --- Workspaces ---
   /** Older servers have no `api/workspace` list; Better Auth's list works everywhere but carries no role. */

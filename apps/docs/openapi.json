@@ -281,6 +281,9 @@
           "projectId": {
             "type": "string"
           },
+          "isSubtask": {
+            "type": "boolean"
+          },
           "subtaskCounts": {
             "type": "object",
             "properties": {
@@ -531,6 +534,9 @@
               "boolean",
               "null"
             ]
+          },
+          "includeSubtasks": {
+            "type": "boolean"
           },
           "workspaceId": {
             "type": "string"
@@ -846,6 +852,9 @@
       "Project": {
         "type": "object",
         "properties": {
+          "includeSubtasks": {
+            "type": "boolean"
+          },
           "id": {
             "type": "string"
           },
@@ -1400,6 +1409,9 @@
                   "null"
                 ],
                 "description": "The referenced workflow column; null for virtual statuses and legacy tasks without a column reference."
+              },
+              "isSubtask": {
+                "type": "boolean"
               },
               "subtaskCounts": {
                 "type": "object",
@@ -4184,6 +4196,30 @@
           "createdAt",
           "updatedAt"
         ]
+      },
+      "PullRequestLinkMetadata": {
+        "type": "object",
+        "properties": {
+          "state": {
+            "type": "string",
+            "enum": [
+              "open",
+              "closed"
+            ]
+          },
+          "merged": {
+            "type": "boolean",
+            "default": false
+          },
+          "draft": {
+            "type": "boolean",
+            "default": false
+          }
+        },
+        "required": [
+          "state"
+        ],
+        "description": "Pull request status. Only accepted for `pull_request` links."
       },
       "DeletedExternalLink": {
         "type": "object",
@@ -7287,7 +7323,7 @@
           "settings": {
             "type": "object",
             "additionalProperties": {},
-            "description": "All settings values for the workspace. Omitted secret fields keep their stored value; other omitted fields are cleared."
+            "description": "Settings to change. Omitted settings keep their stored value. Use null to clear optional settings."
           }
         }
       },
@@ -11110,6 +11146,9 @@
                   },
                   "isPublic": {
                     "type": "boolean"
+                  },
+                  "includeSubtasks": {
+                    "type": "boolean"
                   }
                 },
                 "required": [
@@ -13706,6 +13745,141 @@
           },
           "404": {
             "description": "Task not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "429": {
+            "$ref": "#/components/responses/ApiKeyRateLimited"
+          }
+        }
+      },
+      "patch": {
+        "operationId": "patchTask",
+        "tags": [
+          "Tasks"
+        ],
+        "summary": "Update selected task fields",
+        "description": "Apply all supplied fields together. Omitted fields retain their values. Send null to clear an assignee, description, or date.",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "required": true,
+            "name": "id",
+            "in": "path"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "title": {
+                    "type": "string"
+                  },
+                  "status": {
+                    "type": "string"
+                  },
+                  "priority": {
+                    "type": "string",
+                    "enum": [
+                      "no-priority",
+                      "low",
+                      "medium",
+                      "high",
+                      "urgent"
+                    ]
+                  },
+                  "description": {
+                    "type": [
+                      "string",
+                      "null"
+                    ]
+                  },
+                  "startDate": {
+                    "type": [
+                      "string",
+                      "null"
+                    ]
+                  },
+                  "dueDate": {
+                    "type": [
+                      "string",
+                      "null"
+                    ]
+                  },
+                  "userId": {
+                    "type": [
+                      "string",
+                      "null"
+                    ]
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "The updated task",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Task"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid body or task fields",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid credentials",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "No project access or missing task:update or task:assign permission",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Task not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Task changed projects; retry the update",
             "content": {
               "application/json": {
                 "schema": {
@@ -23295,7 +23469,7 @@
           "External Links"
         ],
         "summary": "Create an external link",
-        "description": "Add a resource link to a task",
+        "description": "Add a resource link to a task. Pass `resourceType: \"pull_request\"` with `metadata` to show the link as a pull request with its status.",
         "parameters": [
           {
             "schema": {
@@ -23321,6 +23495,18 @@
                   "title": {
                     "type": "string",
                     "maxLength": 200
+                  },
+                  "resourceType": {
+                    "type": "string",
+                    "enum": [
+                      "url",
+                      "pull_request"
+                    ],
+                    "default": "url",
+                    "description": "`url` for a resource link, or `pull_request` to show the link as a pull request with its status"
+                  },
+                  "metadata": {
+                    "$ref": "#/components/schemas/PullRequestLinkMetadata"
                   }
                 },
                 "required": [
@@ -23454,6 +23640,106 @@
       }
     },
     "/external-link/task/{taskId}/{id}": {
+      "patch": {
+        "operationId": "updateExternalLink",
+        "tags": [
+          "External Links"
+        ],
+        "summary": "Update a manual link",
+        "description": "Change the title of a manually added link, or the status of a manually added pull request link. Integration-managed links cannot be changed through this endpoint.",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "required": true,
+            "name": "taskId",
+            "in": "path"
+          },
+          {
+            "schema": {
+              "type": "string"
+            },
+            "required": true,
+            "name": "id",
+            "in": "path"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "title": {
+                    "type": "string",
+                    "maxLength": 200
+                  },
+                  "metadata": {
+                    "$ref": "#/components/schemas/PullRequestLinkMetadata"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Link updated",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CreatedExternalLink"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid link data",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "No permission to update the task",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Task or manual resource link not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "429": {
+            "$ref": "#/components/responses/ApiKeyRateLimited"
+          }
+        }
+      },
       "delete": {
         "operationId": "deleteExternalLink",
         "tags": [
@@ -29720,6 +30006,16 @@
           },
           "404": {
             "description": "Plugin not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Plugin settings changed; retry the update",
             "content": {
               "application/json": {
                 "schema": {

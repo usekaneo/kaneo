@@ -3,6 +3,7 @@ import WorkspaceLayout from "@/components/common/workspace-layout";
 import PageTitle from "@/components/page-title";
 import { PluginBoundary } from "@/components/plugins/plugin-boundary";
 import { PluginPageStatus } from "@/components/plugins/plugin-page-status";
+import { pluginsForWorkspace } from "@/lib/plugins/runtime/plugins-for-workspace";
 import { usePlugins } from "@/lib/plugins/runtime/plugins-context";
 import { findContribution } from "@/lib/plugins/runtime/select-contributions";
 import { usePluginLabel } from "@/lib/plugins/runtime/use-plugin-label";
@@ -15,7 +16,8 @@ export const Route = createFileRoute(
 
 function RouteComponent() {
   const { workspaceId, pluginId, pageId } = Route.useParams();
-  const { plugins, isPending } = usePlugins();
+  const { plugins: runtimePlugins, isPending } = usePlugins();
+  const plugins = pluginsForWorkspace(runtimePlugins, workspaceId, workspaceId);
   const label = usePluginLabel();
   const lookup = findContribution(
     plugins,

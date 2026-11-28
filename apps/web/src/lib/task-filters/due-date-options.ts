@@ -1,4 +1,4 @@
-import { DUE_DATE_FILTER_VALUES } from "@/hooks/use-task-filters";
+import { DUE_DATE_FILTER_VALUES } from "./due-date-filter-values";
 
 export const DUE_DATE_OPTIONS = [
   {

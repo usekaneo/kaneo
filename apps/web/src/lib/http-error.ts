@@ -61,7 +61,11 @@ export function isUnauthorizedError(error: unknown): boolean {
 // current pathname/search/hash so the sign-in page can return the user to
 // where they were instead of dropping them on /dashboard.
 export function handleUnauthorized(): void {
-  if (signOutState.isRedirecting) return;
+  if (
+    signOutState.isRedirecting ||
+    window.location.pathname.startsWith("/auth/")
+  )
+    return;
   const currentPath =
     window.location.pathname + window.location.search + window.location.hash;
   const target = currentPath

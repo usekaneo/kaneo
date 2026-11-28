@@ -1,4 +1,4 @@
-import { symlink } from "node:fs/promises";
+import { open, symlink } from "node:fs/promises";
 import { join } from "node:path";
 import { Hono } from "hono";
 import { afterEach, beforeEach, describe, expect, it } from "vite-plus/test";
@@ -131,6 +131,36 @@ describe("servePluginAsset", () => {
     );
     expect(cached.status).toBe(304);
     expect(await cached.text()).toBe("");
+  });
+
+  it("streams video in chunks and can cancel the response", async () => {
+    const size = 4 * 1024 * 1024;
+    const file = await open(join(root, "web/video.mp4"), "w");
+    try {
+      await file.truncate(size);
+    } finally {
+      await file.close();
+    }
+
+    const response = await app.request(
+      "/api/plugins/progress/assets/video.mp4",
+    );
+    expect(response.headers.get("Content-Type")).toBe("video/mp4");
+    expect(response.headers.get("Content-Length")).toBe(String(size));
+    const head = await app.request("/api/plugins/progress/assets/video.mp4", {
+      method: "HEAD",
+    });
+    expect(head.headers.get("Content-Length")).toBe(String(size));
+    expect(head.body).toBeNull();
+
+    const reader = response.body!.getReader();
+    try {
+      const first = await reader.read();
+      expect(first.done).toBe(false);
+      expect(first.value?.byteLength).toBeLessThan(size);
+    } finally {
+      await reader.cancel();
+    }
   });
 
   it("returns 404 for anything outside the web root or not servable", async () => {

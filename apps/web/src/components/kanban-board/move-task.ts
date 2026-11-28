@@ -1,5 +1,6 @@
 import { produce } from "immer";
 import type { ProjectWithTasks } from "@/types/project";
+import { placeMovedTask } from "./place-moved-task";
 
 export function moveBoardTask(
   project: ProjectWithTasks,
@@ -7,6 +8,7 @@ export function moveBoardTask(
   overId: string,
   appendOnly = false,
   insertAfterTarget?: boolean,
+  withPositions = true,
 ) {
   const source = project.columns.find((column) =>
     column.tasks.some((task) => task.id === activeId),
@@ -46,10 +48,7 @@ export function moveBoardTask(
       }
     }
     to.tasks.splice(index, 0, task);
-    for (const column of new Set([from, to]))
-      column.tasks.forEach((task, position) => {
-        task.position = position;
-      });
+    if (withPositions) placeMovedTask(to.tasks, index);
   });
   const previous = new Map(
     project.columns

@@ -45,7 +45,7 @@ import {
 import type { AccessControl } from "better-auth/plugins/access";
 import type { UserWithAnonymous } from "better-auth/plugins/anonymous";
 import { config } from "dotenv-mono";
-import { eq } from "drizzle-orm";
+import { eq, sql } from "drizzle-orm";
 import {
   assertBackchannelLogoutEnv,
   resolveBackchannelLogoutConfig,
@@ -72,6 +72,10 @@ import { publishMemberProjects } from "./project-access/publish-member-projects"
 import { handleMemberAdded } from "./workspace-members/handle-member-added";
 import { handleMemberRemoved } from "./workspace-members/handle-member-removed";
 import { handleOwnerPromoted } from "./workspace-members/handle-owner-promoted";
+import { assertInvitationOwnerAllowed } from "./workspace-members/assert-invitation-owner-allowed";
+import { assertStoredOwnerRoleSafe } from "./workspace-members/assert-stored-owner-role-safe";
+import { assertNativeOwnerRoleSafe } from "./workspace-members/assert-native-owner-role-safe";
+import { normalizeInvitationRole } from "./workspace-members/normalize-invitation-role";
 import { hideInaccessibleInvitationProjects } from "./project-access/hide-inaccessible-invitation-projects";
 import assertManagedProfileUnchanged from "./user/controllers/assert-managed-profile-unchanged";
 import { hideInvitationsFromNonInviters } from "./utils/hide-invitations-from-non-inviters";
@@ -192,13 +196,28 @@ try {
 }
 
 async function getUserLocale(email: string) {
+  const address = email.trim();
+  if (!address) return null;
+
   const [user] = await db
     .select({ locale: schema.userTable.locale })
     .from(schema.userTable)
-    .where(eq(schema.userTable.email, email))
+    .where(eq(schema.userTable.email, address))
     .limit(1);
+  if (user) return user.locale ?? null;
 
-  return user?.locale ?? null;
+  const matches = await db
+    .select({ locale: schema.userTable.locale })
+    .from(schema.userTable)
+    .where(
+      eq(
+        sql`lower(${schema.userTable.email} COLLATE "C")`,
+        sql`lower(${address} COLLATE "C")`,
+      ),
+    )
+    .limit(2);
+
+  return matches.length === 1 ? (matches[0]?.locale ?? null) : null;
 }
 
 function getLocaleKey(locale?: string | null) {
@@ -620,10 +639,17 @@ export const auth = betterAuth({
           });
         },
         beforeCreateInvitation: async ({ invitation }) => {
-          const access = await resolveInvitationProjectAccess(invitation);
-          return { data: access };
+          const role =
+            normalizeInvitationRole(invitation.role) ?? invitation.role;
+          await assertInvitationOwnerAllowed({ ...invitation, role });
+          const access = await resolveInvitationProjectAccess({
+            ...invitation,
+            role,
+          });
+          return { data: { ...access, role } };
         },
         beforeAcceptInvitation: async ({ invitation, user }) => {
+          assertStoredOwnerRoleSafe(invitation.role);
           await applyInvitationProjectAccess(invitation, user.id);
         },
         afterAcceptInvitation: async ({ member }) => {
@@ -931,7 +957,29 @@ export const auth = betterAuth({
           await prepareAdminUserRemoval(ctx);
         }
 
+        if (
+          ctx.path === "/organization/invite-member" ||
+          ctx.path === "/organization/remove-member"
+        ) {
+          const workspaceId =
+            ctx.body?.organizationId ||
+            organizationViewer?.session.activeOrganizationId;
+          if (organizationViewer && typeof workspaceId === "string") {
+            await assertNativeOwnerRoleSafe(
+              organizationViewer.user.id,
+              workspaceId,
+            );
+          }
+        }
+
         if (ctx.path === "/organization/invite-member") {
+          // This hook runs before validation. Normalize only valid role shapes,
+          // including arrays; the provider still validates role names and auth.
+          // Resends bypass beforeCreateInvitation and must pass this check too.
+          const role = normalizeInvitationRole(ctx.body?.role);
+          if (role !== undefined && ctx.body) {
+            ctx.body.role = role;
+          }
           if (ctx.body?.resend === true && typeof ctx.body.email === "string") {
             const viewer = organizationViewer;
             const workspaceId =

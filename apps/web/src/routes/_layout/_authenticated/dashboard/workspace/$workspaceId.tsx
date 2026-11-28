@@ -1,4 +1,5 @@
 import { createFileRoute, Outlet } from "@tanstack/react-router";
+import Layout from "@/components/common/layout";
 import WorkspaceArchived from "@/components/common/workspace-archived";
 import useWorkspaceArchived from "@/hooks/queries/workspace/use-workspace-archived";
 
@@ -12,5 +13,11 @@ function RouteComponent() {
   const { workspaceId } = Route.useParams();
   const isArchived = useWorkspaceArchived(workspaceId);
 
-  return isArchived ? <WorkspaceArchived /> : <Outlet />;
+  if (isArchived) return <WorkspaceArchived />;
+
+  return (
+    <Layout>
+      <Outlet />
+    </Layout>
+  );
 }

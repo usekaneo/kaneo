@@ -2,6 +2,7 @@ import { and, eq } from "drizzle-orm";
 import { HTTPException } from "hono/http-exception";
 import db from "../database";
 import { integrationTable } from "../database/schema";
+import { maskWebhookUrl } from "../integrations/mask-webhook-url";
 import { deletedSchema, projectIdParam } from "../integrations/schema";
 import {
   apiRouter,
@@ -20,19 +21,6 @@ import { requireWorkspacePermission } from "../utils/require-workspace-permissio
 import { workspaceAccess } from "../utils/workspace-access-middleware";
 import { discordIntegrationSchema } from "./response";
 import { createDiscordBody, updateDiscordBody } from "./schema";
-
-function maskWebhookUrl(value: string): string {
-  try {
-    const url = new URL(value);
-    const parts = url.pathname.split("/").filter(Boolean);
-    const last = parts[parts.length - 1] ?? "";
-    const maskedLast =
-      last.length > 8 ? `${last.slice(0, 4)}…${last.slice(-4)}` : "••••";
-    return `${url.origin}/${parts.slice(0, -1).join("/")}/${maskedLast}`;
-  } catch {
-    return "Configured";
-  }
-}
 
 function toResponse(integration: {
   id: string;

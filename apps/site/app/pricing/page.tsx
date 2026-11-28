@@ -1,11 +1,11 @@
 import type { Metadata } from "next";
 import { Footer } from "@/components/landing/footer";
-import { ManagedInstance } from "@/components/landing/managed-instance";
 import { Navbar } from "@/components/landing/navbar";
 import { PageIntro } from "@/components/landing/page-intro";
 import { PricingPlans } from "@/components/landing/pricing-plans";
 import { SectionSeparator } from "@/components/landing/section-separator";
 import { withSocialMetadata } from "@/lib/metadata";
+import { appStoreUrl } from "@/lib/product";
 
 export const metadata: Metadata = withSocialMetadata({
   title: "Pricing",
@@ -24,6 +24,11 @@ const notes = [
   {
     title: "Fair billing",
     body: "Payments are processed by Creem as merchant of record; applicable taxes are handled where required. Cancel anytime; your plan stays active until the end of the billing period.",
+  },
+  {
+    title: "Mobile apps",
+    body: "The iPhone and iPad app is free for Kaneo Cloud accounts. Using it with a self-hosted server is a one-time $9.99 unlock per person.",
+    link: { label: "Get it on the App Store", href: appStoreUrl },
   },
   {
     title: "Questions?",
@@ -53,14 +58,13 @@ export default function PricingPage() {
 
             <div className="mt-12">
               <PricingPlans />
-              <ManagedInstance />
             </div>
           </div>
         </section>
 
         <SectionSeparator>
           <section className="px-6 py-12 md:py-16">
-            <div className="mx-auto grid w-full max-w-6xl gap-8 md:grid-cols-3">
+            <div className="mx-auto grid w-full max-w-6xl gap-8 md:grid-cols-2 lg:grid-cols-4">
               {notes.map((note) => (
                 <div key={note.title} className="space-y-2">
                   <h3 className="font-medium text-sm">{note.title}</h3>
@@ -76,6 +80,19 @@ export default function PricingPage() {
                           {note.email}
                         </a>
                         .
+                      </>
+                    )}
+                    {note.link && (
+                      <>
+                        {" "}
+                        <a
+                          className="text-foreground underline underline-offset-4 hover:no-underline"
+                          href={note.link.href}
+                          target="_blank"
+                          rel="noreferrer"
+                        >
+                          {note.link.label}
+                        </a>
                       </>
                     )}
                   </p>

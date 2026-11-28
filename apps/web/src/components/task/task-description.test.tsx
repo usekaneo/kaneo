@@ -329,4 +329,28 @@ describe("TaskDescription", () => {
     expect(container.textContent).toContain("parent body");
     expect(container.textContent).not.toContain("child body");
   });
+  // A full-width transparent popup swallows clicks beside a small image (#2174).
+  it("shrinks the image preview popup to the image (#2174)", async () => {
+    mocks.tasks.set("image-task", {
+      id: "image-task",
+      description: "![shot](https://example.com/shot.png)",
+    });
+
+    const { container } = render(<TaskDescription taskId="image-task" />);
+    const image = await waitFor(() => {
+      const found = container.querySelector("img.kaneo-editor-image");
+      expect(found).not.toBeNull();
+      return found as HTMLImageElement;
+    });
+
+    fireEvent.click(image);
+
+    const popup = await waitFor(() => {
+      const found = document.querySelector('[data-slot="dialog-popup"]');
+      expect(found).not.toBeNull();
+      return found as HTMLElement;
+    });
+    expect(popup.className).toContain("w-auto");
+    expect(popup.className).not.toContain("w-full");
+  });
 });

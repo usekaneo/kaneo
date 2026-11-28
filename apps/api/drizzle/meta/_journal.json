@@ -516,8 +516,22 @@
     {
       "idx": 73,
       "version": "7",
-      "when": 1793216471440,
-      "tag": "0073_plugins",
+      "when": 1793798733016,
+      "tag": "0073_thick_talisman",
+      "breakpoints": true
+    },
+    {
+      "idx": 74,
+      "version": "7",
+      "when": 1795806906994,
+      "tag": "0074_repair_legacy_credential_accounts",
+      "breakpoints": true
+    },
+    {
+      "idx": 75,
+      "version": "7",
+      "when": 1795859344312,
+      "tag": "0075_plugins",
       "breakpoints": true
     }
   ]

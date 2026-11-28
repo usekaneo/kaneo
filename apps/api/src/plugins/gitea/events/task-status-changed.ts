@@ -62,29 +62,32 @@ export async function handleTaskStatusChanged(
       event.oldStatus,
       currentValue,
     );
-    if (change) {
-      const closing = change === "close";
-      await syncLatestTaskValue(
-        event.taskId,
-        event.projectId,
-        issueLink,
-        "state",
-        closing ? "closed" : "open",
-        async (value) => {
-          const response = await client.updateIssue(
-            repositoryOwner,
-            repositoryName,
-            issueNumber,
-            { state: value === "closed" ? "closed" : "open" },
-          );
-          return response?.updated_at;
-        },
-        async () =>
-          (await client.getIssue(repositoryOwner, repositoryName, issueNumber))
-            .state ?? "open",
-        { type: "gitea", config: JSON.stringify(config) },
-      );
-    }
+    if (!change) return;
+    const target = change === "close" ? "closed" : "open";
+    const readState = async () =>
+      (await client.getIssue(repositoryOwner, repositoryName, issueNumber))
+        .state ?? "open";
+    // Skip the write when the issue is already in that state.
+    // A failed read falls through to the write, as before.
+    if ((await readState().catch(() => undefined)) === target) return;
+    await syncLatestTaskValue(
+      event.taskId,
+      event.projectId,
+      issueLink,
+      "state",
+      target,
+      async (value) => {
+        const response = await client.updateIssue(
+          repositoryOwner,
+          repositoryName,
+          issueNumber,
+          { state: value === "closed" ? "closed" : "open" },
+        );
+        return response?.updated_at;
+      },
+      readState,
+      { type: "gitea", config: JSON.stringify(config) },
+    );
   } catch (error) {
     console.error("Failed to update Gitea issue status:", error);
   }

@@ -20,6 +20,8 @@ import { OnboardingFlow } from "./onboarding-flow";
 
 const m = vi.hoisted(() => ({
   navigate: vi.fn(),
+  preloadRoute: vi.fn(() => Promise.resolve()),
+  prefetchBoard: vi.fn(),
   createWorkspace: vi.fn(),
   createStarterProject: vi.fn(),
   config: vi.fn(),
@@ -36,6 +38,10 @@ const m = vi.hoisted(() => ({
 vi.mock("@tanstack/react-router", async (importOriginal) => ({
   ...(await importOriginal<typeof import("@tanstack/react-router")>()),
   useNavigate: () => m.navigate,
+  useRouter: () => ({ preloadRoute: m.preloadRoute }),
+}));
+vi.mock("@/hooks/queries/task/prefetch-board", () => ({
+  prefetchBoard: m.prefetchBoard,
 }));
 vi.mock("@/hooks/queries/config/use-get-config", () => ({
   default: () => m.config(),

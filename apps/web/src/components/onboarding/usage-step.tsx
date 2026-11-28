@@ -1,3 +1,4 @@
+import { User, Users } from "lucide-react";
 import { useId } from "react";
 import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
@@ -5,22 +6,18 @@ import {
   WORKSPACE_USAGE_OPTIONS,
   type WorkspaceUsage,
 } from "@/constants/onboarding";
+import { cn } from "@/lib/cn";
 import { OptionCard } from "./option-card";
-import { UsageAvatars } from "./usage-avatars";
+
+const usageIcons = { team: Users, solo: User };
 
 type UsageStepProps = {
   value: WorkspaceUsage;
-  ownerInitial: string;
   onChange: (value: WorkspaceUsage) => void;
   onContinue: () => void;
 };
 
-export function UsageStep({
-  value,
-  ownerInitial,
-  onChange,
-  onContinue,
-}: UsageStepProps) {
+export function UsageStep({ value, onChange, onContinue }: UsageStepProps) {
   const { t } = useTranslation();
   const name = useId();
 
@@ -36,22 +33,29 @@ export function UsageStep({
         <legend className="sr-only">
           {t("auth:onboarding.cloud.usageLabel")}
         </legend>
-        {WORKSPACE_USAGE_OPTIONS.map((option) => (
-          <OptionCard
-            key={option.value}
-            name={name}
-            checked={value === option.value}
-            onSelect={() => onChange(option.value)}
-            title={t(option.labelKey)}
-            description={t(option.hintKey)}
-            leading={
-              <UsageAvatars
-                initial={ownerInitial}
-                team={option.value === "team"}
-              />
-            }
-          />
-        ))}
+        {WORKSPACE_USAGE_OPTIONS.map((option) => {
+          const Icon = usageIcons[option.value];
+          const checked = value === option.value;
+          return (
+            <OptionCard
+              key={option.value}
+              name={name}
+              checked={checked}
+              onSelect={() => onChange(option.value)}
+              title={t(option.labelKey)}
+              description={t(option.hintKey)}
+              leading={
+                <Icon
+                  aria-hidden="true"
+                  className={cn(
+                    "size-4.5 shrink-0",
+                    checked ? "text-foreground" : "text-muted-foreground",
+                  )}
+                />
+              }
+            />
+          );
+        })}
       </fieldset>
       <Button type="submit" size="lg" className="self-start">
         {t("auth:onboarding.continue")}

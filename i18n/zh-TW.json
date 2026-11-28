@@ -239,7 +239,10 @@
 			"passwordRequired": "請輸入密碼。",
 			"passwordTooShort": "請至少使用 8 個字元。",
 			"disposableEmail": "請使用長期有效的電子郵件地址。拋棄式地址無法建立帳號。",
-			"continueWithEmail": "使用電子郵件繼續"
+			"continueWithEmail": "使用電子郵件繼續",
+			"captchaChecking": "正在進行快速安全檢查，完成後即可繼續。",
+			"captchaFailed": "安全檢查未能載入，因此登入已暫停。請檢查網路連線或內容封鎖器。",
+			"captchaRetry": "重試"
 		},
 		"checkEmail": {
 			"pageTitle": "請查看你的電子郵件",
@@ -395,8 +398,6 @@
 				}
 			},
 			"progress": "第 {{current}} 步，共 {{total}} 步",
-			"welcome": "歡迎，{{name}}",
-			"settingUp": "正在設定 {{name}}",
 			"continue": "繼續",
 			"signedInAs": "已登入為 {{email}}",
 			"signOut": "登出",
@@ -412,7 +413,7 @@
 				"title": "建立第一個專案",
 				"description": "我們會加入幾個入門任務，幫助你熟悉操作。你可以隨時重新命名或刪除。",
 				"label": "專案名稱",
-				"numbered": "任務編號範例"
+				"ticketStart": "任務編號將從 {{ticket}} 開始。"
 			},
 			"invite": {
 				"title": "邀請你的團隊",
@@ -437,7 +438,6 @@
 				"paymentNote": "付款由 Creem 處理。"
 			},
 			"ready": {
-				"eyebrow": "一切就緒",
 				"title": "{{name}} 已準備就緒",
 				"description": "以下是我們為你設定的內容，之後都可以修改。",
 				"workspace": "工作區",
@@ -448,9 +448,6 @@
 				"open": "開啟 {{name}}"
 			},
 			"preview": {
-				"live": "{{name}} 即時預覽",
-				"liveNoName": "即時預覽",
-				"ready": "{{name}} 已準備就緒",
 				"untitled": "你的工作區"
 			}
 		},
@@ -3227,6 +3224,20 @@
 		"movedFromOtherProject": "moved task from another project to \"{{to}}\""
 	},
 	"tasks": {
+		"dateFilter": {
+			"startDate": "開始日期",
+			"noDate": "無日期",
+			"condition": "日期條件",
+			"exact": "指定日期",
+			"range": "日期範圍",
+			"before": "早於",
+			"after": "晚於",
+			"apply": "套用日期篩選",
+			"exactValue": "在 {{date}}",
+			"beforeValue": "早於 {{date}}",
+			"afterValue": "晚於 {{date}}",
+			"rangeValue": "{{date}} – {{end}}"
+		},
 		"title": "任務",
 		"status": {
 			"label": "狀態",
@@ -3735,7 +3746,11 @@
 		},
 		"board": {
 			"reorderFailed": "無法移動任務，請再試一次。",
-			"keyboardInstructions": "按空白鍵預覽，按 Enter 開啟此任務。按住 Alt 或 Option 並使用方向鍵移動任務。"
+			"keyboardInstructions": "按空白鍵預覽，按 Enter 開啟此任務。按住 Alt 或 Option 並使用方向鍵移動任務。",
+			"loadErrorTitle": "此看板未能載入",
+			"loadErrorDescription": "取得任務時發生錯誤。請檢查網路連線後再試一次。",
+			"refreshError": "無法重新整理此看板，內容可能不是最新的。",
+			"tryAgain": "重試"
 		},
 		"recurrence": {
 			"daily_other": "每 {{count}} 天",
@@ -3757,7 +3772,9 @@
 			"showOnRows": "在列中顯示",
 			"checklistProgress": "檢查清單進度",
 			"projectBackground": "專案背景",
-			"layout": "版面配置"
+			"layout": "版面配置",
+			"includeSubtasks": "包含子任務",
+			"useProjectDefault": "使用專案預設設定"
 		},
 		"filterBar": {
 			"label": "已套用的篩選",
@@ -3798,6 +3815,21 @@
 			"startsOn": "開始於 {{date}}",
 			"beforeStart": "{{date}} 早於開始日期",
 			"afterDue": "{{date}} 晚於截止日期"
+		},
+		"timeTracking": {
+			"empty": "尚未記錄時間。",
+			"loadError": "無法載入時間記錄。",
+			"retry": "重試",
+			"running": "計時中",
+			"start": "啟動計時器",
+			"startError": "無法開始計時。",
+			"stop": "停止計時",
+			"stopError": "無法停止計時。",
+			"title": "時間追蹤",
+			"unknownUser": "未知使用者",
+			"durationSeconds": "{{seconds, number}}秒",
+			"durationMinutes": "{{minutes, number}}分",
+			"durationHoursMinutes": "{{hours, number}}小時 {{minutes, number}}分"
 		}
 	},
 	"invitations": {
@@ -4133,7 +4165,8 @@
 			"title": "專案管理，",
 			"titleAccent": "別讓它變成另一個專案。",
 			"description": "開源專案管理工具，提供看板、甘特圖與 GitHub 整合。可免費自行架設且內建 SSO，或交給 Kaneo Cloud 代管。",
-			"pricingCta": "See pricing"
+			"pricingCta": "See pricing",
+			"appStore": "App Store"
 		},
 		"navigation": {
 			"product": "產品",
@@ -4263,6 +4296,11 @@
 				"question": "AI 用戶端可以搭配 Kaneo 使用嗎？",
 				"answer": "可以。Kaneo 透過 @kaneo/mcp 套件與 HTTP 端點提供 MCP 伺服器。相容的 AI 用戶端可以使用綁定使用者的 API 金鑰讀取與更新任務，並受工作區權限限制。",
 				"link": "閱讀 MCP 指南"
+			},
+			"mobile": {
+				"answer": "Yes. Kaneo is on the App Store for iPhone and iPad, and Android is coming soon. The app is free for Kaneo Cloud accounts. Connecting it to a self-hosted server is a one-time $9.99 unlock per person, and like the rest of Kaneo, the app is open source.",
+				"link": "Download on the App Store",
+				"question": "Is there a mobile app?"
 			}
 		},
 		"comparison": {
@@ -4336,6 +4374,21 @@
 				"passwordChanged": "已變更密碼",
 				"photoRemoved": "已移除照片",
 				"photoUpdated": "已更新照片"
+			},
+			"deleteAccount": {
+				"confirm": "Delete account",
+				"confirmLabel": "Type {{email}} to confirm",
+				"description": "Permanently delete your account and its data.",
+				"modalDescription": "This permanently deletes your account and cannot be undone. Workspaces only you belong to are deleted with it. Elsewhere, your tasks stay and become unassigned, and your comments are removed.",
+				"modalTitle": "Delete your account?",
+				"noPassword": "This account has no password. Leave the field empty.",
+				"password": "Password",
+				"passwordHint": "Leave empty if you sign in without a password.",
+				"sectionTitle": "Danger zone",
+				"sessionTooOld": "For your security, enter your password, or sign out and sign in again before deleting your account.",
+				"success": "Your account was deleted",
+				"title": "Delete account",
+				"wrongPassword": "That password is not correct."
 			}
 		},
 		"activity": {
@@ -4415,21 +4468,20 @@
 		"editor": {
 			"attachment": "附件",
 			"bold": "粗體",
-			"boldPlaceholder": "粗體",
 			"code": "程式碼",
-			"codePlaceholder": "程式碼",
-			"description": "說明",
 			"heading": "標題",
 			"insertImage": "插入圖片",
 			"italic": "斜體",
-			"italicPlaceholder": "斜體",
 			"link": "連結",
-			"linkPlaceholder": "連結",
 			"list": "清單",
-			"nothingToPreview": "沒有可預覽的內容",
 			"placeholder": "新增說明…支援 Markdown。",
-			"preview": "預覽",
-			"write": "撰寫"
+			"applyLink": "Apply",
+			"checklist": "Checklist",
+			"linkUrl": "URL",
+			"numberedList": "Numbered list",
+			"quote": "Quote",
+			"removeLink": "Remove link",
+			"hideKeyboard": "Hide keyboard"
 		},
 		"errors": {
 			"apiKeyRejected": "此 API 金鑰遭到拒絕。",
@@ -4883,7 +4935,16 @@
 			},
 			"tagline": "簡單的專案管理。連線至 Kaneo Cloud 或你自己的執行個體。",
 			"togglePassword": "切換密碼顯示",
-			"useApiKey": "使用 API 金鑰"
+			"useApiKey": "使用 API 金鑰",
+			"unlock": {
+				"buy": "Unlock for {{price}}",
+				"buyNoPrice": "Unlock",
+				"message": "Signing in to Kaneo Cloud is always included. Connecting the app to a self-hosted server is a one-time purchase that supports Kaneo's development.",
+				"nothingToRestore": "No earlier purchase was found for this store account.",
+				"restore": "Restore purchase",
+				"title": "Connect your own server",
+				"unavailable": "Purchases aren't available right now. Try again later."
+			}
 		},
 		"taskDetail": {
 			"activity": {
@@ -4941,7 +5002,6 @@
 			"screen": {
 				"addDescription": "新增說明…",
 				"copyLink": "複製連結",
-				"editDescription": "編輯說明",
 				"editTitle": "編輯標題",
 				"linkCopied": "已複製連結",
 				"more": "更多"

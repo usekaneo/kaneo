@@ -133,6 +133,22 @@ describe("Gitea repository credential isolation", () => {
     expect(screen.queryByText("owner/new-session-repo")).toBeNull();
   });
 
+  it("loads repositories on plain-HTTP origins without crypto.randomUUID", async () => {
+    const original = Object.getOwnPropertyDescriptor(crypto, "randomUUID");
+    Object.defineProperty(crypto, "randomUUID", {
+      value: undefined,
+      configurable: true,
+    });
+    try {
+      m.list.mockResolvedValueOnce(result("lan-repo"));
+      show();
+      await screen.findByText("owner/lan-repo");
+    } finally {
+      if (original) Object.defineProperty(crypto, "randomUUID", original);
+      else delete (crypto as { randomUUID?: unknown }).randomUUID;
+    }
+  });
+
   it("filters the loaded repositories and uses the confirmed selection", async () => {
     m.list.mockResolvedValueOnce({
       repositories: [

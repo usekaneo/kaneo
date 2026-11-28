@@ -7,27 +7,46 @@ import {
   taskTable,
 } from "../../database/schema";
 import { publishEvent } from "../../events";
+import { pullRequestNumber } from "../pull-request-number";
+
+type PullRequestMetadata = {
+  state: "open" | "closed";
+  merged: boolean;
+  draft: boolean;
+};
 
 async function createExternalLink({
   taskId,
   url,
   title,
+  resourceType = "url",
+  metadata,
   userId,
 }: {
   taskId: string;
   url: string;
   title?: string;
+  resourceType?: "url" | "pull_request";
+  metadata?: PullRequestMetadata;
   userId: string;
 }) {
+  if (metadata && resourceType !== "pull_request") {
+    throw new HTTPException(400, {
+      message: "Metadata is only accepted for pull request links",
+    });
+  }
+
   const [link] = await db
     .insert(externalLinkTable)
     .values({
       taskId,
       integrationId: null,
-      resourceType: "url",
-      externalId: url,
+      resourceType,
+      externalId:
+        resourceType === "pull_request" ? (pullRequestNumber(url) ?? url) : url,
       url,
       title: title ?? null,
+      ...(metadata ? { metadata: JSON.stringify(metadata) } : {}),
     })
     .returning();
 

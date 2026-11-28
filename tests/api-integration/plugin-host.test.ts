@@ -699,6 +699,39 @@ describe("project.moved", () => {
     },
   );
 
+  it("delivers a project move when a disabled plugin has retained storage", async () => {
+    const { project, user, workspace, target } =
+      await projectBetweenWorkspaces();
+    await db.insert(schema.pluginStorageTable).values({
+      pluginId: PLUGIN_ID,
+      workspaceId: workspace.id,
+      key: project.id,
+      value: { progress: 40 },
+    });
+
+    await publishEvent(
+      "project.moved",
+      {
+        projectId: project.id,
+        fromWorkspaceId: workspace.id,
+        toWorkspaceId: target.id,
+        userId: user.id,
+      },
+      { waitForHandlers: true },
+    );
+
+    expect(receivedEvents()).toEqual([
+      {
+        type: "project.moved",
+        projectId: project.id,
+        workspaceId: target.id,
+        fromWorkspaceId: workspace.id,
+        toWorkspaceId: target.id,
+        actorId: user.id,
+      },
+    ]);
+  });
+
   it("bridges a real project move made through the API", async () => {
     const { user, workspace, project, target } =
       await projectBetweenWorkspaces();

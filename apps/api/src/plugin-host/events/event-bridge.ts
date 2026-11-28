@@ -1,7 +1,7 @@
 import type { PluginEvent } from "@kaneo/plugin-sdk";
-import { eq } from "drizzle-orm";
+import { and, eq, inArray } from "drizzle-orm";
 import db from "../../database";
-import { projectTable } from "../../database/schema";
+import { pluginStorageTable, projectTable } from "../../database/schema";
 import { subscribeToEvent } from "../../events";
 import { listWorkspacePlugins } from "../data/workspace-plugins";
 import { enabledInAnyWorkspace } from "../enablement/resolve-enabled";
@@ -51,6 +51,22 @@ export async function bridgeInternalEvent(
     plugins,
     await Promise.all(workspaces.enabledIn.map(listWorkspacePlugins)),
   );
+  if (mapped.type === "project.moved") {
+    const retained = await db
+      .selectDistinct({ pluginId: pluginStorageTable.pluginId })
+      .from(pluginStorageTable)
+      .where(
+        and(
+          eq(pluginStorageTable.workspaceId, mapped.fromWorkspaceId),
+          inArray(
+            pluginStorageTable.pluginId,
+            plugins.map((plugin) => plugin.id),
+          ),
+        ),
+      );
+    for (const { pluginId } of retained) enabled.add(pluginId);
+  }
+
   await deliverEvent(plugins, enabled, {
     ...mapped,
     workspaceId: workspaces.workspaceId,

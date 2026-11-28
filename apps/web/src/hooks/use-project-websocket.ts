@@ -16,6 +16,7 @@ import getExternalLinks from "@/fetchers/external-link/get-external-links";
 import type { ResumePreview } from "@/fetchers/integration-sync/types";
 import { patchBoardTask } from "@/lib/patch-board-task";
 import { isPerTaskRelationQuery } from "@/lib/relation-query-keys";
+import { invalidateTaskRelations } from "@/lib/invalidate-task-relations";
 import type { ProjectWithTasks } from "@/types/project";
 import {
   hasSyncTaskSample,
@@ -104,6 +105,7 @@ export function useProjectWebSocket(projectId: string) {
           });
           queryClient.invalidateQueries({
             queryKey: ["task-relations", message.sourceTaskId],
+            refetchType: "all",
           });
         }
         if (message.targetTaskId) {
@@ -112,6 +114,7 @@ export function useProjectWebSocket(projectId: string) {
           });
           queryClient.invalidateQueries({
             queryKey: ["task-relations", message.targetTaskId],
+            refetchType: "all",
           });
         }
         if (!message.sourceTaskId && !message.targetTaskId) {
@@ -306,6 +309,10 @@ export function useProjectWebSocket(projectId: string) {
             queryClient.invalidateQueries({
               queryKey: ["task-relations", "project", message.projectId],
             });
+          }
+
+          if (message.type === "TASK_MOVED" && message.taskId) {
+            void invalidateTaskRelations(queryClient, message.taskId);
           }
 
           const boardIsLoading =

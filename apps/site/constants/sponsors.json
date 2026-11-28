@@ -1,10 +1,17 @@
 {
 	"current": [
 		{
-			"login": "blendbyte",
-			"name": "Blendbyte",
-			"avatarUrl": "https://avatars.githubusercontent.com/u/69378377?v=4",
+			"login": "mortenbirkelund",
+			"name": "Morten Birkelund",
+			"avatarUrl": "https://avatars.githubusercontent.com/u/8955039?v=4",
 			"tier": 15,
+			"founding": false
+		},
+		{
+			"login": "barbanet",
+			"name": "Damián Culotta",
+			"avatarUrl": "https://avatars.githubusercontent.com/u/392385?v=4",
+			"tier": 5,
 			"founding": false
 		},
 		{
@@ -27,6 +34,13 @@
 			"avatarUrl": "https://avatars.githubusercontent.com/u/8428798?v=4",
 			"tier": 5,
 			"founding": false
+		},
+		{
+			"login": "tiimk",
+			"name": "Tim",
+			"avatarUrl": "https://avatars.githubusercontent.com/u/9601105?v=4",
+			"tier": 5,
+			"founding": false
 		}
 	],
 	"past": [
@@ -45,10 +59,10 @@
 			"founding": true
 		},
 		{
-			"login": "barbanet",
-			"name": "Damián Culotta",
-			"avatarUrl": "https://avatars.githubusercontent.com/u/392385?v=4",
-			"tier": 5,
+			"login": "blendbyte",
+			"name": "Blendbyte",
+			"avatarUrl": "https://avatars.githubusercontent.com/u/69378377?v=4",
+			"tier": 15,
 			"founding": false
 		},
 		{

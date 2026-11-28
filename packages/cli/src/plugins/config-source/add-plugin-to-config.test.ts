@@ -316,6 +316,19 @@ describe("addPluginToConfig", () => {
     });
   });
 
+  it("lists a plugin referenced only in another plugin's options", () => {
+    const result = addPluginToConfig(
+      lines(
+        'import report from "kaneo-plugin-time-report";',
+        "export default { plugins: [other({ source: report })] };",
+      ),
+      "kaneo-plugin-time-report",
+    );
+    expect(result.status === "updated" && result.source).toContain(
+      "plugins: [other({ source: report }), report()]",
+    );
+  });
+
   it("asks for a manual edit when the import cannot be matched to a listed plugin", () => {
     expect(
       manualReason(

@@ -14,6 +14,8 @@ const STORAGE_ENV = [
   "S3_BUCKET",
   "S3_ACCESS_KEY_ID",
   "S3_SECRET_ACCESS_KEY",
+  "S3_ACCESS_KEY_ID_FILE",
+  "S3_SECRET_ACCESS_KEY_FILE",
 ];
 
 function httpStatus(error: unknown) {

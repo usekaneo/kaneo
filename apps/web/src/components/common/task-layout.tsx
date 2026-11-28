@@ -58,76 +58,74 @@ export default function TaskLayout({
   };
 
   return (
-    <div data-task-view className="contents">
-      <Layout className="flex flex-col lg:flex-row">
-        <div className="flex min-h-0 flex-1 flex-col">
-          <Layout.Header className="h-11 border-border/80 px-2">
-            <div className="flex w-full items-center justify-between gap-2">
-              <div className="flex min-w-0 items-center gap-2">
-                <TooltipProvider>
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <SidebarTrigger className="-ml-1 h-7 w-7 cursor-pointer text-foreground/85 hover:text-foreground" />
-                    </TooltipTrigger>
-                    <TooltipContent>
-                      <p className="flex items-center gap-2 text-[10px]">
-                        Toggle sidebar
-                        <ShortcutKeys id="toggleSidebar" />
-                      </p>
-                    </TooltipContent>
-                  </Tooltip>
-                </TooltipProvider>
+    <div data-task-view className="flex min-h-0 flex-1 flex-col lg:flex-row">
+      <div className="flex min-h-0 flex-1 flex-col">
+        <Layout.Header className="h-11 border-border/80 px-2">
+          <div className="flex w-full items-center justify-between gap-2">
+            <div className="flex min-w-0 items-center gap-2">
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <SidebarTrigger className="-ml-1 h-7 w-7 cursor-pointer text-foreground/85 hover:text-foreground" />
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p className="flex items-center gap-2 text-[10px]">
+                      Toggle sidebar
+                      <ShortcutKeys id="toggleSidebar" />
+                    </p>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
 
-                <div className="h-4 w-px shrink-0 bg-border/80" />
+              <div className="h-4 w-px shrink-0 bg-border/80" />
 
-                <div className="min-w-0 items-center gap-1.5 flex">
-                  <button
-                    type="button"
-                    onClick={() =>
-                      navigate({
-                        to: "/dashboard/workspace/$workspaceId/project/$projectId/board",
-                        params: { workspaceId, projectId },
-                      })
-                    }
-                    className="max-w-40 truncate text-left text-xs text-foreground hover:underline"
-                  >
-                    {project?.name || t("navigation:sidebar.projects")}
-                  </button>
-                  <span className="text-foreground/70 text-xs">/</span>
-                  <TaskCrumbSelect
-                    projectId={projectId}
-                    taskId={taskId}
-                    taskLabel={taskLabel}
-                    onSelectTask={handleTaskSwitch}
-                  />
-                </div>
-              </div>
-
-              <div className="flex shrink-0 items-center gap-1.5">
-                {unavailableReason ? null : headerActions}
+              <div className="min-w-0 items-center gap-1.5 flex">
+                <button
+                  type="button"
+                  onClick={() =>
+                    navigate({
+                      to: "/dashboard/workspace/$workspaceId/project/$projectId/board",
+                      params: { workspaceId, projectId },
+                    })
+                  }
+                  className="max-w-40 truncate text-left text-xs text-foreground hover:underline"
+                >
+                  {project?.name || t("navigation:sidebar.projects")}
+                </button>
+                <span className="text-foreground/70 text-xs">/</span>
+                <TaskCrumbSelect
+                  projectId={projectId}
+                  taskId={taskId}
+                  taskLabel={taskLabel}
+                  onSelectTask={handleTaskSwitch}
+                />
               </div>
             </div>
-          </Layout.Header>
 
-          <Layout.Content>
-            {unavailableReason ? (
-              <ProjectUnavailable
-                reason={unavailableReason}
-                workspaceId={workspaceId}
-              />
-            ) : (
-              <div className="h-full min-h-0 overflow-y-auto overscroll-contain">
-                {children}
-              </div>
-            )}
-          </Layout.Content>
-        </div>
-        {unavailableReason ? null : (
-          <div className="hidden border-border/80 border-l lg:flex lg:h-full lg:overflow-y-auto">
-            {rail}
+            <div className="flex shrink-0 items-center gap-1.5">
+              {unavailableReason ? null : headerActions}
+            </div>
           </div>
-        )}
-      </Layout>
+        </Layout.Header>
+
+        <Layout.Content>
+          {unavailableReason ? (
+            <ProjectUnavailable
+              reason={unavailableReason}
+              workspaceId={workspaceId}
+            />
+          ) : (
+            <div className="h-full min-h-0 overflow-y-auto overscroll-y-contain">
+              {children}
+            </div>
+          )}
+        </Layout.Content>
+      </div>
+      {unavailableReason ? null : (
+        <div className="hidden border-border/80 border-l lg:flex lg:h-full lg:overflow-y-auto">
+          {rail}
+        </div>
+      )}
     </div>
   );
 }

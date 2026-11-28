@@ -1776,12 +1776,12 @@ export default function TaskDescription({ taskId }: TaskDescriptionProps) {
         }}
       >
         <DialogPopup
-          className="max-w-6xl border-0 bg-transparent p-0 shadow-none before:hidden"
+          className="w-auto max-w-6xl border-0 bg-transparent p-0 shadow-none before:hidden"
           showCloseButton={false}
           bottomStickOnMobile={false}
         >
           {previewImage && (
-            <div className="flex max-h-[90vh] items-center justify-center p-4">
+            <div className="flex max-h-[90vh] items-center justify-center">
               <img
                 src={previewImage.src}
                 alt={previewImage.alt}

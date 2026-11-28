@@ -217,7 +217,7 @@ Return errors with `c.json(body, status)`. Do not register routes whose first pa
 
 ### Events
 
-`kaneo.on` handlers receive typed events such as `task.created`, `task.status_changed`, and `comment.created`. Every event carries `workspaceId`, `projectId`, and `actorId`; task and comment events also carry `taskId`. Events only reach workspaces that turned your plugin on. Storage belongs to a workspace, so if you store data per project, handle `project.moved` to move it when a project changes workspace. Events report changes that already happened; a handler cannot change or block them. An error in a handler is logged and does not affect Kaneo. See the [event list](/core/plugins/reference#events).
+`kaneo.on` handlers receive typed events such as `task.created`, `task.status_changed`, and `comment.created`. Every event carries `workspaceId`, `projectId`, and `actorId`; task and comment events also carry `taskId`. Events reach workspaces that turned your plugin on. A project move also reaches plugins with retained storage in the source workspace. Storage belongs to a workspace, so if you store data per project, handle `project.moved` to move it when a project changes workspace. Events report changes that already happened; a handler cannot change or block them. An error in a handler is logged and does not affect Kaneo. See the [event list](/core/plugins/reference#events).
 
 ### Webhooks
 

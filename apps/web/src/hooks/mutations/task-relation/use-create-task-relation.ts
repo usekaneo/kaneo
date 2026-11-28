@@ -10,11 +10,15 @@ function useCreateTaskRelation() {
     mutationFn: createTaskRelation,
     onSuccess: (_, variables) => {
       void invalidateRelationTaskProject(queryClient, variables.sourceTaskId);
+      // Queries default to refetchOnMount: false, so a closed but cached end
+      // must refetch now or reopening it shows the old relations.
       queryClient.invalidateQueries({
         queryKey: ["task-relations", variables.sourceTaskId],
+        refetchType: "all",
       });
       queryClient.invalidateQueries({
         queryKey: ["task-relations", variables.targetTaskId],
+        refetchType: "all",
       });
       // The list view reads relations per project rather than per task, and
       // the mutation does not carry the project the tasks belong to.

@@ -17,6 +17,22 @@ Comment exactly `/peekareq` in a PR's conversation, or use **Actions → Peekare
 
 The final job authenticates as `<app-slug>[bot]`. PNGs are stored on a dedicated `code/ui-screenshots` branch and embedded using immutable URLs. Concurrent uploads preserve earlier images. Failed captures and reports for a changed or closed PR are not posted.
 
+## Mellon App
+
+Mellon uses a separate GitHub App from Peekareq and Peekareview.
+Install it on `usekaneo/kaneo` with **Issues: Read and write** and **Pull requests: Read and write**.
+It needs no Contents permission or webhook; GitHub Actions handles opening events.
+The installation owner must approve its requested permissions.
+
+Set Actions variable `MELLON_APP_CLIENT_ID` and secret `MELLON_APP_PRIVATE_KEY` to this App's client ID and complete PEM private key.
+Keep Peekareq's `APP_CLIENT_ID` and `APP_PRIVATE_KEY` unchanged.
+The `mellon` workflow derives its comment author from the App's slug; configure the Mellon logo in the App settings.
+
+Before relying on moderation, check that **Create moderation App token** succeeds on the next eligible issue or PR opening after the workflow reaches the default branch.
+A successful Peekareq run does not verify Mellon's permissions.
+If token creation fails, check the dedicated credentials, repository installation, and permission approval, then rerun the failed workflow.
+Never paste installation tokens or private keys into logs or comments.
+
 ## Local use
 
 Requires Node 24, pnpm, git, and authenticated `gh` with contents and PR-comment write access. Workflows use Node 24.

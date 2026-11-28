@@ -1,4 +1,4 @@
-import { readFile } from "node:fs/promises";
+import { open } from "node:fs/promises";
 import type { Context } from "hono";
 import { getLoadedPlugin } from "../registry";
 import { assetContentType } from "./content-type";
@@ -28,12 +28,15 @@ export async function servePluginAsset(c: Context): Promise<Response> {
     return new Response(null, { status: 304, headers });
   }
 
-  const body = await readFile(file.path);
-  return new Response(new Uint8Array(body), {
+  const body =
+    c.req.method === "HEAD"
+      ? null
+      : (await open(file.path)).readableWebStream({ autoClose: true });
+  return new Response(body, {
     headers: {
       ...headers,
       "Content-Type": contentType,
-      "Content-Length": String(body.byteLength),
+      "Content-Length": String(file.size),
     },
   });
 }

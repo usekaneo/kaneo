@@ -121,7 +121,7 @@ export default function BoardScreen() {
     // oxlint-disable-next-line react-hooks/exhaustive-deps -- buildLanes resolves virtual lane labels through i18n.
     [board.data, filters, showPlanned, showArchived, t],
   );
-  const laneWidth = width - inset * 2 - 36;
+  const laneWidth = Math.min(width - inset * 2 - 36, 360);
   const current = lanes[Math.min(page, Math.max(0, lanes.length - 1))];
   const matching = lanes.reduce((n, l) => n + l.tasks.length, 0);
   const activeFilters = filterCount(filters);

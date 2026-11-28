@@ -22,8 +22,6 @@ export function ProjectStep({
 }: ProjectStepProps) {
   const { t } = useTranslation();
   const [error, setError] = useState(false);
-  const ticket =
-    "flex h-5 items-center rounded-md border border-input bg-background px-1.5 font-mono text-[11px] text-foreground dark:bg-input/32";
 
   return (
     <form
@@ -68,12 +66,11 @@ export function ProjectStep({
         ) : (
           <p
             id="onboarding-project-key"
-            className="flex flex-wrap items-center gap-1.5 text-[13px] text-muted-foreground"
+            className="text-[13px] text-muted-foreground"
           >
-            {t("auth:onboarding.project.numbered")}
-            <span className={ticket}>{projectKey}-1</span>
-            <span className={ticket}>{projectKey}-2</span>
-            <span aria-hidden="true">…</span>
+            {t("auth:onboarding.project.ticketStart", {
+              ticket: `${projectKey}-1`,
+            })}
           </p>
         )}
       </div>

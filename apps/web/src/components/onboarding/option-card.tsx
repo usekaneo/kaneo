@@ -25,9 +25,9 @@ export function OptionCard({
   return (
     <label
       className={cn(
-        "flex cursor-pointer items-center gap-3.5 rounded-xl border p-3.5 transition-[border-color,background-color,box-shadow] has-focus-visible:ring-2 has-focus-visible:ring-ring",
+        "flex cursor-pointer items-center gap-3.5 rounded-xl border p-3.5 transition-[border-color,background-color] has-focus-visible:ring-2 has-focus-visible:ring-ring",
         checked
-          ? "border-foreground/50 bg-accent shadow-[0_0_0_3px_--theme(--color-foreground/8%)]"
+          ? "border-foreground/30 bg-accent"
           : "border-input bg-background hover:bg-accent/50 dark:bg-input/32",
       )}
     >
