@@ -212,14 +212,16 @@ describe("legacy credential login migration", () => {
     // Also insert a colliding pair to verify the uniqueness guard skips safely.
     await db.insert(schema.userTable).values([
       {
-        id: "dup-lower",
-        name: "Lower",
-        email: "dup@example.com",
-      },
-      {
         id: "dup-upper",
         name: "Upper",
         email: "Dup@Example.com",
+        locale: "de-DE",
+      },
+      {
+        id: "dup-lower",
+        name: "Lower",
+        email: "dup@example.com",
+        locale: "fr-FR",
       },
     ]);
 
@@ -264,5 +266,13 @@ describe("legacy credential login migration", () => {
       "ist dein Kaneo-Anmeldecode",
     );
     expect(otpData).toMatchObject({ locale: "de-DE" });
+
+    await createApp().app.request("/api/auth/email-otp/send-verification-otp", {
+      method: "POST",
+      headers,
+      body: JSON.stringify({ email: "dup@example.com", type: "sign-in" }),
+    });
+    await drainSignInEmails();
+    expect(otpSpy.mock.calls[1]?.[2]).toMatchObject({ locale: "fr-FR" });
   });
 });

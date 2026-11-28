@@ -196,16 +196,23 @@ try {
 }
 
 async function getUserLocale(email: string) {
-  const normalizedEmail = email.trim().toLowerCase();
-  if (!normalizedEmail) return null;
+  const address = email.trim();
+  if (!address) return null;
 
   const [user] = await db
     .select({ locale: schema.userTable.locale })
     .from(schema.userTable)
-    .where(eq(sql`lower(${schema.userTable.email})`, normalizedEmail))
+    .where(eq(schema.userTable.email, address))
     .limit(1);
+  if (user) return user.locale ?? null;
 
-  return user?.locale ?? null;
+  const matches = await db
+    .select({ locale: schema.userTable.locale })
+    .from(schema.userTable)
+    .where(eq(sql`lower(${schema.userTable.email})`, address.toLowerCase()))
+    .limit(2);
+
+  return matches.length === 1 ? (matches[0]?.locale ?? null) : null;
 }
 
 function getLocaleKey(locale?: string | null) {
