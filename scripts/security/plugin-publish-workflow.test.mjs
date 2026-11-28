@@ -24,10 +24,17 @@ function runPublish(versionSource) {
       join(fixture, "npm"),
       `#!/bin/sh
 if [ "$1" = view ]; then
-  case "$FIXTURE_SOURCE" in
+  published="$FIXTURE_SOURCE"
+  if [ "$published" = mixed ]; then
+    case "$2" in
+      @kaneo/plugin-sdk@*) published=missing ;;
+      *) published=unknown ;;
+    esac
+  fi
+  case "$published" in
     missing) exit 1 ;;
     unknown) printf '%s\\n' null ;;
-    *) printf '"%s"\\n' "$FIXTURE_SOURCE" ;;
+    *) printf '"%s"\\n' "$published" ;;
   esac
 else
   printf '%s\\n' "$*"
@@ -81,4 +88,14 @@ test("an npm release retry accepts only versions published from the same source"
     assert.match(result.stdout, /different or unknown source/);
     assert.doesNotMatch(result.stdout, /publish .+\.tgz/);
   }
+});
+
+test("preflights both package versions before publishing either", () => {
+  const result = runPublish("mixed");
+  assert.equal(result.status, 1, result.stderr);
+  assert.match(
+    result.stdout,
+    /@kaneo\/config@2\.51\.0 was published for a different or unknown source/,
+  );
+  assert.doesNotMatch(result.stdout, /publish .+\.tgz/);
 });

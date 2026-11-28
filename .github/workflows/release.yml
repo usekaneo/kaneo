@@ -303,6 +303,7 @@ jobs:
           VERSION: ${{ needs.plan.outputs.version }}
         run: |
           set -euo pipefail
+          pending_packages=()
           for package in plugin-sdk config; do
             name="@kaneo/$package"
             if published_source="$(npm view "$name@$VERSION" kaneoReleaseCommit --json 2>/dev/null)"; then
@@ -311,8 +312,13 @@ jobs:
                 exit 1
               fi
               echo "$name@$VERSION is already published for $GITHUB_SHA."
-              continue
+            else
+              pending_packages+=("$package")
             fi
+          done
+
+          [[ -n "${pending_packages[0]:-}" ]] || exit 0
+          for package in "${pending_packages[@]}"; do
             npm pkg set "kaneoReleaseCommit=$GITHUB_SHA" --prefix "packages/$package"
             pnpm --dir "packages/$package" pack --pack-destination "$RUNNER_TEMP/npm"
             npm publish "$RUNNER_TEMP/npm/kaneo-$package-$VERSION.tgz" --access public --provenance --ignore-scripts
