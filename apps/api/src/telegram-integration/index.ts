@@ -19,6 +19,7 @@ import {
 import { requireWorkspacePermission } from "../utils/require-workspace-permission";
 import { workspaceAccess } from "../utils/workspace-access-middleware";
 import {
+  assertTelegramServerChange,
   buildNextTelegramConfigFromPatch,
   getTelegramIntegration,
   parseTelegramIntegrationConfig,
@@ -82,7 +83,7 @@ const createTelegramIntegrationRoute = createRoute({
   tags: ["Telegram"],
   summary: "Create Telegram integration",
   description:
-    "Create or replace the Telegram integration for a project. The bot token and chat are checked for shape only, not against Telegram.",
+    "Create or replace the Telegram integration for a project. The bot token and chat are checked for shape only, not against Telegram. A custom serverUrl must use https unless private destinations are allowed.",
   middleware: manageAccess,
   request: {
     params: projectIdParam,
@@ -96,7 +97,7 @@ const createTelegramIntegrationRoute = createRoute({
       "The stored integration",
       telegramIntegrationSchema.nullable(),
     ),
-    400: errorResponse("The bot token or chat failed validation"),
+    400: errorResponse("The bot token, chat, or server URL failed validation"),
     403: errorResponse(
       "No access to the project, or missing workspace:manage_settings",
     ),
@@ -125,7 +126,9 @@ const updateTelegramIntegrationRoute = createRoute({
       "The updated integration",
       telegramIntegrationSchema.nullable(),
     ),
-    400: errorResponse("The resulting config failed validation"),
+    400: errorResponse(
+      "The resulting config failed validation, or serverUrl changed without a bot token",
+    ),
     403: errorResponse(
       "No access to the project, or missing workspace:manage_settings",
     ),
@@ -163,6 +166,7 @@ const telegramIntegration = apiRouter<BaseVariables & { workspaceId: string }>()
 
     const config = normalizeTelegramConfig({
       botToken: body.botToken,
+      serverUrl: body.serverUrl,
       chatId: body.chatId,
       threadId: body.threadId,
       chatLabel: body.chatLabel,
@@ -175,6 +179,7 @@ const telegramIntegration = apiRouter<BaseVariables & { workspaceId: string }>()
         message: validation.errors?.join(", ") ?? "Invalid config",
       });
     }
+    assertTelegramServerChange(config, null, true);
 
     const priorIntegration = await db.query.integrationTable.findFirst({
       where: and(
@@ -259,6 +264,11 @@ const telegramIntegration = apiRouter<BaseVariables & { workspaceId: string }>()
         message: validation.errors?.join(", ") ?? "Invalid config",
       });
     }
+    assertTelegramServerChange(
+      nextConfig,
+      currentConfig,
+      Boolean(body.botToken?.trim()),
+    );
 
     await db
       .update(integrationTable)
