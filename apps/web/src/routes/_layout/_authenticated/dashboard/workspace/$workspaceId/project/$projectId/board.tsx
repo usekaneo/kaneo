@@ -237,6 +237,7 @@ function RouteComponent() {
                 key={projectId}
                 project={sortedProject}
                 subtaskSource={filters.subtaskSource}
+                completeProject={project}
                 disableCollectionActions={boardFetching || boardError}
                 disableDragDrop={
                   boardFetching || boardError || sort.field !== "position"

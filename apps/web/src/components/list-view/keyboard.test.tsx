@@ -97,7 +97,11 @@ function mount({ hideSubtasks = false }: { hideSubtasks?: boolean } = {}) {
   render(
     <QueryClientProvider client={new QueryClient()}>
       <ShortcutTestWrapper>
-        <ListView project={shown} subtaskSource={project} />
+        <ListView
+          project={shown}
+          subtaskSource={project}
+          completeProject={project}
+        />
       </ShortcutTestWrapper>
     </QueryClientProvider>,
   );
@@ -188,4 +192,25 @@ it("nests a hidden subtask under its parent without giving it its own row", () =
     row.getAttribute("data-task-row-id"),
   );
   expect(rows).toEqual(["parent", "parent/child", "sibling", "last"]);
+});
+
+it("reorders a nested-only subtask within its own column", () => {
+  mount({ hideSubtasks: true });
+  press("j", "KeyJ");
+  press("j", "KeyJ");
+  press("ArrowDown", "ArrowDown", true);
+  expect(mocks.mutate).toHaveBeenCalledWith(
+    expect.objectContaining({ id: "child", status: "doing", position: 1 }),
+  );
+});
+
+it("keeps hidden subtasks in the optimistic project after moving a visible row", () => {
+  mount({ hideSubtasks: true });
+  press("j", "KeyJ");
+  press("ArrowDown", "ArrowDown", true);
+  expect(
+    mocks.setProject.mock.lastCall?.[0].columns[1].tasks.map(
+      (task: { id: string }) => task.id,
+    ),
+  ).toEqual(["child", "last"]);
 });

@@ -42,6 +42,7 @@ type ListViewProps = {
   project: ProjectWithTasks;
   /** Where nested subtasks are looked up; defaults to `project`. */
   subtaskSource?: ProjectWithTasks | null;
+  completeProject?: ProjectWithTasks;
   disableDragDrop?: boolean;
   disableCollectionActions?: boolean;
 };
@@ -49,6 +50,7 @@ type ListViewProps = {
 function ListView({
   project,
   subtaskSource,
+  completeProject = project,
   disableDragDrop = false,
   disableCollectionActions = false,
 }: ListViewProps) {
@@ -218,7 +220,7 @@ function ListView({
   const moveTask = (activeTaskId: string, overId: string) => {
     if (disableDragDrop || !project?.columns) return;
 
-    const updatedProject = produce(project, (draft) => {
+    const updatedProject = produce(completeProject, (draft) => {
       const sourceColumn = draft?.columns?.find((col) =>
         col.tasks.some((task) => task.id === activeTaskId),
       );
@@ -315,7 +317,7 @@ function ListView({
     // Repeated children follow their parent for navigation, but reordering
     // must use their actual status and position rather than their nested row.
     getMoveGroups: () =>
-      project.columns.map((column) => ({
+      (subtaskSource ?? project).columns.map((column) => ({
         id: column.id,
         taskIds: column.tasks.map((task) => task.id),
       })),
@@ -350,20 +352,23 @@ function ListView({
   const handleConfirmArchive = () => {
     if (disableCollectionActions || !archiveColumn?.isFinal) return;
 
-    const updatedProject = produce(project, (draft) => {
+    const archivedTaskIds = new Set(archiveColumn.tasks.map((task) => task.id));
+    const updatedProject = produce(completeProject, (draft) => {
       const archivedColumn = draft?.columns?.find(
         (col) => col.id === columnToArchive,
       );
       if (!archivedColumn) return;
 
-      for (const task of archivedColumn.tasks) {
+      for (const task of archiveColumn.tasks) {
         updateTask({
           ...task,
           status: "archived",
         });
       }
 
-      archivedColumn.tasks = [];
+      archivedColumn.tasks = archivedColumn.tasks.filter(
+        (task) => !archivedTaskIds.has(task.id),
+      );
     });
 
     setProject(updatedProject);
