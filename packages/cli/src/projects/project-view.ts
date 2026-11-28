@@ -1,5 +1,6 @@
 import type { Column, Project } from "../api/schemas.js";
 import { projectUrl } from "../render/links.js";
+import { BACKLOG_STATUS, statusTargets } from "../tasks/backlog.js";
 
 export type ColumnCountJson = {
   readonly slug: string;
@@ -50,7 +51,12 @@ export function toProjectView(
     name: project.name,
     description: project.description,
     url: projectUrl(webUrl, project),
-    columns: countByColumn(columns, board.tasks),
+    columns: countByColumn(
+      board.tasks.some((task) => task.status === BACKLOG_STATUS)
+        ? statusTargets(columns, project.id)
+        : columns,
+      board.tasks,
+    ),
     totalTasks: board.total,
   };
 }

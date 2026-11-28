@@ -256,7 +256,7 @@ export const taskCreate = Command.make(
     status: Flag.String("status").pipe(
       Flag.withAlias("s"),
       Flag.withDescription(
-        "Column slug, for example in-progress (default: the first column)",
+        "Column slug, for example in-progress, or planned for the backlog (default: the first column)",
       ),
       Flag.optional,
     ),

@@ -114,12 +114,12 @@ Signs out of a stored login and forgets it.
 kaneo task list [-p <project>] [flags]
 ```
 
-Lists a project's tasks grouped by column.
+Lists a project's tasks grouped by column. Tasks in the backlog are listed under **Backlog**.
 
 | Flag | Description |
 | --- | --- |
 | `-p`, `--project` | Project key or ID |
-| `-s`, `--status` | Only tasks in this column, by slug, such as `in-progress` |
+| `-s`, `--status` | Only tasks in this column, by slug, such as `in-progress`, or `planned` for the backlog |
 | `--priority` | Only tasks with this priority: `no-priority`, `low`, `medium`, `high` or `urgent` |
 | `-a`, `--assignee` | Only tasks assigned to this user ID, or `me` |
 | `--mine` | Only tasks assigned to you, like `--assignee me` |
@@ -166,7 +166,7 @@ Creates a task. In a terminal, the title is asked for when you leave it out.
 | `-d`, `--description` | Description in Markdown, or `-` to read stdin |
 | `-F`, `--description-file` | Read the description from a file, or `-` for stdin |
 | `--priority` | `no-priority`, `low`, `medium`, `high` or `urgent` |
-| `-s`, `--status` | Column slug, such as `in-progress`. Default: the first column. |
+| `-s`, `--status` | Column slug, such as `in-progress`, or `planned` for the backlog. Default: the first column. |
 | `-a`, `--assignee` | `me`, or a member by email, name or ID |
 | `--due` | Due date |
 | `--start` | Start date |
@@ -234,7 +234,7 @@ Opens the task in your browser.
 kaneo task status <task> [<status>]
 ```
 
-Moves a task to another column of its project. The column is a slug or a name, such as `in-progress` or `Done`.
+Moves a task to another column of its project. The column is a slug or a name, such as `in-progress` or `Done`. Use `planned` or `Backlog` to move it to the backlog.
 
 ### `kaneo task move`
 
@@ -262,7 +262,7 @@ Applies one change to many tasks. Pass one change per call. If any task is unkno
 
 | Flag | Description |
 | --- | --- |
-| `-s`, `--status` | Move every task to this column |
+| `-s`, `--status` | Move every task to this column, or `planned` for the backlog |
 | `--priority` | Set this priority on every task |
 | `-a`, `--assignee` | Assign every task to `me`, or a member by email, name or ID |
 | `--unassign` | Remove the assignee from every task |
