@@ -129,6 +129,26 @@ describe("TaskTitle", () => {
     expect(mocks.mutateAsync).toHaveBeenCalledTimes(1);
   });
 
+  it("refreshes a reopened task after a previous editor's save failed", async () => {
+    let fail: (error: Error) => void = () => {};
+    mocks.mutateAsync.mockReturnValueOnce(
+      new Promise<void>((_resolve, reject) => {
+        fail = reject;
+      }),
+    );
+    const previous = render(<TaskTitle taskId="reopened-task" />);
+    edit(getTextarea(previous.container), "Unsaved title");
+    await waitFor(() => expect(mocks.mutateAsync).toHaveBeenCalledOnce());
+    previous.unmount();
+    fail(new Error("offline"));
+    await waitFor(() => expect(mocks.toastError).toHaveBeenCalledOnce());
+
+    const reopened = render(<TaskTitle taskId="reopened-task" />);
+    mocks.task.title = "Updated on server";
+    reopened.rerender(<TaskTitle taskId="reopened-task" />);
+    expect(getTextarea(reopened.container).value).toBe("Updated on server");
+  });
+
   it("preserves a newer draft when a previous save refetches", async () => {
     vi.useFakeTimers();
     mocks.mutateAsync.mockResolvedValue({});

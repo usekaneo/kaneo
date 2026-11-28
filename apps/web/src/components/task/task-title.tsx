@@ -46,9 +46,10 @@ export default function TaskTitle({ taskId, size = "md" }: TaskTitleProps) {
 
   useEffect(() => {
     acknowledgedTitleRef.current = fetchedTitle;
+    const queued = fetchedTaskId ? titleSaveQueue.get(fetchedTaskId) : null;
     if (
       pendingTitleRef.current === null &&
-      !(fetchedTaskId && titleSaveQueue.get(fetchedTaskId))
+      (!queued || queued.state === "failed")
     ) {
       reset({ title: fetchedTitle });
     }
@@ -90,9 +91,10 @@ export default function TaskTitle({ taskId, size = "md" }: TaskTitleProps) {
       const currentTask = taskRef.current;
       if (!currentTask) return;
       const pending = pendingTitleRef.current;
+      const queued = titleSaveQueue.get(currentTask.id);
       if (
         (pending !== null && pending !== acknowledgedTitleRef.current) ||
-        titleSaveQueue.get(currentTask.id)
+        (queued && queued.state !== "failed")
       )
         event.preventDefault();
     };
