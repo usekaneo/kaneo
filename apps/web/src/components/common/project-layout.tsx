@@ -8,12 +8,13 @@ import WorkspaceCrumbSelect from "@/components/common/header/workspace-crumb-sel
 import Layout from "@/components/common/layout";
 import { ProjectScopeToggle } from "@/components/project/views/project-scope-toggle";
 import {
-  PROJECT_ROUTE_PATHS,
   type ProjectRoute,
   resolveProjectView,
 } from "@/components/project/views/project-views";
 import { useGoToProjectView } from "@/components/project/views/use-go-to-project-view";
 import { useProjectViewShortcuts } from "@/components/project/views/use-project-view-shortcuts";
+import { useTasksView } from "@/components/project/views/use-tasks-view";
+import { viewLocation } from "@/components/project/views/view-location";
 import CreateProjectModal from "@/components/shared/modals/create-project-modal";
 import { SidebarTrigger } from "@/components/ui/sidebar";
 import {
@@ -25,6 +26,9 @@ import {
 import useGetProject from "@/hooks/queries/project/use-get-project";
 import { useProjectWebSocket } from "@/hooks/use-project-websocket";
 import { cn } from "@/lib/cn";
+import { pluginLayoutId } from "@/lib/plugins/plugin-layout-id";
+import { usePluginViewShortcuts } from "@/lib/plugins/runtime/use-plugin-view-shortcuts";
+import { useProjectPluginViews } from "@/lib/plugins/runtime/use-project-plugin-views";
 import { getProjectUnavailableReason } from "@/lib/project-unavailable-reason";
 import { useBackgroundStore } from "@/store/background";
 import { useUserPreferencesStore } from "@/store/user-preferences";
@@ -63,6 +67,8 @@ export default function ProjectLayout({
     useState(false);
   const { background } = useBackgroundStore();
   const viewMode = useUserPreferencesStore((state) => state.viewMode);
+  const pluginViews = useProjectPluginViews(workspaceId, projectId);
+  const tasksView = useTasksView(pluginViews);
 
   useProjectWebSocket(unavailableReason ? "" : projectId);
 
@@ -72,9 +78,7 @@ export default function ProjectLayout({
       ? "backlog"
       : location.pathname.includes("/calendar")
         ? "calendar"
-        : location.pathname.includes("/gantt")
-          ? "gantt"
-          : "board");
+        : "board");
   const currentView = resolveProjectView(resolvedRoute, viewMode);
   const showViews = showViewSwitcher && !unavailableReason;
 
@@ -83,16 +87,15 @@ export default function ProjectLayout({
     projectId,
     currentRoute: resolvedRoute,
   });
-  useProjectViewShortcuts(goToView, currentView, showViews);
+  useProjectViewShortcuts(goToView, currentView, tasksView, showViews);
+  usePluginViewShortcuts(
+    pluginViews,
+    (view) => goToView(pluginLayoutId(view)),
+    showViews,
+  );
 
   const handleProjectSwitch = (nextProjectId: string) => {
-    navigate({
-      to: PROJECT_ROUTE_PATHS[resolvedRoute],
-      params: {
-        workspaceId,
-        projectId: nextProjectId,
-      },
-    });
+    navigate(viewLocation(resolvedRoute, workspaceId, nextProjectId));
   };
 
   return (
@@ -156,6 +159,7 @@ export default function ProjectLayout({
                 workspaceId={workspaceId}
                 projectId={projectId}
                 currentView={currentView}
+                tasksView={tasksView}
                 onSelect={goToView}
               />
             )}

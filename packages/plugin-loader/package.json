@@ -1,0 +1,32 @@
+{
+	"name": "@kaneo/plugin-loader",
+	"version": "0.0.0",
+	"private": true,
+	"type": "module",
+	"main": "./dist/index.js",
+	"types": "./dist/index.d.ts",
+	"exports": {
+		".": {
+			"types": "./dist/index.d.ts",
+			"default": "./dist/index.js"
+		}
+	},
+	"license": "MIT",
+	"scripts": {
+		"build": "vp run compile",
+		"lint": "vp check .",
+		"test": "vp run test:run",
+		"typecheck": "vp run check:types"
+	},
+	"dependencies": {
+		"@kaneo/plugin-sdk": "workspace:*",
+		"semver": "^7.8.5"
+	},
+	"devDependencies": {
+		"@kaneo/typescript-config": "workspace:*",
+		"@types/node": "^26.6.2",
+		"@types/semver": "^7.8.0",
+		"typescript": "^7.0.2",
+		"vite-plus": "catalog:"
+	}
+}

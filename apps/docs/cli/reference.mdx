@@ -114,12 +114,12 @@ Signs out of a stored login and forgets it.
 kaneo task list [-p <project>] [flags]
 ```
 
-Lists a project's tasks grouped by column.
+Lists a project's tasks grouped by column. Tasks in the backlog are listed under **Backlog**.
 
 | Flag | Description |
 | --- | --- |
 | `-p`, `--project` | Project key or ID |
-| `-s`, `--status` | Only tasks in this column, by slug, such as `in-progress` |
+| `-s`, `--status` | Only tasks in this column, by slug, such as `in-progress`, or `planned` for the backlog |
 | `--priority` | Only tasks with this priority: `no-priority`, `low`, `medium`, `high` or `urgent` |
 | `-a`, `--assignee` | Only tasks assigned to this user ID, or `me` |
 | `--mine` | Only tasks assigned to you, like `--assignee me` |
@@ -166,7 +166,7 @@ Creates a task. In a terminal, the title is asked for when you leave it out.
 | `-d`, `--description` | Description in Markdown, or `-` to read stdin |
 | `-F`, `--description-file` | Read the description from a file, or `-` for stdin |
 | `--priority` | `no-priority`, `low`, `medium`, `high` or `urgent` |
-| `-s`, `--status` | Column slug, such as `in-progress`. Default: the first column. |
+| `-s`, `--status` | Column slug, such as `in-progress`, or `planned` for the backlog. Default: the first column. |
 | `-a`, `--assignee` | `me`, or a member by email, name or ID |
 | `--due` | Due date |
 | `--start` | Start date |
@@ -234,7 +234,7 @@ Opens the task in your browser.
 kaneo task status <task> [<status>]
 ```
 
-Moves a task to another column of its project. The column is a slug or a name, such as `in-progress` or `Done`.
+Moves a task to another column of its project. The column is a slug or a name, such as `in-progress` or `Done`. Use `planned` or `Backlog` to move it to the backlog.
 
 ### `kaneo task move`
 
@@ -262,7 +262,7 @@ Applies one change to many tasks. Pass one change per call. If any task is unkno
 
 | Flag | Description |
 | --- | --- |
-| `-s`, `--status` | Move every task to this column |
+| `-s`, `--status` | Move every task to this column, or `planned` for the backlog |
 | `--priority` | Set this priority on every task |
 | `-a`, `--assignee` | Assign every task to `me`, or a member by email, name or ID |
 | `--unassign` | Remove the assignee from every task |
@@ -853,6 +853,38 @@ kaneo notification read [<id...>] [--all]
 ```
 
 Marks notifications as read. Pass notification IDs or the short IDs from `kaneo notification list`, or `-a`, `--all` for every notification.
+
+## Plugins
+
+These commands manage [plugins](/core/plugins) on a self-hosted instance. `add` and `check` work on the project folder with your Kaneo config and need no login. They use `--project <dir>`, else `KANEO_PROJECT_DIR`, else `/kaneo` if it exists, else the current folder. They need the Kaneo version the plugins are for: `--kaneo-version`, else the Kaneo installation the CLI runs in, such as Kaneo's Docker image, else the version of `@kaneo/config` installed in the project.
+
+### `kaneo plugin list`
+
+Lists the plugins installed on the server with their ID and version, whether they are built in, and whether they are on in your workspace.
+
+### `kaneo plugin add`
+
+```bash
+kaneo plugin add <package> [--yes] [--project <dir>] [--kaneo-version <version>]
+```
+
+Installs the newest stable release of an npm package whose `engines.kaneo` range includes your Kaneo version, pins it with `npm install --save-exact --ignore-scripts`, and adds it to your Kaneo config. It creates `kaneo.config.mjs` if no config exists. It also installs `@kaneo/config` the first time. npm does the lookup and the install, so it must be installed, and `.npmrc` and private registries work. A package that is not in the [plugin catalog](https://kaneo.app/plugins) needs confirmation, or `-y`, `--yes` in scripts. `KANEO_PLUGIN_CATALOG_URL` points the check at another catalog index.
+
+### `kaneo plugin check`
+
+```bash
+kaneo plugin check [--project <dir>] [--config <path>] [--kaneo-version <version>]
+```
+
+Runs the startup checks for the plugins in the config, without starting Kaneo or connecting to the database. Built-in plugins are only checked inside a Kaneo installation. `--config` checks another config file. Exits with code 1 when a plugin would stop Kaneo from starting. The JSON output lists each plugin with its `status`, and the `stage` and `message` of each failure.
+
+### `kaneo plugin purge`
+
+```bash
+kaneo plugin purge <id> [--yes]
+```
+
+Deletes the data and settings a removed plugin stored, in every workspace, and prints how many rows it deleted. The server refuses while the plugin is installed. Needs a login, not an API key, with the `instance:settings` permission.
 
 ## Search and API
 

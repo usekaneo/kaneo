@@ -12,7 +12,11 @@ export type ToolClient = {
 export type ToolRegistrar = {
   registerTool(
     name: string,
-    config: { description: string; inputSchema: z.ZodObject },
+    config: {
+      description: string;
+      inputSchema: z.ZodObject;
+      annotations?: { readOnlyHint?: boolean };
+    },
     callback: (args: unknown) => Promise<CallToolResult>,
   ): unknown;
 };
@@ -39,6 +43,7 @@ const hexColorSchema = z
     /^#(?:[0-9a-fA-F]{3}|[0-9a-fA-F]{6})$/,
     "Expected a hex color like #FF6600",
   );
+const readOnly = { annotations: { readOnlyHint: true } } as const;
 
 function run(fn: () => Promise<unknown>): Promise<CallToolResult> {
   return fn()
@@ -67,6 +72,7 @@ export function registerTools(
   registerTool(
     "whoami",
     {
+      ...readOnly,
       description:
         "Return the current Kaneo user for the configured authentication method.",
       inputSchema: z.object({}),
@@ -77,6 +83,7 @@ export function registerTools(
   registerTool(
     "list_workspaces",
     {
+      ...readOnly,
       description:
         "List workspaces (Better Auth organizations) the signed-in user can access.",
       inputSchema: z.object({}),
@@ -88,6 +95,7 @@ export function registerTools(
   registerTool(
     "list_projects",
     {
+      ...readOnly,
       description: "List projects in a workspace.",
       inputSchema: z.object({
         workspaceId: nonEmptyString.describe("Workspace ID"),
@@ -112,6 +120,7 @@ export function registerTools(
   registerTool(
     "get_project",
     {
+      ...readOnly,
       description: "Get a single project by ID.",
       inputSchema: z.object({ id: nonEmptyString }),
     },
@@ -225,6 +234,7 @@ export function registerTools(
   registerTool(
     "list_tasks",
     {
+      ...readOnly,
       description:
         "List a bounded page of tasks for a project (50 by default, maximum 100). Use pagination.totalPages and page to retrieve the rest; filters and sorting apply before pagination. For every task page, also follow relatedPage through pagination.relatedTotalPages for complete labels, links and column metadata. Custom field values are not included; use get_task_custom_field_values.",
       inputSchema: listTasksSchema,
@@ -247,6 +257,7 @@ export function registerTools(
   registerTool(
     "get_task",
     {
+      ...readOnly,
       description:
         "Get a task by ID. Custom field values are not included; use get_task_custom_field_values.",
       inputSchema: z.object({ taskId: nonEmptyString }),
@@ -262,6 +273,7 @@ export function registerTools(
   registerTool(
     "get_task_by_ticket_id",
     {
+      ...readOnly,
       description:
         "Get one task by its ticket ID (project key and number, e.g. KAN-12). If multiple accessible tasks share the ID, provide workspaceId or projectId.",
       inputSchema: z.object({
@@ -430,6 +442,7 @@ export function registerTools(
   registerTool(
     "list_task_comments",
     {
+      ...readOnly,
       description: "List comments on a task.",
       inputSchema: z.object({ taskId: nonEmptyString }),
     },
@@ -494,6 +507,7 @@ export function registerTools(
   registerTool(
     "list_workspace_labels",
     {
+      ...readOnly,
       description: "List labels defined in a workspace.",
       inputSchema: z.object({ workspaceId: nonEmptyString }),
     },
@@ -591,6 +605,7 @@ export function registerTools(
   registerTool(
     "get_task_relations",
     {
+      ...readOnly,
       description:
         "List all relations (subtask/blocks/related) involving a task.",
       inputSchema: z.object({ taskId: nonEmptyString }),
@@ -655,6 +670,7 @@ export function registerTools(
   registerTool(
     "list_workspace_members",
     {
+      ...readOnly,
       description:
         "List the members of a workspace. Use this to resolve the user ID an assignee tool expects.",
       inputSchema: z.object({ workspaceId: nonEmptyString }),
@@ -670,6 +686,7 @@ export function registerTools(
   registerTool(
     "search",
     {
+      ...readOnly,
       description:
         "Search across tasks, projects, workspaces, comments, and activities.",
       inputSchema: z.object({
@@ -709,6 +726,7 @@ export function registerTools(
   registerTool(
     "list_project_columns",
     {
+      ...readOnly,
       description:
         "List a project's columns. Their slugs are the values update_task_status and create_task accept as a status.",
       inputSchema: z.object({ projectId: nonEmptyString }),
@@ -722,6 +740,7 @@ export function registerTools(
   registerTool(
     "list_project_custom_fields",
     {
+      ...readOnly,
       description:
         "List a project's custom field definitions: id, name, type (text, number, date, dropdown, boolean, multiselect), required, options, and defaultValue.",
       inputSchema: z.object({ projectId: nonEmptyString }),
@@ -737,6 +756,7 @@ export function registerTools(
   registerTool(
     "get_task_custom_field_values",
     {
+      ...readOnly,
       description:
         "List a task's custom field values with each field's name, type, and options. Fields without a value are omitted. Multiselect values are JSON array strings.",
       inputSchema: z.object({ taskId: nonEmptyString }),
@@ -879,6 +899,7 @@ export function registerTools(
   registerTool(
     "list_task_time_entries",
     {
+      ...readOnly,
       description: "List the time entries logged against a task.",
       inputSchema: z.object({ taskId: nonEmptyString }),
     },
@@ -891,6 +912,7 @@ export function registerTools(
   registerTool(
     "get_time_entry",
     {
+      ...readOnly,
       description: "Get a single time entry by ID.",
       inputSchema: z.object({ id: nonEmptyString }),
     },
@@ -952,6 +974,7 @@ export function registerTools(
   registerTool(
     "list_task_activity",
     {
+      ...readOnly,
       description: "List a task's activity history.",
       inputSchema: z.object({ taskId: nonEmptyString }),
     },
@@ -964,6 +987,7 @@ export function registerTools(
   registerTool(
     "list_notifications",
     {
+      ...readOnly,
       description: "List the signed-in user's notifications.",
       inputSchema: z.object({}),
     },

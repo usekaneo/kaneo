@@ -2,6 +2,8 @@ import { cleanup, render, screen } from "@testing-library/react";
 import type { ReactNode } from "react";
 import { afterEach, describe, expect, it, vi } from "vite-plus/test";
 import { HttpError } from "@/lib/http-error";
+import type { ProjectPluginView } from "@/lib/plugins/runtime/use-project-plugin-views";
+import { useUserPreferencesStore } from "@/store/user-preferences";
 import ProjectLayout from "./project-layout";
 
 const project = vi.hoisted(() => ({
@@ -21,6 +23,19 @@ vi.mock("@tanstack/react-router", () => ({
     <a href={to}>{children}</a>
   ),
 }));
+const plugin = vi.hoisted(() => ({
+  views: [] as ProjectPluginView[],
+}));
+
+vi.mock(
+  "@/lib/plugins/runtime/use-project-plugin-views",
+  async (importOriginal) => ({
+    ...(await importOriginal<
+      typeof import("@/lib/plugins/runtime/use-project-plugin-views")
+    >()),
+    useProjectPluginViews: () => plugin.views,
+  }),
+);
 vi.mock("@/components/project/views/use-project-view-shortcuts", () => ({
   useProjectViewShortcuts: () => undefined,
 }));
@@ -56,7 +71,22 @@ vi.mock("@/components/shared/modals/create-project-modal", () => ({
 }));
 vi.mock("@/components/page-title", () => ({ default: () => null }));
 
-afterEach(cleanup);
+const PLUGIN_PATH =
+  "/dashboard/workspace/$workspaceId/project/$projectId/plugin/$pluginId/$viewId";
+
+const timeline: ProjectPluginView = {
+  pluginId: "gantt",
+  viewId: "timeline",
+  title: "Timeline",
+  icon: undefined,
+  shortcut: "g",
+};
+
+afterEach(() => {
+  cleanup();
+  plugin.views = [];
+  useUserPreferencesStore.setState({ taskLayout: "board", viewMode: "board" });
+});
 
 function renderLayout() {
   render(
@@ -125,5 +155,50 @@ describe("ProjectLayout access states", () => {
     expect(backlog.getAttribute("href")).toBe(
       "/dashboard/workspace/$workspaceId/project/$projectId/backlog",
     );
+  });
+  it("treats an open plugin layout as a tasks layout", () => {
+    project.current = { data: { name: "Alpha" }, error: null };
+    plugin.views = [timeline];
+    render(
+      <ProjectLayout
+        projectId="project-1"
+        workspaceId="workspace-1"
+        activeView="plugin:gantt:timeline"
+      >
+        <p>Timeline content</p>
+      </ProjectLayout>,
+    );
+
+    const tasks = screen.getByRole("link", { name: "tasks:title" });
+    expect(tasks.getAttribute("aria-current")).toBe("page");
+    expect(tasks.getAttribute("href")).toBe(PLUGIN_PATH);
+  });
+
+  it("sends the tasks tab to a remembered plugin layout while it is available", () => {
+    project.current = { data: { name: "Alpha" }, error: null };
+    useUserPreferencesStore.setState({ taskLayout: "plugin:gantt:timeline" });
+    const renderBacklog = () =>
+      render(
+        <ProjectLayout
+          projectId="project-1"
+          workspaceId="workspace-1"
+          activeView="backlog"
+        >
+          <p>Backlog content</p>
+        </ProjectLayout>,
+      );
+
+    plugin.views = [timeline];
+    renderBacklog();
+    expect(
+      screen.getByRole("link", { name: "tasks:title" }).getAttribute("href"),
+    ).toBe(PLUGIN_PATH);
+
+    cleanup();
+    plugin.views = [];
+    renderBacklog();
+    expect(
+      screen.getByRole("link", { name: "tasks:title" }).getAttribute("href"),
+    ).toBe("/dashboard/workspace/$workspaceId/project/$projectId/board");
   });
 });

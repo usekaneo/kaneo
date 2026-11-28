@@ -156,6 +156,13 @@
 				"statusLoadError": "Project statuses couldn’t be loaded."
 			}
 		},
+		"plugins": {
+			"commandFailed": "Не вдалося виконати команду плагіна",
+			"failedToLoad": "Не вдалося завантажити цей плагін",
+			"openTaskFailed": "Не вдалося відкрити завдання",
+			"unavailable": "Це подання плагіна недоступне",
+			"layoutPageTitle": "{{name}} / {{view}}"
+		},
 		"editor": {
 			"link": {
 				"label": "URL посилання",
@@ -767,7 +774,6 @@
 			"selectViewMode": "Обрати режим перегляду",
 			"board": "Дошка",
 			"list": "Список",
-			"gantt": "Ґант",
 			"priorityIcons": "Значки пріоритету",
 			"priorityIconsDescription": "Як пріоритет завдання виглядає на картках, у рядках і меню.",
 			"priorityIconsMarks": "Позначки",
@@ -1180,7 +1186,9 @@
 			"validation": {
 				"botTokenInvalid": "Введіть дійсний токен бота Telegram",
 				"chatIdRequired": "ID чату є обов'язковим",
-				"threadIdInvalid": "Введіть дійсний ID теми"
+				"threadIdInvalid": "Введіть дійсний ID теми",
+				"botTokenRequiredForServer": "Enter the bot token again to use a different server",
+				"serverUrlInvalid": "Enter a valid server URL, for example https://tg.example.com"
 			},
 			"toast": {
 				"saved": "Інтеґрацію з Telegram успішно збережено",
@@ -1195,6 +1203,9 @@
 			"botTokenPlaceholder": "123456789:AAExampleBotToken",
 			"botTokenHint": "Створіть бота через BotFather та вставте його токен сюди.",
 			"botTokenHintConfigured": "Поточний токен: {{token}}",
+			"serverUrlHint": "Optional. Set this if you run your own Bot API server. Leave empty to use api.telegram.org.",
+			"serverUrlLabel": "Bot API server URL",
+			"serverUrlPlaceholder": "https://api.telegram.org",
 			"chatIdLabel": "ID чату",
 			"chatIdPlaceholder": "-1001234567890 або @team_updates",
 			"threadIdLabel": "ID теми",
@@ -2002,6 +2013,43 @@
 				"description": "Платіж отримано. План нижче оновиться, щойно його буде підтверджено."
 			}
 		},
+		"workspacePlugins": {
+			"empty": {
+				"description": "Плагіни додає адміністратор інстансу в kaneo.config.ts. Після встановлення плагін з'явиться тут, і адміністратори робочого простору зможуть його увімкнути.",
+				"link": "Докладніше про плагіни",
+				"title": "Немає встановлених плагінів"
+			},
+			"enable": "Увімкнути {{name}}",
+			"form": {
+				"none": "Немає",
+				"save": "Зберегти налаштування",
+				"secretCancel": "Скасувати",
+				"secretClear": "Очистити",
+				"secretConfigured": "Налаштовано",
+				"secretPlaceholder": "Введіть нове значення",
+				"secretReplace": "Замінити",
+				"secretUndo": "Повернути",
+				"secretWillClear": "Буде очищено після збереження",
+				"selectPlaceholder": "Оберіть варіант"
+			},
+			"loadError": "Не вдалося завантажити плагіни. Оновіть сторінку, щоб спробувати ще раз.",
+			"pageTitle": "Налаштування плагінів",
+			"status": {
+				"failed": "Помилка завантаження",
+				"loaded": "Активний",
+				"loading": "Завантаження"
+			},
+			"subtitle": "Оберіть, які встановлені плагіни використовує цей робочий простір, і налаштуйте їх.",
+			"title": "Плагіни",
+			"toast": {
+				"disabled": "Плагін {{name}} вимкнено",
+				"enabled": "Плагін {{name}} увімкнено",
+				"invalid": "Деякі налаштування потребують уваги",
+				"saved": "Налаштування плагіна збережено",
+				"updateError": "Не вдалося оновити плагін"
+			},
+			"builtIn": "Вбудований"
+		},
 		"syncRules": {
 			"addLabel": "Add label",
 			"advancedHint": "Enable Advanced settings in Preferences to edit these rules.",
@@ -2605,6 +2653,7 @@
 				"roleDeleted": "Role deleted",
 				"roleUpdated": "Role updated",
 				"instanceSettingsUpdated": "Updated instance settings",
+				"pluginDataPurged": "Дані плагіна видалено",
 				"webhookCreated": "Created webhook",
 				"webhookDeleted": "Deleted webhook",
 				"webhookSecretRotated": "Rotated webhook secret",
@@ -2957,7 +3006,8 @@
 				"navigate": "Навігація",
 				"open": "Відкрити",
 				"close": "Закрити"
-			}
+			},
+			"plugins": "Плагіни"
 		},
 		"sidebar": {
 			"projects": "Проєкти",
@@ -4657,7 +4707,8 @@
 				"empty": "Немає посилань",
 				"url": "URL",
 				"titleLabel": "Назва",
-				"optional": "Необов’язково"
+				"optional": "Необов’язково",
+				"openFailed": "Couldn’t open this link."
 			},
 			"time": {
 				"title": "Час",

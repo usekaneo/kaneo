@@ -1,0 +1,42 @@
+{
+	"name": "@kaneo/config",
+	"version": "0.1.0",
+	"description": "Typed configuration for self-hosted Kaneo instances",
+	"license": "MIT",
+	"author": "Kaneo (https://kaneo.app)",
+	"homepage": "https://kaneo.app/docs/core/plugins",
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/usekaneo/kaneo/",
+		"directory": "packages/config"
+	},
+	"type": "module",
+	"main": "./dist/index.js",
+	"types": "./dist/index.d.ts",
+	"exports": {
+		".": {
+			"types": "./dist/index.d.ts",
+			"default": "./dist/index.js"
+		}
+	},
+	"files": [
+		"dist",
+		"LICENSE"
+	],
+	"publishConfig": {
+		"access": "public"
+	},
+	"scripts": {
+		"build": "vp run compile",
+		"prepublishOnly": "pnpm run build",
+		"lint": "vp check ."
+	},
+	"dependencies": {
+		"@kaneo/plugin-sdk": "workspace:*"
+	},
+	"devDependencies": {
+		"@kaneo/typescript-config": "workspace:*",
+		"typescript": "^7.0.2",
+		"vite-plus": "catalog:"
+	}
+}

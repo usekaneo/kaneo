@@ -35,6 +35,9 @@ vi.mock("@/hooks/queries/workspace/use-active-workspace", () => ({
 vi.mock("@/hooks/queries/config/use-get-config", () => ({
   default: () => ({ data: undefined }),
 }));
+vi.mock("@/hooks/queries/project/use-get-project", () => ({
+  default: () => ({ data: undefined }),
+}));
 vi.mock("@/lib/auth-client", () => ({
   authClient: { useSession: () => ({ data: null }) },
 }));

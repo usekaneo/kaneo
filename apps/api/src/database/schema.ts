@@ -22,7 +22,7 @@ import type { TaskRecurrence } from "../task/recurrence/schema";
 // Timestamp columns without a time zone hold UTC (Drizzle reads and writes
 // them as UTC). A bare now() default would be cast through the session time
 // zone, storing shifted times on servers not running in UTC.
-const utcNow = sql`(now() AT TIME ZONE 'utc')`;
+export const utcNow = sql`(now() AT TIME ZONE 'utc')`;
 
 const bytea = customType<{ data: Buffer; driverData: Buffer }>({
   dataType() {
@@ -776,6 +776,10 @@ export const jobLeaseTable = pgTable("job_lease", {
   name: text("name").primaryKey(),
   owner: text("owner").notNull(),
   expiresAt: timestamp("expires_at", { mode: "date" }).notNull(),
+  lastScheduledAt: timestamp("last_scheduled_at", {
+    mode: "date",
+    withTimezone: true,
+  }),
 });
 
 export const taskReminderSentTable = pgTable(
@@ -974,6 +978,42 @@ export const labelTable = pgTable(
     uniqueIndex("label_workspace_name_unique")
       .on(table.workspaceId, table.name)
       .where(sql`${table.taskId} is null`),
+  ],
+);
+
+// Survives deleting a label so a later DELETE can finish its external effects.
+// Migration 0074 also reserves (task_id, name) against label writes using
+// database triggers, including writers outside the label controllers.
+export const labelDeletionTable = pgTable(
+  "label_deletion",
+  {
+    id: text("id").primaryKey(),
+    deletionId: text("deletion_id").notNull(),
+    userId: text("user_id").notNull(),
+    pendingEffects: text("pending_effects", {
+      enum: ["github", "gitea", "gitlab", "event"],
+    })
+      .array()
+      .default(sql`ARRAY['github', 'gitea', 'gitlab', 'event']::text[]`)
+      .notNull(),
+    name: text("name").notNull(),
+    color: text("color").notNull(),
+    createdAt: timestamp("created_at", { mode: "date" }).notNull(),
+    updatedAt: timestamp("updated_at", { mode: "date" }).notNull(),
+    deletionStartedAt: timestamp("deletion_started_at", { mode: "date" }),
+    taskId: text("task_id").references(() => taskTable.id, {
+      onDelete: "cascade",
+      onUpdate: "cascade",
+    }),
+    workspaceId: text("workspace_id").references(() => workspaceTable.id, {
+      onDelete: "cascade",
+      onUpdate: "cascade",
+    }),
+  },
+  (table) => [
+    index("label_deletion_deletion_id_idx").on(table.deletionId),
+    index("label_deletion_task_id_idx").on(table.taskId),
+    index("label_deletion_workspace_id_idx").on(table.workspaceId),
   ],
 );
 
@@ -1660,3 +1700,70 @@ export const dataMigrationTable = pgTable("data_migration", {
     .default(utcNow)
     .notNull(),
 });
+
+export const workspacePluginTable = pgTable(
+  "workspace_plugin",
+  {
+    id: text("id")
+      .$defaultFn(() => createId())
+      .primaryKey(),
+    workspaceId: text("workspace_id")
+      .notNull()
+      .references(() => workspaceTable.id, {
+        onDelete: "cascade",
+        onUpdate: "cascade",
+      }),
+    pluginId: text("plugin_id").notNull(),
+    enabled: boolean("enabled").default(false).notNull(),
+    settings: jsonb("settings")
+      .$type<Record<string, unknown>>()
+      .default({})
+      .notNull(),
+    createdAt: timestamp("created_at", { mode: "date" })
+      .default(utcNow)
+      .notNull(),
+    updatedAt: timestamp("updated_at", { mode: "date" })
+      .default(utcNow)
+      .$onUpdate(() => new Date())
+      .notNull(),
+  },
+  (table) => [
+    unique("workspace_plugin_workspace_plugin_unique").on(
+      table.workspaceId,
+      table.pluginId,
+    ),
+  ],
+);
+
+export const pluginStorageTable = pgTable(
+  "plugin_storage",
+  {
+    id: text("id")
+      .$defaultFn(() => createId())
+      .primaryKey(),
+    pluginId: text("plugin_id").notNull(),
+    workspaceId: text("workspace_id")
+      .notNull()
+      .references(() => workspaceTable.id, {
+        onDelete: "cascade",
+        onUpdate: "cascade",
+      }),
+    key: text("key").notNull(),
+    value: jsonb("value").notNull(),
+    createdAt: timestamp("created_at", { mode: "date" })
+      .default(utcNow)
+      .notNull(),
+    updatedAt: timestamp("updated_at", { mode: "date" })
+      .default(utcNow)
+      .$onUpdate(() => new Date())
+      .notNull(),
+  },
+  (table) => [
+    index("plugin_storage_workspaceId_idx").on(table.workspaceId),
+    unique("plugin_storage_plugin_workspace_key_unique").on(
+      table.pluginId,
+      table.workspaceId,
+      table.key,
+    ),
+  ],
+);

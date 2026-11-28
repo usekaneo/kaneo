@@ -2,11 +2,11 @@ import { useNavigate } from "@tanstack/react-router";
 import { useCallback } from "react";
 import { useUserPreferencesStore } from "@/store/user-preferences";
 import {
-  PROJECT_ROUTE_PATHS,
   type ProjectRoute,
   type ProjectView,
   routeForView,
 } from "./project-views";
+import { viewLocation } from "./view-location";
 
 export function useGoToProjectView({
   workspaceId,
@@ -27,10 +27,7 @@ export function useGoToProjectView({
       if (view !== "backlog") setTaskLayout(view);
       const route = routeForView(view);
       if (route === currentRoute) return;
-      navigate({
-        to: PROJECT_ROUTE_PATHS[route],
-        params: { workspaceId, projectId },
-      });
+      navigate(viewLocation(route, workspaceId, projectId));
     },
     [
       currentRoute,

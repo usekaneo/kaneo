@@ -57,9 +57,11 @@ import gitlabIntegration, {
 } from "./gitlab-integration";
 import importRoutes from "./import";
 import { stopActiveImports } from "./import/runs/stop-active-imports";
+import { stopActiveRequestLeases } from "./database/with-request-lease";
 import getInstanceStatus from "./instance/controllers/get-instance-status";
 import invitation from "./invitation";
 import label from "./label";
+import { isPendingLabelDeletionError } from "./label/is-pending-label-deletion-error";
 import mattermostIntegration from "./mattermost-integration";
 import mcpRoutes, { mcpWellKnownRoutes } from "./mcp";
 import { migrateColumns } from "./migrations/column-migration";
@@ -67,6 +69,16 @@ import notification from "./notification";
 import notificationPreferences from "./notification-preferences";
 import oauth from "./oauth";
 import { createRoute, errorResponse, jsonResponse, z } from "./openapi";
+import {
+  dispatchPluginRoute,
+  dispatchPluginWebhook,
+  loadConfiguredPlugins,
+  PluginLoadError,
+  pluginRoutes,
+  servePluginAsset,
+  startPluginEventBridge,
+  stopPluginJobs,
+} from "./plugin-host";
 import { initializePlugins, integrationPlugins } from "./plugins";
 import { migrateGitHubIntegration } from "./plugins/github/migration";
 import project from "./project";
@@ -196,6 +208,14 @@ export function createApp() {
   app.use("*", clientIpMiddleware());
 
   app.onError((err) => {
+    if (isPendingLabelDeletionError(err)) {
+      return httpExceptionResponse(
+        new HTTPException(409, {
+          message:
+            "This label is being deleted; finish its deletion before assigning it again",
+        }),
+      );
+    }
     if (err instanceof HTTPException) {
       // expected errors (401/404/...) are not reported; real failures are
       if (err.status >= 500) {
@@ -453,6 +473,9 @@ export function createApp() {
     "/gitlab-integration/webhook/:integrationId",
     handleGitlabWebhookRoute,
   );
+
+  api.get("/plugins/:pluginId/assets/*", servePluginAsset);
+  api.all("/plugins/:pluginId/webhooks/*", dispatchPluginWebhook);
 
   api.post(
     "/auth/oauth2/backchannel-logout/custom",
@@ -875,6 +898,8 @@ export function createApp() {
   const importApi = api.route("/import", importRoutes);
   const userApi = api.route("/user", user);
   const adminApi = api.route("/admin", admin);
+  const pluginApi = api.route("/plugins", pluginRoutes);
+  api.all("/plugins/:pluginId/*", dispatchPluginRoute);
 
   app.route(
     "/",
@@ -1016,6 +1041,7 @@ export function createApp() {
     customFieldApi,
     importApi,
     oauthApi,
+    pluginApi,
   };
 }
 
@@ -1052,6 +1078,8 @@ export async function runStartupTasks() {
   await seedDefaultWorkspaceRoles();
 
   initializePlugins();
+  await loadConfiguredPlugins();
+  startPluginEventBridge();
   initializeScheduler();
   await initializeWebSocketAdapter();
 }
@@ -1063,7 +1091,11 @@ export async function startServer(
   try {
     await runStartupTasks();
   } catch (error) {
-    console.error("❌ Database migration failed!", error);
+    if (error instanceof PluginLoadError) {
+      console.error(error.format());
+    } else {
+      console.error("❌ Database migration failed!", error);
+    }
     process.exit(1);
   }
 
@@ -1089,17 +1121,25 @@ export async function startServer(
     shuttingDown = true;
 
     console.log("🛑 Shutting down gracefully...");
+    server.close();
+    const requestLeasesStopped = stopActiveRequestLeases();
     shutdownScheduler();
+    stopPluginJobs();
     await stopWebhookWorker();
     await shutdownWebSocketAdapter();
-    server.close();
-    const [, signInEmailsDrained] = await Promise.all([
+    const [, signInEmailsDrained, , requestLeasesReleased] = await Promise.all([
       drainPasswordResetDeliveries(),
       drainSignInEmails(),
       stopActiveImports(),
+      requestLeasesStopped,
     ]);
     if (!signInEmailsDrained) {
       console.warn("Timed out waiting for pending sign-in emails");
+    }
+    if (!requestLeasesReleased) {
+      console.warn(
+        "Request leases could not be released before shutdown; expiry will recover them",
+      );
     }
     process.exit(0);
   };
@@ -1151,6 +1191,7 @@ const {
   customFieldApi,
   importApi,
   oauthApi,
+  pluginApi,
 } = createdApp;
 
 const entrypoint = process.argv[1];
@@ -1197,6 +1238,7 @@ export type AppType =
   | typeof adminApi
   | typeof publicProjectApi
   | typeof invitationPublicApi
-  | typeof oauthApi;
+  | typeof oauthApi
+  | typeof pluginApi;
 
 export default app;

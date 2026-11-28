@@ -1,5 +1,6 @@
 import {
   apiRouter,
+  type BaseVariables,
   createRoute,
   errorResponse,
   jsonResponse,
@@ -88,7 +89,7 @@ const createLabelRoute = createRoute({
     400: errorResponse("Invalid body, or workspace ID could not be determined"),
     403: errorResponse("Missing label:create permission"),
     404: errorResponse("Workspace or task not found"),
-    409: errorResponse("The workspace label is being deleted"),
+    409: errorResponse("The label or its task assignment is being deleted"),
   },
 });
 
@@ -136,7 +137,7 @@ const attachLabelToTaskRoute = createRoute({
       "No access to the project, or missing label:update permission",
     ),
     404: errorResponse("Label or task not found"),
-    409: errorResponse("The workspace label is being deleted"),
+    409: errorResponse("The label or its task assignment is being deleted"),
   },
 });
 
@@ -182,7 +183,9 @@ const updateLabelRoute = createRoute({
   },
   responses: {
     200: jsonResponse("Label updated successfully", labelSchema),
-    409: errorResponse("The workspace label is being deleted"),
+    409: errorResponse(
+      "The label is being deleted or changed concurrently; retry the update",
+    ),
     400: errorResponse("Invalid body"),
     403: errorResponse(
       "No access to the project, or missing label:update permission",
@@ -200,7 +203,7 @@ const deleteLabelRoute = createRoute({
   description:
     "Delete a label by ID. Large workspace cascades remove at most 25 task copies per request. Repeat DELETE with the same ID after HTTP 202 until HTTP 200 completes the operation. The persisted start boundary allows safe resumption after a disconnect. HTTP 429 asks the caller to retry later.",
   middleware: [
-    workspaceAccess.fromLabel(),
+    workspaceAccess.fromLabelDeletion(),
     requireWorkspacePermission({ label: ["delete"] }),
   ] as const,
   request: { params: labelParam },
@@ -210,7 +213,7 @@ const deleteLabelRoute = createRoute({
       "Deletion has more batches; repeat the same request",
       pendingLabelDeletionSchema,
     ),
-    429: errorResponse("Deletion capacity is busy; retry after Retry-After"),
+    429: errorResponse("Deletion is busy; retry after Retry-After"),
     403: errorResponse(
       "No access to the project, or missing label:delete permission",
     ),
@@ -218,7 +221,7 @@ const deleteLabelRoute = createRoute({
   },
 });
 
-const label = apiRouter()
+const label = apiRouter<BaseVariables & { workspaceId: string }>()
   .openapi(getTaskLabelsRoute, async (c) => {
     const { taskId } = c.req.valid("param");
     return c.json(await getLabelsByTaskId(taskId), 200);
@@ -261,7 +264,7 @@ const label = apiRouter()
   .openapi(deleteLabelRoute, async (c) => {
     const { id } = c.req.valid("param");
     const userId = c.get("userId");
-    const result = await deleteLabel(id, userId);
+    const result = await deleteLabel(id, userId, c.get("workspaceId"));
     if (result.pendingDeletion)
       return c.json({ ...result, pendingDeletion: true as const }, 202);
     return c.json(result, 200);

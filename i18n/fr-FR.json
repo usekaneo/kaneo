@@ -156,6 +156,13 @@
 				"statusLoadError": "Impossible de charger les statuts du projet."
 			}
 		},
+		"plugins": {
+			"commandFailed": "La commande de l'extension a échoué",
+			"failedToLoad": "Cette extension n'a pas pu être chargée",
+			"openTaskFailed": "Impossible d'ouvrir la tâche",
+			"unavailable": "Cette vue de l'extension n'est pas disponible",
+			"layoutPageTitle": "{{name}} / {{view}}"
+		},
 		"editor": {
 			"link": {
 				"label": "URL du lien",
@@ -759,7 +766,6 @@
 			"selectViewMode": "Sélectionnez un mode d'affichage",
 			"board": "Tableau",
 			"list": "Liste",
-			"gantt": "Gantt",
 			"priorityIcons": "Icônes de priorité",
 			"priorityIconsDescription": "L'apparence de la priorité des tâches sur les cartes, les lignes et dans les menus.",
 			"priorityIconsMarks": "Repères",
@@ -1172,7 +1178,9 @@
 			"validation": {
 				"botTokenInvalid": "Entrez un jeton de bot Telegram valide",
 				"chatIdRequired": "L'identifiant du chat est requis",
-				"threadIdInvalid": "Entrez un identifiant de sujet valide"
+				"threadIdInvalid": "Entrez un identifiant de sujet valide",
+				"botTokenRequiredForServer": "Enter the bot token again to use a different server",
+				"serverUrlInvalid": "Enter a valid server URL, for example https://tg.example.com"
 			},
 			"toast": {
 				"saved": "Intégration Telegram enregistrée avec succès",
@@ -1187,6 +1195,9 @@
 			"botTokenPlaceholder": "123456789:AAExampleBotToken",
 			"botTokenHint": "Créez un bot avec BotFather et collez son jeton ici.",
 			"botTokenHintConfigured": "Jeton actuel : {{token}}",
+			"serverUrlHint": "Optional. Set this if you run your own Bot API server. Leave empty to use api.telegram.org.",
+			"serverUrlLabel": "Bot API server URL",
+			"serverUrlPlaceholder": "https://api.telegram.org",
 			"chatIdLabel": "Identifiant du chat",
 			"chatIdPlaceholder": "-1001234567890 ou @team_updates",
 			"threadIdLabel": "Identifiant du sujet",
@@ -1989,6 +2000,43 @@
 				"description": "Paiement reçu. L'offre ci-dessous sera mise à jour dès qu'il sera confirmé."
 			}
 		},
+		"workspacePlugins": {
+			"empty": {
+				"description": "Les extensions sont ajoutées par l'administrateur de l'instance dans kaneo.config.ts. Une fois installée, une extension apparaît ici et les admins de l'espace de travail peuvent l'activer.",
+				"link": "En savoir plus sur les extensions",
+				"title": "Aucune extension installée"
+			},
+			"enable": "Activer {{name}}",
+			"form": {
+				"none": "Aucun",
+				"save": "Enregistrer les paramètres",
+				"secretCancel": "Annuler",
+				"secretClear": "Effacer",
+				"secretConfigured": "Configuré",
+				"secretPlaceholder": "Saisissez une nouvelle valeur",
+				"secretReplace": "Remplacer",
+				"secretUndo": "Annuler",
+				"secretWillClear": "Sera effacé à l'enregistrement",
+				"selectPlaceholder": "Sélectionnez une option"
+			},
+			"loadError": "Impossible de charger les extensions. Actualisez la page pour réessayer.",
+			"pageTitle": "Paramètres des extensions",
+			"status": {
+				"failed": "Échec du chargement",
+				"loaded": "Active",
+				"loading": "Chargement"
+			},
+			"subtitle": "Choisissez les extensions installées qu'utilise cet espace de travail et configurez-les.",
+			"title": "Extensions",
+			"toast": {
+				"disabled": "Extension {{name}} désactivée",
+				"enabled": "Extension {{name}} activée",
+				"invalid": "Certains paramètres nécessitent votre attention",
+				"saved": "Paramètres de l'extension enregistrés",
+				"updateError": "Impossible de mettre à jour l'extension"
+			},
+			"builtIn": "Intégrée"
+		},
 		"syncRules": {
 			"addLabel": "Ajouter un label",
 			"advancedHint": "Activez les paramètres avancés dans les préférences pour modifier ces règles.",
@@ -2563,6 +2611,7 @@
 				"roleDeleted": "Role deleted",
 				"roleUpdated": "Role updated",
 				"instanceSettingsUpdated": "Updated instance settings",
+				"pluginDataPurged": "Données d'extension supprimées",
 				"webhookCreated": "Created webhook",
 				"webhookDeleted": "Deleted webhook",
 				"webhookSecretRotated": "Rotated webhook secret",
@@ -2908,7 +2957,8 @@
 				"navigate": "Naviguer",
 				"open": "Ouvrir",
 				"close": "Fermer"
-			}
+			},
+			"plugins": "Extensions"
 		},
 		"sidebar": {
 			"projects": "Projets",
@@ -4580,7 +4630,8 @@
 				"empty": "Aucun lien",
 				"url": "URL",
 				"titleLabel": "Titre",
-				"optional": "Facultatif"
+				"optional": "Facultatif",
+				"openFailed": "Couldn’t open this link."
 			},
 			"time": {
 				"title": "Temps",

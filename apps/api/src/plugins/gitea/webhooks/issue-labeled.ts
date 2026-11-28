@@ -1,4 +1,5 @@
 import { resumeLabelChanges } from "../../sync/resume-label-changes";
+import { isPendingLabelDeletionError } from "../../../label/is-pending-label-deletion-error";
 import {
   labelReadDeadline,
   syncLabelFieldsFromIssue,
@@ -297,6 +298,8 @@ export async function handleGiteaIssueLabeled(
         },
       );
     } catch (error) {
+      // A rejected assignment must not acknowledge the webhook as successful.
+      if (isPendingLabelDeletionError(error)) throw error;
       console.error("Gitea issue_labeled handler failed for integration", {
         integrationId: integration.id,
         issueNumber: issue.number,

@@ -3,6 +3,7 @@ import { eq, sql } from "drizzle-orm";
 import type { WSContext } from "hono/ws";
 import { beforeEach, describe, expect, it, vi } from "vite-plus/test";
 import db, { schema } from "../../apps/api/src/database";
+import * as events from "../../apps/api/src/events";
 import { createApp } from "../../apps/api/src/index";
 import createTaskRelation from "../../apps/api/src/task-relation/controllers/create-task-relation";
 import { addConnection, removeConnection } from "../../apps/api/src/ws";
@@ -206,6 +207,52 @@ describe("API integration: moving a project between workspaces", () => {
       .from(schema.projectTable)
       .where(eq(schema.projectTable.id, project.id));
     expect(moved.workspaceId).toBe(target.id);
+  });
+
+  it("publishes project.moved with both workspaces once the move commits", async () => {
+    const owner = await createWorkspaceMember({ role: "owner" });
+    const target = await createTargetWorkspace();
+    await addMember(target.id, owner.user.id, "owner");
+    const { project } = await createProjectFixture({
+      workspaceId: owner.workspace.id,
+    });
+    const publish = events.publishEvent;
+    let workspaceAtPublish: string | undefined;
+    const spy = vi
+      .spyOn(events, "publishEvent")
+      .mockImplementation(async (name, data, options) => {
+        if (name === "project.moved") {
+          const [row] = await db
+            .select({ workspaceId: schema.projectTable.workspaceId })
+            .from(schema.projectTable)
+            .where(eq(schema.projectTable.id, project.id));
+          workspaceAtPublish = row?.workspaceId;
+        }
+        return publish(name, data, options);
+      });
+
+    mockAuthenticatedSession(owner.user);
+    const { app } = createApp();
+    const response = await app.request(
+      `/api/project/${project.id}/move`,
+      moveRequest(target.id),
+    );
+
+    expect(response.status).toBe(200);
+    expect(spy.mock.calls.filter(([name]) => name === "project.moved")).toEqual(
+      [
+        [
+          "project.moved",
+          {
+            projectId: project.id,
+            fromWorkspaceId: owner.workspace.id,
+            toWorkspaceId: target.id,
+            userId: owner.user.id,
+          },
+        ],
+      ],
+    );
+    expect(workspaceAtPublish).toBe(target.id);
   });
 
   it("appends the moved project to the end of the target's ordering", async () => {

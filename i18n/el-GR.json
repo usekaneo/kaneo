@@ -156,6 +156,13 @@
 				"statusLoadError": "Project statuses couldn’t be loaded."
 			}
 		},
+		"plugins": {
+			"commandFailed": "Η εντολή του πρόσθετου απέτυχε",
+			"failedToLoad": "Δεν ήταν δυνατή η φόρτωση αυτού του πρόσθετου",
+			"openTaskFailed": "Δεν ήταν δυνατό το άνοιγμα της εργασίας",
+			"unavailable": "Αυτή η προβολή του πρόσθετου δεν είναι διαθέσιμη",
+			"layoutPageTitle": "{{name}} / {{view}}"
+		},
 		"editor": {
 			"link": {
 				"label": "URL συνδέσμου",
@@ -751,7 +758,6 @@
 			"selectViewMode": "Επιλέξτε τρόπο προβολής",
 			"board": "Πίνακας",
 			"list": "Λίστα",
-			"gantt": "Gantt",
 			"priorityIcons": "Εικονίδια προτεραιότητας",
 			"priorityIconsDescription": "Πώς εμφανίζεται η προτεραιότητα εργασιών σε κάρτες, γραμμές και μενού.",
 			"priorityIconsMarks": "Σήματα",
@@ -1164,7 +1170,9 @@
 			"validation": {
 				"botTokenInvalid": "Εισαγάγετε έγκυρο token bot Telegram",
 				"chatIdRequired": "Το αναγνωριστικό συνομιλίας είναι υποχρεωτικό",
-				"threadIdInvalid": "Εισαγάγετε έγκυρο αναγνωριστικό θέματος"
+				"threadIdInvalid": "Εισαγάγετε έγκυρο αναγνωριστικό θέματος",
+				"botTokenRequiredForServer": "Enter the bot token again to use a different server",
+				"serverUrlInvalid": "Enter a valid server URL, for example https://tg.example.com"
 			},
 			"toast": {
 				"saved": "Η ενσωμάτωση Telegram αποθηκεύτηκε με επιτυχία",
@@ -1179,6 +1187,9 @@
 			"botTokenPlaceholder": "123456789:AAExampleBotToken",
 			"botTokenHint": "Δημιουργήστε bot με το BotFather και επικολλήστε εδώ το token του.",
 			"botTokenHintConfigured": "Τρέχον token: {{token}}",
+			"serverUrlHint": "Optional. Set this if you run your own Bot API server. Leave empty to use api.telegram.org.",
+			"serverUrlLabel": "Bot API server URL",
+			"serverUrlPlaceholder": "https://api.telegram.org",
 			"chatIdLabel": "Αναγνωριστικό συνομιλίας",
 			"chatIdPlaceholder": "-1001234567890 ή @team_updates",
 			"threadIdLabel": "Αναγνωριστικό θέματος",
@@ -1976,6 +1987,43 @@
 				"description": "Η πληρωμή ελήφθη. Το πρόγραμμα παρακάτω θα ενημερωθεί μόλις επιβεβαιωθεί."
 			}
 		},
+		"workspacePlugins": {
+			"empty": {
+				"description": "Τα πρόσθετα προστίθενται από τον διαχειριστή της εγκατάστασης στο kaneo.config.ts. Μόλις εγκατασταθεί ένα πρόσθετο, εμφανίζεται εδώ για να το ενεργοποιήσουν οι διαχειριστές του χώρου εργασίας.",
+				"link": "Μάθετε για τα πρόσθετα",
+				"title": "Δεν υπάρχουν εγκατεστημένα πρόσθετα"
+			},
+			"enable": "Ενεργοποίηση {{name}}",
+			"form": {
+				"none": "Κανένα",
+				"save": "Αποθήκευση ρυθμίσεων",
+				"secretCancel": "Ακύρωση",
+				"secretClear": "Εκκαθάριση",
+				"secretConfigured": "Ρυθμισμένο",
+				"secretPlaceholder": "Εισαγάγετε νέα τιμή",
+				"secretReplace": "Αντικατάσταση",
+				"secretUndo": "Αναίρεση",
+				"secretWillClear": "Θα διαγραφεί κατά την αποθήκευση",
+				"selectPlaceholder": "Επιλέξτε τιμή"
+			},
+			"loadError": "Δεν ήταν δυνατή η φόρτωση των πρόσθετων. Ανανεώστε τη σελίδα για να δοκιμάσετε ξανά.",
+			"pageTitle": "Ρυθμίσεις πρόσθετων",
+			"status": {
+				"failed": "Αποτυχία φόρτωσης",
+				"loaded": "Ενεργό",
+				"loading": "Φόρτωση"
+			},
+			"subtitle": "Επιλέξτε ποια εγκατεστημένα πρόσθετα χρησιμοποιεί αυτός ο χώρος εργασίας και ρυθμίστε τα.",
+			"title": "Πρόσθετα",
+			"toast": {
+				"disabled": "Το {{name}} απενεργοποιήθηκε",
+				"enabled": "Το {{name}} ενεργοποιήθηκε",
+				"invalid": "Ορισμένες ρυθμίσεις χρειάζονται προσοχή",
+				"saved": "Οι ρυθμίσεις του πρόσθετου αποθηκεύτηκαν",
+				"updateError": "Δεν ήταν δυνατή η ενημέρωση του πρόσθετου"
+			},
+			"builtIn": "Ενσωματωμένο"
+		},
 		"syncRules": {
 			"addLabel": "Add label",
 			"advancedHint": "Enable Advanced settings in Preferences to edit these rules.",
@@ -2521,6 +2569,7 @@
 				"roleDeleted": "Role deleted",
 				"roleUpdated": "Role updated",
 				"instanceSettingsUpdated": "Updated instance settings",
+				"pluginDataPurged": "Διαγράφηκαν τα δεδομένα πρόσθετου",
 				"webhookCreated": "Created webhook",
 				"webhookDeleted": "Deleted webhook",
 				"webhookSecretRotated": "Rotated webhook secret",
@@ -2859,7 +2908,8 @@
 				"navigate": "Πλοήγηση",
 				"open": "Άνοιγμα",
 				"close": "Κλείσιμο"
-			}
+			},
+			"plugins": "Πρόσθετα"
 		},
 		"sidebar": {
 			"projects": "Έργα",
@@ -4503,7 +4553,8 @@
 				"empty": "Δεν υπάρχουν σύνδεσμοι",
 				"url": "URL",
 				"titleLabel": "Τίτλος",
-				"optional": "Προαιρετικό"
+				"optional": "Προαιρετικό",
+				"openFailed": "Couldn’t open this link."
 			},
 			"time": {
 				"title": "Χρόνος",

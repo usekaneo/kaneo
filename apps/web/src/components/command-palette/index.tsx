@@ -25,11 +25,16 @@ import {
 } from "@/components/ui/command";
 import { Kbd, KbdGroup } from "@/components/ui/kbd";
 import useGetConfig from "@/hooks/queries/config/use-get-config";
+import useGetProject from "@/hooks/queries/project/use-get-project";
 import useActiveWorkspace from "@/hooks/queries/workspace/use-active-workspace";
 import { useShortcut } from "@/lib/shortcuts/use-shortcut";
 import type { ShortcutId } from "@/lib/shortcuts/catalog";
 import { authClient } from "@/lib/auth-client";
 import { hasInstanceAdminRole } from "@/lib/instance-admin";
+import { usePlugins } from "@/lib/plugins/runtime/plugins-context";
+import { selectContributions } from "@/lib/plugins/runtime/select-contributions";
+import { usePluginLabel } from "@/lib/plugins/runtime/use-plugin-label";
+import { toast } from "@/lib/toast";
 import { useUserPreferencesStore } from "@/store/user-preferences";
 import CreateProjectModal from "../shared/modals/create-project-modal";
 
@@ -65,6 +70,16 @@ function CommandPalette() {
   const projectIdFromRoute =
     location.pathname.match(/\/project\/([^/]+)/)?.[1] ?? undefined;
   const isBacklogView = location.pathname.endsWith("/backlog");
+  const { plugins, workspaceId: pluginWorkspaceId } = usePlugins();
+  const pluginLabel = usePluginLabel();
+  const { data: routeProject } = useGetProject({
+    id: projectIdFromRoute ?? "",
+    workspaceId: pluginWorkspaceId ?? "",
+  });
+  const pluginProjectId =
+    routeProject && routeProject.workspaceId === pluginWorkspaceId
+      ? routeProject.id
+      : null;
 
   const openShortcutsPanel = useShortcutsPanelStore((state) => state.setOpen);
 
@@ -76,6 +91,37 @@ function CommandPalette() {
     command();
     setOpen(false);
   }, []);
+
+  const pluginGroups = useMemo<PaletteGroup[]>(() => {
+    if (!pluginWorkspaceId) return [];
+    const commands = selectContributions(plugins, "commands");
+    if (commands.length === 0) return [];
+
+    return [
+      {
+        value: "plugins",
+        label: t("navigation:commandPalette.plugins"),
+        items: commands.map(({ scope, item }) => ({
+          value: `plugin:${scope.id}:${item.id}`,
+          label: pluginLabel(scope.id, item.title),
+          onRun: () => {
+            void Promise.resolve()
+              .then(() =>
+                item.run({
+                  workspaceId: pluginWorkspaceId,
+                  projectId: pluginProjectId,
+                  navigate: (to: string) => void navigate({ to }),
+                }),
+              )
+              .catch((error: unknown) => {
+                console.error(`Plugin command "${scope.id}:${item.id}"`, error);
+                toast.error(t("common:plugins.commandFailed"));
+              });
+          },
+        })),
+      },
+    ];
+  }, [plugins, pluginWorkspaceId, pluginLabel, pluginProjectId, navigate, t]);
 
   const groupedItems = useMemo<PaletteGroup[]>(
     () => [
@@ -164,6 +210,7 @@ function CommandPalette() {
           },
         ],
       },
+      ...pluginGroups,
     ],
     [
       navigate,
@@ -172,6 +219,7 @@ function CommandPalette() {
       workspace?.id,
       canCreateWorkspace,
       openShortcutsPanel,
+      pluginGroups,
     ],
   );
 

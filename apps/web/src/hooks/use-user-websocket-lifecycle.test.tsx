@@ -174,6 +174,39 @@ describe("user WebSocket lifecycle", () => {
     expect(navigate).toHaveBeenCalledWith({ to: "/dashboard" });
   });
 
+  it("refetches a workspace's plugins when another member changes them", () => {
+    renderHook(useUserWebSocket);
+    act(() =>
+      TestSocket.instances[0].onmessage?.({
+        data: JSON.stringify({
+          type: "WORKSPACE_PLUGIN_UPDATED",
+          workspaceId: "workspace",
+          pluginId: "progress",
+          enabled: false,
+        }),
+      }),
+    );
+    expect(client.invalidateQueries).toHaveBeenCalledWith({
+      queryKey: ["plugins", "workspace"],
+    });
+  });
+
+  it("refetches plugins after reconnecting, since updates sent while offline are lost", () => {
+    renderHook(useUserWebSocket);
+    const first = TestSocket.instances[0];
+    act(() => first.open());
+    expect(client.invalidateQueries).not.toHaveBeenCalled();
+    act(() => {
+      first.onclose?.();
+      vi.runOnlyPendingTimers();
+    });
+    const second = TestSocket.instances[1];
+    act(() => second.open());
+    expect(client.invalidateQueries).toHaveBeenCalledWith({
+      queryKey: ["plugins"],
+    });
+  });
+
   it("ignores events from an old account without stopping the new account's keepalive", () => {
     const { rerender, unmount } = renderHook(useUserWebSocket);
     const old = TestSocket.instances[0];

@@ -156,6 +156,13 @@
 				"statusLoadError": "Project statuses couldn’t be loaded."
 			}
 		},
+		"plugins": {
+			"commandFailed": "Polecenie wtyczki nie powiodło się",
+			"failedToLoad": "Nie udało się załadować tej wtyczki",
+			"openTaskFailed": "Nie udało się otworzyć zadania",
+			"unavailable": "Ten widok wtyczki jest niedostępny",
+			"layoutPageTitle": "{{name}} / {{view}}"
+		},
 		"editor": {
 			"link": {
 				"label": "Adres URL linku",
@@ -593,7 +600,8 @@
 				"navigate": "Nawiguj",
 				"open": "Otwórz",
 				"close": "Zamknij"
-			}
+			},
+			"plugins": "Wtyczki"
 		},
 		"sidebar": {
 			"projects": "Projekty",
@@ -1674,7 +1682,6 @@
 			"dueDates": "Terminy",
 			"firstDayOfWeek": "Pierwszy dzień tygodnia",
 			"firstDayOfWeekDescription": "Używany w kalendarzach i selektorach dat.",
-			"gantt": "Wykres Gantta",
 			"priorityIcons": "Ikony priorytetu",
 			"priorityIconsDescription": "Jak priorytet zadania wygląda na kartach, w wierszach i menu.",
 			"priorityIconsMarks": "Znaczniki",
@@ -1889,6 +1896,9 @@
 		"telegramIntegration": {
 			"botTokenHint": "Utwórz bota za pomocą BotFather i wklej tutaj jego token.",
 			"botTokenHintConfigured": "Bieżący token: {{token}}",
+			"serverUrlHint": "Optional. Set this if you run your own Bot API server. Leave empty to use api.telegram.org.",
+			"serverUrlLabel": "Bot API server URL",
+			"serverUrlPlaceholder": "https://api.telegram.org",
 			"botTokenLabel": "Token bota",
 			"botTokenPlaceholder": "123456789:AAExampleBotToken",
 			"chatIdLabel": "ID czatu",
@@ -1910,7 +1920,9 @@
 			"validation": {
 				"botTokenInvalid": "Wpisz prawidłowy token bota Telegram",
 				"chatIdRequired": "ID czatu jest wymagane",
-				"threadIdInvalid": "Wpisz prawidłowe ID tematu"
+				"threadIdInvalid": "Wpisz prawidłowe ID tematu",
+				"botTokenRequiredForServer": "Enter the bot token again to use a different server",
+				"serverUrlInvalid": "Enter a valid server URL, for example https://tg.example.com"
 			},
 			"botTokenSavedPlaceholder": "Zapisano. Wklej nowy token, aby go zastąpić.",
 			"loadError": "Nie udało się wczytać ustawień Telegrama."
@@ -2693,6 +2705,43 @@
 				"description": "Płatność otrzymana. Plan poniżej zaktualizuje się po jej potwierdzeniu."
 			}
 		},
+		"workspacePlugins": {
+			"empty": {
+				"description": "Wtyczki dodaje administrator instancji w kaneo.config.ts. Zainstalowana wtyczka pojawi się tutaj, a administratorzy obszaru roboczego będą mogli ją włączyć.",
+				"link": "Dowiedz się więcej o wtyczkach",
+				"title": "Brak zainstalowanych wtyczek"
+			},
+			"enable": "Włącz {{name}}",
+			"form": {
+				"none": "Brak",
+				"save": "Zapisz ustawienia",
+				"secretCancel": "Anuluj",
+				"secretClear": "Wyczyść",
+				"secretConfigured": "Skonfigurowano",
+				"secretPlaceholder": "Wpisz nową wartość",
+				"secretReplace": "Zastąp",
+				"secretUndo": "Cofnij",
+				"secretWillClear": "Zostanie wyczyszczone po zapisaniu",
+				"selectPlaceholder": "Wybierz opcję"
+			},
+			"loadError": "Nie udało się załadować wtyczek. Odśwież stronę, aby spróbować ponownie.",
+			"pageTitle": "Ustawienia wtyczek",
+			"status": {
+				"failed": "Błąd ładowania",
+				"loaded": "Aktywna",
+				"loading": "Ładowanie"
+			},
+			"subtitle": "Wybierz, których zainstalowanych wtyczek używa ten obszar roboczy, i skonfiguruj je.",
+			"title": "Wtyczki",
+			"toast": {
+				"disabled": "Wyłączono {{name}}",
+				"enabled": "Włączono {{name}}",
+				"invalid": "Niektóre ustawienia wymagają uwagi",
+				"saved": "Zapisano ustawienia wtyczki",
+				"updateError": "Nie udało się zaktualizować wtyczki"
+			},
+			"builtIn": "Wbudowana"
+		},
 		"syncRules": {
 			"addLabel": "Add label",
 			"advancedHint": "Enable Advanced settings in Preferences to edit these rules.",
@@ -3296,6 +3345,7 @@
 				"roleDeleted": "Role deleted",
 				"roleUpdated": "Role updated",
 				"instanceSettingsUpdated": "Updated instance settings",
+				"pluginDataPurged": "Usunięto dane wtyczki",
 				"webhookCreated": "Created webhook",
 				"webhookDeleted": "Deleted webhook",
 				"webhookSecretRotated": "Rotated webhook secret",
@@ -4657,7 +4707,8 @@
 				"empty": "Brak linków",
 				"url": "URL",
 				"titleLabel": "Tytuł",
-				"optional": "Opcjonalnie"
+				"optional": "Opcjonalnie",
+				"openFailed": "Couldn’t open this link."
 			},
 			"time": {
 				"title": "Czas",

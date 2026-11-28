@@ -28,6 +28,8 @@ docker compose up -d --force-recreate kaneo
 
 Check the browser's Network panel for the failed request and its status. A `401` usually calls for checking authentication; a `403` calls for checking the required permission or project access; a `404` calls for checking that the resource exists and that you are a member of its workspace.
 
+If legacy user accounts have email addresses that differ only in capitalization, the upgrade preserves each account. Password sign-in looks up the lowercase address. In the instance admin console, open **Users** and first assign a distinct email address to each account that will give up the shared address. Then save the retained address in lowercase for the remaining account. For each account moved to a new address, choose **Resend verification email** after saving and ask the user to verify the address.
+
 ## Changes only appear after refreshing
 
 Check that the reverse proxy forwards WebSocket upgrades. Use the [Nginx example](/core/reverse-proxy/nginx) and check for failed WebSocket requests in browser developer tools.

@@ -1,12 +1,18 @@
 import { and, eq, sql } from "drizzle-orm";
 import { beforeEach, describe, expect, it, vi } from "vite-plus/test";
-import db, { getDatabasePool, schema } from "../../apps/api/src/database";
+import db, { schema } from "../../apps/api/src/database";
+import type { publishEvent } from "../../apps/api/src/events";
 import { importIssues } from "../../apps/api/src/github-integration/controllers/import-issues";
 import { withGithubImportLock } from "../../apps/api/src/github-integration/import-lock";
 import { IMPORT_PAGES_PER_REQUEST } from "../../apps/api/src/github-integration/import-pages";
 import { createApp } from "../../apps/api/src/index";
 import moveTask from "../../apps/api/src/task/controllers/move-task";
 import { handleIssueOpened } from "../../apps/api/src/plugins/github/webhooks/issue-opened";
+import {
+  initializeWebSocketAdapter,
+  shutdownWebSocketAdapter,
+} from "../../apps/api/src/ws";
+import { InMemoryBroadcastAdapter } from "../../apps/api/src/ws/in-memory-broadcast-adapter";
 import { mockAuthenticatedSession } from "./helpers/auth";
 import { resetTestDatabase } from "./helpers/database";
 import {
@@ -19,8 +25,11 @@ const mocks = vi.hoisted(() => ({
   verify: vi.fn(),
   comment: vi.fn(),
   publish: vi.fn(
-    async (_name: string, _payload: { projectId: string; taskId?: string }) =>
-      undefined,
+    async (
+      _name: string,
+      _payload: { projectId: string; taskId?: string },
+      _options?: Parameters<typeof publishEvent>[2],
+    ) => {},
   ),
 }));
 vi.mock("../../apps/api/src/plugins/github/utils/github-app", () => ({
@@ -158,6 +167,188 @@ async function saved() {
 }
 
 describe("bounded resumable GitHub import", () => {
+  it("keeps a notification pending until the broadcast adapter accepts it", async () => {
+    const { project } = await setup();
+    serveIssues(1);
+    const events = await vi.importActual<
+      typeof import("../../apps/api/src/events")
+    >("../../apps/api/src/events");
+    mocks.publish.mockImplementation(events.publishEvent);
+    await initializeWebSocketAdapter();
+    const gate = deferred();
+    const publish = vi
+      .spyOn(InMemoryBroadcastAdapter.prototype, "publish")
+      .mockImplementationOnce(async () => {
+        await gate.promise;
+        throw new Error("Broadcast failed");
+      });
+    const importing = importIssues(project.id);
+    const rejected = expect(importing).rejects.toThrow("Broadcast failed");
+    try {
+      try {
+        await vi.waitFor(() => expect(publish).toHaveBeenCalledTimes(1));
+        const run = await saved();
+        expect(run?.state.pendingNotifications?.[0]?.type).toBe("task.updated");
+        expect(mocks.graphql).toHaveBeenCalledTimes(1);
+      } finally {
+        gate.resolve();
+      }
+      await rejected;
+      const run = await saved();
+      expect(run?.state.pendingNotifications?.[0]?.type).toBe("task.updated");
+      expect(await importIssues(project.id, run!.runId)).toMatchObject({
+        runId: run!.runId,
+        pending: false,
+        imported: 1,
+      });
+      expect((await saved())?.state.pendingNotifications).toEqual([]);
+      expect(publish.mock.calls.map(([msg]) => msg.message.type)).toEqual([
+        "TASK_UPDATED",
+        "TASK_UPDATED",
+        "TASK_LABEL_UPDATED",
+        "COMMENT_UPDATED",
+        "PROJECT_UPDATED",
+        "PROJECT_UPDATED",
+      ]);
+    } finally {
+      await shutdownWebSocketAdapter();
+    }
+  });
+
+  it.each(["issues", "complete"])(
+    "replays durable notifications after lease loss in the %s phase",
+    async (phase) => {
+      const { project, app } = await setup();
+      serveIssues(1);
+      let interrupted = false;
+      mocks.publish.mockImplementation(async () => {
+        if (
+          !interrupted &&
+          (await saved())?.state.phase ===
+            (phase === "complete" ? "complete" : "pulls")
+        ) {
+          interrupted = true;
+          await db.execute(sql`UPDATE job_lease SET expires_at = timezone('UTC', clock_timestamp()) - interval '1 second'
+          WHERE name = ${`request:github-import:resource:${project.id}`}`);
+        }
+      });
+      await expect(importIssues(project.id)).rejects.toMatchObject({
+        status: 429,
+      });
+      const run = await saved();
+      expect(run?.state.pendingNotifications?.length).toBeGreaterThan(0);
+      const info = await app.request(
+        `/api/github-integration/project/${project.id}`,
+      );
+      expect((await info.json()).importProgress).toMatchObject({
+        runId: run!.runId,
+        pending: true,
+      });
+      mocks.publish.mockClear();
+      expect(
+        await importIssues(
+          project.id,
+          phase === "complete" ? undefined : run!.runId,
+        ),
+      ).toMatchObject({
+        runId: run!.runId,
+        pending: false,
+        imported: 1,
+      });
+      expect((await saved())?.state.pendingNotifications).toEqual([]);
+      expect(mocks.publish).toHaveBeenCalledWith(
+        "project.updated",
+        { projectId: project.id },
+        { requireDelivery: true },
+      );
+      if (phase === "issues") {
+        const [task] = await db.query.taskTable.findMany();
+        for (const type of ["task.updated", "task.labels_updated"]) {
+          expect(mocks.publish).toHaveBeenCalledWith(
+            type,
+            { projectId: project.id, taskId: task.id },
+            { requireDelivery: true },
+          );
+        }
+      }
+    },
+  );
+
+  it("keeps a conflicting label page resumable until its pending deletion finishes", async () => {
+    const { member, project, integration, request, app } = await setup();
+    const [task] = await db
+      .insert(schema.taskTable)
+      .values({
+        projectId: project.id,
+        title: "Before import",
+        number: 1,
+        status: "to-do",
+      })
+      .returning();
+    await db.insert(schema.externalLinkTable).values({
+      taskId: task.id,
+      integrationId: integration.id,
+      resourceType: "issue",
+      externalId: "1",
+      url: "https://github.com/example/repo/issues/1",
+    });
+    const [pending] = await db
+      .insert(schema.labelDeletionTable)
+      .values({
+        id: "pending-label",
+        deletionId: "pending-label",
+        userId: member.user.id,
+        workspaceId: member.workspace.id,
+        taskId: task.id,
+        name: "label-1",
+        color: "red",
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      })
+      .returning();
+    mocks.graphql.mockImplementation(async (query: string) =>
+      query.includes("query ImportPullRequests(")
+        ? emptyPulls()
+        : issuePage([issue(1, { labels: connection([label(2), label(1)]) })]),
+    );
+
+    expect((await request()).status).toBe(409);
+    const run = await saved();
+    expect(run?.state).toMatchObject({
+      phase: "issues",
+      issueCursor: null,
+      updated: 0,
+    });
+    expect(
+      await db.query.taskTable.findFirst({
+        where: eq(schema.taskTable.id, task.id),
+      }),
+    ).toMatchObject({ title: "Before import" });
+    expect(await db.query.labelTable.findMany()).toEqual([]);
+    expect(mocks.publish).not.toHaveBeenCalled();
+
+    // All effects have been acknowledged; the next DELETE clears the durable barrier.
+    await db
+      .update(schema.labelDeletionTable)
+      .set({ pendingEffects: [] })
+      .where(eq(schema.labelDeletionTable.id, pending.id));
+    expect(
+      (await app.request(`/api/label/${pending.id}`, { method: "DELETE" }))
+        .status,
+    ).toBe(200);
+    expect((await request(run!.runId)).status).toBe(200);
+    expect((await saved())?.state).toMatchObject({ updated: 1 });
+    expect(await db.query.labelTable.findMany()).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({ taskId: task.id, name: "label-1" }),
+        expect.objectContaining({ taskId: task.id, name: "label-2" }),
+      ]),
+    );
+    expect(await db.query.taskTable.findMany()).toMatchObject([
+      { id: task.id, title: "Issue 1" },
+    ]);
+  });
+
   it.each([false, true])(
     "fails closed for invalid stored rules (linked=%s)",
     async (linked) => {
@@ -885,9 +1076,12 @@ describe("bounded resumable GitHub import", () => {
   });
 
   it("limits simultaneous imports across processes and releases slots after failure", async () => {
-    const client = await getDatabasePool().connect();
-    await client.query(
-      "SELECT pg_advisory_lock(773623, 0), pg_advisory_lock(773623, 1)",
+    await db.insert(schema.jobLeaseTable).values(
+      [0, 1].map((slot) => ({
+        name: `request:github-import:slot:${slot}`,
+        owner: "another-process",
+        expiresAt: sql`timezone('UTC', clock_timestamp()) + interval '1 minute'`,
+      })),
     );
     try {
       await expect(
@@ -896,8 +1090,9 @@ describe("bounded resumable GitHub import", () => {
         status: 429,
       });
     } finally {
-      await client.query("SELECT pg_advisory_unlock_all()");
-      client.release();
+      await db
+        .delete(schema.jobLeaseTable)
+        .where(eq(schema.jobLeaseTable.owner, "another-process"));
     }
     await expect(
       withGithubImportLock("any", async () => {
@@ -929,6 +1124,38 @@ describe("bounded resumable GitHub import", () => {
       gate.resolve();
     }
     expect(await first).toMatchObject({ pending: false, imported: 1 });
+  });
+
+  it("does not save a fetched page after its lease expires, and permits resumption", async () => {
+    const { project } = await setup();
+    serveIssues(1);
+    const gate = deferred();
+    const started = deferred();
+    const original = mocks.graphql.getMockImplementation();
+    if (!original) throw new Error("Expected provider mock");
+    mocks.graphql.mockImplementationOnce(async (query, vars) => {
+      started.resolve();
+      await gate.promise;
+      return original(query, vars);
+    });
+    const pending = importIssues(project.id);
+    const rejected = expect(pending).rejects.toMatchObject({ status: 429 });
+    await started.promise;
+    const progress = await saved();
+    try {
+      await db.execute(sql`UPDATE job_lease SET expires_at = timezone('UTC', clock_timestamp()) - interval '1 second'
+        WHERE name = ${`request:github-import:resource:${project.id}`}`);
+    } finally {
+      gate.resolve();
+    }
+    await rejected;
+    expect(await db.query.taskTable.findMany()).toEqual([]);
+    expect(await saved()).toEqual(progress);
+    expect(await db.query.jobLeaseTable.findMany()).toEqual([]);
+    expect(await importIssues(project.id, progress?.runId)).toMatchObject({
+      pending: false,
+      imported: 1,
+    });
   });
 
   it("coordinates webhook creation with imports so both paths create only one task and link", async () => {

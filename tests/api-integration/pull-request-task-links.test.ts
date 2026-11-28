@@ -1,6 +1,14 @@
 import { createHmac } from "node:crypto";
 import { and, eq } from "drizzle-orm";
-import { beforeEach, describe, expect, it, vi } from "vite-plus/test";
+import {
+  afterAll,
+  beforeAll,
+  beforeEach,
+  describe,
+  expect,
+  it,
+  vi,
+} from "vite-plus/test";
 import db, { schema } from "../../apps/api/src/database";
 import { importGiteaIssues } from "../../apps/api/src/gitea-integration/controllers/import-gitea-issues";
 import { importIssues } from "../../apps/api/src/github-integration/controllers/import-issues";
@@ -12,6 +20,10 @@ import { handlePullRequestClosed } from "../../apps/api/src/plugins/github/webho
 import { handlePullRequestOpened } from "../../apps/api/src/plugins/github/webhooks/pull-request-opened";
 import { handlePush } from "../../apps/api/src/plugins/github/webhooks/push";
 import { handleGiteaPush } from "../../apps/api/src/plugins/gitea/webhooks/push";
+import {
+  initializeWebSocketAdapter,
+  shutdownWebSocketAdapter,
+} from "../../apps/api/src/ws";
 import { resetTestDatabase } from "./helpers/database";
 import {
   createProjectFixture,
@@ -19,6 +31,8 @@ import {
 } from "./helpers/fixtures";
 
 const remote = vi.hoisted(() => ({ listIssues: vi.fn(), listPulls: vi.fn() }));
+beforeAll(initializeWebSocketAdapter);
+afterAll(shutdownWebSocketAdapter);
 vi.mock("../../apps/api/src/plugins/github/utils/github-app", () => ({
   getVerifiedInstallationOctokit: async () => ({
     graphql: async (query: string) => ({

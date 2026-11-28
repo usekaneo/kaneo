@@ -1,5 +1,7 @@
+import type { TaskChanges } from "@kaneo/plugin-sdk/web";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { invalidateMyWork } from "@/lib/invalidate-my-work";
+import { patchTask } from "@/fetchers/task/patch-task";
 import updateTask from "@/fetchers/task/update-task";
 import type Task from "@/types/task";
 
@@ -7,14 +9,17 @@ export function useUpdateTask() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (task: Task) => updateTask(task.id, task),
-    onSuccess: (_, variables) => {
+    mutationFn: (input: Task | { taskId: string; changes: TaskChanges }) =>
+      "changes" in input
+        ? patchTask(input.taskId, input.changes)
+        : updateTask(input.id, input),
+    onSuccess: (task) => {
       invalidateMyWork(queryClient);
       queryClient.invalidateQueries({
-        queryKey: ["task", variables.id],
+        queryKey: ["task", task.id],
       });
       queryClient.invalidateQueries({
-        queryKey: ["tasks", variables.projectId],
+        queryKey: ["tasks", task.projectId],
       });
       queryClient.invalidateQueries({
         queryKey: ["notifications"],
@@ -23,7 +28,7 @@ export function useUpdateTask() {
         queryKey: ["projects"],
       });
       queryClient.invalidateQueries({
-        queryKey: ["activities", variables.id],
+        queryKey: ["activities", task.id],
       });
     },
   });

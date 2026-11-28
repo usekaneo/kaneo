@@ -156,6 +156,13 @@
 				}
 			}
 		},
+		"plugins": {
+			"failedToLoad": "This plugin failed to load",
+			"unavailable": "This plugin view is not available",
+			"commandFailed": "The plugin command failed",
+			"openTaskFailed": "Could not open the task",
+			"layoutPageTitle": "{{name}} / {{view}}"
+		},
 		"editor": {
 			"link": {
 				"label": "Link URL",
@@ -975,6 +982,7 @@
 				"roleUpdated": "Role updated",
 				"roleDeleted": "Role deleted",
 				"instanceSettingsUpdated": "Updated instance settings",
+				"pluginDataPurged": "Purged plugin data",
 				"webhookCreated": "Created webhook",
 				"webhookUpdated": "Updated webhook",
 				"webhookDeleted": "Deleted webhook",
@@ -1180,7 +1188,6 @@
 			"selectViewMode": "Select a view mode",
 			"board": "Board",
 			"list": "List",
-			"gantt": "Gantt",
 			"priorityIcons": "Priority icons",
 			"priorityIconsDescription": "How task priority looks on cards, rows, and menus.",
 			"priorityIconsMarks": "Marks",
@@ -1543,6 +1550,43 @@
 			"emptyTitle": "No labels yet",
 			"emptyDescription": "Add labels to sort and filter tasks across projects.",
 			"loadError": "Could not load labels. Please try again."
+		},
+		"workspacePlugins": {
+			"pageTitle": "Plugin Settings",
+			"title": "Plugins",
+			"subtitle": "Choose which installed plugins this workspace uses and configure them.",
+			"loadError": "Could not load plugins. Refresh the page to try again.",
+			"enable": "Enable {{name}}",
+			"builtIn": "Built in",
+			"empty": {
+				"title": "No plugins installed",
+				"description": "Plugins are added by the instance operator in kaneo.config.ts. Once a plugin is installed, it appears here for workspace admins to turn on.",
+				"link": "Learn about plugins"
+			},
+			"status": {
+				"loading": "Loading",
+				"loaded": "Active",
+				"failed": "Failed to load"
+			},
+			"form": {
+				"save": "Save settings",
+				"none": "None",
+				"selectPlaceholder": "Select an option",
+				"secretPlaceholder": "Enter a new value",
+				"secretConfigured": "Configured",
+				"secretReplace": "Replace",
+				"secretClear": "Clear",
+				"secretCancel": "Cancel",
+				"secretUndo": "Undo",
+				"secretWillClear": "Will be cleared when you save"
+			},
+			"toast": {
+				"enabled": "{{name}} turned on",
+				"disabled": "{{name}} turned off",
+				"saved": "Plugin settings saved",
+				"invalid": "Some settings need attention",
+				"updateError": "Could not update the plugin"
+			}
 		},
 		"workspaceImport": {
 			"pageTitle": "Import",
@@ -2230,7 +2274,9 @@
 			"validation": {
 				"botTokenInvalid": "Enter a valid Telegram bot token",
 				"chatIdRequired": "Chat ID is required",
-				"threadIdInvalid": "Enter a valid topic ID"
+				"threadIdInvalid": "Enter a valid topic ID",
+				"serverUrlInvalid": "Enter a valid server URL, for example https://tg.example.com",
+				"botTokenRequiredForServer": "Enter the bot token again to use a different server"
 			},
 			"toast": {
 				"saved": "Telegram integration saved successfully",
@@ -2245,6 +2291,9 @@
 			"botTokenPlaceholder": "123456789:AAExampleBotToken",
 			"botTokenHint": "Create a bot with BotFather and paste its token here.",
 			"botTokenHintConfigured": "Current token: {{token}}",
+			"serverUrlLabel": "Bot API server URL",
+			"serverUrlPlaceholder": "https://api.telegram.org",
+			"serverUrlHint": "Optional. Set this if you run your own Bot API server. Leave empty to use api.telegram.org.",
 			"chatIdLabel": "Chat ID",
 			"chatIdPlaceholder": "-1001234567890 or @team_updates",
 			"threadIdLabel": "Topic ID",
@@ -2859,7 +2908,8 @@
 				"navigate": "Navigate",
 				"open": "Open",
 				"close": "Close"
-			}
+			},
+			"plugins": "Plugins"
 		},
 		"sidebar": {
 			"projects": "Projects",
@@ -4503,7 +4553,8 @@
 				"empty": "No links",
 				"url": "URL",
 				"titleLabel": "Title",
-				"optional": "Optional"
+				"optional": "Optional",
+				"openFailed": "Couldn’t open this link."
 			},
 			"time": {
 				"title": "Time",

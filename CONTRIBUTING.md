@@ -205,6 +205,8 @@ Kaneo uses [i18next](https://www.i18next.com/) with [react-i18next](https://reac
 
 #### i18n commands
 
+Review translations by hand for completeness. The `i18n:check` command checks catalog structure, including key sets and plural forms. English placeholder text can pass this check.
+
 The root `package.json` includes scripts to keep locale files in sync:
 
 | Command | Description |

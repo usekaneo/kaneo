@@ -55,6 +55,7 @@ it.each([
     const response = new Promise<void>((resolve) => {
       release = resolve;
     });
+    const dispatched = Promise.withResolvers<void>();
     let remote = "A";
     const outbound = syncLatestTaskValue(
       task.id,
@@ -64,11 +65,14 @@ it.each([
       "A",
       async (value) => {
         remote = value;
+        dispatched.resolve();
         await response;
         return "2026-09-30T00:00:01Z";
       },
       async () => remote,
     );
+    // A pending intent is persisted before the provider write begins.
+    await dispatched.promise;
     await vi.waitFor(async () => {
       const current = await db.query.externalLinkTable.findFirst({
         where: eq(schema.externalLinkTable.id, link.id),

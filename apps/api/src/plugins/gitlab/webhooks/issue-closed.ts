@@ -127,6 +127,7 @@ export async function handleGitlabIssueClosed(
         ) {
           afterCommit(() =>
             publishEvent("task.status_changed", {
+              workspaceId: integration.project?.workspaceId,
               sourceIntegrationId: integration.id,
               taskId: statusResult.after.id,
               projectId: statusResult.after.projectId,

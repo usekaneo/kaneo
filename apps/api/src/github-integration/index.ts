@@ -244,7 +244,7 @@ const importIssuesRoute = createRoute({
       importResultSchema,
     ),
     409: errorResponse(
-      "Integration or import changed; refresh before resuming",
+      "Integration or import changed, or an imported label is being deleted; retry after resolving the conflict",
     ),
     429: errorResponse("Import busy; retry after one second"),
     502: errorResponse(

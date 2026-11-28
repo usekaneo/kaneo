@@ -45,7 +45,7 @@ import {
 import type { AccessControl } from "better-auth/plugins/access";
 import type { UserWithAnonymous } from "better-auth/plugins/anonymous";
 import { config } from "dotenv-mono";
-import { eq } from "drizzle-orm";
+import { eq, sql } from "drizzle-orm";
 import {
   assertBackchannelLogoutEnv,
   resolveBackchannelLogoutConfig,
@@ -196,13 +196,28 @@ try {
 }
 
 async function getUserLocale(email: string) {
+  const address = email.trim();
+  if (!address) return null;
+
   const [user] = await db
     .select({ locale: schema.userTable.locale })
     .from(schema.userTable)
-    .where(eq(schema.userTable.email, email))
+    .where(eq(schema.userTable.email, address))
     .limit(1);
+  if (user) return user.locale ?? null;
 
-  return user?.locale ?? null;
+  const matches = await db
+    .select({ locale: schema.userTable.locale })
+    .from(schema.userTable)
+    .where(
+      eq(
+        sql`lower(${schema.userTable.email} COLLATE "C")`,
+        sql`lower(${address} COLLATE "C")`,
+      ),
+    )
+    .limit(2);
+
+  return matches.length === 1 ? (matches[0]?.locale ?? null) : null;
 }
 
 function getLocaleKey(locale?: string | null) {

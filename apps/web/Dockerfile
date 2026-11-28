@@ -25,6 +25,7 @@ COPY packages/typescript-config/package.json ./packages/typescript-config/
 COPY packages/libs/package.json ./packages/libs/
 COPY packages/permissions/package.json ./packages/permissions/
 COPY packages/editor/package.json ./packages/editor/
+COPY packages/plugin-sdk/package.json ./packages/plugin-sdk/
 
 # Install dependencies
 RUN pnpm install --frozen-lockfile
@@ -34,6 +35,7 @@ COPY packages/typescript-config ./packages/typescript-config
 COPY packages/libs ./packages/libs
 COPY packages/permissions ./packages/permissions
 COPY packages/editor ./packages/editor
+COPY packages/plugin-sdk ./packages/plugin-sdk
 COPY i18n ./i18n
 COPY apps/web ./apps/web
 
@@ -42,6 +44,9 @@ WORKDIR /app/packages/permissions
 RUN pnpm run build
 
 WORKDIR /app/packages/editor
+RUN pnpm run build
+
+WORKDIR /app/packages/plugin-sdk
 RUN pnpm run build
 
 # Build the application

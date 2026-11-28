@@ -92,6 +92,7 @@ export const BoardPage = Schema.Struct({
     slug: Schema.String,
     workspaceId: Schema.String,
     columns: Schema.Array(BoardColumn),
+    plannedTasks: Schema.optionalKey(Schema.Array(BoardTask)),
   }),
   pagination: Schema.Struct({
     total: Schema.Number,

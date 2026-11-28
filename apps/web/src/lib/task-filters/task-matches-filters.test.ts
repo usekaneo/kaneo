@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vite-plus/test";
-import type { BoardFilters } from "@/hooks/use-task-filters";
+import type { BoardFilters } from "./board-filters";
 import type Task from "@/types/task";
 import {
   type TaskFilterContext,
