@@ -42,9 +42,23 @@ it.each(
   async ({ provider, delayed }) => {
     const current = delayed === "closed" ? "open" : "closed";
     const { workspace } = await createWorkspaceMember();
-    const { project } = await createProjectFixture({
+    const { project, columns } = await createProjectFixture({
       workspaceId: workspace.id,
     });
+    await db.insert(schema.workflowRuleTable).values([
+      {
+        projectId: project.id,
+        integrationType: provider,
+        eventType: "issue_closed",
+        columnId: columns.done.id,
+      },
+      {
+        projectId: project.id,
+        integrationType: provider,
+        eventType: "issue_reopened",
+        columnId: columns.todo.id,
+      },
+    ]);
     const [task] = await db
       .insert(schema.taskTable)
       .values({

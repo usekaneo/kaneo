@@ -61,10 +61,24 @@ it.each(cases)(
   "$provider $action webhook respects task ownership ($race, $syncScope issue sync)",
   async ({ provider, action, race, sameStatus, syncScope }) => {
     const { user, workspace } = await createWorkspaceMember();
-    const { project } = await createProjectFixture({
+    const { project, columns } = await createProjectFixture({
       workspaceId: workspace.id,
       slug: "KAN",
     });
+    await db.insert(schema.workflowRuleTable).values([
+      {
+        projectId: project.id,
+        integrationType: provider,
+        eventType: "pr_opened",
+        columnId: columns.inProgress.id,
+      },
+      {
+        projectId: project.id,
+        integrationType: provider,
+        eventType: "pr_merged",
+        columnId: columns.done.id,
+      },
+    ]);
     const { project: destination } = await createProjectFixture({
       workspaceId: workspace.id,
     });

@@ -1,4 +1,4 @@
-import { eq, sql } from "drizzle-orm";
+import { and, eq, sql } from "drizzle-orm";
 import { beforeEach, expect, it, vi } from "vite-plus/test";
 import db, { schema } from "../../apps/api/src/database";
 import { publishEvent } from "../../apps/api/src/events";
@@ -78,7 +78,23 @@ beforeEach(async () => {
 });
 async function seed(type = "github") {
   const { workspace } = await createWorkspaceMember();
-  const { project } = await createProjectFixture({ workspaceId: workspace.id });
+  const { project, columns } = await createProjectFixture({
+    workspaceId: workspace.id,
+  });
+  await db.insert(schema.workflowRuleTable).values([
+    {
+      projectId: project.id,
+      integrationType: type,
+      eventType: "issue_closed",
+      columnId: columns.done.id,
+    },
+    {
+      projectId: project.id,
+      integrationType: type,
+      eventType: "issue_reopened",
+      columnId: columns.todo.id,
+    },
+  ]);
   const [task] = await db
     .insert(schema.taskTable)
     .values({
@@ -2355,12 +2371,16 @@ it.each(["github", "gitea"])(
         isFinal: true,
       })
       .returning();
-    await db.insert(schema.workflowRuleTable).values({
-      projectId: task.projectId,
-      integrationType: provider,
-      eventType: "issue_closed",
-      columnId: finalColumn.id,
-    });
+    await db
+      .update(schema.workflowRuleTable)
+      .set({ columnId: finalColumn.id })
+      .where(
+        and(
+          eq(schema.workflowRuleTable.projectId, task.projectId),
+          eq(schema.workflowRuleTable.integrationType, provider),
+          eq(schema.workflowRuleTable.eventType, "issue_closed"),
+        ),
+      );
     await db
       .update(schema.taskTable)
       .set({ status: "released", columnId: finalColumn.id })

@@ -1,49 +1,32 @@
-import { and, asc, eq } from "drizzle-orm";
 import db from "../../../database";
-import { columnTable, workflowRuleTable } from "../../../database/schema";
+import {
+  resolveWorkflowColumnSlug,
+  type WorkflowResolutionDb,
+} from "../../sync/resolve-workflow-column";
 
 export async function resolveTargetStatus(
   projectId: string,
   eventType: string,
   fallbackStatus: string,
-  database: Pick<typeof db, "select" | "query"> = db,
-): Promise<string> {
-  const projectColumns = await database
-    .select({
-      id: columnTable.id,
-      slug: columnTable.slug,
-    })
-    .from(columnTable)
-    .where(eq(columnTable.projectId, projectId))
-    .orderBy(asc(columnTable.position));
-
-  if (projectColumns.length === 0) {
-    return fallbackStatus;
-  }
-
-  const rule = await database.query.workflowRuleTable.findFirst({
-    where: and(
-      eq(workflowRuleTable.projectId, projectId),
-      eq(workflowRuleTable.integrationType, "gitea"),
-      eq(workflowRuleTable.eventType, eventType),
-    ),
-  });
-
-  if (rule) {
-    const mappedColumn = projectColumns.find(
-      (column) => column.id === rule.columnId,
-    );
-    if (mappedColumn) {
-      return mappedColumn.slug;
-    }
-  }
-
-  const fallbackColumn = projectColumns.find(
-    (column) => column.slug === fallbackStatus,
+  database?: WorkflowResolutionDb,
+): Promise<string>;
+export async function resolveTargetStatus(
+  projectId: string,
+  eventType: string,
+  fallbackStatus: string | null,
+  database?: WorkflowResolutionDb,
+): Promise<string | null>;
+export async function resolveTargetStatus(
+  projectId: string,
+  eventType: string,
+  fallbackStatus: string | null,
+  database: WorkflowResolutionDb = db,
+): Promise<string | null> {
+  return resolveWorkflowColumnSlug(
+    projectId,
+    "gitea",
+    eventType,
+    fallbackStatus,
+    database,
   );
-  if (fallbackColumn) {
-    return fallbackColumn.slug;
-  }
-
-  return projectColumns[0]?.slug ?? fallbackStatus;
 }

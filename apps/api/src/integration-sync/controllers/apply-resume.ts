@@ -38,13 +38,6 @@ export async function applySyncResume(
         .from(columnTable)
         .where(eq(columnTable.projectId, task.projectId))
         .orderBy(asc(columnTable.position));
-      const fallback = columns.find(
-        (column) => column.isFinal === (review.remote.state === "closed"),
-      );
-      if (!fallback)
-        throw new HTTPException(409, {
-          message: "A matching open or completed column is required",
-        });
       const resolveStatus =
         provider === "gitea"
           ? resolveGiteaStatus
@@ -54,11 +47,17 @@ export async function applySyncResume(
       const slug = await resolveStatus(
         task.projectId,
         review.remote.state === "closed" ? "issue_closed" : "issue_reopened",
-        fallback.slug,
+        null,
         tx,
       );
-      const target = columns.find((column) => column.slug === slug)!;
-      status = { status: target.slug, columnId: target.id };
+      if (slug) {
+        const target = columns.find((column) => column.slug === slug);
+        if (!target)
+          throw new HTTPException(409, {
+            message: "A matching open or completed column is required",
+          });
+        status = { status: target.slug, columnId: target.id };
+      }
     }
     const [after] = await tx
       .update(taskTable)

@@ -145,11 +145,11 @@ export async function handleGiteaPullRequestOpened(
       const targetStatus = await resolveTargetStatus(
         integration.projectId,
         "pr_opened",
-        config.statusTransitions?.onPROpen || "in-review",
+        null,
         database,
       );
 
-      if (currentTask.status !== targetStatus) {
+      if (targetStatus && currentTask.status !== targetStatus) {
         const statusResult = await updateTaskStatus(
           task.id,
           targetStatus,

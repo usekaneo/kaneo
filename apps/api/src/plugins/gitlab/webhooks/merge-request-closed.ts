@@ -8,7 +8,6 @@ import {
   findTaskById,
   updateTaskStatus,
 } from "../../github/services/task-service";
-import type { GitlabConfig } from "../config";
 import { findAllIntegrationsByGitlabProject } from "../services/integration-lookup";
 import type { GitlabWebhookProject } from "../utils/payload";
 import { resolveTargetStatus } from "../utils/resolve-column";
@@ -47,9 +46,8 @@ export async function handleGitlabMergeRequestClosed(
   );
 
   for (const integration of integrations) {
-    let config: GitlabConfig;
     try {
-      config = JSON.parse(integration.config) as GitlabConfig;
+      JSON.parse(integration.config);
     } catch (error) {
       console.error("Invalid GitLab config for integration", {
         integrationId: integration.id,
@@ -147,32 +145,34 @@ export async function handleGitlabMergeRequestClosed(
         const targetStatus = await resolveTargetStatus(
           integration.projectId,
           "pr_merged",
-          config.statusTransitions?.onPRMerge || "done",
+          null,
           database,
         );
 
-        const statusResult = await updateTaskStatus(
-          task.id,
-          targetStatus,
-          database,
-        );
-        if (
-          statusResult.applied &&
-          statusResult.before.status !== statusResult.after.status
-        ) {
-          afterCommit(() =>
-            publishEvent("task.status_changed", {
-              workspaceId: integration.project?.workspaceId,
-              taskId: statusResult.after.id,
-              projectId: statusResult.after.projectId,
-              userId: null,
-              oldStatus: statusResult.before.status,
-              newStatus: statusResult.after.status,
-              title: statusResult.after.title,
-              assigneeId: statusResult.after.userId,
-              type: "status_changed",
-            }),
+        if (targetStatus) {
+          const statusResult = await updateTaskStatus(
+            task.id,
+            targetStatus,
+            database,
           );
+          if (
+            statusResult.applied &&
+            statusResult.before.status !== statusResult.after.status
+          ) {
+            afterCommit(() =>
+              publishEvent("task.status_changed", {
+                workspaceId: integration.project?.workspaceId,
+                taskId: statusResult.after.id,
+                projectId: statusResult.after.projectId,
+                userId: null,
+                oldStatus: statusResult.before.status,
+                newStatus: statusResult.after.status,
+                title: statusResult.after.title,
+                assigneeId: statusResult.after.userId,
+                type: "status_changed",
+              }),
+            );
+          }
         }
       },
     );

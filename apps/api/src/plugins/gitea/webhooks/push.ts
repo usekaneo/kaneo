@@ -163,14 +163,14 @@ export async function handleGiteaPush(
         const targetStatus = await resolveTargetStatus(
           integration.projectId,
           "branch_push",
-          config.statusTransitions?.onBranchPush || "in-progress",
+          null,
           database,
         );
 
         const canMove =
           branchLink.created || !(await isTaskInFinalState(task, database));
 
-        if (task.status !== targetStatus && canMove) {
+        if (targetStatus && task.status !== targetStatus && canMove) {
           const statusResult = await updateTaskStatus(
             task.id,
             targetStatus,

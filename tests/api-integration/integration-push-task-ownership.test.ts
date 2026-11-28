@@ -29,9 +29,15 @@ it.each(
   "$provider branch push preserves ownership and final tasks ($race)",
   async ({ provider, race }) => {
     const { user, workspace } = await createWorkspaceMember();
-    const { project } = await createProjectFixture({
+    const { project, columns } = await createProjectFixture({
       workspaceId: workspace.id,
       slug: "KAN",
+    });
+    await db.insert(schema.workflowRuleTable).values({
+      projectId: project.id,
+      integrationType: provider,
+      eventType: "branch_push",
+      columnId: columns.inProgress.id,
     });
     const { project: destination } = await createProjectFixture({
       workspaceId: workspace.id,
