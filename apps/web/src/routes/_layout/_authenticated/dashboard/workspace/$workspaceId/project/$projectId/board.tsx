@@ -240,7 +240,9 @@ function RouteComponent() {
                 completeProject={project}
                 disableCollectionActions={boardFetching || boardError}
                 disableDragDrop={
-                  boardFetching || boardError || sort.field !== "position"
+                  (boardFetching && !boardLoaded) ||
+                  boardError ||
+                  sort.field !== "position"
                 }
               />
             )
