@@ -168,8 +168,22 @@ workspace dependencies before compiling, testing, or checking types. Build and
 typecheck results are cached; tests and development servers always run. Web builds
 always run too, so a cached build cannot skip a Sentry source-map upload.
 
-Use `pnpm --filter @kaneo/web dev` to start just the web app, or
-`pnpm exec vp run --filter @kaneo/api test` to run API unit tests with dependency
+`pnpm dev` builds the workspace packages, then starts the API and the web app.
+Press Ctrl-C once to stop both. To run one service per terminal instead:
+
+| Command | Starts |
+| --- | --- |
+| `pnpm dev:api` | API on http://localhost:1337 |
+| `pnpm dev:web` | Web app on http://localhost:5173 |
+| `pnpm dev:mcp` | MCP package in watch mode; in a terminal it opens the client installer |
+| `pnpm dev:site` | Public site and docs on http://localhost:3001 |
+| `pnpm dev:email` | Email template previews on http://localhost:3002 |
+
+`dev:api` and `dev:web` build the workspace packages first. Don't start the
+CLI's `dev` script for local work: it runs against whichever Kaneo instance the
+CLI is signed into.
+
+`pnpm exec vp run --filter @kaneo/api test` runs API unit tests with dependency
 builds. `pnpm exec vp test run` runs the unit-test projects directly; PostgreSQL
 integration tests remain behind `pnpm test:integration`.
 

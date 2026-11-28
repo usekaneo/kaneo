@@ -45,6 +45,8 @@ pnpm install
 pnpm dev
 ```
 
+`pnpm dev` starts only the API and the web app; Ctrl-C stops both. See [CONTRIBUTING.md](CONTRIBUTING.md#code-style) for per-service scripts such as `pnpm dev:mcp`.
+
 Open http://localhost:5173. Check API readiness separately:
 
 ```bash
