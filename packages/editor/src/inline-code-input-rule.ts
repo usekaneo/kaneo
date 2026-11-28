@@ -29,14 +29,20 @@ export const InlineCodeInputRule = Extension.create({
           if (!codeMark) return null;
           if (state.doc.resolve(range.from).parent.type.spec.code) return null;
 
-          const excludedMarks = getMarksBetween(range.from, range.to, state.doc)
-            .filter(
-              (item) =>
-                item.mark.type !== codeMark &&
-                item.mark.type.excludes(codeMark),
-            )
-            .filter((item) => item.to > range.from + 1);
-          if (excludedMarks.length > 0) return null;
+          const activeMarks =
+            state.storedMarks ?? state.selection.$from.marks();
+          if (activeMarks.some((mark) => mark.type === codeMark)) return null;
+
+          const conflictingMarks = getMarksBetween(
+            range.from,
+            range.to,
+            state.doc,
+          ).filter(
+            (item) =>
+              item.mark.type === codeMark ||
+              (item.mark.type.excludes(codeMark) && item.to > range.from + 1),
+          );
+          if (conflictingMarks.length > 0) return null;
 
           const { tr } = state;
           tr.delete(range.to - 2, range.to - 1);

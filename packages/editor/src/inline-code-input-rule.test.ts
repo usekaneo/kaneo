@@ -97,4 +97,21 @@ describe("InlineCodeInputRule", () => {
       },
     ]);
   });
+
+  it("keeps literal backticks and active code mark intact inside existing inline code", () => {
+    const instance = createEditor();
+    instance.commands.focus("end");
+    instance.commands.setCode();
+
+    typeText(instance, "`hi` x");
+
+    const paragraph = instance.getJSON().content?.[0];
+    expect(paragraph?.content).toEqual([
+      {
+        type: "text",
+        text: "`hi` x",
+        marks: [{ type: "code" }],
+      },
+    ]);
+  });
 });
