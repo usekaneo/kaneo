@@ -30,6 +30,7 @@ it("refreshes authorized workspace tabs after archive and restore", async () => 
   try {
     const owner = await createWorkspaceMember({ role: "owner" });
     const reader = await createWorkspaceMember();
+    const projectReader = await createWorkspaceMember();
     const restricted = await createWorkspaceMember();
     const outsider = await createWorkspaceMember();
     const workspaceId = owner.workspace.id;
@@ -41,6 +42,17 @@ it("refreshes authorized workspace tabs after archive and restore", async () => 
         joinedAt: new Date(),
       })),
     );
+    await db.insert(schema.workspaceRoleTable).values({
+      workspaceId,
+      role: "project-reader",
+      permission: JSON.stringify({ project: ["read"] }),
+    });
+    await db.insert(schema.workspaceUserTable).values({
+      workspaceId,
+      userId: projectReader.user.id,
+      role: "project-reader",
+      joinedAt: new Date(),
+    });
     await db.insert(schema.workspaceMemberAccessTable).values({
       workspaceId,
       userId: restricted.user.id,
@@ -57,6 +69,7 @@ it("refreshes authorized workspace tabs after archive and restore", async () => 
     });
 
     const readerSend = connectUser(reader.user.id);
+    const projectReaderSend = connectUser(projectReader.user.id);
     const restrictedSend = connectUser(restricted.user.id);
     const outsiderSend = connectUser(outsider.user.id);
     const expectedMessage = JSON.stringify({
@@ -86,6 +99,10 @@ it("refreshes authorized workspace tabs after archive and restore", async () => 
       expect(response.status).toBe(200);
       await expect.poll(() => readerSend.mock.calls).toHaveLength(deliveries);
       expect(readerSend).toHaveBeenLastCalledWith(expectedMessage);
+      await expect
+        .poll(() => projectReaderSend.mock.calls)
+        .toHaveLength(deliveries);
+      expect(projectReaderSend).toHaveBeenLastCalledWith(expectedMessage);
       expect(restrictedSend).not.toHaveBeenCalled();
       expect(outsiderSend).not.toHaveBeenCalled();
       expect(await readAssignedTotal(false)).toBe(total);

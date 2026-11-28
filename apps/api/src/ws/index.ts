@@ -21,6 +21,7 @@ import {
   hasInstanceAdminRole,
   instanceAdminRoleSql,
 } from "../utils/instance-admin-role";
+import type { PermissionMap } from "../utils/role-permissions";
 import { isRedisConfigured } from "../redis";
 import {
   getRelationSourceProject,
@@ -36,6 +37,10 @@ import type {
 import { InMemoryBroadcastAdapter } from "./in-memory-broadcast-adapter";
 import { RedisBroadcastAdapter } from "./redis-broadcast-adapter";
 import { getProjectReadAccess } from "./project-read-access";
+import {
+  PROJECT_LIST_READ_PERMISSIONS,
+  PROJECT_READ_PERMISSIONS,
+} from "./project-read-permissions";
 
 const INSTANCE_ID = randomUUID();
 let revocationDelivery: ReturnType<typeof createRevocationDelivery> | undefined;
@@ -711,6 +716,7 @@ function currentBroadcastAccess(
   projectId: string,
   recipients: Array<{ userId: string; apiKeyId?: string }>,
   authorizationBatch: string,
+  permissionsRequired: PermissionMap = PROJECT_READ_PERMISSIONS,
 ) {
   const userIds = [...new Set(recipients.map((conn) => conn.userId))].sort();
   const apiKeyIds = [
@@ -721,6 +727,7 @@ function currentBroadcastAccess(
   const key = JSON.stringify([
     projectId,
     authorizationBatch,
+    permissionsRequired,
     userIds,
     apiKeyIds,
   ]);
@@ -766,6 +773,7 @@ function currentBroadcastAccess(
             workspaceId,
             recipients,
             rows,
+            permissionsRequired,
           ));
           const nonmembers = userIds.filter((userId) => !members.has(userId));
           if (nonmembers.length > 0) {
@@ -805,6 +813,7 @@ async function refreshWorkspaceProjects(
     projectId,
     recipients,
     randomUUID(),
+    PROJECT_LIST_READ_PERMISSIONS,
   );
   if (!access || access.archived || access.workspaceId !== workspaceId) return;
 
