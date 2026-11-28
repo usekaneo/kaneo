@@ -97,7 +97,7 @@ Set `STORAGE_BACKEND=azure` to use native Azure Blob instead of S3. Leave it uns
 | --- | --- |
 | `STORAGE_BACKEND` | `s3` (default) or `azure`. Changing it does not migrate existing files. |
 | `AZURE_STORAGE_ACCOUNT_URL` | HTTPS account origin, for example `https://youraccount.blob.core.windows.net`. No container path, credentials, or SAS query. |
-| `AZURE_STORAGE_CONTAINER` | Existing private container for uploads. |
+| `AZURE_STORAGE_CONTAINER` | Existing private container for uploads. Reserve the configured upload prefix (the container root by default) for Kaneo. Cleanup deletes snapshots of Kaneo blobs in this namespace along with the base blob. |
 | `AZURE_STORAGE_KEY_PREFIX` | Optional object prefix, equivalent to `S3_KEY_PREFIX`. |
 
 Azure uses `DefaultAzureCredential`, including managed identity, workload identity, and Azure CLI credentials for local development. Give the identity **Storage Blob Data Contributor** on its container and **Storage Blob Delegator** on its storage account to issue user-delegation SAS URLs. Do not enable anonymous container access or give account keys to the browser.

@@ -676,8 +676,16 @@ export async function deleteS3Object(
   abortSignal?: AbortSignal,
 ): Promise<void> {
   const config = getStorageConfig();
-  if (config.backend === "azure")
-    return azureStorage(config).delete(key, abortSignal);
+  if (config.backend === "azure") {
+    const ownedPrefix = applyKeyPrefix(config.keyPrefix, "workspace/");
+    const ownsSnapshots =
+      key.startsWith(ownedPrefix) &&
+      !key.split("/").some((segment) => segment === "." || segment === "..");
+    return azureStorage(config).delete(key, {
+      abortSignal,
+      ...(ownsSnapshots ? { deleteSnapshots: "include" } : {}),
+    });
+  }
   const client = getClient(config);
   await client.send(
     new DeleteObjectCommand({

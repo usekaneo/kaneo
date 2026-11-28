@@ -1,6 +1,7 @@
 import { Readable } from "node:stream";
 import { DefaultAzureCredential } from "@azure/identity";
 import {
+  type BlobDeleteOptions,
   BlobSASPermissions,
   BlobServiceClient,
   SASProtocol,
@@ -146,8 +147,8 @@ export class AzureBlobStorage {
     });
   }
 
-  async delete(key: string, abortSignal?: AbortSignal) {
-    await this.request(() => this.blob(key).deleteIfExists({ abortSignal }));
+  async delete(key: string, options: BlobDeleteOptions) {
+    await this.request(() => this.blob(key).deleteIfExists(options));
   }
 
   async probe(abortSignal: AbortSignal) {

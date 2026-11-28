@@ -143,31 +143,35 @@ describe("API integration: project backgrounds", () => {
     }
   });
 
-  it("does not publish a background whose stored content fails validation", async () => {
-    const owner = await createWorkspaceMember({ role: "owner" });
-    const { project } = await createProjectFixture({
-      workspaceId: owner.workspace.id,
-    });
-    mockAuthenticatedSession(owner.user);
-    const { app } = createApp();
-    vi.mocked(verifyTaskAssetUpload).mockRejectedValueOnce(
-      new InvalidUploadedAssetError("Invalid stored content"),
-    );
-    const response = await app.request(
-      `/api/project/${project.id}/background-upload/finalize`,
-      jsonRequest("POST", {
-        key: `workspace/${owner.workspace.id}/project/${project.id}/backgrounds/background-v1`,
-        version: "v1",
-        contentType: "image/png",
-        size: 12,
-      }),
-    );
-    expect(response.status).toBe(400);
-    const row = await db.query.projectTable.findFirst({
-      where: eq(schema.projectTable.id, project.id),
-    });
-    expect(row?.backgroundObjectKey).toBeNull();
-  });
+  it.each([
+    [new InvalidUploadedAssetError("Invalid stored content"), 400],
+    [new Error("Storage unavailable"), 503],
+  ])(
+    "does not publish an unverified background (%s)",
+    async (error, status) => {
+      const owner = await createWorkspaceMember({ role: "owner" });
+      const { project } = await createProjectFixture({
+        workspaceId: owner.workspace.id,
+      });
+      mockAuthenticatedSession(owner.user);
+      const { app } = createApp();
+      vi.mocked(verifyTaskAssetUpload).mockRejectedValueOnce(error);
+      const response = await app.request(
+        `/api/project/${project.id}/background-upload/finalize`,
+        jsonRequest("POST", {
+          key: `workspace/${owner.workspace.id}/project/${project.id}/backgrounds/background-v1`,
+          version: "v1",
+          contentType: "image/png",
+          size: 12,
+        }),
+      );
+      expect(response.status).toBe(status);
+      const row = await db.query.projectTable.findFirst({
+        where: eq(schema.projectTable.id, project.id),
+      });
+      expect(row?.backgroundObjectKey).toBeNull();
+    },
+  );
 
   it("rejects background mutations without project update permission", async () => {
     const viewer = await createWorkspaceMember({ role: "viewer" });

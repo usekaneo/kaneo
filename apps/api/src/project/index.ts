@@ -380,6 +380,7 @@ const finalizeProjectBackgroundRoute = createRoute({
     ),
     404: errorResponse("Project not found"),
     500: errorResponse("Failed to save the project background"),
+    503: errorResponse("Unable to verify the uploaded image in storage"),
   },
 });
 

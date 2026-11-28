@@ -173,12 +173,16 @@ describe("Azure Blob storage", () => {
     const remove = vi
       .spyOn(BlobClient.prototype, "deleteIfExists")
       .mockResolvedValue({ ...sdkResponse, succeeded: true });
-    await expect(verifyTaskAssetUpload("file", context)).rejects.toThrow(
-      "exceeds the maximum upload size",
-    );
+    await expect(
+      verifyTaskAssetUpload(
+        "stage/workspace/w/project/p/task/t/descriptions/file.pdf",
+        context,
+      ),
+    ).rejects.toThrow("exceeds the maximum upload size");
     expect(remove).toHaveBeenCalledOnce();
     expect(remove).toHaveBeenCalledWith({
       abortSignal: expect.any(AbortSignal),
+      deleteSnapshots: "include",
     });
   });
 
@@ -235,9 +239,9 @@ describe("Azure Blob storage", () => {
       .spyOn(ContainerClient.prototype, "getProperties")
       .mockResolvedValue({ ...sdkResponse });
     const signal = AbortSignal.timeout(1000);
-    await deleteS3Object("missing");
+    await deleteS3Object("other-app/workspace/w/missing", signal);
     await headStorageBucket(signal);
-    expect(remove).toHaveBeenCalledOnce();
+    expect(remove).toHaveBeenCalledExactlyOnceWith({ abortSignal: signal });
     expect(probe).toHaveBeenCalledWith({ abortSignal: signal });
   });
 
