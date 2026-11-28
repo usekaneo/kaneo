@@ -17,32 +17,42 @@ export function AddColumnRow({ onCreate }: AddColumnRowProps) {
   const [icon, setIcon] = useState(DEFAULT_ICON);
   const [saving, setSaving] = useState(false);
   const pickerOpen = useRef(false);
+  const closed = useRef(false);
+  // Bumped on every open and close, so a create that finishes after the
+  // row was closed or reopened does not touch the new draft or its state.
+  const session = useRef(0);
   const inputRef = useRef<HTMLInputElement>(null);
 
   const close = () => {
+    closed.current = true;
+    session.current += 1;
+    setSaving(false);
     setEditing(false);
     setName("");
     setIcon(DEFAULT_ICON);
   };
 
-  const submit = async () => {
+  const submit = async (keepEditing: boolean) => {
     const trimmed = name.trim();
     if (!trimmed || saving) return;
 
     setSaving(true);
+    const started = session.current;
     const created = await onCreate({ name: trimmed, icon });
+    if (session.current !== started) return;
     setSaving(false);
     if (created) {
       setName("");
       setIcon(DEFAULT_ICON);
     }
-    inputRef.current?.focus();
+    if (keepEditing) inputRef.current?.focus();
+    else if (created) close();
   };
 
   const handleKeyDown = (event: KeyboardEvent<HTMLInputElement>) => {
     if (event.key === "Enter") {
       event.preventDefault();
-      void submit();
+      void submit(true);
     }
     if (event.key === "Escape") {
       event.preventDefault();
@@ -51,16 +61,21 @@ export function AddColumnRow({ onCreate }: AddColumnRowProps) {
   };
 
   const handleBlur = (event: FocusEvent<HTMLDivElement>) => {
-    if (pickerOpen.current || name.trim()) return;
+    if (closed.current || pickerOpen.current) return;
     if (event.currentTarget.contains(event.relatedTarget)) return;
-    close();
+    if (name.trim()) void submit(false);
+    else close();
   };
 
   if (!editing) {
     return (
       <button
         type="button"
-        onClick={() => setEditing(true)}
+        onClick={() => {
+          closed.current = false;
+          session.current += 1;
+          setEditing(true);
+        }}
         className="flex h-11 w-full items-center gap-2.5 px-4 text-left text-sm text-muted-foreground outline-none transition-colors hover:bg-accent/40 hover:text-foreground focus-visible:bg-accent/40 focus-visible:text-foreground"
       >
         <span aria-hidden="true" className="w-3.5 shrink-0" />
@@ -73,7 +88,19 @@ export function AddColumnRow({ onCreate }: AddColumnRowProps) {
   }
 
   return (
-    <div onBlur={handleBlur} className="flex h-12 items-center gap-2.5 px-4">
+    <div
+      role="group"
+      onBlur={handleBlur}
+      onMouseDown={(event) => {
+        // Safari and Firefox on macOS do not focus a clicked button, so the
+        // input would blur with no relatedTarget and save before the icon
+        // picker opens. Keep focus on the input for clicks inside the row.
+        const target = event.target as Node;
+        if (target !== inputRef.current && event.currentTarget.contains(target))
+          event.preventDefault();
+      }}
+      className="flex h-12 items-center gap-2.5 px-4"
+    >
       <span aria-hidden="true" className="w-3.5 shrink-0" />
       <ColumnIconPicker
         selected={icon}
