@@ -19,16 +19,19 @@ import {
   vi,
 } from "vite-plus/test";
 import { toast } from "@/lib/toast";
+import { ShortcutTestWrapper } from "@/lib/shortcuts/shortcut-test-wrapper";
 import { uploadTaskImage } from "@/lib/upload-task-image";
 import TaskDescription from "./task-description";
+import TaskTitle from "./task-title";
 
 const mocks = vi.hoisted(() => ({
   t: (key: string) => key,
   tasks: new Map<
     string,
-    { id: string; projectId: string; description: string }
+    { id: string; projectId: string; description: string; title?: string }
   >(),
   mutateAsync: vi.fn(),
+  updateTitle: vi.fn(),
   editors: [] as unknown[],
 }));
 
@@ -76,6 +79,9 @@ vi.mock("@/hooks/queries/task/use-get-task", () => ({
 }));
 vi.mock("@/hooks/mutations/task/use-update-task-description", () => ({
   useUpdateTaskDescription: () => ({ mutateAsync: mocks.mutateAsync }),
+}));
+vi.mock("@/hooks/mutations/task/use-update-task-title", () => ({
+  useUpdateTaskTitle: () => ({ mutateAsync: mocks.updateTitle }),
 }));
 vi.mock("@/hooks/use-workspace-permission", () => ({
   useWorkspacePermission: () => ({ canUpdateTasks: () => true }),
@@ -156,6 +162,8 @@ beforeAll(() => {
 beforeEach(() => {
   mocks.mutateAsync.mockReset();
   mocks.mutateAsync.mockResolvedValue({});
+  mocks.updateTitle.mockReset();
+  mocks.updateTitle.mockResolvedValue({});
   mocks.editors.length = 0;
   mocks.t = (key: string) => key;
   uploadMock.mockReset();
@@ -166,6 +174,7 @@ beforeEach(() => {
     id: "task-a",
     projectId: "project-1",
     description: "alpha",
+    title: "Alpha",
   });
   mocks.tasks.set("task-b", {
     id: "task-b",
@@ -348,4 +357,74 @@ it("disables description editing while sign-out owns the save pause", async () =
   act(() => resume());
   expect(latestEditor().isEditable).toBe(true);
   view.unmount();
+});
+
+describe("TaskDescription Ctrl+S", () => {
+  const renderWithShortcuts = (taskId: string) =>
+    render(
+      <ShortcutTestWrapper>
+        <TaskDescription taskId={taskId} />
+      </ShortcutTestWrapper>,
+    );
+  const pressSave = (target: Element) =>
+    fireEvent.keyDown(target, { key: "s", code: "KeyS", ctrlKey: true });
+
+  it("saves a pending description edit at once", async () => {
+    const { container } = renderWithShortcuts("task-a");
+    await waitFor(() => expect(container.textContent).toContain("alpha"));
+    await settle();
+    act(() => latestEditor().commands.insertContent(" saved now"));
+    expect(mocks.mutateAsync).not.toHaveBeenCalled();
+
+    let notCancelled = true;
+    await act(async () => {
+      notCancelled = pressSave(latestEditor().view.dom);
+    });
+
+    expect(notCancelled).toBe(false);
+    expect(mocks.mutateAsync).toHaveBeenCalledTimes(1);
+    expect(mocks.mutateAsync.mock.calls[0][0].description).toContain(
+      "saved now",
+    );
+  });
+
+  it("sends nothing when there is no pending edit", async () => {
+    const { container } = renderWithShortcuts("task-a");
+    await waitFor(() => expect(container.textContent).toContain("alpha"));
+    await settle();
+
+    let notCancelled = true;
+    await act(async () => {
+      notCancelled = pressSave(latestEditor().view.dom);
+    });
+
+    expect(notCancelled).toBe(false);
+    expect(mocks.mutateAsync).not.toHaveBeenCalled();
+  });
+
+  it("saves a pending title edit and a pending description edit together", async () => {
+    const { container, getByPlaceholderText } = render(
+      <ShortcutTestWrapper>
+        <TaskTitle taskId="task-a" />
+        <TaskDescription taskId="task-a" />
+      </ShortcutTestWrapper>,
+    );
+    await waitFor(() => expect(container.textContent).toContain("alpha"));
+    await settle();
+    fireEvent.change(getByPlaceholderText("tasks:detail.titlePlaceholder"), {
+      target: { value: "Renamed" },
+    });
+    act(() => latestEditor().commands.insertContent(" saved now"));
+
+    await act(async () => {
+      pressSave(latestEditor().view.dom);
+    });
+
+    expect(mocks.updateTitle).toHaveBeenCalledTimes(1);
+    expect(mocks.updateTitle.mock.calls[0][0].title).toBe("Renamed");
+    expect(mocks.mutateAsync).toHaveBeenCalledTimes(1);
+    expect(mocks.mutateAsync.mock.calls[0][0].description).toContain(
+      "saved now",
+    );
+  });
 });

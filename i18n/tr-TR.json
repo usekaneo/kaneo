@@ -2937,6 +2937,7 @@
 			"items": {
 				"openCommandMenu": "Komut paletini aç",
 				"openSearch": "Genel arama",
+				"saveTask": "Görevi kaydet",
 				"openShortcuts": "Klavye kısayollarını göster",
 				"submit": "Kaydet veya gönder",
 				"back": "Modal/açılır pencereyi kapat",

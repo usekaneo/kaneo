@@ -2888,6 +2888,7 @@
 			"items": {
 				"openCommandMenu": "Buka palet perintah",
 				"openSearch": "Pencarian global",
+				"saveTask": "Simpan tugas",
 				"openShortcuts": "Tampilkan pintasan keyboard",
 				"submit": "Simpan atau kirim",
 				"back": "Tutup modal/popover",

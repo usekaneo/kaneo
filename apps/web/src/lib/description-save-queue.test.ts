@@ -42,7 +42,7 @@ describe("description save queue", () => {
     await vi.advanceTimersByTimeAsync(10);
     expect(queue.get("a")).toMatchObject({ value: "unsaved", state: "failed" });
     expect(queue.get("b")).toBeUndefined();
-    queue.retry("a");
+    queue.flush("a");
     await Promise.resolve();
     expect(save.mock.calls).toEqual([["unsaved"], ["unsaved"]]);
     expect(queue.get("a")).toBeUndefined();

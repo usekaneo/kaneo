@@ -2888,6 +2888,7 @@
 			"items": {
 				"openCommandMenu": "コマンドパレットを開く",
 				"openSearch": "全体検索",
+				"saveTask": "タスクを保存",
 				"openShortcuts": "キーボードショートカットを表示",
 				"submit": "保存または送信",
 				"back": "モーダル/ポップオーバーを閉じる",

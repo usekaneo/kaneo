@@ -2986,6 +2986,7 @@
 			"items": {
 				"openCommandMenu": "Apri la palette comandi",
 				"openSearch": "Ricerca globale",
+				"saveTask": "Salva attività",
 				"openShortcuts": "Mostra scorciatoie da tastiera",
 				"submit": "Salva o invia",
 				"back": "Chiudi modale/popover",

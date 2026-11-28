@@ -63,6 +63,7 @@ import useGetTask from "@/hooks/queries/task/use-get-task";
 import { useWorkspacePermission } from "@/hooks/use-workspace-permission";
 import { cn } from "@/lib/cn";
 import { descriptionSaveQueue } from "@/lib/description-save-queue";
+import { useSaveTaskShortcut } from "@/lib/shortcuts/use-save-task-shortcut";
 import {
   extractIssueKeyFromUrl,
   extractTaskIdFromUrl,
@@ -441,6 +442,9 @@ export default function TaskDescription({ taskId }: TaskDescriptionProps) {
   const saveState = useSyncExternalStore(
     descriptionSaveQueue.subscribe,
     () => descriptionSaveQueue.get(taskId, ownerId)?.state ?? "saved",
+  );
+  useSaveTaskShortcut(() =>
+    descriptionSaveQueue.flush(taskId, ownerIdRef.current),
   );
   const scheduleDescriptionSave = useCallback((markdown: string) => {
     if (!canEditRef.current) return;
@@ -1254,7 +1258,7 @@ export default function TaskDescription({ taskId }: TaskDescriptionProps) {
             <Button
               size="xs"
               variant="ghost"
-              onClick={() => descriptionSaveQueue.retry(taskId, ownerId)}
+              onClick={() => descriptionSaveQueue.flush(taskId, ownerId)}
             >
               {t("tasks:detail.editor.retrySave")}
             </Button>

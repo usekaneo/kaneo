@@ -2937,6 +2937,7 @@
 			"items": {
 				"openCommandMenu": "Befehlspalette öffnen",
 				"openSearch": "Globale Suche",
+				"saveTask": "Aufgabe speichern",
 				"openShortcuts": "Tastenkürzel anzeigen",
 				"submit": "Speichern oder absenden",
 				"back": "Modal/Popover schließen",

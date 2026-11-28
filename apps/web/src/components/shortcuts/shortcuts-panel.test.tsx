@@ -61,6 +61,16 @@ describe("ShortcutsPanel", () => {
     ).toBeInTheDocument();
   });
 
+  it("lists the save shortcut", async () => {
+    useShortcutsPanelStore.setState({ open: true });
+    renderPanel();
+    fireEvent.change(
+      await screen.findByLabelText("navigation:shortcuts.searchPlaceholder"),
+      { target: { value: "save" } },
+    );
+    expect(hasRow("navigation:shortcuts.items.saveTask")).toBe(true);
+  });
+
   it("filters by label and by key name", async () => {
     useShortcutsPanelStore.setState({ open: true });
     renderPanel();

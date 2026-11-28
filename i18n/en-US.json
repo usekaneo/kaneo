@@ -2937,6 +2937,7 @@
 			"items": {
 				"openCommandMenu": "Open command menu",
 				"openSearch": "Search",
+				"saveTask": "Save task",
 				"openShortcuts": "Keyboard shortcuts",
 				"submit": "Save or submit",
 				"back": "Close or go back",

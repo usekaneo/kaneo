@@ -2986,6 +2986,7 @@
 			"items": {
 				"openCommandMenu": "Abrir paleta de comandos",
 				"openSearch": "Busca global",
+				"saveTask": "Salvar tarefa",
 				"openShortcuts": "Mostrar atalhos de teclado",
 				"submit": "Salvar ou enviar",
 				"back": "Fechar modal/pop-up",
