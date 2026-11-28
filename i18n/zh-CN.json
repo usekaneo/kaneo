@@ -4931,7 +4931,7 @@
 				"title": "链接",
 				"titleLabel": "标题",
 				"url": "URL",
-				"openFailed": "Couldn’t open this link."
+				"openFailed": "无法打开此链接。"
 			},
 			"menu": {
 				"delete": "删除任务",
