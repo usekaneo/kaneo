@@ -423,3 +423,52 @@ describe("API integration: task creation", () => {
     },
   );
 });
+
+describe("partial task updates", () => {
+  beforeEach(resetTestDatabase);
+
+  it("reschedules a task without reverting fields from another edit", async () => {
+    const { user, workspace } = await createWorkspaceMember({ role: "owner" });
+    const { project } = await createProjectFixture({
+      workspaceId: workspace.id,
+    });
+    const [task] = await db
+      .insert(schema.taskTable)
+      .values({
+        projectId: project.id,
+        title: "Updated title",
+        description: "Recent detail edit",
+        userId: user.id,
+        priority: "high",
+        startDate: new Date("2030-01-15"),
+        dueDate: new Date("2030-01-19"),
+      })
+      .returning();
+    mockAuthenticatedSession(user);
+    const { app } = createApp();
+    const patch = (body: object) =>
+      app.request(`/api/task/${task.id}`, {
+        method: "PATCH",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify(body),
+      });
+
+    expect((await patch({ dueDate: "2030-01-10" })).status).toBe(400);
+    const response = await patch({ dueDate: "2030-01-18" });
+    expect(response.status).toBe(200);
+    expect(await response.json()).toMatchObject({
+      title: "Updated title",
+      description: "Recent detail edit",
+      userId: user.id,
+      priority: "high",
+      startDate: "2030-01-15T00:00:00.000Z",
+      dueDate: "2030-01-18T00:00:00.000Z",
+    });
+    const cleared = await patch({ startDate: null, dueDate: null });
+    expect(cleared.status).toBe(200);
+    expect(await cleared.json()).toMatchObject({
+      startDate: null,
+      dueDate: null,
+    });
+  });
+});

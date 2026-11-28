@@ -16,6 +16,7 @@ type Entry = { path: string; lastmod?: string };
 const staticEntries: Entry[] = [
   { path: "/" },
   { path: "/pricing" },
+  { path: "/plugins" },
   { path: "/press" },
   { path: "/alternatives" },
   { path: "/guides" },

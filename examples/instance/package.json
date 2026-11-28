@@ -1,0 +1,10 @@
+{
+	"name": "kaneo-example-instance",
+	"version": "0.0.0",
+	"private": true,
+	"type": "module",
+	"dependencies": {
+		"@kaneo/config": "workspace:*",
+		"kaneo-plugin-task-progress": "workspace:*"
+	}
+}

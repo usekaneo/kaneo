@@ -1,0 +1,1 @@
+ALTER TABLE "job_lease" ADD COLUMN "last_scheduled_at" timestamp with time zone;

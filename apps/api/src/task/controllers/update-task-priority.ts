@@ -13,26 +13,28 @@ async function updateTaskPriority({
   priority: string;
   currentUserId: string;
 }) {
-  const { before: existingTask, after: updatedTask } = await withLockedTask(
-    id,
-    async (tx) => {
-      const [updatedTask] = await tx
-        .update(taskTable)
-        .set({ priority })
-        .where(eq(taskTable.id, id))
-        .returning();
+  const {
+    before: existingTask,
+    after: updatedTask,
+    workspaceId,
+  } = await withLockedTask(id, async (tx) => {
+    const [updatedTask] = await tx
+      .update(taskTable)
+      .set({ priority })
+      .where(eq(taskTable.id, id))
+      .returning();
 
-      if (!updatedTask) {
-        throw new HTTPException(500, {
-          message: "Failed to update task priority",
-        });
-      }
+    if (!updatedTask) {
+      throw new HTTPException(500, {
+        message: "Failed to update task priority",
+      });
+    }
 
-      return updatedTask;
-    },
-  );
+    return updatedTask;
+  });
 
   await publishTaskMutation(existingTask, updatedTask, currentUserId, {
+    workspaceId,
     fields: ["priority"],
   });
 

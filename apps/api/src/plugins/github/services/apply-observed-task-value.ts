@@ -1,5 +1,6 @@
 import type { IntegrationDatabase } from "./integration-task-scope";
 import type { IssueField } from "../utils/deferred-issue-edit";
+import { getProjectWorkspaceId } from "../../../utils/assert-assignable-user";
 import { publishEvent } from "../../../events";
 import { taskTable } from "../../../database/schema";
 import { resolveTargetStatus as resolveGiteaStatus } from "../../gitea/utils/resolve-column";
@@ -121,10 +122,12 @@ export async function writeInboundTaskField(
       value === "closed" ? "done" : "to-do",
       tx,
     );
+    const workspaceId = await getProjectWorkspaceId(integration.projectId, tx);
     const result = await updateTaskStatus(link.taskId, status, tx);
     if (result.applied && result.before.status !== result.after.status)
       afterCommit(() =>
         publishEvent("task.status_changed", {
+          workspaceId,
           taskId: result.after.id,
           projectId: result.after.projectId,
           userId: null,

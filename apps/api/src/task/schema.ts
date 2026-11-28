@@ -106,6 +106,20 @@ export const updateTaskBody = z.object({
   userId: z.string().optional(),
 });
 
+export const patchTaskBody = updateTaskBody
+  .pick({ title: true, status: true, priority: true })
+  .extend({
+    description: z.string().nullable(),
+    startDate: z.string().nullable(),
+    dueDate: z.string().nullable(),
+    userId: z.string().nullable(),
+  })
+  .partial()
+  .refine(
+    (changes) => Object.keys(changes).length > 0,
+    "Provide at least one task field",
+  );
+
 export const moveTaskBody = z.object({
   destinationProjectId: z.string(),
   destinationStatus: z.string().optional().openapi({

@@ -2,6 +2,7 @@ import { randomUUID } from "node:crypto";
 import { eq } from "drizzle-orm";
 import db from "../../database";
 import { externalLinkTable, taskTable } from "../../database/schema";
+import { getProjectWorkspaceId } from "../../utils/assert-assignable-user";
 import { publishEvent } from "../../events";
 import { linkedTaskScope } from "../github/services/integration-task-scope";
 import { updateExternalLink } from "../github/services/link-manager";
@@ -103,10 +104,15 @@ async function applyLabelFields(
       }
 
       if (status) {
+        const workspaceId = await getProjectWorkspaceId(
+          integration.projectId,
+          tx,
+        );
         const result = await updateTaskStatus(link.taskId, status, tx);
         if (result.applied && result.before.status !== result.after.status)
           afterCommit(() =>
             publishEvent("task.status_changed", {
+              workspaceId,
               taskId: result.after.id,
               projectId: result.after.projectId,
               userId: null,

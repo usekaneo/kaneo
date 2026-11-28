@@ -184,6 +184,7 @@ export async function handleGiteaIssueOpened(
     const { task: createdTask, link, eligible } = result;
 
     await publishEvent("task.created", {
+      workspaceId: integration.project?.workspaceId,
       ...createdTask,
       taskId: createdTask.id,
       userId: createdTask.userId ?? "",

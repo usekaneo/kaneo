@@ -194,4 +194,39 @@ describe("shortcut registry", () => {
       ["openProject", "p"],
     ]);
   });
+
+  it("lists labelled shortcuts while they are registered", () => {
+    const notified = vi.fn();
+    registry.subscribe(notified);
+    const unregister = registry.register({
+      id: "plugin:gantt:timeline",
+      bindings: [parseBinding("v g")],
+      scope: "view",
+      listing: { label: "Timeline", keys: ["v g"], category: "views" },
+      handler: vi.fn(),
+    });
+    add("v x");
+
+    expect(registry.getListed()).toEqual([
+      {
+        id: "plugin:gantt:timeline",
+        label: "Timeline",
+        keys: ["v g"],
+        category: "views",
+      },
+    ]);
+    expect(notified).toHaveBeenCalled();
+
+    press("v", "KeyV");
+    expect(registry.getContinuations()).toEqual([
+      {
+        id: "plugin:gantt:timeline",
+        next: expect.objectContaining({ key: "g" }),
+        label: "Timeline",
+      },
+    ]);
+
+    unregister();
+    expect(registry.getListed()).toEqual([]);
+  });
 });

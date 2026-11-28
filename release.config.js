@@ -29,7 +29,13 @@ export default {
     [
       "@semantic-release/git",
       {
-        assets: ["CHANGELOG.md", "package.json", "charts/kaneo/Chart.yaml"],
+        assets: [
+          "CHANGELOG.md",
+          "package.json",
+          "packages/config/package.json",
+          "packages/plugin-sdk/package.json",
+          "charts/kaneo/Chart.yaml",
+        ],
         message:
           "chore(release): v${nextRelease.version} [skip ci]\n\n${nextRelease.notes}",
       },

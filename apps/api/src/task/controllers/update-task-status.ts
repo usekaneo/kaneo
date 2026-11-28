@@ -15,35 +15,37 @@ async function updateTaskStatus({
   status: string;
   currentUserId: string;
 }) {
-  const { before: existingTask, after: updatedTask } = await withLockedTask(
-    id,
-    async (tx, existingTask) => {
-      await assertValidTaskStatus(status, existingTask.projectId, tx);
+  const {
+    before: existingTask,
+    after: updatedTask,
+    workspaceId,
+  } = await withLockedTask(id, async (tx, existingTask) => {
+    await assertValidTaskStatus(status, existingTask.projectId, tx);
 
-      const column = await tx.query.columnTable.findFirst({
-        where: and(
-          eq(columnTable.projectId, existingTask.projectId),
-          eq(columnTable.slug, status),
-        ),
+    const column = await tx.query.columnTable.findFirst({
+      where: and(
+        eq(columnTable.projectId, existingTask.projectId),
+        eq(columnTable.slug, status),
+      ),
+    });
+
+    const [updatedTask] = await tx
+      .update(taskTable)
+      .set({ status, columnId: column?.id ?? null })
+      .where(eq(taskTable.id, id))
+      .returning();
+
+    if (!updatedTask) {
+      throw new HTTPException(500, {
+        message: "Failed to update task status",
       });
+    }
 
-      const [updatedTask] = await tx
-        .update(taskTable)
-        .set({ status, columnId: column?.id ?? null })
-        .where(eq(taskTable.id, id))
-        .returning();
-
-      if (!updatedTask) {
-        throw new HTTPException(500, {
-          message: "Failed to update task status",
-        });
-      }
-
-      return updatedTask;
-    },
-  );
+    return updatedTask;
+  });
 
   await publishTaskMutation(existingTask, updatedTask, currentUserId, {
+    workspaceId,
     fields: ["status"],
   });
 

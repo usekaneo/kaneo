@@ -155,6 +155,7 @@ async function resumeWithLease(
   }
   if (adoption)
     await publishTaskMutation(adoption.before, adoption.after, undefined, {
+      workspaceId: authorizedWorkspaceId,
       fields: ["title", "description", "status"],
       sourceIntegrationId: adoption.integrationId,
     });

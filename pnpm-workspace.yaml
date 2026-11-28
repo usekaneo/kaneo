@@ -1,6 +1,8 @@
 packages:
   - packages/**
   - apps/**
+  - examples/**
+  - plugins/**
 overrides:
   "@isaacs/brace-expansion": 5.0.1
   "@hono/node-server": ">=2.1.5 <3"

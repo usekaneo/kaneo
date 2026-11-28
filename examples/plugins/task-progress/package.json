@@ -1,0 +1,43 @@
+{
+	"name": "kaneo-plugin-task-progress",
+	"version": "0.1.0",
+	"private": true,
+	"description": "Track percent progress on Kaneo tasks",
+	"license": "MIT",
+	"type": "module",
+	"keywords": [
+		"kaneo-plugin"
+	],
+	"engines": {
+		"kaneo": ">=2.29.0 <3"
+	},
+	"exports": {
+		".": {
+			"types": "./dist/index.d.ts",
+			"default": "./dist/index.js"
+		},
+		"./server": "./dist/server.js",
+		"./web": "./dist/web/index.js"
+	},
+	"kaneo": {
+		"name": "Task progress"
+	},
+	"files": [
+		"dist"
+	],
+	"scripts": {
+		"build": "vp run compile",
+		"test": "vp run test:run"
+	},
+	"devDependencies": {
+		"@kaneo/plugin-sdk": "workspace:*",
+		"@tanstack/react-query": "^5.103.2",
+		"@types/react": "^19.3.0",
+		"hono": "^4.13.9",
+		"react": "^19.3.0",
+		"typescript": "^7.0.2",
+		"vite": "catalog:",
+		"vite-plus": "catalog:",
+		"zod": "^4.6.5"
+	}
+}

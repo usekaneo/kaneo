@@ -141,6 +141,7 @@ async function importTasks(
 
       if (createdTask) {
         await publishEvent("task.created", {
+          workspaceId: project.workspaceId,
           ...createdTask,
           taskId: createdTask.id,
           userId: createdTask.userId ?? "",
