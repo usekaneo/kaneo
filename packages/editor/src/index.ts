@@ -16,6 +16,7 @@ export { getEmbedSource } from "./embed-source";
 export { KaneoImage } from "./kaneo-image";
 export { KaneoIssueLink } from "./kaneo-issue-link";
 export { KaneoMention } from "./kaneo-mention";
+export { InlineCodeInputRule } from "./inline-code-input-rule";
 export { parseWidth } from "./parse-width";
 export { SafeHardBreak } from "./safe-hard-break";
 export {
