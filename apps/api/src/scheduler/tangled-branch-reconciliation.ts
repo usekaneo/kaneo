@@ -1,4 +1,4 @@
-import { and, eq, notInArray, sql } from "drizzle-orm";
+import { and, eq, gt, notInArray, sql } from "drizzle-orm";
 import db from "../database";
 import {
   integrationTable,
@@ -17,6 +17,8 @@ import { reconcileTangledBranch } from "../plugins/tangled/reconcile-branch";
 import { removeMissingTangledBranch } from "../plugins/tangled/remove-missing-branch";
 import { recordTangledOutcome } from "../plugins/tangled/record-outcome";
 import { withJobLease } from "./leader-lock";
+
+const STALE_LINK_BATCH_SIZE = 20;
 
 export async function reconcileTangledRepositories(): Promise<{
   degraded: boolean;
@@ -50,6 +52,7 @@ export async function reconcileTangledRepositories(): Promise<{
         .select({
           id: integrationTable.id,
           offset: tangledIntegrationStateTable.scanOffset,
+          staleLinkCursor: tangledIntegrationStateTable.staleLinkCursor,
         })
         .from(integrationTable)
         .leftJoin(
@@ -85,13 +88,27 @@ export async function reconcileTangledRepositories(): Promise<{
             repositoryDid: connection.parsed.repositoryDid,
             deadline,
           }).listBranches();
+          const remaining = deadline - Date.now();
+          if (remaining <= 0) continue;
+          // Leave up to 20 seconds for listed branches, splitting the time
+          // evenly when the listing has already used part of the budget.
+          const staleDeadline = branches.length
+            ? deadline - Math.min(20_000, Math.floor(remaining / 2))
+            : deadline;
+          let staleLinkCursor = candidate.staleLinkCursor;
           const staleLinks = await db
-            .select({ branch: externalLinkTable.externalId })
+            .select({
+              id: externalLinkTable.id,
+              branch: externalLinkTable.externalId,
+            })
             .from(externalLinkTable)
             .where(
               and(
                 eq(externalLinkTable.integrationId, connection.id),
                 eq(externalLinkTable.resourceType, "branch"),
+                staleLinkCursor === null
+                  ? undefined
+                  : gt(externalLinkTable.id, staleLinkCursor),
                 notInArray(
                   externalLinkTable.externalId,
                   branches.map((branch) => branch.name),
@@ -99,14 +116,20 @@ export async function reconcileTangledRepositories(): Promise<{
               ),
             )
             .orderBy(externalLinkTable.id)
-            .limit(20);
-          for (const link of staleLinks) {
-            if (Date.now() >= deadline) break;
+            .limit(STALE_LINK_BATCH_SIZE + 1);
+          let checkedLinks = 0;
+          for (
+            ;
+            checkedLinks < Math.min(STALE_LINK_BATCH_SIZE, staleLinks.length) &&
+            Date.now() < staleDeadline;
+            checkedLinks++
+          ) {
+            const link = staleLinks[checkedLinks]!;
             try {
               await removeMissingTangledBranch(
                 connection,
                 link.branch,
-                deadline,
+                staleDeadline,
               );
             } catch (error) {
               await recordFailure(
@@ -115,9 +138,13 @@ export async function reconcileTangledRepositories(): Promise<{
                 `refs/heads/${link.branch}`,
               );
             }
+            staleLinkCursor = link.id;
           }
-          if (!branches.length) continue;
-          const offset = Math.max(0, candidate.offset ?? 0) % branches.length;
+          // Revisit failed links and IDs inserted behind the cursor next pass.
+          if (checkedLinks === staleLinks.length) staleLinkCursor = null;
+          const offset = branches.length
+            ? Math.max(0, candidate.offset ?? 0) % branches.length
+            : 0;
           let processed = 0;
           // Complete listings are required, but expensive head checks rotate through bounded batches.
           for (
@@ -141,7 +168,12 @@ export async function reconcileTangledRepositories(): Promise<{
           }
           await db
             .update(tangledIntegrationStateTable)
-            .set({ scanOffset: (offset + processed) % branches.length })
+            .set({
+              staleLinkCursor,
+              scanOffset: branches.length
+                ? (offset + processed) % branches.length
+                : undefined,
+            })
             .where(
               eq(tangledIntegrationStateTable.integrationId, candidate.id),
             );

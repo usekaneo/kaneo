@@ -1251,6 +1251,7 @@ export const tangledIntegrationStateTable = pgTable(
     checkedAt: timestamp("checked_at", { mode: "date" }),
     lastScanAt: timestamp("last_scan_at", { mode: "date" }),
     scanOffset: integer("scan_offset").default(0).notNull(),
+    staleLinkCursor: text("stale_link_cursor"),
   },
 );
 

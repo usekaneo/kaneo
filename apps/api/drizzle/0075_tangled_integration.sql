@@ -6,7 +6,8 @@ CREATE TABLE "tangled_integration_state" (
 	"ref" text,
 	"checked_at" timestamp,
 	"last_scan_at" timestamp,
-	"scan_offset" integer DEFAULT 0 NOT NULL
+	"scan_offset" integer DEFAULT 0 NOT NULL,
+	"stale_link_cursor" text
 );
 --> statement-breakpoint
 CREATE TABLE "tangled_task_ownership" (

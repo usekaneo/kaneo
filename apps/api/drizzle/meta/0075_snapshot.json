@@ -3800,6 +3800,12 @@
           "primaryKey": false,
           "notNull": true,
           "default": 0
+        },
+        "stale_link_cursor": {
+          "name": "stale_link_cursor",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
         }
       },
       "indexes": {},

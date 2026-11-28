@@ -12,8 +12,9 @@ const upstream = vi.hoisted(() => ({
   failedHost: "",
   omittedBranch: "",
   refError: "",
-  failedRef: "",
+  failedRefs: [] as string[],
   onList: () => {},
+  onRef: (_ref: string, _deadline: number) => {},
   head: "b".repeat(40),
 }));
 vi.mock("../../apps/api/src/plugins/tangled/request-json", () => {
@@ -22,7 +23,7 @@ vi.mock("../../apps/api/src/plugins/tangled/request-json", () => {
   }
   return {
     TangledRefNotFoundError,
-    requestTangledJson: async (url: URL) => {
+    requestTangledJson: async (url: URL, deadline = Infinity) => {
       if (url.hostname === upstream.failedHost)
         throw new Error("private-upstream-error");
       if (url.pathname.endsWith("listBranches")) {
@@ -49,7 +50,8 @@ vi.mock("../../apps/api/src/plugins/tangled/request-json", () => {
         };
       if (url.pathname.endsWith("getRef")) {
         const ref = url.searchParams.get("ref")!;
-        if (upstream.refError || ref === upstream.failedRef)
+        upstream.onRef(ref, deadline);
+        if (upstream.refError || upstream.failedRefs.includes(ref))
           throw new Error(upstream.refError || "Temporary ref failure");
         if (
           !upstream.branches.includes(
@@ -70,8 +72,9 @@ beforeEach(async () => {
   upstream.failedHost = "";
   upstream.omittedBranch = "";
   upstream.refError = "";
-  upstream.failedRef = "";
+  upstream.failedRefs = [];
   upstream.onList = () => {};
+  upstream.onRef = () => {};
   upstream.head = "b".repeat(40);
 });
 
@@ -341,7 +344,7 @@ describe("Tangled periodic reconciliation", () => {
         url: `https://tangled.example/owner/repo/tree/${branch}`,
       })),
     );
-    upstream.failedRef = "refs/heads/failed-stale";
+    upstream.failedRefs = ["refs/heads/failed-stale"];
 
     await expect(reconcileTangledRepositories()).resolves.toEqual({
       degraded: true,
@@ -351,6 +354,111 @@ describe("Tangled periodic reconciliation", () => {
         .map((link) => link.externalId)
         .sort(),
     ).toEqual(["KAN-12", "failed-stale"]);
+  });
+
+  it("rotates past a full page of recurring stale ref failures and wraps", async () => {
+    const { task, integration } = await createTangledFixture();
+    upstream.branches = [];
+    const staleIds = Array.from(
+      { length: 22 },
+      (_, i) => `stale-${String(i).padStart(2, "0")}`,
+    );
+    await db.insert(schema.externalLinkTable).values(
+      staleIds.map((id) => ({
+        id,
+        taskId: task.id,
+        integrationId: integration.id,
+        resourceType: "branch",
+        externalId: id,
+        url: `https://tangled.example/owner/repo/tree/${id}`,
+      })),
+    );
+    upstream.failedRefs = staleIds.slice(0, 20).map((id) => `refs/heads/${id}`);
+    const lookups: string[] = [];
+    upstream.onRef = (ref) => lookups.push(ref);
+
+    await expect(reconcileTangledRepositories()).resolves.toEqual({
+      degraded: true,
+    });
+    expect(lookups.splice(0)).toEqual(upstream.failedRefs);
+    expect(await db.query.externalLinkTable.findMany()).toHaveLength(22);
+    expect(
+      await db.query.tangledIntegrationStateTable.findFirst(),
+    ).toMatchObject({
+      staleLinkCursor: "stale-19",
+    });
+
+    await expect(reconcileTangledRepositories()).resolves.toEqual({
+      degraded: false,
+    });
+    expect(lookups.splice(0)).toEqual([
+      "refs/heads/stale-20",
+      "refs/heads/stale-21",
+    ]);
+    expect(await db.query.externalLinkTable.findMany()).toHaveLength(20);
+    expect(
+      await db.query.tangledIntegrationStateTable.findFirst(),
+    ).toMatchObject({
+      staleLinkCursor: null,
+    });
+
+    await expect(reconcileTangledRepositories()).resolves.toEqual({
+      degraded: true,
+    });
+    expect(lookups).toEqual(upstream.failedRefs);
+    expect(await db.query.externalLinkTable.findMany()).toHaveLength(20);
+  });
+
+  it("reserves time for a listed branch and advances both cursors at the deadline", async () => {
+    const { task, integration } = await createTangledFixture();
+    await db.insert(schema.externalLinkTable).values(
+      ["slow-stale", "unvisited-stale"].map((id) => ({
+        id,
+        taskId: task.id,
+        integrationId: integration.id,
+        resourceType: "branch",
+        externalId: id,
+        url: `https://tangled.example/owner/repo/tree/${id}`,
+      })),
+    );
+    upstream.branches = ["KAN-12", "main"];
+    upstream.failedRefs = ["refs/heads/slow-stale"];
+    const now = Date.now();
+    const clock = vi.spyOn(Date, "now").mockReturnValue(now);
+    upstream.onList = () => clock.mockReturnValue(now + 25_000);
+    const lookups: [string, number][] = [];
+    upstream.onRef = (ref, deadline) => {
+      lookups.push([ref, deadline]);
+      clock.mockReturnValue(
+        ref === "refs/heads/slow-stale" ? deadline : deadline - 1,
+      );
+    };
+    const publishEvent = events.publishEvent;
+    vi.spyOn(events, "publishEvent").mockImplementation(async (...args) => {
+      clock.mockReturnValue(now + 45_000);
+      await publishEvent(...args);
+    });
+    const reconcile = vi.spyOn(branchReconciliation, "reconcileTangledBranch");
+
+    await expect(reconcileTangledRepositories()).resolves.toEqual({
+      degraded: true,
+    });
+    expect(lookups).toEqual([
+      ["refs/heads/slow-stale", now + 35_000],
+      ["refs/heads/KAN-12", now + 45_000],
+    ]);
+    expect(reconcile).toHaveBeenCalledTimes(1);
+    expect(
+      (await db.query.externalLinkTable.findMany())
+        .map((link) => link.externalId)
+        .sort(),
+    ).toEqual(["KAN-12", "slow-stale", "unvisited-stale"]);
+    expect(
+      await db.query.tangledIntegrationStateTable.findFirst(),
+    ).toMatchObject({
+      staleLinkCursor: "slow-stale",
+      scanOffset: 1,
+    });
   });
 
   it("does not start a ref operation if the listing used the scan budget", async () => {
