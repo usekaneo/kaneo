@@ -58,7 +58,7 @@ pnpm --filter @kaneo/mobile test
 
 ## Release builds
 
-The **Android APK** workflow (`.github/workflows/android.yml`) builds a release APK and uploads it as a workflow artifact. It runs on pull requests that touch `apps/mobile` and can be started by hand. Bump `version` and `android.versionCode` in `app.json` for each APK you hand out; Android only installs an update with a higher `versionCode`.
+The **Android APK** workflow (`.github/workflows/android.yml`) builds a release APK and uploads it as a workflow artifact. It runs on pull requests that touch `apps/mobile` and can be started by hand from `main`. Pull-request builds always use the debug key and do not receive release-signing secrets. Bump `version` and `android.versionCode` in `app.json` for each APK you hand out; Android only installs an update with a higher `versionCode`.
 
 Release builds are signed with the key named by `KANEO_ANDROID_KEYSTORE`, `KANEO_ANDROID_KEYSTORE_PASSWORD`, `KANEO_ANDROID_KEY_ALIAS` and `KANEO_ANDROID_KEY_PASSWORD` (see `plugins/with-release-signing.js`), and with the debug key when those are unset. An APK only installs over one signed with the same key, so create the release key once and keep it safe:
 
@@ -68,7 +68,7 @@ keytool -genkeypair -v -keystore kaneo-release.keystore -alias kaneo \
 base64 -i kaneo-release.keystore | pbcopy   # paste into the ANDROID_KEYSTORE_BASE64 secret
 ```
 
-CI reads the repository secrets `ANDROID_KEYSTORE_BASE64`, `ANDROID_KEYSTORE_PASSWORD`, `ANDROID_KEY_ALIAS` and `ANDROID_KEY_PASSWORD`. Locally, export the `KANEO_ANDROID_*` variables and run `pnpm --filter @kaneo/mobile exec expo run:android --variant release`. For iOS, build with `pnpm --filter @kaneo/mobile exec expo run:ios --configuration Release`.
+Manual CI runs from `main` read the repository secrets `ANDROID_KEYSTORE_BASE64`, `ANDROID_KEYSTORE_PASSWORD`, `ANDROID_KEY_ALIAS` and `ANDROID_KEY_PASSWORD`. Locally, export the `KANEO_ANDROID_*` variables and run `pnpm --filter @kaneo/mobile exec expo run:android --variant release`. For iOS, build with `pnpm --filter @kaneo/mobile exec expo run:ios --configuration Release`.
 
 ## Project layout
 
