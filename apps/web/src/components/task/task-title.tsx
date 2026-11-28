@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef } from "react";
+import { useCallback, useEffect, useRef, useSyncExternalStore } from "react";
 import { useForm } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 
@@ -43,17 +43,19 @@ export default function TaskTitle({ taskId, size = "md" }: TaskTitleProps) {
   const { reset } = form;
   const fetchedTaskId = task?.id;
   const fetchedTitle = task?.title ?? "";
+  const didSaveFail = useSyncExternalStore(
+    titleSaveQueue.subscribe,
+    () => titleSaveQueue.get(taskId)?.state === "failed",
+    () => false,
+  );
 
   useEffect(() => {
     acknowledgedTitleRef.current = fetchedTitle;
     const queued = fetchedTaskId ? titleSaveQueue.get(fetchedTaskId) : null;
-    if (
-      pendingTitleRef.current === null &&
-      (!queued || queued.state === "failed")
-    ) {
+    if (pendingTitleRef.current === null && (!queued || didSaveFail)) {
       reset({ title: fetchedTitle });
     }
-  }, [fetchedTaskId, fetchedTitle, reset]);
+  }, [didSaveFail, fetchedTaskId, fetchedTitle, reset]);
 
   const commitTitle = useCallback(() => {
     const title = pendingTitleRef.current;

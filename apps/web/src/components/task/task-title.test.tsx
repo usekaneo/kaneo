@@ -149,6 +149,27 @@ describe("TaskTitle", () => {
     expect(getTextarea(reopened.container).value).toBe("Updated on server");
   });
 
+  it("shows a refetched title once a previous editor's in-flight save fails", async () => {
+    let fail: (error: Error) => void = () => {};
+    mocks.mutateAsync.mockReturnValueOnce(
+      new Promise<void>((_resolve, reject) => {
+        fail = reject;
+      }),
+    );
+    const previous = render(<TaskTitle taskId="pending-reopened-task" />);
+    edit(getTextarea(previous.container), "Unsaved title");
+    await waitFor(() => expect(mocks.mutateAsync).toHaveBeenCalledOnce());
+    previous.unmount();
+
+    const reopened = render(<TaskTitle taskId="pending-reopened-task" />);
+    mocks.task.title = "Updated on server";
+    reopened.rerender(<TaskTitle taskId="pending-reopened-task" />);
+    fail(new Error("offline"));
+    await waitFor(() =>
+      expect(getTextarea(reopened.container).value).toBe("Updated on server"),
+    );
+  });
+
   it("preserves a newer draft when a previous save refetches", async () => {
     vi.useFakeTimers();
     mocks.mutateAsync.mockResolvedValue({});
