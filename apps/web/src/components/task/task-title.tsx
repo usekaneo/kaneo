@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useRef } from "react";
+import { useCallback, useEffect, useRef, useSyncExternalStore } from "react";
 import { useForm } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 
@@ -8,8 +8,11 @@ import useGetTask from "@/hooks/queries/task/use-get-task";
 import { useAutoGrowTextarea } from "@/hooks/use-auto-grow-textarea";
 import { useWorkspacePermission } from "@/hooks/use-workspace-permission";
 import { cn } from "@/lib/cn";
-import debounce from "@/lib/debounce";
+import { createDescriptionSaveQueue } from "@/lib/description-save-queue";
 import { stripLineBreaks } from "@/lib/strip-line-breaks";
+import { toast } from "@/lib/toast";
+
+const titleSaveQueue = createDescriptionSaveQueue(0);
 
 type TaskTitleProps = {
   taskId: string;
@@ -22,65 +25,90 @@ export default function TaskTitle({ taskId, size = "md" }: TaskTitleProps) {
   const { mutateAsync: updateTaskTitle } = useUpdateTaskTitle();
   const { canUpdateTasks } = useWorkspacePermission();
   const canEdit = canUpdateTasks();
-  const isInitializedRef = useRef(false);
   const taskRef = useRef(task);
   const updateTaskRef = useRef(updateTaskTitle);
+  const tRef = useRef(t);
+  const acknowledgedTitleRef = useRef(task?.title ?? "");
+  const pendingTitleRef = useRef<string | null>(null);
 
   useEffect(() => {
     taskRef.current = task;
     updateTaskRef.current = updateTaskTitle;
-  }, [task, updateTaskTitle]);
+    tRef.current = t;
+  }, [task, updateTaskTitle, t]);
 
-  // eslint-disable-next-line react-hooks/exhaustive-deps -- taskId is not needed here
-  useEffect(() => {
-    isInitializedRef.current = false;
-  }, [taskId]);
-
-  const form = useForm<{
-    title: string;
-  }>({
-    values: {
-      title: task?.title || "",
-    },
+  const form = useForm<{ title: string }>({
+    defaultValues: { title: task?.title ?? "" },
   });
+  const { reset } = form;
+  const fetchedTaskId = task?.id;
+  const fetchedTitle = task?.title ?? "";
+  const didSaveFail = useSyncExternalStore(
+    titleSaveQueue.subscribe,
+    () => titleSaveQueue.get(taskId)?.state === "failed",
+    () => false,
+  );
 
   useEffect(() => {
-    if (task?.title !== undefined) isInitializedRef.current = true;
-  }, [task?.title]);
+    acknowledgedTitleRef.current = fetchedTitle;
+    const queued = fetchedTaskId ? titleSaveQueue.get(fetchedTaskId) : null;
+    if (pendingTitleRef.current === null && (!queued || didSaveFail)) {
+      reset({ title: fetchedTitle });
+    }
+  }, [didSaveFail, fetchedTaskId, fetchedTitle, reset]);
 
-  const debouncedUpdate = useMemo(
-    () =>
-      debounce(async (title: string) => {
-        if (!isInitializedRef.current) return;
+  const commitTitle = useCallback(() => {
+    const title = pendingTitleRef.current;
+    const currentTask = taskRef.current;
+    if (title === null || !currentTask) return;
+    pendingTitleRef.current = null;
 
-        const currentTask = taskRef.current;
-        const updateTaskFn = updateTaskRef.current;
+    const queued = titleSaveQueue.get(currentTask.id);
+    const lastTitle =
+      queued && queued.state !== "failed"
+        ? queued.value
+        : acknowledgedTitleRef.current;
+    if (title === lastTitle) return;
 
-        if (!currentTask || !updateTaskFn) return;
+    titleSaveQueue.schedule(currentTask.id, title, async (value) => {
+      try {
+        await updateTaskRef.current({ ...currentTask, title: value });
+        if (taskRef.current?.id === currentTask.id)
+          acknowledgedTitleRef.current = value;
+      } catch (error) {
+        toast.error(tRef.current("tasks:detail.editor.saveFailed"));
+        // Only restore this editor's draft if it still shows the same task.
+        if (
+          taskRef.current?.id === currentTask.id &&
+          titleSaveQueue.get(currentTask.id)?.value === value
+        )
+          pendingTitleRef.current ??= value;
+        throw error;
+      }
+    });
+  }, []);
 
-        try {
-          await updateTaskFn({
-            ...currentTask,
-            title,
-          });
-        } catch (error) {
-          console.error("Failed to update title:", error);
-        }
-      }, 800),
-    [],
-  );
+  useEffect(() => {
+    const warnIfUnsaved = (event: BeforeUnloadEvent) => {
+      const currentTask = taskRef.current;
+      if (!currentTask) return;
+      const pending = pendingTitleRef.current;
+      const queued = titleSaveQueue.get(currentTask.id);
+      if (
+        (pending !== null && pending !== acknowledgedTitleRef.current) ||
+        (queued && queued.state !== "failed")
+      )
+        event.preventDefault();
+    };
+    window.addEventListener("beforeunload", warnIfUnsaved);
+    return () => window.removeEventListener("beforeunload", warnIfUnsaved);
+  }, []);
+
+  // Closing or switching tasks doesn't always fire blur, so save here too.
+  useEffect(() => () => commitTitle(), [taskId, commitTitle]);
 
   const title = form.watch("title");
   const textareaRef = useAutoGrowTextarea(title);
-
-  const handleTitleChange = useCallback(
-    (value: string) => {
-      if (!isInitializedRef.current) return;
-
-      debouncedUpdate(value);
-    },
-    [debouncedUpdate],
-  );
 
   return (
     <Form {...form}>
@@ -112,7 +140,11 @@ export default function TaskTitle({ taskId, size = "md" }: TaskTitleProps) {
             onChange={(e) => {
               const value = stripLineBreaks(e.target.value);
               field.onChange(value);
-              handleTitleChange(value);
+              pendingTitleRef.current = value;
+            }}
+            onBlur={() => {
+              field.onBlur();
+              commitTitle();
             }}
           />
         )}
