@@ -80,7 +80,11 @@ export function ExternalLinksAccordion({
     );
 
     if (hasPR) {
-      return externalLinks.filter((link) => link.resourceType !== "branch");
+      return externalLinks.filter(
+        (link) =>
+          link.resourceType !== "branch" ||
+          link.integration?.type === "tangled",
+      );
     }
 
     return externalLinks;

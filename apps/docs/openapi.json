@@ -7410,6 +7410,143 @@
         }
       }
     },
+    "/tangled-integration/webhook/{integrationId}": {
+      "post": {
+        "operationId": "receiveTangledWebhook",
+        "tags": [
+          "Tangled"
+        ],
+        "summary": "Receive a signed Tangled repository webhook",
+        "description": "Send the raw JSON payload with X-Tangled-Event and X-Tangled-Signature-256. The HMAC-SHA256 signature covers the exact request bytes. Branch pushes reconcile the current head; PR events are recorded as unsupported without changing tasks.",
+        "security": [],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 256
+            },
+            "required": true,
+            "name": "integrationId",
+            "in": "path"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Delivery processed durably",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "enum": [
+                        "processed",
+                        "skipped"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "status"
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid payload or conflicting event headers",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid signature",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Payload repository does not match the connection",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Active Tangled connection not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "408": {
+            "description": "Request body timed out",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Connection changed during processing",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "Request body exceeds one MiB",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Invalid stored connection",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Processing failed; delivery can be retried",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/auth/get-session": {
       "get": {
         "operationId": "getSession",
@@ -20063,6 +20200,663 @@
         }
       }
     },
+    "/tangled-integration/project/{projectId}/outcome": {
+      "get": {
+        "operationId": "getTangledOutcome",
+        "tags": [
+          "Tangled"
+        ],
+        "summary": "Get the latest sanitized Tangled processing outcome",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "required": true,
+            "name": "projectId",
+            "in": "path"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Latest outcome, or null before a delivery",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": [
+                    "object",
+                    "null"
+                  ],
+                  "properties": {
+                    "eventType": {
+                      "type": "string",
+                      "enum": [
+                        "push",
+                        "pull_request",
+                        "reconciliation"
+                      ]
+                    },
+                    "outcome": {
+                      "type": "string",
+                      "enum": [
+                        "applied",
+                        "skipped",
+                        "failed"
+                      ]
+                    },
+                    "code": {
+                      "type": "string",
+                      "enum": [
+                        "branch_linked",
+                        "branch_unchanged",
+                        "branch_missing",
+                        "branch_unmatched",
+                        "branch_conflict",
+                        "task_not_found",
+                        "tag_ignored",
+                        "pull_request_unsupported",
+                        "upstream_failed",
+                        "repository_changed"
+                      ]
+                    },
+                    "ref": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    },
+                    "checkedAt": {
+                      "type": "string",
+                      "format": "date-time"
+                    }
+                  },
+                  "required": [
+                    "eventType",
+                    "outcome",
+                    "code",
+                    "ref",
+                    "checkedAt"
+                  ]
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid credentials",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Workspace manage_settings permission required",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Project or Tangled connection not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "429": {
+            "$ref": "#/components/responses/ApiKeyRateLimited"
+          }
+        }
+      }
+    },
+    "/tangled-integration/project/{projectId}": {
+      "get": {
+        "operationId": "getTangledProjectIntegration",
+        "tags": [
+          "Tangled"
+        ],
+        "summary": "Get Tangled project connection",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "required": true,
+            "name": "projectId",
+            "in": "path"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Tangled connection, or null when disconnected",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": [
+                    "object",
+                    "null"
+                  ],
+                  "properties": {
+                    "integrationId": {
+                      "type": "string"
+                    },
+                    "webhookUrl": {
+                      "type": "string",
+                      "description": "Public URL for signed Tangled webhook deliveries"
+                    },
+                    "baseUrl": {
+                      "type": "string"
+                    },
+                    "repositoryId": {
+                      "type": "string"
+                    },
+                    "repositoryDid": {
+                      "type": "string"
+                    },
+                    "repositoryUrl": {
+                      "type": "string"
+                    },
+                    "branchPattern": {
+                      "type": "string"
+                    },
+                    "isActive": {
+                      "type": "boolean"
+                    },
+                    "hasSecret": {
+                      "type": "boolean"
+                    }
+                  },
+                  "required": [
+                    "integrationId",
+                    "webhookUrl",
+                    "baseUrl",
+                    "repositoryId",
+                    "repositoryDid",
+                    "repositoryUrl",
+                    "branchPattern",
+                    "isActive",
+                    "hasSecret"
+                  ]
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid credentials",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Project access denied",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Project not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "429": {
+            "$ref": "#/components/responses/ApiKeyRateLimited"
+          }
+        }
+      },
+      "post": {
+        "operationId": "createTangledProjectIntegration",
+        "tags": [
+          "Tangled"
+        ],
+        "summary": "Connect a Tangled repository",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "required": true,
+            "name": "projectId",
+            "in": "path"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "baseUrl": {
+                    "type": "string",
+                    "minLength": 1,
+                    "description": "HTTPS origin of the Tangled read API, for example https://api.tangled.org"
+                  },
+                  "repositoryDid": {
+                    "type": "string",
+                    "pattern": "^did:[a-z0-9]+:[A-Za-z0-9._:%-]+$",
+                    "description": "Stable repository DID, distinct from the webhook repository identity"
+                  },
+                  "repositoryId": {
+                    "type": "string",
+                    "minLength": 1,
+                    "description": "Webhook repository.full_name: owner DID followed by / and the lowercased repository name"
+                  },
+                  "repositoryUrl": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "branchPattern": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "isActive": {
+                    "type": "boolean"
+                  },
+                  "webhookSecret": {
+                    "type": "string",
+                    "minLength": 1
+                  }
+                },
+                "required": [
+                  "baseUrl",
+                  "repositoryDid",
+                  "repositoryId",
+                  "repositoryUrl",
+                  "branchPattern",
+                  "isActive",
+                  "webhookSecret"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Stored Tangled connection",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "integrationId": {
+                      "type": "string"
+                    },
+                    "webhookUrl": {
+                      "type": "string",
+                      "description": "Public URL for signed Tangled webhook deliveries"
+                    },
+                    "baseUrl": {
+                      "type": "string"
+                    },
+                    "repositoryId": {
+                      "type": "string"
+                    },
+                    "repositoryDid": {
+                      "type": "string"
+                    },
+                    "repositoryUrl": {
+                      "type": "string"
+                    },
+                    "branchPattern": {
+                      "type": "string"
+                    },
+                    "isActive": {
+                      "type": "boolean"
+                    },
+                    "hasSecret": {
+                      "type": "boolean"
+                    }
+                  },
+                  "required": [
+                    "integrationId",
+                    "webhookUrl",
+                    "baseUrl",
+                    "repositoryId",
+                    "repositoryDid",
+                    "repositoryUrl",
+                    "branchPattern",
+                    "isActive",
+                    "hasSecret"
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid Tangled connection settings",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid credentials",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Workspace manage_settings permission required",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Project not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Tangled connection already exists",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "429": {
+            "$ref": "#/components/responses/ApiKeyRateLimited"
+          },
+          "502": {
+            "description": "Tangled repository could not be verified",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "patch": {
+        "operationId": "updateTangledProjectIntegration",
+        "tags": [
+          "Tangled"
+        ],
+        "summary": "Update Tangled project connection",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "required": true,
+            "name": "projectId",
+            "in": "path"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "baseUrl": {
+                    "type": "string",
+                    "minLength": 1,
+                    "description": "HTTPS origin of the Tangled read API, for example https://api.tangled.org"
+                  },
+                  "repositoryDid": {
+                    "type": "string",
+                    "pattern": "^did:[a-z0-9]+:[A-Za-z0-9._:%-]+$",
+                    "description": "Stable repository DID, distinct from the webhook repository identity"
+                  },
+                  "repositoryId": {
+                    "type": "string",
+                    "minLength": 1,
+                    "description": "Webhook repository.full_name: owner DID followed by / and the lowercased repository name"
+                  },
+                  "repositoryUrl": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "branchPattern": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "isActive": {
+                    "type": "boolean"
+                  },
+                  "webhookSecret": {
+                    "type": "string",
+                    "minLength": 1
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Updated Tangled connection",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "integrationId": {
+                      "type": "string"
+                    },
+                    "webhookUrl": {
+                      "type": "string",
+                      "description": "Public URL for signed Tangled webhook deliveries"
+                    },
+                    "baseUrl": {
+                      "type": "string"
+                    },
+                    "repositoryId": {
+                      "type": "string"
+                    },
+                    "repositoryDid": {
+                      "type": "string"
+                    },
+                    "repositoryUrl": {
+                      "type": "string"
+                    },
+                    "branchPattern": {
+                      "type": "string"
+                    },
+                    "isActive": {
+                      "type": "boolean"
+                    },
+                    "hasSecret": {
+                      "type": "boolean"
+                    }
+                  },
+                  "required": [
+                    "integrationId",
+                    "webhookUrl",
+                    "baseUrl",
+                    "repositoryId",
+                    "repositoryDid",
+                    "repositoryUrl",
+                    "branchPattern",
+                    "isActive",
+                    "hasSecret"
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid resulting Tangled connection settings",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid credentials",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Workspace manage_settings permission required",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Project or Tangled connection not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Connection changed; refresh before updating",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "429": {
+            "$ref": "#/components/responses/ApiKeyRateLimited"
+          },
+          "502": {
+            "description": "Tangled repository could not be verified",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "operationId": "deleteTangledProjectIntegration",
+        "tags": [
+          "Tangled"
+        ],
+        "summary": "Disconnect Tangled project",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "required": true,
+            "name": "projectId",
+            "in": "path"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Disconnected Tangled",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "enum": [
+                        true
+                      ]
+                    }
+                  },
+                  "required": [
+                    "success"
+                  ]
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid credentials",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Workspace manage_settings permission required",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Project or Tangled connection not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "429": {
+            "$ref": "#/components/responses/ApiKeyRateLimited"
+          }
+        }
+      }
+    },
     "/gitlab-integration/projects": {
       "post": {
         "operationId": "listGitlabProjects",
@@ -23412,7 +24206,8 @@
                       "issue_opened",
                       "issue_closed",
                       "issue_reopened"
-                    ]
+                    ],
+                    "description": "Tangled supports only branch_push; pull request and issue events are not available."
                   },
                   "columnId": {
                     "type": "string"

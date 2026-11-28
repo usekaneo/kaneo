@@ -6795,10 +6795,158 @@
 						"toastMoveError"
 					]
 				},
+				"tangledIntegration": {
+					"type": "object",
+					"additionalProperties": false,
+					"properties": {
+						"instructions": {
+							"type": "string"
+						},
+						"webhookUrl": {
+							"type": "string"
+						},
+						"baseUrl": {
+							"type": "string"
+						},
+						"repositoryDid": {
+							"type": "string"
+						},
+						"repositoryId": {
+							"type": "string"
+						},
+						"repositoryUrl": {
+							"type": "string"
+						},
+						"secret": {
+							"type": "string"
+						},
+						"secretHint": {
+							"type": "string"
+						},
+						"branchPattern": {
+							"type": "string"
+						},
+						"active": {
+							"type": "string"
+						},
+						"connect": {
+							"type": "string"
+						},
+						"saved": {
+							"type": "string"
+						},
+						"saveError": {
+							"type": "string"
+						},
+						"removed": {
+							"type": "string"
+						},
+						"removeError": {
+							"type": "string"
+						},
+						"disconnectTitle": {
+							"type": "string"
+						},
+						"disconnectDescription": {
+							"type": "string"
+						},
+						"loadError": {
+							"type": "string"
+						},
+						"retry": {
+							"type": "string"
+						},
+						"outcomeLoading": {
+							"type": "string"
+						},
+						"outcomeError": {
+							"type": "string"
+						},
+						"outcomeEmpty": {
+							"type": "string"
+						},
+						"outcomes": {
+							"type": "object",
+							"additionalProperties": false,
+							"properties": {
+								"branchLinked": {
+									"type": "string"
+								},
+								"branchUnchanged": {
+									"type": "string"
+								},
+								"branchMissing": {
+									"type": "string"
+								},
+								"branchUnmatched": {
+									"type": "string"
+								},
+								"branchConflict": {
+									"type": "string"
+								},
+								"taskNotFound": {
+									"type": "string"
+								},
+								"tagIgnored": {
+									"type": "string"
+								},
+								"prUnsupported": {
+									"type": "string"
+								},
+								"upstreamFailed": {
+									"type": "string"
+								},
+								"repositoryChanged": {
+									"type": "string"
+								}
+							},
+							"required": [
+								"branchLinked",
+								"branchUnchanged",
+								"branchMissing",
+								"branchUnmatched",
+								"branchConflict",
+								"taskNotFound",
+								"tagIgnored",
+								"prUnsupported",
+								"upstreamFailed",
+								"repositoryChanged"
+							]
+						}
+					},
+					"required": [
+						"instructions",
+						"webhookUrl",
+						"baseUrl",
+						"repositoryDid",
+						"repositoryId",
+						"repositoryUrl",
+						"secret",
+						"secretHint",
+						"branchPattern",
+						"active",
+						"connect",
+						"saved",
+						"saveError",
+						"removed",
+						"removeError",
+						"disconnectTitle",
+						"disconnectDescription",
+						"loadError",
+						"retry",
+						"outcomeLoading",
+						"outcomeError",
+						"outcomeEmpty",
+						"outcomes"
+					]
+				},
 				"projectIntegrations": {
 					"type": "object",
 					"additionalProperties": false,
 					"properties": {
+						"tangledSectionSubtitle": {
+							"type": "string"
+						},
 						"pageTitle": {
 							"type": "string"
 						},
@@ -6879,6 +7027,7 @@
 						}
 					},
 					"required": [
+						"tangledSectionSubtitle",
 						"pageTitle",
 						"title",
 						"subtitle",
@@ -10072,6 +10221,7 @@
 				"workspaceLabels",
 				"workspaceImport",
 				"projectGeneral",
+				"tangledIntegration",
 				"projectIntegrations",
 				"projectVisibility",
 				"projectWorkflow",

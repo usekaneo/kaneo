@@ -156,6 +156,34 @@ const manualLink: ExternalLink = {
   metadata: null,
 };
 
+describe("Tangled resources", () => {
+  it("keeps a Tangled branch visible when another provider has a pull request", () => {
+    renderResources([
+      {
+        ...manualLink,
+        id: "tangled-branch",
+        integrationId: "tangled-1",
+        integration: { id: "tangled-1", type: "tangled" },
+        resourceType: "branch",
+        title: "KAN-12",
+        url: "https://tangled.org/owner/repo/tree/KAN-12",
+      },
+      {
+        ...manualLink,
+        id: "github-pr",
+        integrationId: "github-1",
+        integration: { id: "github-1", type: "github" },
+        resourceType: "pull_request",
+        title: "PR 42",
+      },
+    ]);
+    expect(screen.getByRole("link", { name: /KAN-12/ })).toHaveAttribute(
+      "href",
+      "https://tangled.org/owner/repo/tree/KAN-12",
+    );
+  });
+});
+
 describe("removing manual resources", () => {
   it("removes a manual link and refreshes its task's resource list", async () => {
     vi.mocked(deleteExternalLink).mockResolvedValue({ id: "link-1" });
